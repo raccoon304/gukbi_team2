@@ -23,7 +23,7 @@ import java.util.Properties;
 		description = "사용자가 웹에서 *.hp을 했을 경우 이 서블릿이 응답을 해주도록 한다.", 
 		urlPatterns = { "*.hp" },  
 		initParams = { 
-				@WebInitParam(name = "propertyConfig", value = "C:/NCS/semi_project/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
+				@WebInitParam(name = "propertyConfig", value = "C:/Users/user/git/gukbi_team2/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
 		})
 public class FrontController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
