@@ -1,0 +1,56 @@
+web.xml에 다음을 참고 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd" id="WebApp_ID" version="5.0">
+  <display-name>semiproject</display-name> // 해당부분 변경 
+  <welcome-file-list>
+    <welcome-file>index.hp</welcome-file>  // 추가 필요 
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.xhtml</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.xhtml</welcome-file>
+  </welcome-file-list>
+  
+  
+  // 해당부분 추가 
+  <!-- ========= SemiProject Setting Start  ===========  -->
+  <resource-ref>
+ 	<description>SemiProject DBCP connect</description>
+ 	<res-ref-name>SemiProject</res-ref-name>
+ 	<res-type>javax.sql.DataSource</res-type>
+ 	<res-auth>Container</res-auth>
+  </resource-ref>
+  <!-- ========= SemiProject Setting End  ===========  -->
+
+</web-app>
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Servers.context.xml에 다음을 추가 
+
+<!-- ======= SemiProject Setting Start ======= -->
+<Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxIdle="10" maxTotal="20" maxWaitMillis="-1" name="SemiProject" password="<<<비밀번호 참고>>>" type="javax.sql.DataSource" url="jdbc:oracle:thin:@<<<IP:PORT 참고 >>>" username="semi_orauser2"/>
+<!-- ======= SemiProject Setting End ======= -->
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+lib에는 다음과 같이 세팅해주세요. 
+activation.jar
+commons-codec-1.15.jar
+jakarta.servlet.jsp.jstl-2.0.0.jar
+jakarta.servlet.jsp.jstl-api-2.0.0.jar
+json-20250517.jar
+mail.jar
+ojdbc8.jar
+
+
+
+
+
+
