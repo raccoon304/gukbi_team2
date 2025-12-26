@@ -94,3 +94,8 @@ hs_err_pid*
 replay_pid*
 
 # End of https://www.toptal.com/developers/gitignore/api/java,eclipse
+
+
+
+# 사용자 지정 ignore 
+/semiproject/src/main/webapp/WEB-INF/Command.properties
