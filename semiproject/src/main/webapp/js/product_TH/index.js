@@ -57,6 +57,7 @@ $(document).ready(function() {
 });
 
 
+
 // 상품 상세 페이지로 이동
 function goToProductDetail(productId) {
     alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productId);

@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
 
 	<!-- 사용자 CSS -->
-    <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/anthCss/index.css">
+    <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/index.css">
     
     
     <!-- JS -->
@@ -24,7 +24,7 @@
 	<script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script>
 	
 	<!-- 사용자 JS -->
-	<script type="text/javascript" src="<%=ctxPath%>/js/anthJs/index.js"></script>
+	<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/index.js"></script>
     
     
 	<%-- jQueryUI CSS 및 JS --%>
@@ -37,17 +37,18 @@
 <!-- 네비게이션 -->
 <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container">
-    		<!-- 로고부분 -->
+    	<!-- 로고부분 -->
         <a class="navbar-brand" href="<%=ctxPath%>/index.hp">
             <i class="fa-solid fa-store mr-2"></i>ShopMall
         </a>
 
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
+            <!-- 왼쪽정렬 해주기 -->
+            <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/product/productList.hp">
                         <i class="fa-solid fa-list"></i> 상품목록
@@ -64,11 +65,11 @@
                     </a>
                 </li>
                 
-                <li class="nav-item">
+                <%-- <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/index.hp">
                         <i class="fa-solid fa-user"></i> 마이페이지
                     </a>
-                </li>
+                </li> --%>
                 
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/index.hp">
@@ -77,6 +78,8 @@
                 </li>
             </ul>
 
+
+			<!-- 오른쪽정렬 해주기 -->
             <div class="ml-3">
                 <button class="btn btn-login" id="loginBtn">
                     <i class="fa-solid fa-right-to-bracket"></i> 로그인

@@ -15,7 +15,7 @@ public class ProductDetail extends AbstractController {
 		System.out.println("method: "+method);
 		
 		super.setRedirect(false);
-		super.setViewPage("/WEB-INF/anth(상품)/productDetail.jsp");
+		super.setViewPage("/WEB-INF/product_TH/productDetail.jsp");
 	}
 
 }
