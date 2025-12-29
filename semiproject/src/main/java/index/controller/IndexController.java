@@ -15,6 +15,6 @@ public class IndexController extends AbstractController {
 		
 		super.setRedirect(false);
 		super.setViewPage("/WEB-INF/index.jsp");	
-		System.out.println("index.hp에 잘 들어왔습니다.");
+		//System.out.println("index.hp에 잘 들어왔습니다.");
 	}
 }
