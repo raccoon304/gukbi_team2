@@ -98,4 +98,9 @@ replay_pid*
 
 
 # 사용자 지정 ignore 
+<<<<<<< HEAD
 /semiproject/src/main/webapp/WEB-INF/Command.properties
+=======
+**/Command.properties
+**/FrontController.java
+>>>>>>> refs/heads/main
