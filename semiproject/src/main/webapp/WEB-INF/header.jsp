@@ -35,7 +35,7 @@
 
 <body>
 <!-- 네비게이션 -->
-<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top mx-4 py-3">
     <div class="container">
     	<!-- 로고부분 -->
         <a class="navbar-brand" href="<%=ctxPath%>/index.hp">

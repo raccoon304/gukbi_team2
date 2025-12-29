@@ -2,8 +2,7 @@
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
 <!-- 사용자 CSS -->
-    <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/productDetail.css">
-
+<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/productDetail.css">
 
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
