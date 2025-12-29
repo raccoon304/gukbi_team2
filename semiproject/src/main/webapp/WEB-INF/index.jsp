@@ -95,7 +95,7 @@
         
         <div class="row">
             <div class="col-lg-3 col-md-6">
-                <div class="product-card">
+                <div class="product-card" data-id="1" data-name="갤럭시 Z 플립">
                     <div class="product-image-wrapper">
                         <div class="best-badge">
                             <i class="fa-solid fa-crown mr-1"></i>BEST 1
@@ -114,7 +114,7 @@
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="product-card">
+                <div class="product-card" data-id="2" data-name="아이폰16 Pro">
                     <div class="product-image-wrapper">
                         <div class="best-badge">
                             <i class="fa-solid fa-crown mr-1"></i>BEST 2
@@ -133,7 +133,7 @@
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="product-card">
+                <div class="product-card" data-id="3" data-name="아이폰16 Pro Max">
                     <div class="product-image-wrapper">
                         <div class="best-badge">
                             <i class="fa-solid fa-crown mr-1"></i>BEST 3
@@ -152,7 +152,7 @@
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="product-card">
+                <div class="product-card" data-id="4" data-name="갤럭시 S25 Ultra">
                     <div class="product-image-wrapper">
                         <div class="best-badge">
                             <i class="fa-solid fa-crown mr-1"></i>BEST 4

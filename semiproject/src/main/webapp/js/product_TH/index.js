@@ -25,11 +25,6 @@ $(document).ready(function() {
 	//=================화면줄일때 이벤트================//
 
 	
-    // 네비게이션 메뉴 클릭
-    $('.navbar-nav .nav-link').click(function() {
-        alert("네이게이션 메뉴를 클릭하셨습니다.")
-    });
-
 
     // 로그인 버튼
     $('#loginBtn').click(function() {
@@ -45,6 +40,21 @@ $(document).ready(function() {
 		// window.location.href = 'memberRegister.hp';
     });
 
+	
+	
+	//카드 클릭에 대한 이벤트
+	const cards = document.querySelectorAll(".product-card");
+	cards.forEach(card => {
+		card.addEventListener("click", function() {
+			const id = card.dataset.id;
+			const name = card.dataset.name;
+			
+			alert(`상품ID: ${id}\n상품명: ${name}`);
+		});
+	});
+	
+	
+	
     // 상품 카드 호버(마우스 올렸을 때) 효과
     $('.product-card').hover(
         function() {
