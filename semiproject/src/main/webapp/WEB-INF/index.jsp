@@ -16,7 +16,7 @@
 
                 <!-- 슬라이드 1 -->
                 <div class="carousel-item active">
-                    <div class="slide-content" style="background-image:url('https://images.unsplash.com/photo-1699265837122-7636e128b4b0?w=1200');">
+                    <div class="slide-content" style="background-image:url('');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
                             <h2>아이폰 16 Pro Max</h2>
@@ -30,7 +30,7 @@
 
                 <!-- 슬라이드 2 -->
                 <div class="carousel-item">
-                    <div class="slide-content" style="background-image:url('https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=1200');">
+                    <div class="slide-content" style="background-image:url('');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
                             <h2>갤럭시 S25 Ultra</h2>
@@ -44,7 +44,7 @@
 
                 <!-- 슬라이드 3 -->
                 <div class="carousel-item">
-                    <div class="slide-content" style="background-image:url('https://images.unsplash.com/photo-1580910051074-3eb694886505?w=1200');">
+                    <div class="slide-content" style="background-image:url('');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
                             <h2>갤럭시 Z 플립</h2>
@@ -58,7 +58,7 @@
 
                 <!-- 슬라이드 4 -->
                 <div class="carousel-item">
-                    <div class="slide-content" style="background-image:url('https://images.unsplash.com/photo-1556656793-08538906a9f8?w=1200');">
+                    <div class="slide-content" style="background-image:url('');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
                             <h2>아이폰 15</h2>
@@ -88,13 +88,12 @@
 <!-- 베스트 상품 -->
 <section class="best-products-section">
     <div class="container">
-
         <div class="section-title text-center">
             <h2><i class="fa-solid fa-trophy mr-3"></i>베스트 상품</h2>
             <p>가장 인기 있는 상품</p>
         </div>
+        
         <div class="row">
-
             <div class="col-lg-3 col-md-6">
                 <div class="product-card">
                     <div class="product-image-wrapper">
@@ -176,6 +175,7 @@
 </section>
 
 
+<%-- 
 <!-- 로그인 모달 -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -236,7 +236,7 @@
         </div>
     </div>
 </div>
-
+--%>
 
 <!-- 푸터부분 가져오기 -->
 <jsp:include page="footer.jsp"/>

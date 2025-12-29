@@ -63,11 +63,13 @@
                         <i class="fa-solid fa-headset"></i> 고객센터
                     </a>
                 </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/index.hp">
                         <i class="fa-solid fa-user"></i> 마이페이지
                     </a>
                 </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/index.hp">
                         <i class="fa-solid fa-gear"></i> 관리자페이지

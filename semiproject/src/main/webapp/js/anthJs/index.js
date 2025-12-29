@@ -7,6 +7,7 @@ $(document).ready(function() {
         pause: 'hover'
     });
 
+	//=================화면줄일때 이벤트================//
     // 화면을 줄인 상태에서 토글 시 애니메이션
     $('.navbar-toggler').click(function() {
         if ($('.navbar-collapse').hasClass('show')) {
@@ -15,13 +16,13 @@ $(document).ready(function() {
             $('.navbar-collapse').slideDown(300);
         }
     });
-
     // 줄인 화면에서 메뉴 클릭 시 자동으로 메뉴 닫기
     $('.navbar-nav .nav-link').click(function() {
         if ($(window).width() < 992) {
             $('.navbar-collapse').collapse('hide');
         }
     });
+	//=================화면줄일때 이벤트================//
 
 	
     // 네비게이션 메뉴 클릭
@@ -30,15 +31,18 @@ $(document).ready(function() {
     });
 
 
-    // 로그인 버튼(로그인은 모달 띄워서?)
+    // 로그인 버튼
     $('#loginBtn').click(function() {
-        $('#loginModal').modal('show');
+		alert("로그인페이지로 이동합니다.");
+		console.log('이동: login.hp');
+		// window.location.href = 'login.hp';
     });
 
     // 회원가입 버튼
     $('#signupBtn').click(function() {
         alert("회원가입페이지로 이동합니다.");
-		console.log('이동: memberRegister.html');
+		console.log('이동: memberRegister.hp');
+		// window.location.href = 'memberRegister.hp';
     });
 
     // 상품 카드 호버(마우스 올렸을 때) 효과
@@ -52,19 +56,13 @@ $(document).ready(function() {
     );
 });
 
+
 // 상품 상세 페이지로 이동
 function goToProductDetail(productId) {
     alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productId);
     console.log('이동: productDetail.hp?id=' + productId);
     // 실제로는 아래 코드 사용
     // window.location.href = 'productDetail.hp?id=' + productId;
-}
-
-// 로그인 처리
-function login() {
-    alert('로그인되었습니다!');
-    $('#loginModal').modal('hide');
-    console.log('로그인 성공');
 }
 
 
