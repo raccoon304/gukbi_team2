@@ -242,3 +242,56 @@
 	    font-size: 14px;
 	    cursor: pointer;
 	}
+	
+	
+	/* 장바구니 비어있을 때 */
+	.cart-empty {
+    text-align: center;
+    padding: 80px 0;
+    font-size: 20px;
+    color: #666;
+}
+
+	/* 상품 보러가기 버튼 */
+	.cart-empty-btn {
+    padding: 12px 30px;
+    font-size: 16px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+	
+	
+	/* 수량에 나오는 +와 - */
+	.quantity-btn {
+	  width: 32px;
+	  height: 32px;
+	  border-radius: 50%;
+	  text-align: center;
+	  border: 1px solid #ccc;
+	  margin: 0 6px;
+	}
+	
+	/* 선택삭제 위치 조정 */
+	.summary-section {
+	  display: flex;
+	  flex-direction: column; /* 기존 세로 흐름 유지 */
+	  text-align : right;
+	  
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

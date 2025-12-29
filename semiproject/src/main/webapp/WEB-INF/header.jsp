@@ -55,7 +55,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/cart/zangCart.hp">
                         <i class="fa-solid fa-cart-shopping"></i> 장바구니
                     </a>
                 </li>
