@@ -1,4 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <%String ctxPath=request.getContextPath();%>
 
 <!DOCTYPE html>
@@ -69,7 +73,36 @@
                                             <th>할인값</th>                                   
                                         </tr>
                                     </thead>
-                                    <tbody id="couponTableBody"></tbody>
+                                    <tbody id="couponTableBody">
+                                    	<c:forEach var="coupon" items="${couponList}">
+										    <tr class="coupon-row" data-coupon-no="${coupon.couponCategoryNo}" data-coupon-name="${coupon.couponName}" style="cursor:pointer;">
+										      <td>${coupon.couponCategoryNo}</td>
+										      <td>${coupon.couponName}</td>
+										      <td>
+										        <c:choose>
+										          <c:when test="${coupon.discountType == 1}">정률(%)</c:when>
+										          <c:otherwise>정액(원)</c:otherwise>
+										        </c:choose>
+										      </td>
+										      <td>
+										      	<c:choose>
+											      <c:when test="${coupon.discountType == 0}">
+											        <fmt:formatNumber value="${coupon.discountValue}" pattern="#,###" /> 원
+											      </c:when>
+											      <c:otherwise>
+											        ${coupon.discountValue} %
+											      </c:otherwise>
+											    </c:choose>
+										      </td>
+										    </tr>
+										</c:forEach>
+										
+									    <c:if test="${empty couponList}">
+									        <tr>
+									          <td colspan="4" class="text-center text-muted">등록된 쿠폰이 없습니다.</td>
+									        </tr>
+									    </c:if>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>

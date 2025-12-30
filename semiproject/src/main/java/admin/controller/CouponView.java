@@ -1,11 +1,18 @@
 package admin.controller;
 
+import java.util.List;
+
 import common.controller.AbstractController;
+import coupon.domain.CouponDTO;
+import coupon.model.CouponDAO;
+import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class CouponView extends AbstractController {
 
+	private CouponDAO cpDao = new CouponDAO_imple();
+	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -19,8 +26,11 @@ public class CouponView extends AbstractController {
 //		if(loginuser != null && "admin".equals(loginuser.getUserid())) {
 			// 관리자로 로그인 했을 경우
 			
-			super.setRedirect(false);
-			super.setViewPage("/WEB-INF/admin/coupons/coupons.jsp");
+			List<CouponDTO> couponList = cpDao.selectCouponList();
+	        request.setAttribute("couponList", couponList);
+
+	        super.setRedirect(false);
+	        super.setViewPage("/WEB-INF/admin/coupons/coupons.jsp");
 			
 //		}
 //		else {

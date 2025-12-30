@@ -1,15 +1,42 @@
 $(document).ready(function() {
     let coupons = [];
     let allMembers = [];
-    let currentCouponId = null;
+    let couponCategoryNo = null;
     let selectedMembers = [];
     let currentPage = 1;
     let pageSize = 5;
     let searchQuery = '';
     let searchType = 'userId';
 
-    loadCoupons();
+ //   loadCoupons();  추후 삭제 예정
     loadMembers();
+	
+	
+	// 쿠폰 리스트 한 행을 클릭하면 회원 목록이 뜨게함
+	$('tr.coupon-row').bind('click', function () {
+
+	  couponCategoryNo = $(this).data('coupon-no');     // 쿠폰번호
+	  const couponName = $(this).data('coupon-name');   // 쿠폰명
+
+	  // 모달 상단 안내 문구
+	  $('#couponInfo').html(`<strong>쿠폰:</strong> ${couponName} (No.${couponCategoryNo})`);
+
+	  // 선택 초기화
+	  selectedMembers = [];
+	  currentPage = 1;
+	  searchQuery = '';
+	  $('#memberSearch').val('');
+	  $('#selectAllMembers').prop('checked', false);
+
+	  // 회원 목록 그리기 (loadMembers()로 allMembers는 이미 받아온 상태)
+	  renderMemberTable();
+
+	  // 모달 열기
+	  $('#memberSelectModal').modal('show');
+	});
+	
+	
+	
 	
 	function showTableMsg(tbodySelector, colCount, msg, cssClass) {
 	  $(tbodySelector).html(`
@@ -21,14 +48,15 @@ $(document).ready(function() {
 	  `);
 	}
 
-    // Load coupons
+/*	
+    // Load coupons             추후 삭제 예정
     function loadCoupons() {
         $.ajax({
-			url: ctxPath + '/admin/coupon.hp',
+			url: ctxPath + '/admin/couponList.hp',
 		    method: 'GET',
 		    dataType: 'json',
-		    success: function(data) {
-		     coupons = Array.isArray(data) ? data : [];
+		    success: function(json) {
+		     coupons = Array.isArray(json) ? json : [];
 
 		     if (coupons.length === 0) {
 		       showTableMsg('#couponTableBody', 4, '등록된 쿠폰이 없습니다.', 'text-muted');
@@ -43,6 +71,7 @@ $(document).ready(function() {
 		   }
         });
     }
+*/
 
     // Load members
     function loadMembers() {
@@ -64,6 +93,7 @@ $(document).ready(function() {
         });
     }
 
+/*
     // Render coupon table
     function renderCouponTable() {
         let html = '';
@@ -90,13 +120,15 @@ $(document).ready(function() {
             showIssuedMembers(couponId);
         });
     }
+*/
+
 
     // Show issued members modal
     function showIssuedMembers(couponId) {
         const coupon = coupons.find(c => c.id == couponId);
         if (!coupon) return;
 
-        currentCouponId = couponId;
+        couponCategoryNo = couponId;
 
         const issuedMembers = coupon.issuedMembers || [];
 
@@ -126,14 +158,18 @@ $(document).ready(function() {
         $('#issuedMembersModal').modal('show');
     }
 
-    // ✅ Create coupon (.hp)
+    // 쿠폰 생성 Create coupon
     $('#submitCoupon').click(function() {
-        const name = $('#couponName').val();
+        const couponName = $('#couponName').val();
         const discountType = $('#discountType').val();
         const discountValue = $('#discountValue').val();
 
-        if (!name || !discountValue) {
-            alert('모든 필드를 입력해주세요.');
+		
+		console.log('len', $('#couponName').length, $('#discountType').length, $('#discountValue').length);
+		console.log('vals', $('#couponName').val(), $('#discountType').val(), $('#discountValue').val());
+		
+        if (!couponName || !discountValue) {
+            alert('모든 값을 입력해주세요.');
             return;
         }
 
@@ -142,15 +178,16 @@ $(document).ready(function() {
             method: 'POST',
             dataType: 'json',
             data: {
-                name: name,
+                couponName: couponName,
                 discountType: discountType,
                 discountValue: discountValue,
             },
-            success: function(data) {
-                alert('쿠폰을 생성했습니다.');
-                $('#createCouponModal').modal('hide');
-                $('#createCouponForm')[0].reset();
-                loadCoupons();
+            success: function(json) {
+				alert(json.message);
+				location.href = json.loc;
+           //     $('#createCouponModal').modal('hide');   추후 삭제
+            //    $('#createCouponForm')[0].reset();	   추후 삭제
+           //     loadCoupons();						   추후 삭제
             },
             error: function() {
                 alert('쿠폰 생성에 실패했습니다.');
@@ -160,9 +197,9 @@ $(document).ready(function() {
 
     // 쿠폰 전송 버튼 클릭
     $('#sendMoreCoupons').click(function() {
-        if (!currentCouponId) return;
+        if (!couponCategoryNo) return;
 
-        const coupon = coupons.find(c => c.id == currentCouponId);
+        const coupon = coupons.find(c => c.id == couponCategoryNo);
         if (!coupon) return;
 
         $('#issuedMembersModal').modal('hide');
@@ -286,7 +323,7 @@ $(document).ready(function() {
             return;
         }
 
-        if (!currentCouponId) {
+        if (!couponCategoryNo) {
             alert('쿠폰을 선택해주세요.');
             return;
         }
@@ -296,7 +333,7 @@ $(document).ready(function() {
             method: 'POST',
             dataType: 'json',
             data: {
-                couponId: currentCouponId,
+                couponCategoryNo: couponCategoryNo,
                 memberIds: selectedMembers.join(',')
             },
             success: function(data) {
@@ -304,7 +341,7 @@ $(document).ready(function() {
                 $('#memberSelectModal').modal('hide');
                 loadCoupons();
                 selectedMembers = [];
-                currentCouponId = null;
+                couponCategoryNo = null;
             },
             error: function() {
                 alert('쿠폰 전송에 실패했습니다.');
