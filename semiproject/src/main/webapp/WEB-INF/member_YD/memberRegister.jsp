@@ -19,6 +19,9 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script> 
     <script type="text/javascript" src="<%= ctxPath%>/js/member_YD/memberRegister.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../bootstrap-4.6.2-dist/css/bootstrap.min.css" type="text/css">
+    
     
     <script>
    	tailwind.config = {
@@ -66,16 +69,19 @@
                         <p class="text-gray-600 mt-2">아이디가 있으신가요?<a href="#" class="text-primary-600 hover:text-primary-700 font-medium">&nbsp; 로그인</a></p>
                     </div>
 
-                    <form class="space-y-6">
+                    <form class="space-y-6" name="registerFrm">
 					<!-- Form Fields -->
                         <div class="space-y-4">
                             <div>
-                                <label for="member-id" class="block text-sm font-medium text-gray-700">아이디</label>
+                                <label for="member-id" class="d-flex align-items-center">
+								  	<span class="block text-sm font-medium text-gray-700">아이디</span>
+								  	<button type="button" name="id_check" id="id_check" class="btn btn-sm btn-primary ms-auto">아이디 중복확인</button>
+								</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="hash" class="text-gray-400"></i>
                                     </div>
-                                    <input type="text" id="member-id" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="Enter your ID">
+                                    <input type="text" name="memberid" id="member-id" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="Enter your ID">
                                 </div>
                             </div>
 
@@ -85,7 +91,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="user" class="text-gray-400"></i>
                                     </div>
-                                    <input type="text" id="full-name" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="Enter your Name">
+                                    <input type="text" name="name" id="full-name" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="Enter your Name">
                                 </div>
                             </div>
 
@@ -95,7 +101,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="phone" class="text-gray-400"></i>
                                     </div>
-                                    <input type="tel" id="mobile" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="010-0000-0000">
+                                    <input type="tel" name="mobile" id="mobile" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="010-0000-0000">
                                 </div>
                             </div>
 
@@ -104,14 +110,14 @@
                                     <label for="zip-code" class="block text-sm font-medium text-gray-700">우편번호</label>
                                     
                                     <div class="mt-1 relative rounded-md shadow-sm">                          
-                                        <input type="text" id="zip-code" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="12345">
+                                        <input type="text" name="postalCode" id="zip-code" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="12345">
                                     </div>
                                     
                                     <img src="<%= ctxPath%>/images/b_zipcode.gif" id="zipcodeSearch" />
                                 </div>
                                 <div>
                                     <label for="gender" class="block text-sm font-medium text-gray-700">성별</label>
-                                    <select id="gender" class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                                    <select name="gender" id="gender" class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
                                         <option value="" disabled selected>성별 선택</option>
                                         <option value="male">남성</option>
                                         <option value="female">여성</option>
@@ -122,14 +128,14 @@
                             <div>
                                 <label for="address" class="block text-sm font-medium text-gray-700">주소</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
-                                    <input type="text" id="address" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="Street Address">
+                                    <input type="text" name="address" id="address" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="Street Address">
                                 </div>
                             </div>
 
                             <div>
                                 <label for="detailed-address" class="block text-sm font-medium text-gray-700">상세 주소</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
-                                    <textarea id="detailed-address" rows="2" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="아파트, 층, 호수, 등"></textarea>
+                                    <textarea name="addressDetail" id="detailed-address" rows="2" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="아파트, 층, 호수, 등"></textarea>
                                 </div>
                             </div>
 
@@ -139,17 +145,22 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="calendar" class="text-gray-400"></i>
                                     </div>
-                                    <input type="date" id="dob" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3">
+                                    <input type="date" name="birthday" id="dob" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3">
                                 </div>
                             </div>
 
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
+                            <div>                       	
+                                <label for="email" class="d-flex align-items-center">
+								  	<span class="text-sm font-medium text-gray-700">이메일</span>
+								  	<button type="button" name="email_check" class="btn btn-sm btn-primary ms-auto">
+						    			이메일 중복확인
+								  	</button>
+								</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="mail" class="text-gray-400"></i>
                                     </div>
-                                    <input type="email" id="email" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="you@example.com">
+                                    <input type="email" name="email" id="email" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="you@example.com">
                                 </div>
                             </div>
 
@@ -159,7 +170,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="lock" class="text-gray-400"></i>
                                     </div>
-                                    <input type="password" id="password" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="••••••••">
+                                    <input type="password" name="password" id="password" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="••••••••">
                                 </div>
                             </div>
 
@@ -169,7 +180,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="lock" class="text-gray-400"></i>
                                     </div>
-                                    <input type="password" id="confirm-password" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="••••••••">
+                                    <input type="password" name="confirmpassword" id="confirm-password" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="••••••••">
                                 </div>
                             </div>
                         </div>
@@ -184,7 +195,7 @@
                         </div>
 
                         <div>
-                            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150">
+                            <button type="submit" onclick="goRegister()" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150">
                                 계정 생성하기.
                             </button>
                         </div>
@@ -220,6 +231,7 @@
 	        		</button>
 	        		<button type="button" id="agreeAndClose" class="px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700">
 	          		동의합니다.
+	          		
 	        		</button>
 	      		</div>
 	    	</div>

@@ -7,11 +7,11 @@ public class MemberDTO {
 	private String mobile;			// 휴대폰 번호(AES-256 암호화/복호화 대상) 
 	private String email;			// 이메일 (AES-256 암호화/복호화 대상) 
 	private String birthday;		// 생년월일  
-	private int gender;				// 성별		1:남자 2:여자
-	private String registerday;		// 가입일자 	
+	private int gender;				// 성별		0:남자 1:여자
+	private String registerday;		// 가입일자 										DB 디폴트 (sysdate)
 
-   	private int status;             // 회원탈퇴유무   1: 사용가능(가입중) / 0:사용불능(탈퇴) 
-   	private int idle;               // 휴면유무      0 : 활동중  /  1 : 휴면중
+   	private int status;             // 회원탈퇴유무   0: 사용가능(가입중) / 1:사용불능(탈퇴) 	DB 디폴트 ( 0 ) 
+   	private int idle;               // 휴면유무      0 : 활동중  /  1 : 휴면중				DB 디폴트 ( 0 ) 
 //===============================================================================================================================
 	public String getMemberid() {
 		return memberid;
