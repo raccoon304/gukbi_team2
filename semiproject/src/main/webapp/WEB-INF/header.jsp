@@ -100,7 +100,7 @@
 
 <!-- 로그인 모달 -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog" role="document" style="margin-top: 10%">
         <div class="modal-content">
 
             <!-- 모달 헤더 -->
@@ -120,15 +120,13 @@
                     <!-- 아이디 -->
                     <div class="form-group">
                         <label for="loginId">아이디</label>
-                        <input type="text" class="form-control" id="loginId"
-                               placeholder="아이디를 입력하세요">
+                        <input type="text" class="form-control" id="loginId" placeholder="아이디를 입력하세요">
                     </div>
 
                     <!-- 비밀번호 -->
                     <div class="form-group">
                         <label for="loginPw">비밀번호</label>
-                        <input type="password" class="form-control" id="loginPw"
-                               placeholder="비밀번호를 입력하세요">
+                        <input type="password" class="form-control" id="loginPw" placeholder="비밀번호를 입력하세요">
                     </div>
 
                     <!-- 아이디 / 비밀번호 찾기 -->
