@@ -18,7 +18,7 @@
 	<!-- 사용자 CSS -->
     <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/index.css">
     
-    
+    <script>const ctxPath = "<%= ctxPath %>";</script>
     <!-- JS -->
 	<script type="text/javascript" src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
 	<script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script>
@@ -91,3 +91,5 @@
         </div>
     </div>
 </nav>
+
+
