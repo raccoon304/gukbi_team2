@@ -32,7 +32,7 @@
 	
     <h2>장바구니</h2>
 
-	<c:if test="${not empty cartItems}">
+	<c:if test="${empty cartItems}">
     <!-- 장바구니 비어있을 때 -->
     <div class="cart-empty">
         주문한 상품이 없습니다.
