@@ -26,7 +26,7 @@ public class CartController extends AbstractController {
 		}
 		 String method = request.getMethod();
 
-		    if ("GET".equalsIgnoreCase(method)) {
+		    if ("GET".equalsIgnoreCase(method)) { // ㅎㅇ
 
 		        // 장바구니에 있는 내용 조회하기
 		        // request.setAttribute("cartList", cartList);
