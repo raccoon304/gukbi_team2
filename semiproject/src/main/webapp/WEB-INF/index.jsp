@@ -8,7 +8,7 @@
 
 
 <!-- 슬라이드 -->
-<section class="hero-section">
+<section class="hero-section" style="margin-top: 5%">
     <div class="container">
         <div id="productCarousel" class="carousel slide" data-ride="carousel" data-interval="3000">
 
