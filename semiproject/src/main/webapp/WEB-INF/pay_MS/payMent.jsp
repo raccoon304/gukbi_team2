@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-
+	"DB는 없고 돼지껍데기만 있습니다.";
 </body>
 </html>

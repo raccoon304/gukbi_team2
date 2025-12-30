@@ -6,6 +6,8 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,16 +18,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>장바구니</title>
     
+    
+    
     <!-- 헤더부분 가져오기 -->
 </head>
     <body>
+    
     
     <jsp:include page="/WEB-INF/header.jsp" />
     
      <div class="container">
 	
 	
-    <h1>장바구니</h1>
+    <h2>장바구니</h2>
 
 	<c:if test="${not empty cartItems}">
     <!-- 장바구니 비어있을 때 -->
@@ -67,8 +72,10 @@
                 <td class="product-info">
                     <div class="product-name">장비명</div>
                 </td>
+                
                 <td class="price">10,000원</td>
                 <td>
+                
                     <div class="quantity-control">
                         <button class="quantity-btn">-</button>
                         <input type="text" class="quantity-input" value="1" readonly>
@@ -77,9 +84,10 @@
                 </td>
                 <td class="price">10,000원</td>
                 <td>
-                    <button class="delete-btn">삭제</button>
+                    <button type="button" class="btn btn-danger">삭제</button>
                 </td>
             </tr>
+            
         </tbody>
     </table>
 
@@ -102,7 +110,7 @@
 		            </div>
 		
 		            <button class="checkout-btn">구매하기</button>
-		            <button class="delete-selected my-3 ml-auto">선택삭제</button>
+		            <button type="button" class="btn btn-danger my-3">선택삭제</button>
 		        </div>
 		    </div>
 		</c:if>
@@ -111,8 +119,8 @@
 
 
     
-    <script>
-        
-    </script>
+    <script> const ctxPath = "<%= request.getContextPath() %>"; </script>
+    <script src="<%= ctxPath %>/js/cart_MS/zangCart.js"></script>
+ 
 </body>
 </html>
