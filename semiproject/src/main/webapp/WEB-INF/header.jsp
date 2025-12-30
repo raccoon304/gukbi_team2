@@ -51,6 +51,7 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/product/productList.hp">
+                    <%-- <a class="nav-link" href="<%=ctxPath%>/product/testProductList.hp"> --%>
                         <i class="fa-solid fa-list"></i> 상품목록
                     </a>
                 </li>
