@@ -7,7 +7,7 @@
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
 
-<div class="container">
+<div class="container" style="margin-top: 5%">
     <div class="product-container mt-4">
         <div class="product-header">
             <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
