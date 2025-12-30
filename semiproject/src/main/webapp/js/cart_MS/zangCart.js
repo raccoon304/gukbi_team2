@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const checkedCount = $(".item-checkbox:checked").length;
 
       if (checkedCount != 0) {
-        alert("주문한 상품이 없습니다.");
+        alert("주문한 상품이 없습니다."); // ㅎㅇ
         return;
       }
 
