@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -72,6 +73,9 @@
                     </a>
                 </li> --%>
                 
+                <!-- 관리자페이지는 admin으로 로그인했을 경우에만 접근이 가능하도록 조건문 사용 -->
+                <%-- <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.userid == 'admin'}">
+                </c:if> --%>
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/index.hp">
                         <i class="fa-solid fa-gear"></i> 관리자페이지
@@ -92,3 +96,65 @@
         </div>
     </div>
 </nav>
+
+
+<!-- 로그인 모달 -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <!-- 모달 헤더 -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>로그인
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- 모달 바디 -->
+            <div class="modal-body">
+                <form id="loginForm">
+
+                    <!-- 아이디 -->
+                    <div class="form-group">
+                        <label for="loginId">아이디</label>
+                        <input type="text" class="form-control" id="loginId"
+                               placeholder="아이디를 입력하세요">
+                    </div>
+
+                    <!-- 비밀번호 -->
+                    <div class="form-group">
+                        <label for="loginPw">비밀번호</label>
+                        <input type="password" class="form-control" id="loginPw"
+                               placeholder="비밀번호를 입력하세요">
+                    </div>
+
+                    <!-- 아이디 / 비밀번호 찾기 -->
+					<div class="text-center mb-3">
+					    <a href="#" class="text-secondary small mr-2">
+					        <i class="fa-solid fa-user-magnifying-glass mr-1"></i>아이디 찾기
+					    </a>
+					    <span class="text-muted mx-1">|</span>
+					    <a href="#" class="text-secondary small ml-2">
+					        <i class="fa-solid fa-key mr-1"></i>비밀번호 찾기
+					    </a>
+					</div>
+
+                </form>
+            </div>
+
+            <!-- 모달 푸터 -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    취소
+                </button>
+                <button type="button" class="btn btn-primary" onclick="login()">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i>로그인
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
