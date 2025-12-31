@@ -1,6 +1,10 @@
 package cart.controller;
 
 import cart.model.CartDAO_imple;
+
+import java.util.List;
+import java.util.Map;
+
 import cart.model.CartDAO;
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,6 +37,12 @@ public class CartController extends AbstractController {
 
         // GET : 장바구니 페이지 조회
         if ("GET".equalsIgnoreCase(method)) {
+
+            // 장바구니 목록 조회 (체크박스/이미지/가격)
+            List<Map<String, Object>> cartList = mdao.selectCartList(memberId);
+
+            request.setAttribute("cartList", cartList);
+
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/cart_MS/zangCart.jsp");
             return;
@@ -40,6 +50,60 @@ public class CartController extends AbstractController {
 
         // POST : 장바구니 담기
         if ("POST".equalsIgnoreCase(method)) {
+        	String action = request.getParameter("action");
+
+        	// + / − 버튼 (AJAX)
+        	if ("updateQty".equals(action)) {
+
+        	    int cartId = Integer.parseInt(request.getParameter("cartId"));
+        	    int delta  = Integer.parseInt(request.getParameter("delta")); // +1 / -1
+
+        	    // 수량 변경
+        	    mdao.updateQuantityByCartId(cartId, delta);
+
+        	    // 변경 후 다시 조회 (AJAX 응답용)
+        	    List<Map<String, Object>> cartList = mdao.selectCartList(memberId);
+
+        	    Map<String, Object> target = null;
+        	    for (Map<String, Object> map : cartList) {
+        	        if (((Integer) map.get("cart_id")) == cartId) {
+        	            target = map;
+        	            break;
+        	        }
+        	    }
+
+        	    response.setContentType("application/json; charset=UTF-8");
+        	    response.getWriter().write(
+        	        "{"
+        	      + "\"quantity\":" + target.get("quantity") + ","
+        	      + "\"total\":" + target.get("total_price")
+        	      + "}"
+        	    );
+        	    return;
+        	}
+        	
+        	// 개별 삭제
+        	if ("delete".equals(action)) {
+
+        	    int cartId = Integer.parseInt(request.getParameter("cartId"));
+
+        	    mdao.deleteCart(cartId, memberId);
+
+        	    super.setRedirect(true);
+        	    super.setViewPage(request.getContextPath() + "/cart/zangCart.hp");
+        	    return;
+        	}
+        	
+        	// 전체 삭제
+        	if ("deleteAll".equals(action)) {
+
+        	    mdao.deleteAll(memberId);
+
+        	    super.setRedirect(true);
+        	    super.setViewPage(request.getContextPath() + "/cart/zangCart.hp");
+        	    return;
+        	}
+        	
             String optionIdStr = request.getParameter("optionId");
             String quantityStr = request.getParameter("quantity");
 
@@ -76,11 +140,11 @@ public class CartController extends AbstractController {
 
                 // 있으면 수량만 증가
                 if (exists) {
-                    mdao.updateQuantity(memberId, optionId, quantity);
+                    int n = mdao.updateQuantity(memberId, optionId, quantity);
                     
                 // 없으면 새로 insert
                 } else {
-                    mdao.insertCart(memberId, optionId, quantity);
+                    int n = mdao.insertCart(memberId, optionId, quantity);
                 }
 
                 // 성공 시 장바구니 페이지로 리다이렉트
