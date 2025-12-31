@@ -1,6 +1,7 @@
 package member.model;
 
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -101,5 +102,82 @@ public class MemberDAO_imple implements MemberDAO {
 	    } finally {
 	        close(); 
 	    }
+	}
+
+	
+	// ID 중복검사
+	@Override
+	public boolean idDuplicateCheck(String memberid) throws SQLException {
+		boolean isExists = false;
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " select member_id "
+					   + " from tbl_member "
+					   + " where member_id = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, memberid);
+			
+			rs = pstmt.executeQuery();
+			
+			isExists = rs.next();
+			// 행이 있으면 true  없으면 false 로, 있을경우 중복된 ID 가 있다는거임.
+		} finally {
+			close();
+		}
+		return isExists;
+	}
+
+	
+	
+	// email 중복검사
+	@Override
+	public boolean emailDuplicateCheck(String email) throws SQLException {
+		boolean isExists = false;
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " select email "
+					   + " from tbl_member "
+					   + " where email = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, aes.encrypt(email));
+			
+			rs = pstmt.executeQuery();
+			
+			isExists = rs.next();
+			
+			// 행이 있으면 true  없으면 false 로, 있을경우 중복된 email이 있다는거임.
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		}  finally {
+			close();
+		}
+		return isExists;
+	}
+
+	@Override
+	public boolean mobileDuplicateCheck(String mobile) throws SQLException {
+		boolean isExists = false;
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " select mobile_phone "
+					   + " from tbl_member "
+					   + " where mobile_phone = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, aes.encrypt(mobile));
+			
+			rs = pstmt.executeQuery();
+			
+			isExists = rs.next();
+			
+			// 행이 있으면 true  없으면 false 로, 있을경우 중복된 휴대전화 번호가 있다는거임.
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		}  finally {
+			close();
+		}
+		return isExists;
 	}
 }

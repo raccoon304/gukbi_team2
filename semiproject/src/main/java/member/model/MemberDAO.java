@@ -11,6 +11,15 @@ public interface MemberDAO {
 	// 회원가입
 	int registerMember(MemberDTO mbrDto, DeliveryDTO devDto) throws SQLException;
 
+	// ID 중복검사
+	boolean idDuplicateCheck(String memberid) throws SQLException;
+
+	// email 중복검사
+	boolean emailDuplicateCheck(String email) throws SQLException;
+
+	// 휴대폰번호 중복검사
+	boolean mobileDuplicateCheck(String mobile) throws SQLException;
+
 
 
 }
