@@ -6,8 +6,8 @@ public class DeliveryDTO {
 	private String recipientName; 	// 수신자명
 	private String recipientPhone;  // 수신자 핸드폰 
 	private String address;			// 주소
-	private String addressdetail;	// 상세주소
-	private int isDefault;			// 기본배송지 유무 ( 1=> 기본배송지, 0 => 기본배송지x )
+	private String addressDetail;	// 상세주소
+	private int isDefault;			// 기본배송지 유무 ( 1=> 기본배송지, 0 => 기본배송지x )		DB디폴트 ( 0 )
     private String postalCode;		// 우편번호
 	private String addressExtra;    // 참고항목
 	
@@ -46,11 +46,11 @@ public class DeliveryDTO {
 		this.address = address;
 	}
 	
-	public String getAddressdetail() {
-		return addressdetail;
+	public String getAddressDetail() {
+		return addressDetail;
 	}
-	public void setAddressdetail(String addressdetail) {
-		this.addressdetail = addressdetail;
+	public void setAddressDetail(String addressDetail) {
+		this.addressDetail = addressDetail;
 	}
 	
 	public int getIsDefault() {

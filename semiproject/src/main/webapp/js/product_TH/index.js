@@ -40,8 +40,8 @@ $(document).ready(function() {
 
     // 회원가입 버튼
     $('#signupBtn').click(function() {
-        alert("회원가입페이지로 이동합니다.");
-		console.log('이동: memberRegister.hp');
+		window.location.href = ctxPath + "/member/memberRegister.hp";
+		//console.log('이동: memberRegister.hp');
 		// window.location.href = 'memberRegister.hp';
     });
 

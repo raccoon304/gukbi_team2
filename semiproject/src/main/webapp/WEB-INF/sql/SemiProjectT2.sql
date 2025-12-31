@@ -244,8 +244,9 @@ CREATE SEQUENCE SEQ_TBL_INQUIRY_INQUIRY_NUMBER
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
 
-
-
+select * from tab;
+select * from tbl_member;
+select * from tbl_delivery;
 
 
 

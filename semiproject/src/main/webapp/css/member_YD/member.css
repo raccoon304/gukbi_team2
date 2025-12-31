@@ -50,3 +50,10 @@ button[type="submit"]:hover {
         padding-bottom: 2rem;
     }
 }
+
+
+.readonly-gray {
+  background-color: #f3f4f6 !important;
+  color: #6b7280 !important;
+  cursor: not-allowed !important;
+}
