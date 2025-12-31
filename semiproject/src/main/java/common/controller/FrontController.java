@@ -126,7 +126,7 @@ public class FrontController extends HttpServlet {
 		// 웹 브라우저의 주소 입력창에서 
 		// http://localhost:9090/MyMVC/member/idDuplicateCheck.up?userid=leess 와 같이 입력되었더라면 
 		String uri = request.getRequestURI();
-		System.out.println("확인용 uri =>"+uri);
+		//System.out.println("확인용 uri =>"+uri);
 		// 확인용 uri =>/MyMVC/member/idDuplicateCheck.up
 		// 확인용 uri =>/MyMVC/test1.up
 		// 확인용 uri =>/MyMVC/test/test2.up
