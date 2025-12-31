@@ -22,13 +22,42 @@ CREATE TABLE TBL_MEMBER (
   CONSTRAINT UQ_TBL_MEMBER_MOBILE_PHONE UNIQUE (MOBILE_PHONE)
 );
 
+-- status 컬럼 디폴트값 설정
 ALTER TABLE TBL_MEMBER
   MODIFY (STATUS DEFAULT 0);
-
+  
+-- idle 컬럼 디폴트값 설정
 ALTER TABLE TBL_MEMBER
   MODIFY (IDLE DEFAULT 0);
   
 
+create table tbl_member_backup
+as
+select * from tbl_member;
+
+-- 시퀀스 생성
+CREATE SEQUENCE SEQ_TBL_MEMBER_USERSEQ
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+-- userseq 컬럼 추가
+alter table tbl_member
+add userseq number;
+
+update tbl_member set userseq = SEQ_TBL_MEMBER_USERSEQ.nextval
+where MEMBER_ID = 'eomjh';
+
+update tbl_member set userseq = SEQ_TBL_MEMBER_USERSEQ.nextval
+where MEMBER_ID = 'smon0376';
+
+-- userseq 컬럼 유니크제약 설정
+alter table tbl_member
+add constraint UQ_TBL_MEMBER_USERSEQ unique(userseq);
+
+-- userseq 컬럼 not null 설정
+alter table tbl_member
+modify userseq constraint NN_TBL_MEMBER_USERSEQ not null;
+
+commit;
 
 
 -------- PRODUCT TABLE --------
@@ -238,12 +267,12 @@ CREATE TABLE TBL_INQUIRY (
   INQUIRY_CONTENT       VARCHAR2(1000)             NOT NULL,
   REPLY_CONTENT         VARCHAR2(1000),
   REPLY_REGISTERDAY     DATE,                                         
-  REPLY_STATUS          NUMBER(1) DEFAULT 0   NOT NULL, 
+  REPLY_STATUS          NUMBER(1) DEFAULT 1   NOT NULL, 
 
   CONSTRAINT PK_TBL_INQUIRY_INQUIRY_NUMBER PRIMARY KEY (INQUIRY_NUMBER),
   CONSTRAINT FK_TBL_INQUIRY_FK_MEMBER_ID FOREIGN KEY (FK_MEMBER_ID)
   REFERENCES TBL_MEMBER (MEMBER_ID),
-  CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS CHECK (REPLY_STATUS IN (0,1))
+  CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS CHECK (REPLY_STATUS IN (0,1,2))
 );
 
 -------- 시퀀스 생성 --------
@@ -251,6 +280,19 @@ CREATE TABLE TBL_INQUIRY (
 CREATE SEQUENCE SEQ_TBL_INQUIRY_INQUIRY_NUMBER
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
+
+-- 체크제약 삭제
+ALTER TABLE TBL_INQUIRY
+DROP CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS;
+
+-- 체크제약 생성
+ALTER TABLE TBL_INQUIRY
+ADD CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS
+CHECK (REPLY_STATUS IN (0,1,2));
+
+-- REPLY_STATUS 디폴트값 1로 변경
+ALTER TABLE TBL_INQUIRY
+MODIFY (REPLY_STATUS DEFAULT 1);
 
 
 

@@ -99,7 +99,7 @@
         </li>
         <li class="sidebar-menu-item">
             <a class="sidebar-menu-link <%= request.getRequestURI().contains("members") ? "active" : "" %>" 
-               href="${pageContext.request.contextPath}/admin/members">
+               href="<%= ctxPath %>/admin/members.hp">
                 <i class="fas fa-users"></i>
                 <span>가입회원조회</span>
             </a>
