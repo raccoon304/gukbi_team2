@@ -150,7 +150,7 @@ public class FrontController extends HttpServlet {
 		// 다형성 
 		
 		if(action == null) {// 존재하지 않는 uri값을 넣었을 경우 
-			System.out.println(""+key+"는 uri 패턴에 맵핑된 클래스는 없습니다.");
+			System.out.println(" "+ key +"는 uri 패턴에 맵핑된 클래스는 없습니다.");
 		}
 		else {// 존재하는 uri 값을 넣어준 경우.
 			try {
