@@ -244,9 +244,18 @@ CREATE SEQUENCE SEQ_TBL_INQUIRY_INQUIRY_NUMBER
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
 
+select *
+from user_tables;
 
+select *
+from user_sequences;
 
-
+SELECT column_name,
+       data_default,
+       nullable
+FROM   user_tab_columns
+WHERE  table_name = 'TBL_MEMBER'
+AND    column_name IN ('STATUS', 'IDLE');
 
 
 
