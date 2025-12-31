@@ -115,7 +115,7 @@
     </div>
 </div>
 
-
+<!-- 임시 -->
 
 <!-- 푸터부분 가져오기 -->
 <jsp:include page="../footer.jsp"/>
