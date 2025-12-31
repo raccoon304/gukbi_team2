@@ -7,7 +7,19 @@
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
 
+
 <div class="container" style="margin-top: 5%">
+
+	<%-- <h3>확인차 받은 데이터 확인합니다.</h3>
+	<p>${proDetilDto.optionId}</p><br>
+	<p>${proDetilDto.fkProductCode}</p><br>
+	<p>${proDetilDto.color}</p><br>
+	<p>${proDetilDto.storageSize}</p><br>
+	<p>${proDetilDto.price}</p><br>
+	<p>${proDetilDto.stockQty}</p><br>
+	<p>${proDetilDto.imagePath}</p><br> --%>
+
+
     <div class="product-container mt-4">
         <div class="product-header">
             <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
@@ -18,42 +30,42 @@
                 <!-- 상품 이미지 -->
                 <div class="col-md-5">
                     <div class="product-image-section">
-                        <img src="" alt="아이폰 16" class="product-image" id="productImage">
+                        <img src="${proDetilDto.imagePath}" alt="${proDto.productName}" class="product-image" id="productImage">
                     </div>
                 </div>
 
                 <!-- 상품 정보 -->
                 <div class="col-md-7">
                     <div class="product-info">
-                        <h1 class="product-title" id="productTitle">아이폰 16 Pro Max</h1>
+                        <h1 class="product-title" id="productTitle">${proDto.productName}</h1>
 
                         <div class="product-price">
-                            <span id="unitPrice">1,590,000</span><small>원</small>
+                            <span id="unitPrice">${proDetilDto.price}</span><small>원</small>
                         </div>
 
                         <!-- 상품 스펙 -->
                         <div class="product-specs">
                             <div class="spec-item">
                                 <div class="spec-label">브랜드</div>
-                                <div class="spec-value">애플 (Apple)</div>
+                                <div class="spec-value">${proDto.brandName}</div>
                             </div>
                             <div class="spec-item">
                                 <div class="spec-label">모델명</div>
-                                <div class="spec-value">아이폰 16 Pro Max</div>
+                                <div class="spec-value">${proDto.productName}</div>
                             </div>
                             <div class="spec-item">
                                 <div class="spec-label">저장용량</div>
-                                <div class="spec-value">512GB</div>
+                                <div class="spec-value">${proDetilDto.storageSize}</div>
                             </div>
                             <div class="spec-item">
                                 <div class="spec-label">색상</div>
-                                <div class="spec-value">블루</div>
+                                <div class="spec-value">${proDetilDto.color}</div>
                             </div>
                             <div class="spec-item">
                                 <div class="spec-label">재고상태</div>
                                 <div class="spec-value">
                                     <span class="badge badge-success badge-stock">
-                                        <i class="fas fa-check mr-1"></i>재고 있음 (48개)
+                                        <i class="fas fa-check mr-1"></i>재고 있음 (${proDetilDto.stockQty})
                                     </span>
                                 </div>
                             </div>
@@ -111,7 +123,8 @@
                 <div class="col-12">
                     <h4 class="mb-4"><i class="fas fa-info-circle mr-2"></i>상품 설명</h4>
                     <div class="product-description">
-                        <p><strong>최신 A18 Pro 칩 탑재</strong></p>
+                    	<p>${proDto.productDesc}</p>
+                        <!-- <p><strong>최신 A18 Pro 칩 탑재</strong></p>
                         <p>혁신적인 성능과 전력 효율성을 자랑하는 A18 Pro 칩으로 모든 작업이 빠르고 부드럽습니다.</p>
                         
                         <p class="mt-4"><strong>ProMotion 디스플레이</strong></p>
@@ -124,7 +137,7 @@
                         <p>하루 종일 사용 가능한 배터리 성능과 빠른 충전을 지원합니다.</p>
                         
                         <p class="mt-4"><strong>티타늄 디자인</strong></p>
-                        <p>견고하면서도 가벼운 티타늄 소재로 프리미엄 디자인을 완성했습니다.</p>
+                        <p>견고하면서도 가벼운 티타늄 소재로 프리미엄 디자인을 완성했습니다.</p> -->
                     </div>
                 </div>
             </div>

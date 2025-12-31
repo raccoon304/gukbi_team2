@@ -12,47 +12,21 @@
 
 <div class="text-center mt-6" style="margin-top: 5%;">
 	<div style="font-size: 20pt">
-		<p>안녕하세요~</p>
 		<a href="<%=ctxPath%>/product/productDetail.hp">
-			<i class="fa-solid fa-list"></i> 상품상세페이지 가기
+			<i class="fa-solid fa-list"></i> [임시]상품상세페이지 가기
+		</a>
+		
+		<br>
+		<br>
+		
+		<a href="<%=ctxPath%>/product/TESTproductList.hp">
+			<i class="fa-solid fa-list"></i> 테스트상품페이지 가기
 		</a>
 	</div>
 	
 	
-	<div>
-	<h3>임시테스트입니다. 정보받아오기</h3>
-	</div>
 	
-	
-    <table class="table table-bordered" id="memberTbl" style="margin-top: 100px; width: 80%; margin: 2% auto;">
-       <thead>
-           <tr>
-           	  <th>번호</th>
-              <th>제품코드</th>
-              <th>제품명</th>
-              <th>브랜드명</th>
-              <th>제품설명</th>
-              <th>판매상태</th>
-           </tr>
-       </thead>
-       <tbody>
-			 <c:forEach items="${requestScope.proList}" var="productDto" varStatus="status">
-			     <tr>
-			        <td>${status.count}</td>
-			        <td >
-			        	<span style="display: none;">${productDto.productCode}</span>
-			        	${productDto.productCode}
-			        </td>
-			        <td>${productDto.productName}</td>
-			        <td>${productDto.brandName}</td>
-			        <td>${productDto.productDesc}</td>
-			        <td>${productDto.saleStatus}</td>
-			     </tr>
-			 </c:forEach>
-       </tbody>
-    </table>
-    
-        <table class="table table-bordered" id="memberTbl" style="margin-top: 100px; width: 80%; margin: 2% auto;">
+	 	<table class="table table-bordered" id="memberTbl" style="margin-top: 100px; width: 80%; margin: 2% auto;">
        <thead>
            <tr>
            	  <th>번호</th>
@@ -69,7 +43,10 @@
 			 <c:forEach items="${proOptionList}" var="productOptionDto" varStatus="status">
 			     <tr>
 			        <td>${status.count}</td>
-			        <td>${productOptionDto.optionId}</td>
+			        <td>
+			        	<span style="display: none;">${productOptionDto.optionId}</span>
+			        	${productOptionDto.optionId}
+			        </td>
 			        <td>${productOptionDto.fkProductCode}</td>
 			        <td>${productOptionDto.color}</td>
 			        <td>${productOptionDto.storageSize}</td>

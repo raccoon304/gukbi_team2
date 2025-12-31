@@ -237,5 +237,5 @@ $(document).ready(function() {
 function goToDetail(productId) {
     alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' +productId+'\n이 ID는 상품상세테이블의 option_id입니다.');
     console.log('이동: product-detail.html?id=' + productId);
-    // window.location.href = 'product-detail.html?id=' + productId;
+    window.location.href = 'productDetail.hp';
 }

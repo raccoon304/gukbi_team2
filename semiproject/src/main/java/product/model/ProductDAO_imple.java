@@ -93,6 +93,72 @@ public class ProductDAO_imple implements ProductDAO {
 		} finally {close();}
 		return proOptionList;
 	}//end of public List<ProductDTO> selectProductOption() throws SQLException-----
+
+
+	
+	//임시: 제품상세 정보 가져오기
+	@Override
+	public ProductDetailDTO selectDetailOne(String test) throws SQLException {
+		ProductDetailDTO proDetilDto = new ProductDetailDTO();
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT option_id,fk_product_code,color,storage_size,price,stock_qty,image_path "
+						+" FROM tbl_product_option "
+						+" WHERE option_id = to_number(?) ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, test);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				proDetilDto.setOptionId(rs.getInt("option_id"));
+				proDetilDto.setFkProductCode(rs.getString("fk_product_code"));
+				proDetilDto.setColor(rs.getString("color"));
+				proDetilDto.setStorageSize(rs.getString("storage_size"));
+				proDetilDto.setPrice(rs.getInt("price"));
+				proDetilDto.setStockQty(rs.getInt("stock_qty"));
+				proDetilDto.setImagePath(rs.getString("image_path"));
+			}
+			
+		} finally {
+			close();
+		}
+		
+		return proDetilDto;
+	}//end of public ProductDetailDTO selectOne(String test) throws SQLException-----
+
+
+	//제품상세에 대해 부모테이블을 이용하여 제품명, 브랜드명, 설명을 가져오기
+	@Override
+	public ProductDTO selectOne(String test) throws SQLException {
+		ProductDTO proDto = new ProductDTO();
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT "
+						+"     P.product_code, "
+						+"     P.product_name, "
+						+"     P.brand_name, "
+						+"     P.product_desc, "
+						+"     P.sale_status "
+						+" FROM tbl_product P "
+						+" JOIN tbl_product_option O "
+						+" ON P.product_code = O.fk_product_code "
+						+" WHERE O.option_id = to_number(?) ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, test);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				proDto.setProductCode(rs.getString("product_code"));
+				proDto.setProductName(rs.getString("product_name"));
+				proDto.setBrandName(rs.getString("brand_name"));
+				proDto.setProductDesc(rs.getString("product_desc"));
+				proDto.setSaleStatus(rs.getString("sale_status"));
+			}
+		} finally {
+			close();
+		}
+		
+		return proDto;
+	}//end of public ProductDetailDTO selectOne(String test) throws SQLException-----
 	
 	
 	
