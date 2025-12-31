@@ -60,7 +60,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/inquiry/inquiry.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/inquiry/inquiryList.hp">
                         <i class="fa-solid fa-headset"></i> 고객센터
                     </a>
                 </li>
