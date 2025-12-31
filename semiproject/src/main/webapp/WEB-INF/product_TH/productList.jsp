@@ -66,7 +66,7 @@
 	<input type="hidden" name="seq"/>
 </form>
 
-
+<!-- dlatlxptmm -->
 
 <!-- 푸터부분 가져오기 -->
 <jsp:include page="../footer.jsp"/>
