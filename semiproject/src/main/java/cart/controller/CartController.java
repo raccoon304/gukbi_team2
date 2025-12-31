@@ -17,7 +17,7 @@ public class CartController extends AbstractController {
 	    HttpSession session = request.getSession();
 	    String memberId = (String) session.getAttribute("loginUser");
 
-	    // 로그인 안 했으면 튕김
+	    // 🔒 로그인 안 했으면 튕김
 	    if (memberId == null) {
 	        super.setRedirect(true);
 	        super.setViewPage(request.getContextPath() + "/member/login.hp");
