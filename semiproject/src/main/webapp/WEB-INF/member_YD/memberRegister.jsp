@@ -73,7 +73,7 @@
 					<!-- Form Fields -->
                         <div class="space-y-4">
                             <div>
-                                <label for="member-id" class="d-flex align-items-center">
+                                <label for="memberid" class="d-flex align-items-center">
 								  	<span class="block text-sm font-medium text-gray-700">아이디</span>
 								  	<button type="button" name="id_check" id="id_check" class="btn btn-sm btn-primary ms-auto">아이디 중복확인</button>
 								</label>
@@ -86,7 +86,7 @@
                             </div>
 
                             <div>
-                                <label for="full-name" class="block text-sm font-medium text-gray-700">성 명</label>
+                                <label for="name" class="block text-sm font-medium text-gray-700">성 명</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="user" class="text-gray-400"></i>
@@ -107,7 +107,7 @@
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label for="zip-code" class="block text-sm font-medium text-gray-700">우편번호</label>
+                                    <label for="postalCode" class="block text-sm font-medium text-gray-700">우편번호</label>
                                     
                                     <div class="mt-1 relative rounded-md shadow-sm">                          
                                         <input type="text" name="postalCode" id="postalCode" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="12345">
@@ -133,14 +133,14 @@
                             </div>
 
                             <div>
-                                <label for="detailed-address" class="block text-sm font-medium text-gray-700">상세 주소</label>
+                                <label for="addressDetail" class="block text-sm font-medium text-gray-700">상세 주소</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <textarea name="addressDetail" id="addressDetail" rows="2" class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-3" placeholder="아파트, 층, 호수, 등"></textarea>
                                 </div>
                             </div>
 
                             <div>
-                                <label for="dob" class="block text-sm font-medium text-gray-700">생년월일</label>
+                                <label for="birthday" class="block text-sm font-medium text-gray-700">생년월일</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="calendar" class="text-gray-400"></i>
@@ -175,7 +175,7 @@
                             </div>
 
                             <div>
-                                <label for="confirm-password" class="block text-sm font-medium text-gray-700">비밀번호 확인</label>
+                                <label for="confirmpassword" class="block text-sm font-medium text-gray-700">비밀번호 확인</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="lock" class="text-gray-400"></i>

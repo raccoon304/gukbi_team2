@@ -1,5 +1,7 @@
 package member.controller;
 
+import java.sql.SQLException;
+
 import common.controller.AbstractController;
 import delivery.domain.DeliveryDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,18 +39,13 @@ public class MemberRegister extends AbstractController {
 			if(gender_str.equals("female")) {
 				gender = 1;
 			}
-			
-			System.out.println(memberid);
-			System.out.println(name);
-			System.out.println(password);
-			System.out.println(mobile);
-			System.out.println(email);
-			System.out.println(birthday);
-			System.out.println(gender);
-			System.out.println(address);
-			System.out.println(addressDetail);
-			System.out.println(postalCode);
-
+			/*
+			 * System.out.println(memberid); System.out.println(name);
+			 * System.out.println(password); System.out.println(mobile);
+			 * System.out.println(email); System.out.println(birthday);
+			 * System.out.println(gender); System.out.println(address);
+			 * System.out.println(addressDetail); System.out.println(postalCode);
+			 */
 			MemberDTO mbrDto = new MemberDTO();
 			mbrDto.setMemberid(memberid);
 			mbrDto.setName(name);
@@ -67,8 +64,28 @@ public class MemberRegister extends AbstractController {
 			devDto.setAddressDetail(addressDetail);
 			devDto.setPostalCode(postalCode);
 
-			int n = mdao.registerMember(mbrDto, devDto);
+			// ==== 회원가입이 성공되어지면 회원가입 성공 이라는 alert를 띄우고 시작페이지로 이동 ==== //
+			String message = ""; 
+			String loc = ""; 
+						
+			try {
+				int n = mdao.registerMember(mbrDto, devDto);	
+				if(n==2) {
+					message = "회원가입 성공";
+					loc = request.getContextPath()+"/index.hp";
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+				message = "회원가입 실패";
+				loc= "javascript:history.back()";
+			}
+				
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			super.setRedirect(false);
+			super.setViewPage("/WEB-INF/msg.jsp");		
+			
 		}
-
 	}
 }

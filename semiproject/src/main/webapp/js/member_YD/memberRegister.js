@@ -226,5 +226,9 @@ $(function () {
 	  return dt.getFullYear() === y && (dt.getMonth() + 1) === mo && dt.getDate() === d;
 	
 	};
+	
+	
+	
+	
 });
 
