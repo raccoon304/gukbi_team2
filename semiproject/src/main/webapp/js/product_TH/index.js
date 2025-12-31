@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 
 
 $(document).ready(function() {
@@ -75,7 +75,8 @@ $(window).scroll(function() {
     } else {
         $('.navbar-custom').css('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
     }
-=======
+});
+
 
 
 $(document).ready(function() {
@@ -153,5 +154,4 @@ $(window).scroll(function() {
     } else {
         $('.navbar-custom').css('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
     }
->>>>>>> branch 'main' of https://github.com/raccoon304/gukbi_team2.git
 });

@@ -294,14 +294,13 @@ CHECK (REPLY_STATUS IN (0,1,2));
 -- REPLY_STATUS 디폴트값 1로 변경
 ALTER TABLE TBL_INQUIRY
 MODIFY (REPLY_STATUS DEFAULT 1);
-=======
+
 select * from tab;
 select * from tbl_member;
 select * from tbl_delivery;
 
 
 
->>>>>>> branch 'main' of https://github.com/raccoon304/gukbi_team2.git
 
 
 
