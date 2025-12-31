@@ -43,19 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
 	  }
   
   // ================= 개별 삭제 =================
-  document.querySelectorAll(".btn.btn-danger:not(.my-3)").forEach(btn => {
+  document.querySelectorAll(".btn.btn-danger").forEach(btn => {
     btn.addEventListener("click", () => {
-		if(confirm("정말로 삭제하시겠습니까?")){
-			const frm = document.seqFrm;
-					frm.seq.value = seq;
-					frm.action = "zangCart.hp";
-					frm.method = "post";
-					frm.submit();
-			
-			alert("삭제되었습니다.");
-			
-		}
-     
+      if (confirm("정말로 삭제하시겠습니까?")) {
+        btn.closest("tr").remove();
+      }
     });
   });
 

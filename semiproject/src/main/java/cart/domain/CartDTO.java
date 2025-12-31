@@ -9,6 +9,7 @@ private String memberId;
 private int optionId;
 private LocalDateTime addedDate;
 private int quantity;
+
 public int getCartId() {
 	
 	return cartId;

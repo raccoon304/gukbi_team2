@@ -1,6 +1,6 @@
 package cart.controller;
 
-import cart.model.CarDAO_imple;
+import cart.model.CartDAO_imple;
 import cart.model.CartDAO;
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,39 +9,67 @@ import jakarta.servlet.http.HttpSession;
 
 public class CartController extends AbstractController {
 
-	private CartDAO mdao = new CarDAO_imple();
+	private CartDAO mdao = new CartDAO_imple();
 	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
-		HttpSession session = request.getSession();
-		Object loginuser = session.getAttribute("loginuser");
 
-		// 만약 로그아웃 상태이면
-		if (loginuser == null) {
-			super.setRedirect(true);
-			super.setViewPage(request.getContextPath() + "/login/login.hp");
-			return;
-		}
-		 String method = request.getMethod();
+	    HttpSession session = request.getSession();
+	    String memberId = (String) session.getAttribute("loginUser");
 
-		    if ("GET".equalsIgnoreCase(method)) { // ㅎㅇ
+	    // 로그인 안 했으면 튕김
+	    if (memberId == null) {
+	        super.setRedirect(true);
+	        super.setViewPage(request.getContextPath() + "/member/login.hp");
+	        return;
+	    }
 
-		        // 장바구니에 있는 내용 조회하기
-		        // request.setAttribute("cartList", cartList);
+	    String method = request.getMethod();
 
-		        super.setRedirect(false);
-		        super.setViewPage("/WEB-INF/cart_MS/zangCart.jsp");
-		    }
-		    else { // 로그인 상태일때
+	    
+	    //  GET : 장바구니 페이지 조회 
+	    if ("GET".equalsIgnoreCase(method)) {
 
-		        // 👉 수량 + / - / 삭제 처리
-		        // String action = request.getParameter("action");
+	        // optionId / quantity 는 보존
+	        super.setRedirect(false);
+	        super.setViewPage("/WEB-INF/cart_MS/zangCart.jsp");
+	        return;
+	    }
 
-		        super.setRedirect(true);
-		        super.setViewPage("zangCart.hp");
-		        return;
-		    }
+	    // =====================
+	    // 2️⃣ POST : 장바구니 담기
+	    // =====================
+	    if ("POST".equalsIgnoreCase(method)) {
+
+	        String optionIdStr = request.getParameter("optionId");
+	        String quantityStr = request.getParameter("quantity");
+
+	        // 방어코드 
+	        if (optionIdStr == null || quantityStr == null) {
+	            super.setRedirect(true);
+	            super.setViewPage(request.getContextPath() + "/cart/zangCart.hp");
+	            return;
+	        }
+
+	        int optionId = Integer.parseInt(optionIdStr);
+	        int quantity = Integer.parseInt(quantityStr);
+
+	        // 이미 장바구니에 있는지 확인
+	        boolean exists = mdao.isOptionInCart(memberId, optionId);
+
+	        if (exists) {
+	            // 👉 있으면 수량 증가
+	            mdao.updateQuantity(memberId, optionId, quantity);
+	        } else {
+	            // 👉 없으면 새로 insert
+	            mdao.insertCart(memberId, optionId, quantity);
+	        }
+
+	        // POST → Redirect (새로고침 중복 방지)
+	        super.setRedirect(true);
+	        super.setViewPage(request.getContextPath() + "/cart/zangCart.hp");
+	        return;
+	    }
 	}
 }
+

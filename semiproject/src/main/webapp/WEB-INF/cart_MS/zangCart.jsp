@@ -32,7 +32,7 @@
 	
     <h2>장바구니</h2>
 
-	<c:if test="${empty cartItems}">
+	<c:if test="${not empty cartItems}">
     <!-- 장바구니 비어있을 때 -->
     <div class="cart-empty">
         주문한 상품이 없습니다.
@@ -62,33 +62,60 @@
         </thead>
 
         <tbody>
-            <tr>
-                <td>
-                    <input type="checkbox" class="item-checkbox" onchange="updateTotal()">
-                </td>
-                <td>
-                    <img src="<%= ctxPath %>/images/sample.png" class="product-image">
-                </td>
-                <td class="product-info">
-                    <div class="product-name">장비명</div>
-                </td>
-                
-                <td class="price">10,000원</td>
-                <td>
-                
-                    <div class="quantity-control">
-                        <button class="quantity-btn">-</button>
-                        <input type="text" class="quantity-input" value="1" readonly>
-                        <button class="quantity-btn">+</button>
-                    </div>
-                </td>
-                <td class="price">10,000원</td>
-                <td>
-                    <button type="button" class="btn btn-danger">삭제</button>
-                </td>
-            </tr>
-            
-        </tbody>
+
+<c:forEach var="cart" items="${cartItems}">
+    <tr>
+        <td>
+            <input type="checkbox"
+                   class="item-checkbox"
+                   data-cartid="${cart.cartId}"
+                   onchange="updateTotal()">
+        </td>
+
+        <td>
+            <img src="<%= ctxPath %>${cart.imagePath}"
+                 class="product-image">
+        </td>
+
+        <td class="product-info">
+            <div class="product-name">
+                ${cart.productName}
+            </div>
+        </td>
+
+        <td class="price">
+            ${cart.price}원
+        </td>
+
+        <td>
+            <div class="quantity-control">
+                <button class="quantity-btn"
+                        onclick="changeQty(${cart.cartId}, -1)">-</button>
+
+                <input type="text"
+                       class="quantity-input"
+                       value="${cart.quantity}"
+                       readonly>
+
+                <button class="quantity-btn"
+                        onclick="changeQty(${cart.cartId}, 1)">+</button>
+            </div>
+        </td>
+
+        <td class="price">
+            ${cart.totalPrice}원
+        </td>
+
+        <td>
+            <button type="button"
+                    class="btn btn-danger"
+                    onclick="deleteCart(${cart.cartId})">삭제
+            </button>
+        </td>
+    </tr>
+</c:forEach>
+
+</tbody>
     </table>
 
 		    <!-- ================= 요약 영역 ================= -->
