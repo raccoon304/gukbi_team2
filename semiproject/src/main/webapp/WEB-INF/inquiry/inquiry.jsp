@@ -2,6 +2,11 @@
     pageEncoding="UTF-8"%>
     
 <%
+  // ===== 테스트용 임시 로그인 처리 =====
+  if (session.getAttribute("memberID") == null) {
+      session.setAttribute("memberID", "testuser"); // 원하는 아이디
+  }
+
   String ctxPath = request.getContextPath();
   String memberID = (String)session.getAttribute("memberID");
 %>
@@ -75,8 +80,6 @@
                 궁금하신 사항을 문의해 주세요.
             </div>
             <div class="col text-right">
-            	<button id="loginBtn" class="btn btn-secondary mr-2">로그인</button>
-                <button id="logoutBtn" class="btn btn-secondary mr-2" style="display:none;">로그아웃</button>
                 <button id="addInquiryBtn" class="btn btn-primary">문의 등록</button>
             </div>
         </div>

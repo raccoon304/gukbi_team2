@@ -328,13 +328,3 @@ function escapeHtml(str) {
         .replaceAll("'", "&#039;");
 }
 
-console.log("inquiry.js loaded");
-
-$(document).on("click", "#addInquiryBtn", function() {
-  alert("문의 등록 버튼 클릭됨");
-  $("#inquiryModal").modal("show");
-});
-
-$(document).on("click", "#loginBtn", function() {
-  alert("로그인 버튼 클릭됨");
-});
