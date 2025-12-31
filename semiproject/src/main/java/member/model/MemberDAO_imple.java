@@ -65,8 +65,8 @@ public class MemberDAO_imple implements MemberDAO {
 	        conn.setAutoCommit(false);
 
 	        // 1) 회원 insert
-	        String sql1 = "INSERT INTO tbl_member(member_id, name, password, mobile_phone, email, birth_date, gender) "
-	                    + "VALUES(?, ?, ?, ?, ?, ?, ?)";
+	        String sql1 = " INSERT INTO tbl_member(userseq, member_id, name, password, mobile_phone, email, birth_date, gender) "
+	        		+ " VALUES(SEQ_TBL_MEMBER_USERSEQ.nextval, ?, ?, ?, ?, ?, ?, ?) ";
 	        pstmt = conn.prepareStatement(sql1);
 	        pstmt.setString(1, mbrDto.getMemberid());
 	        pstmt.setString(2, mbrDto.getName());

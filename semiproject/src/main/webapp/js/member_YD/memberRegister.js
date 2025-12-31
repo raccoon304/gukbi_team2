@@ -1,5 +1,6 @@
 let b_idcheck_click = false;  // 아이디 중복확인을 클릭했는지 클릭하지 않았는지 여부를 알아오기 위한 용도 
 let b_email_click = false;  // 이메일 중복확인을 클릭했는지 클릭하지 않았는지 여부를 알아오기 위한 용도 
+
 const $modal = $('#termsModal');
 const $terms = $('#terms');
 
@@ -27,7 +28,7 @@ $(function () {
 	            		extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
 	          		if (extraAddr !== '') extraAddr = ' (' + extraAddr + ')';
 	        	}
-	        	$('#zip-code').val(data.zonecode);
+	        	$('#postalCode').val(data.zonecode);
 	       	 	$('#address').val(addr);
 	        	// extra항목 input이 없다면 아래 줄은 제거하거나, input을 만들어야 함
 	        	// $('#address-extra').val(extraAddr);
