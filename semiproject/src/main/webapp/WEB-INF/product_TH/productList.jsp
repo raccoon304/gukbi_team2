@@ -5,6 +5,11 @@
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
 
+<!-- 사용자 JS -->
+<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/productList.js"></script>
+
+
+
 <div class="text-center mt-6" style="margin-top: 5%;">
 	<div style="font-size: 20pt">
 		<p>안녕하세요~</p>
@@ -12,6 +17,12 @@
 			<i class="fa-solid fa-list"></i> 상품상세페이지 가기
 		</a>
 	</div>
+	
+	
+	<div>
+	<h3>임시테스트입니다. 정보받아오기</h3>
+	</div>
+	
 	
     <table class="table table-bordered" id="memberTbl" style="margin-top: 100px; width: 80%; margin: 2% auto;">
        <thead>
@@ -28,7 +39,10 @@
 			 <c:forEach items="${requestScope.proList}" var="productDto" varStatus="status">
 			     <tr>
 			        <td>${status.count}</td>
-			        <td>${productDto.productCode}</td>
+			        <td >
+			        	<span style="display: none;">${productDto.productCode}</span>
+			        	${productDto.productCode}
+			        </td>
 			        <td>${productDto.productName}</td>
 			        <td>${productDto.brandName}</td>
 			        <td>${productDto.productDesc}</td>
@@ -67,6 +81,14 @@
        </tbody>
     </table>
 </div>
+
+
+<!-- 특정 회원 정보를 보기 위해 전송 방식을 POST 방식으로 사용하려면 form 태그를 사용해야 함!!
+		 POST 방식으로 하려면 form 태그 속에 전달해야할 데이터를 넣고 보내야 함!! -->
+<form name="seqFrm">
+	<input type="hidden" name="seq"/>
+</form>
+
 
 
 <!-- 푸터부분 가져오기 -->
