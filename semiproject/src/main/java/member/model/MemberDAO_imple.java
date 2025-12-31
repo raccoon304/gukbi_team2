@@ -102,4 +102,28 @@ public class MemberDAO_imple implements MemberDAO {
 	        close(); 
 	    }
 	}
+
+	
+	// ID 중복검사
+	@Override
+	public boolean idDuplicateCheck(String memberid) throws SQLException {
+		boolean isExists = false;
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " select member_id "
+					   + " from tbl_member "
+					   + " where member_id = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, memberid);
+			
+			rs = pstmt.executeQuery();
+			
+			isExists = rs.next();
+			// 행이 있으면 true  없으면 false 로, 있을경우 중복된 ID 가 있다는거임.
+		} finally {
+			close();
+		}
+		return isExists;
+	}
 }
