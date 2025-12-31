@@ -109,7 +109,7 @@
                                     
                                     <img src="<%= ctxPath%>/images/b_zipcode.gif" id="zipcodeSearch" />
                                 </div>
-                                <div>
+                                <div> 
                                     <label for="gender" class="block text-sm font-medium text-gray-700">성별</label>
                                     <select id="gender" class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
                                         <option value="" disabled selected>성별 선택</option>
