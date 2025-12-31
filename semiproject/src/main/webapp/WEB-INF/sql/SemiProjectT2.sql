@@ -281,6 +281,7 @@ CREATE SEQUENCE SEQ_TBL_INQUIRY_INQUIRY_NUMBER
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
 
+<<<<<<< HEAD
 -- 체크제약 삭제
 ALTER TABLE TBL_INQUIRY
 DROP CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS;
@@ -293,6 +294,14 @@ CHECK (REPLY_STATUS IN (0,1,2));
 -- REPLY_STATUS 디폴트값 1로 변경
 ALTER TABLE TBL_INQUIRY
 MODIFY (REPLY_STATUS DEFAULT 1);
+=======
+select * from tab;
+select * from tbl_member;
+select * from tbl_delivery;
+
+
+
+>>>>>>> branch 'main' of https://github.com/raccoon304/gukbi_team2.git
 
 
 
