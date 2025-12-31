@@ -98,6 +98,12 @@
                             <nav>
                                 <ul class="pagination justify-content-center" id="pagination"></ul>
                             </nav>
+                            
+                            <div id="pageBar">
+							   <nav>
+							  	  <ul class="pagination">${requestScope.pageBar}</ul>
+							   </nav>
+						    </div>
                         </div>
                     </div>
                 </div>
