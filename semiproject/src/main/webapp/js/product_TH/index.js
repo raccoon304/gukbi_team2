@@ -32,17 +32,18 @@ $(document).ready(function() {
 	});
 
 
-    // 로그인 버튼
-    $('#loginBtn').click(function() {
-		alert("로그인페이지로 이동합니다.");
-		console.log('이동: login.hp');
-		// window.location.href = 'login.hp';
-    });
+	// 로그인 버튼
+	$('#loginBtn').click(function() {
+	  /*alert("로그인페이지로 이동합니다.");*/
+	  $('#loginModal').modal('show');
+	  console.log('이동: login.hp');
+	  // window.location.href = 'login.hp';
+	});
 
     // 회원가입 버튼
     $('#signupBtn').click(function() {
-        alert("회원가입페이지로 이동합니다.");
-		console.log('이동: memberRegister.hp');
+		window.location.href = ctxPath + "/member/memberRegister.hp";
+		//console.log('이동: memberRegister.hp');
 		// window.location.href = 'memberRegister.hp';
     });
 
