@@ -59,6 +59,7 @@ public class InquiryUpdate extends AbstractController {
             
             response.setContentType("application/json; charset=UTF-8");
             response.getWriter().print(jsonObj.toString());
+            return;
         }
     }
 }

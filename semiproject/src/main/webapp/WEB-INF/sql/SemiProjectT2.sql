@@ -254,21 +254,31 @@ SELECT column_name,
        data_default,
        nullable
 FROM   user_tab_columns
-WHERE  table_name = 'TBL_MEMBER'
-AND    column_name IN ('STATUS', 'IDLE');
+WHERE  table_name = 'TBL_INQUIRY'
+AND    column_name IN ('REPLY_STATUS');
 
 
+SELECT * FROM TBL_INQUIRY;
+
+SELECT table_name
+FROM user_tables
+WHERE table_name LIKE '%INQUIRY%';
 
 
+SELECT USER FROM dual;
+SELECT table_name FROM user_tables WHERE table_name='TBL_INQUIRY';
 
 
+select *
+from TBL_INQUIRY;
 
 
+SELECT owner, table_name
+FROM all_tables
+WHERE table_name='TBL_INQUIRY';
 
-
-
-
-
-
+SELECT inquiry_number, fk_member_id, title, registerday
+FROM tbl_inquiry
+ORDER BY inquiry_number DESC;
 
 

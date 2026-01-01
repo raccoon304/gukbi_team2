@@ -20,12 +20,12 @@ public class InquiryDAO_imple implements InquiryDAO {
     private PreparedStatement pstmt;
     private ResultSet rs;
     
-    // 생성자에서 DataSource 초기화
+    // 기본 생성자
     public InquiryDAO_imple() {
         try {
             Context initContext = new InitialContext();
             Context envContext = (Context) initContext.lookup("java:/comp/env");
-            ds = (DataSource) envContext.lookup("jdbc/myoracle");
+            ds = (DataSource) envContext.lookup("semiproject");
         } catch (NamingException e) {
             e.printStackTrace();
         }
@@ -60,8 +60,8 @@ public class InquiryDAO_imple implements InquiryDAO {
             conn = ds.getConnection();
             
             String sql = " INSERT INTO TBL_INQUIRY (INQUIRY_NUMBER, FK_MEMBER_ID, INQUIRY_TYPE, TITLE, " +
-                        " INQUIRY_CONTENT, REPLY_STATUS) " +
-                        " VALUES (SEQ_TBL_INQUIRY_INQUIRY_NUMBER.NEXTVAL, ?, ?, ?, ?, 1) ";
+                         " INQUIRY_CONTENT, REPLY_STATUS) " +
+                         " VALUES (SEQ_TBL_INQUIRY_INQUIRY_NUMBER.NEXTVAL, ?, ?, ?, ?, 1) ";
             
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, inquiry.getMemberID());
