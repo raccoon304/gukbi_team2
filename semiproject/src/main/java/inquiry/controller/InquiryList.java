@@ -22,10 +22,16 @@ public class InquiryList extends AbstractController {
         try {
             List<InquiryDTO> inquiryList;
 
-            if (memberID != null) {
+            if (memberID == null) {
+                inquiryList = List.of();
+            }
+            else if ("admin".equalsIgnoreCase(memberID)) {
+                // 관리자면 전체 문의 조회 
+                inquiryList = dao.selectAllInquiries();
+            }
+            else {
+                // 일반 사용자는 본인 문의만
                 inquiryList = dao.selectInquiriesByMember(memberID);
-            } else {
-                inquiryList = List.of(); // 빈 리스트
             }
 
             // JSP에서 사용

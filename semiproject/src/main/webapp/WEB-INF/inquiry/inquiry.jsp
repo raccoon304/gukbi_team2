@@ -6,9 +6,9 @@
 
 <%
   // ===== 테스트용 임시 로그인 처리 =====
-  if (session.getAttribute("memberID") == null) {
-      session.setAttribute("memberID", "leejae"); // 원하는 아이디
-  }
+  session.setAttribute("memberID", "kangkc"); // 원하는 아이디
+ 
+  // session.removeAttribute("memberID");
 
   String ctxPath = request.getContextPath();
   String memberID = (String)session.getAttribute("memberID");

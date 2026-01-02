@@ -50,7 +50,12 @@ function loadInquiryDetail(inquiryNumber) {
                 date: (json.registerday || "").split("T")[0],
                 author: json.memberID,
                 adminReply: json.replyContent || null,
-                replyRegisterday: json.replyRegisterday
+                replyRegisterday: json.replyRegisterday,
+				
+				// ★ 추가: 관리자 답변창 노출 여부
+			    canReply: !!json.canReply,
+			    isAdmin: !!json.isAdmin
+				
             };
 
             renderInquiryDetail(inquiry);
@@ -67,13 +72,29 @@ function loadInquiryDetail(inquiryNumber) {
 function renderInquiryDetail(inquiry) {
     const canEdit = isLoggedIn && currentUser === inquiry.author;
 
+    // ★ 관리자 답변 입력창 (관리자만 보이도록)
+    const adminReplyFormHtml = inquiry.canReply ? `
+        <div class="message-box admin-message mt-3">
+            <div class="d-flex justify-content-between mb-2">
+                <strong>관리자 답변 ${inquiry.adminReply ? "(수정)" : "(등록)"}</strong>
+            </div>
+
+            <textarea id="adminReplyContent" class="form-control" rows="5"
+                      placeholder="답변 내용을 입력하세요">${inquiry.adminReply ? escapeHtml(inquiry.adminReply) : ""}</textarea>
+
+            <div class="mt-2 text-right">
+                <button type="button" class="btn btn-sm btn-primary" onclick="saveAdminReply(${inquiry.id})">저장</button>
+            </div>
+        </div>
+    ` : ``;
+
     const detailHtml = `
         <div class="inquiry-detail border rounded p-3">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
                     <h4>${escapeHtml(inquiry.title)}</h4>
                     <span class="badge badge-primary mr-2">${escapeHtml(inquiry.type)}</span>
-                    <span class="badge ${getStatusBadgeClass(inquiry.status)}">${escapeHtml(inquiry.status)}</span>
+                    <span id="detailStatusBadge" class="badge ${getStatusBadgeClass(inquiry.status)}">${escapeHtml(inquiry.status)}</span>
                 </div>
 
                 ${canEdit ? `
@@ -92,8 +113,11 @@ function renderInquiryDetail(inquiry) {
                 <p class="mb-0">${escapeHtml(inquiry.content).replace(/\n/g, "<br>")}</p>
             </div>
 
+            <!-- ★ 문의 내용 바로 아래 관리자 답변 입력창 -->
+            ${adminReplyFormHtml}
+
             ${inquiry.adminReply ? `
-            <div class="message-box admin-message">
+            <div class="message-box admin-message mt-3">
                 <div class="d-flex justify-content-between mb-2">
                     <strong>관리자 답변</strong>
                     <small class="text-muted">${escapeHtml((inquiry.replyRegisterday || "").split("T")[0])}</small>
@@ -107,6 +131,7 @@ function renderInquiryDetail(inquiry) {
     $("#inquiryDetail").html(detailHtml).show();
     $("#inquiryDetailPlaceholder").hide();
 }
+
 
 // ================================
 // 3) 수정 모달 오픈
@@ -187,6 +212,7 @@ window.deleteInquiry = function (inquiryNumber) {
 $(document).on("click", "#addInquiryBtn", function () {
     if (!isLoggedIn) {
         alert("로그인이 필요합니다.");
+	//	location.href = loginPageUrl;
         return;
     }
 
@@ -273,4 +299,128 @@ function escapeHtml(str) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+window.saveAdminReply = function (inquiryNumber) {
+    if (!isLoggedIn) {
+        alert("로그인이 필요합니다.");
+        return;
+    }
+
+    const replyContent = ($("#adminReplyContent").val() || "").trim();
+
+    if (!replyContent) {
+        alert("답변 내용을 입력하세요.");
+        return;
+    }
+
+    $.ajax({
+        url: ctxPath + "/inquiry/inquiryReply.hp",
+        type: "POST",
+        dataType: "json",
+        data: { inquiryNumber, replyContent },
+        success: function (json) {
+            if (json && json.needLogin) {
+                alert(json.message || "로그인이 필요합니다.");
+                return;
+            }
+            if (json && json.needAdmin) {
+                alert(json.message || "관리자만 답변할 수 있습니다.");
+                return;
+            }
+
+			if (json && json.success) {
+			    alert(json.message || "관리자 답변이 저장되었습니다.");
+
+			    // ★ 답변 완료 상태로 변경
+			    updateReplyStatus(inquiryNumber, 2);
+
+			    // 상세 새로고침
+			    loadInquiryDetail(inquiryNumber);
+			} else {
+                alert((json && json.message) ? json.message : "답변 저장에 실패했습니다.");
+            }
+        },
+        error: function () {
+            alert("답변 저장 중 오류가 발생했습니다.");
+        }
+    });
+};
+
+
+function updateReplyStatus(inquiryNumber, replyStatus) {
+    $.ajax({
+        url: ctxPath + "/inquiry/inquiryReplyStatusUpdate.hp",
+        type: "POST",
+        dataType: "json",
+        data: {
+            inquiryNumber: inquiryNumber,
+            replyStatus: replyStatus
+        },
+        success: function (json) {
+            if (json && json.success) {
+                // ★ 즉시 상태 뱃지 업데이트
+                applyReplyStatusUI(inquiryNumber, replyStatus);
+				
+				// ★ 최신응답우선: 답변완료로 바뀐 순간 맨 위로 이동
+                if (Number(replyStatus) === 2) {
+                    moveInquiryItemToTop(inquiryNumber);
+                }
+            } else {
+                console.warn("replyStatus 업데이트 실패");
+            }
+        },
+        error: function () {
+            console.warn("replyStatus 업데이트 중 오류");
+        }
+    });
+}
+
+
+function getStatusInfoByReplyStatus(replyStatus) {
+    const rs = Number(replyStatus);
+    if (rs === 0) return { text: "보류", cls: "badge-secondary" };
+    if (rs === 1) return { text: "접수", cls: "badge-info" };
+    if (rs === 2) return { text: "답변완료", cls: "badge-success" };
+    return { text: "-", cls: "badge-secondary" };
+}
+
+function applyReplyStatusUI(inquiryNumber, replyStatus) {
+    const info = getStatusInfoByReplyStatus(replyStatus);
+
+    // 1) 상세 영역 상태 뱃지 업데이트
+    const $detailBadge = $("#detailStatusBadge");
+    if ($detailBadge.length) {
+        $detailBadge
+            .removeClass("badge-secondary badge-info badge-success")
+            .addClass(info.cls)
+            .text(info.text);
+    }
+
+    // 2) 목록 영역 상태 뱃지 업데이트 (JSP 렌더 구조: .inquiry-item[data-id] 안의 .status-badge)
+    const $listItem = $(`.inquiry-item[data-id="${inquiryNumber}"]`);
+    if ($listItem.length) {
+        const $listBadge = $listItem.find(".status-badge");
+        if ($listBadge.length) {
+            $listBadge
+                .removeClass("badge-secondary badge-info badge-success")
+                .addClass(info.cls)
+                .text(info.text);
+        }
+    }
+}
+
+// 목록 아이템을 맨 위로 올리는 함수
+function moveInquiryItemToTop(inquiryNumber) {
+    const $list = $("#inquiryList");
+    const $item = $(`.inquiry-item[data-id="${inquiryNumber}"]`);
+
+    if ($list.length && $item.length) {
+        // 맨 위로 이동 (목록 내 첫 요소로 prepend)
+        $item.detach().prependTo($list);
+
+        // (선택) 사용자 체감용 하이라이트
+        $item.addClass("border-primary");
+        setTimeout(() => $item.removeClass("border-primary"), 800);
+    }
 }
