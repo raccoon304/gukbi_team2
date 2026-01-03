@@ -25,6 +25,35 @@ body {
     align-items: flex-start;
 }
 
+.cart-empty-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 40px 20px;
+}
+
+.cart-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.cart-empty {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.cart-empty-btn {
+  padding: 12px 30px;
+  font-size: 16px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 h1 {
     font-size: 28px;
     font-weight: bold;

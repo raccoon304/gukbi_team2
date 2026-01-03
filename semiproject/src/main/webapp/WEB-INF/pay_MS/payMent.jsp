@@ -3,6 +3,7 @@
     <%String ctxPath = request.getContextPath();%>
     
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+    
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -19,7 +20,7 @@
 <body>
 	<jsp:include page="/WEB-INF/header.jsp" />
 
-    <div class="container">
+    <div class="container payment-container">
         <div class="header">
          
         </div>
@@ -76,5 +77,37 @@
             </div>
         </div>
     </div>
+    
+    <div class="modal fade" id="payModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">결제하기</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>결제를 진행하시겠습니까?</p>
+        <p><strong>결제 금액 : <span id="modalTotalPrice">17,940원</span></strong></p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-primary" onclick="doPay()">결제 진행</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+	<!-- jQuery (Bootstrap 4 필수) -->
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	
+	<!-- Bootstrap 4.6.2 JS (bundle = Popper 포함) -->
+	<script src="<%= ctxPath %>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
+    
 </body>
 </html>

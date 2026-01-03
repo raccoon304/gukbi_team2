@@ -33,17 +33,19 @@
     <h4>장바구니</h4>
 
 	<c:if test="${not empty cartList}">
-    <!-- 장바구니 비어있을 때 -->
+  <div class="cart-empty-wrapper">
+    <h4 class="cart-title"></h4>
+
     <div class="cart-empty">
-        주문한 상품이 없습니다.
-        <br/><br/>
-        
-         <button type="button"
-         	class="cart-empty-btn"
-                onclick="location.href='<%= request.getContextPath() %>/product/productList.hp'"> 
-            상품 보러가기
-       </button>
+      주문한 상품이 없습니다.
+      <br/><br/>
+      <button type="button"
+        class="cart-empty-btn"
+        onclick="location.href='${pageContext.request.contextPath}/product/productList.hp'">
+        상품 보러가기
+      </button>
     </div>
+  </div>
 </c:if>
 
 <c:if test="${empty cartList}">
@@ -157,7 +159,7 @@
     </div>
 
 
-    
+	
     <script src="<%= ctxPath %>/js/cart_MS/zangCart.js"></script>
  
 </body>

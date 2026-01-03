@@ -1,5 +1,11 @@
 $(document).ready(function () {
 
+  /* ================= 쿠폰 정보 ================= */
+  const coupon = {
+    type: 0,    // 0: 정액, 1: 정률
+    value: 10000
+  };
+
   /* ================= 전체 선택 ================= */
   window.toggleSelectAll = function (allChk) {
     $(".item-checkbox").prop("checked", allChk.checked);
@@ -22,7 +28,6 @@ $(document).ready(function () {
 
   /* ================= 선택 삭제 ================= */
   $("#btnDeleteSelected").on("click", function () {
-
     const $checked = $(".item-checkbox:checked");
 
     if ($checked.length === 0) {
@@ -36,12 +41,8 @@ $(document).ready(function () {
 
     $checked.each(function () {
       const cartId = $(this).val();
-
       requests.push(
-        $.post("zangCart.hp", {
-          action: "delete",
-          cartId: cartId
-        })
+        $.post("zangCart.hp", { action: "delete", cartId })
       );
     });
 
@@ -62,14 +63,25 @@ $(document).ready(function () {
       total += price;
     });
 
+    let discount = 0;
+
+    if (coupon.type === 0) {
+      discount = coupon.value;
+    } else if (coupon.type === 1) {
+      discount = Math.floor(total * coupon.value / 100);
+    }
+
+    if (discount > total) discount = total;
+
+    const finalTotal = total - discount;
+
     $("#totalProductPrice").text(total.toLocaleString() + "원");
-    $("#totalDiscount").text("0원");
-    $("#finalTotal").text(total.toLocaleString() + "원");
+    $("#totalDiscount").text(discount.toLocaleString() + "원");
+    $("#finalTotal").text(finalTotal.toLocaleString() + "원");
   };
 
   /* ================= 수량 + / - ================= */
   window.changeQty = function (cartId, diff) {
-
     const $row = $(`tr[data-cartid='${cartId}']`);
     const $input = $row.find(".quantity-input");
 
@@ -87,7 +99,6 @@ $(document).ready(function () {
     $input.val(qty);
     updateRowTotal($row);
     updateTotal();
-
     sendQtyToServer(cartId, qty);
   };
 
@@ -105,7 +116,6 @@ $(document).ready(function () {
 
       updateRowTotal($row);
       updateTotal();
-
       sendQtyToServer($row.data("cartid"), qty);
     });
 
@@ -120,20 +130,20 @@ $(document).ready(function () {
   function sendQtyToServer(cartId, qty) {
     return $.post("zangCart.hp", {
       action: "updateQty",
-      cartId: cartId,
+      cartId,
       quantity: qty
     });
   }
 
   /* ================= 구매하기 ================= */
   $(".checkout-btn").on("click", function () {
-
-    if ($(".item-checkbox:checked").length === 0) {
+    if ($(".item-checkbox:checked").length != 0) {
       alert("주문한 상품이 없습니다.");
       return;
     }
-
     location.href = ctxPath + "/pay/payMent.hp";
   });
 
+  /* ================= 최초 1회 계산 (중요) ================= */
+  updateTotal();
 });
