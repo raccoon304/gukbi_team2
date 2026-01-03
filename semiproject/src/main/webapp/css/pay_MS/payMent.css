@@ -6,6 +6,26 @@
   margin: 30px auto 0;
 }
 
+/* 상단 두 영역 가로 정렬 */
+.payment-top-flex {
+    display: flex;
+    gap: 24px;              /* 박스 사이 간격 */
+    margin-left : 0;
+    width: 90%;
+}
+
+/* 왼쪽 : 받는분 정보 */
+.recipient-info {
+    flex: 1;
+    padding: 32px 28px;
+}
+
+/* 오른쪽 : 금액 정보 */
+.price-summary {
+    flex: 1;
+    padding: 32px 28px;
+}
+
 :root {
   --purple-main: #6f63d2;
   --purple-light: #f4f3ff;
@@ -20,6 +40,12 @@
   padding: 20px;
   margin-bottom: 20px;
   background-color: #fff;
+}
+
+.recipient-info,
+.price-summary {
+    padding: 40px 32px;   /* 위아래 여유 ↑ */
+    min-height: 200px;    
 }
 
 .info-row {

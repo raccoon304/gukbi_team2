@@ -113,7 +113,7 @@ public class CartDAO_imple implements CartDAO {
             + "       c.quantity, "
             + "       p.product_name, "
             + "       o.price, "
-            + "       o.image_path, "
+            + "       p.image_path, "
             + "       (o.price * c.quantity) as total_price "
             + " from tbl_cart c "
             + " join tbl_product_option o "
