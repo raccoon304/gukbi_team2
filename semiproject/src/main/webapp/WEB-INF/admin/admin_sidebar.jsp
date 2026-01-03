@@ -113,7 +113,7 @@
         </li>
         <li class="sidebar-menu-item">
             <a class="sidebar-menu-link <%= request.getRequestURI().contains("accounting") ? "active" : "" %>" 
-               href="${pageContext.request.contextPath}/admin/accounting">
+               href="<%= ctxPath %>/admin/accounting.hp">
                 <i class="fas fa-calculator"></i>
                 <span>회계</span>
             </a>

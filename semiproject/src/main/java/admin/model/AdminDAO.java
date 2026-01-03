@@ -3,9 +3,10 @@ package admin.model;
 import java.util.List;
 import java.util.Map;
 
+import admin.domain.AdminPageDTO;
 import member.domain.MemberDTO;
 
-public interface AdminMemberDAO {
+public interface AdminDAO {
 
 	// 페이징 처리를 위한 검색이 있는 또는 검색이 없는 회원에 대한 총페이지수 알아오기 //
 	int getTotalPage(Map<String, String> paraMap) throws Exception;
@@ -17,4 +18,23 @@ public interface AdminMemberDAO {
     검색이 있는 또는 검색이 없는 회원의 총개수 알아오기 시작 <<< */
 	int getTotalMemberCount(Map<String, String> paraMap) throws Exception;
 
+	// 결제금액, 주문건수 구하기
+	Map<String, Map<String, Long>> orderCountAndPaymentAmount (List<String> memberIds) throws Exception;
+	
+	// 회원 1명 상세 정보
+	Map<String, String> memberDetail(String memberId) throws Exception;
+	
+	// 회원 1명 주문 정보
+	Map<String, Long> orderStatOne(String memberId) throws Exception;
+
+	// 오늘 가입한 회원 리스트
+	List<MemberDTO> todayNewMembers() throws Exception;
+
+	// 품절 임박 상품 리스트
+	List<AdminPageDTO> lowStockProducts() throws Exception;
+
+	// 최근 주문 5건
+	List<AdminPageDTO> currentOrders() throws Exception;
+	
+	
 }

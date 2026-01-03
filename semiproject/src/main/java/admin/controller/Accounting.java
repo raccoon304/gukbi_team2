@@ -1,51 +1,39 @@
 package admin.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import admin.domain.AdminPageDTO;
-import admin.model.AdminDAO;
-import admin.model.AdminDAO_imple;
 import common.controller.AbstractController;
+import coupon.domain.CouponDTO;
+import coupon.model.CouponDAO;
+import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import member.domain.MemberDTO;
 
-public class Adminpage extends AbstractController {
-
+public class Accounting extends AbstractController {
+	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		AdminDAO mdao = new AdminDAO_imple();
+		CouponDAO cpDao = new CouponDAO_imple();
 		
 		// 관리자(admin) 로 로그인 했을때만 접속 가능하도록 한다
 		
-//		HttpSession session = request.getSession();
+		HttpSession session = request.getSession();
 		
 //		MemberDTO loginuser = (MemberDTO) session.getAttribute("loginuser");
 		
 //		if(loginuser != null && "admin".equals(loginuser.getUserid())) {
-			// 관리자로 로그인 했을 경우
+		    // 관리자로 로그인 했을 경우
 		
 		
 		
-			// 오늘 가입한 회원
-			List<MemberDTO> todayNewMembers = mdao.todayNewMembers();
-			request.setAttribute("todayNewMembers", todayNewMembers);
-			
-			// 품절 임박 상품
-			List<AdminPageDTO> lowStockProducts = mdao.lowStockProducts();
-			request.setAttribute("lowStockProducts", lowStockProducts);
-			
-			// 최근 주문 5건
-			List<AdminPageDTO> currentOrders = mdao.currentOrders();
-			request.setAttribute("currentOrders", currentOrders);
-			
-			
-			super.setRedirect(false);
-			super.setViewPage("/WEB-INF/admin/dashboard.jsp");
-			
-			
+
+
+	        super.setRedirect(false);
+	        super.setViewPage("/WEB-INF/admin/accounting.jsp");
 			
 //		}
 //		else {
@@ -59,7 +47,8 @@ public class Adminpage extends AbstractController {
 //			super.setRedirect(false);
 //			super.setViewPage("/WEB-INF/msg.jsp");
 			
-//		}
+//		}		
+		
 		
 	}
 
