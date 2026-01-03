@@ -18,12 +18,16 @@ public interface CartDAO {
 	// 장바구니 목록 조회 (체크박스/이미지/가격)
     List<Map<String, Object>> selectCartList(String memberId) throws SQLException;
 
-    // + / − 버튼 (AJAX)
-    int updateQuantityByCartId(int cartId, int delta) throws SQLException;
-
     // 개별 삭제
     int deleteCart(int cartId, String memberId) throws SQLException;
 
     // 전체 삭제
     int deleteAll(String memberId) throws SQLException;
+
+    // 장바구니 내부에서 수량 변경
+	int updateQuantity(int cartId, String memberId, int quantity) throws SQLException;
+	
+	// 특정 회원(memberId)의 장바구니에서, 특정 행(cartId) 하나의 정보를 조회
+	Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException;
+
 }

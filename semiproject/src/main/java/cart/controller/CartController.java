@@ -19,8 +19,16 @@ public class CartController extends AbstractController {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         HttpSession session = request.getSession();
-        String memberId = (String) session.getAttribute("loginUser");
+        
 
+     // 임시 로그인
+     if (session.getAttribute("loginUser") == null) {
+         session.setAttribute("loginUser", "testuser");
+     }
+
+     String memberId = (String) session.getAttribute("loginUser");
+        
+        
         // 로그인 안 했으면 경고만 띄우고 접근 차단
         if (memberId == null) {
             response.setContentType("text/html; charset=UTF-8");
@@ -55,30 +63,32 @@ public class CartController extends AbstractController {
         	// + / − 버튼 (AJAX)
         	if ("updateQty".equals(action)) {
 
-        	    int cartId = Integer.parseInt(request.getParameter("cartId"));
-        	    int delta  = Integer.parseInt(request.getParameter("delta")); // +1 / -1
+        		int cartId   = Integer.parseInt(request.getParameter("cartId"));
+        		int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        	    // 수량 변경
-        	    mdao.updateQuantityByCartId(cartId, delta);
-
-        	    // 변경 후 다시 조회 (AJAX 응답용)
-        	    List<Map<String, Object>> cartList = mdao.selectCartList(memberId);
-
-        	    Map<String, Object> target = null;
-        	    for (Map<String, Object> map : cartList) {
-        	        if (((Integer) map.get("cart_id")) == cartId) {
-        	            target = map;
-        	            break;
-        	        }
+        		 if (quantity < 1 || quantity > 50) {
+        		        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        		        return;
+        		 }
+        		
+        		int n = mdao.updateQuantity(cartId, memberId, quantity);
+        		if (n == 0) {
+        	        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        	        return;
+        	    }
+        		
+        		Map<String, Object> cart = mdao.selectCartById(cartId, memberId);
+        		if (cart == null) {
+        	        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        	        return;
         	    }
 
-        	    response.setContentType("application/json; charset=UTF-8");
-        	    response.getWriter().write(
-        	        "{"
-        	      + "\"quantity\":" + target.get("quantity") + ","
-        	      + "\"total\":" + target.get("total_price")
-        	      + "}"
-        	    );
+        		response.setContentType("application/json; charset=UTF-8");
+        		response.getWriter().printf(
+        		    "{\"quantity\":%d,\"total\":%d}",
+        		    cart.get("quantity"),
+        		    cart.get("total_price")
+        		);
         	    return;
         	}
         	
@@ -87,21 +97,22 @@ public class CartController extends AbstractController {
 
         	    int cartId = Integer.parseInt(request.getParameter("cartId"));
 
-        	    mdao.deleteCart(cartId, memberId);
+        	    int n = mdao.deleteCart(cartId, memberId);
 
-        	    super.setRedirect(true);
-        	    super.setViewPage(request.getContextPath() + "/cart/zangCart.hp");
+        	    response.setContentType("application/json; charset=UTF-8");
+        	    response.getWriter().print("{\"result\":" + n + "}");
         	    return;
         	}
         	
         	// 전체 삭제
         	if ("deleteAll".equals(action)) {
 
-        	    mdao.deleteAll(memberId);
+        		 int n = mdao.deleteAll(memberId);
 
-        	    super.setRedirect(true);
-        	    super.setViewPage(request.getContextPath() + "/cart/zangCart.hp");
-        	    return;
+        		    response.setContentType("application/json; charset=UTF-8");
+        		    response.getWriter().print("{\"result\":" + n + "}");
+        		    return;
+        		
         	}
         	
             String optionIdStr = request.getParameter("optionId");
@@ -138,15 +149,19 @@ public class CartController extends AbstractController {
                 // 장바구니에 이미 있는지 확인 후 처리
                 boolean exists = mdao.isOptionInCart(memberId, optionId);
 
+                int n;
                 // 있으면 수량만 증가
                 if (exists) {
-                    int n = mdao.updateQuantity(memberId, optionId, quantity);
+                    n = mdao.updateQuantity(memberId, optionId, quantity);
                     
                 // 없으면 새로 insert
                 } else {
-                    int n = mdao.insertCart(memberId, optionId, quantity);
+                    n = mdao.insertCart(memberId, optionId, quantity);
                 }
-
+                
+                if (n == 0) {
+                    throw new RuntimeException("장바구니 처리 실패");
+                }
                 // 성공 시 장바구니 페이지로 리다이렉트
                 super.setRedirect(true);
                 super.setViewPage(request.getContextPath() + "/cart/zangCart.hp");

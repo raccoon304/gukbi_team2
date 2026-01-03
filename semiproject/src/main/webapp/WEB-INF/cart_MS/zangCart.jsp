@@ -30,9 +30,9 @@
      <div class="container">
 	
 	
-    <h2>장바구니</h2>
+    <h4>장바구니</h4>
 
-	<c:if test="${not empty cartItems}">
+	<c:if test="${not empty cartList}">
     <!-- 장바구니 비어있을 때 -->
     <div class="cart-empty">
         주문한 상품이 없습니다.
@@ -46,7 +46,7 @@
     </div>
 </c:if>
 
-<c:if test="${empty cartItems}">
+<c:if test="${empty cartList}">
     <!-- ================= 장바구니 테이블 ================= -->
     <table class="cart-table">
         <thead>
@@ -63,56 +63,68 @@
 
         <tbody>
 
-<c:forEach var="cart" items="${cartItems}">
-    <tr>
-        <td>
-            <input type="checkbox"
-                   class="item-checkbox"
-                   data-cartid="${cart.cartId}"
-                   onchange="updateTotal()">
-        </td>
+<c:forEach var="cart" items="${cartList}">
+    <tr data-cartid="${cart.cart_id}"
+    data-price="${cart.price}">
+    <!-- data-quantity="${cart.quantity}">  -->
 
-        <td>
-            <img src="<%= ctxPath %>${cart.imagePath}"
-                 class="product-image">
-        </td>
-
-        <td class="product-info">
-            <div class="product-name">
-                ${cart.productName}
-            </div>
-        </td>
-
-        <td class="price">
-            ${cart.price}원
-        </td>
-
-        <td>
-            <div class="quantity-control">
-                <button class="quantity-btn"
-                        onclick="changeQty(${cart.cartId}, -1)">-</button>
-
-                <input type="text"
-                       class="quantity-input"
-                       value="${cart.quantity}"
-                       readonly>
-
-                <button class="quantity-btn"
-                        onclick="changeQty(${cart.cartId}, 1)">+</button>
-            </div>
-        </td>
-
-        <td class="price">
-            ${cart.totalPrice}원
-        </td>
-
-        <td>
-            <button type="button"
-                    class="btn btn-danger"
-                    onclick="deleteCart(${cart.cartId})">삭제
-            </button>
-        </td>
-    </tr>
+	    <!-- 선택 -->
+	    <td>
+	        <input type="checkbox"
+	               class="item-checkbox"
+	               value="${cart.cart_id}">
+	    </td>
+	
+	    <!-- 이미지 -->
+	    <td>
+	        <img src="<%= ctxPath %>/images/${cart.image_path}"
+	             class="product-image">
+	    </td>
+	
+	    <!-- 상품명 -->
+	    <td class="product-info">
+	        <div class="product-name">
+	            ${cart.product_name}
+	        </div>
+	    </td>
+	
+	    <!-- 가격 -->
+	    <td class="price">
+	        <span class="unit-price">${cart.price}</span>원
+	    </td>
+	
+	    <!-- 수량 -->
+	    <td>
+	        <div class="quantity-control">
+	            <button type="button"
+	                    class="quantity-btn"
+	                    onclick="changeQty(${cart.cart_id}, -1)">−</button>
+	
+	            <input type="number"
+				       class="quantity-input"
+				       value="${cart.quantity}"
+				       min="1"
+				       max="50">
+	
+	            <button type="button"
+	                    class="quantity-btn"
+	                    onclick="changeQty(${cart.cart_id}, 1)">+</button>
+	        </div>
+	    </td>
+	
+	    <!-- 합계 -->
+	    <td class="price">
+	        <span class="row-total">${cart.total_price}</span>원
+	    </td>
+	
+	    <!-- 삭제 -->
+	    <td>
+	        <button type="button"
+        	class="btn btn-danger btn-sm btn-delete">
+	            삭제
+	        </button>
+	    </td>
+	</tr>
 </c:forEach>
 
 </tbody>
@@ -137,7 +149,7 @@
 		            </div>
 		
 		            <button class="checkout-btn">구매하기</button>
-		            <button type="button" class="btn btn-danger my-3">선택삭제</button>
+		            <button type="button" id="btnDeleteSelected" class="btn btn-danger my-3">선택삭제</button>
 		        </div>
 		    </div>
 		</c:if>
@@ -146,7 +158,6 @@
 
 
     
-    <script> const ctxPath = "<%= request.getContextPath() %>"; </script>
     <script src="<%= ctxPath %>/js/cart_MS/zangCart.js"></script>
  
 </body>

@@ -1,126 +1,139 @@
-document.addEventListener("DOMContentLoaded", () => {
+$(document).ready(function () {
 
-  // ================= 전체 선택 =================
-  window.toggleSelectAll = function(allChk) {
-    document.querySelectorAll(".item-checkbox").forEach(chk => {
-      chk.checked = allChk.checked;
-    });
+  /* ================= 전체 선택 ================= */
+  window.toggleSelectAll = function (allChk) {
+    $(".item-checkbox").prop("checked", allChk.checked);
     updateTotal();
   };
 
-  // =============== 전체 선택된 체크 박스 중 1개를 삭제하면 전체 칸에 해제가 되는것 =================
-  // === 체크박스 전체선택/전체해제 에서 
-      //     하위 체크박스에 체크가 1개라도 체크가 해제되면 체크박스 전체선택/전체해제 체크박스도 체크가 해제되고
-      //     하위 체크박스에 체크가 모두 체크가 되어지면 체크박스 전체선택/전체해제 체크박스도 체크가 되어지도록 하는 것 === // 
-	  
-	  const itemCheckboxList = document.querySelectorAll(".item-checkbox");
-	   const allCheck = document.querySelector("thead input[type='checkbox']");
-	  
-	  // === 개별 체크 클릭 시 ===
-	  for (let checkbox of itemCheckboxList) {
+  const $allCheck = $("thead input[type='checkbox']");
 
-	    checkbox.addEventListener("click", () => {
+  /* ================= 개별 체크 ================= */
+  $(document).on("click", ".item-checkbox", function () {
+    if (!this.checked) {
+      $allCheck.prop("checked", false);
+    } else {
+      const isAllChecked =
+        $(".item-checkbox:checked").length === $(".item-checkbox").length;
+      $allCheck.prop("checked", isAllChecked);
+    }
+    updateTotal();
+  });
 
-	      // 하나라도 해제되면 전체 해제
-	      if (!checkbox.checked) {
-	        allCheck.checked = false;
-	      }
-	      else {
-	        // 모두 체크되었는지 검사
-	        let is_all_checked = true;
+  /* ================= 선택 삭제 ================= */
+  $("#btnDeleteSelected").on("click", function () {
 
-	        for (let chk of itemCheckboxList) {
-	          if (!chk.checked) {
-	            is_all_checked = false;
-	            break;
-	          }
-	        }
+    const $checked = $(".item-checkbox:checked");
 
-	        allCheck.checked = is_all_checked;
-	      }
+    if ($checked.length === 0) {
+      alert("삭제할 상품을 선택하세요.");
+      return;
+    }
 
-	    });
-	  }
-  
-  // ================= 개별 삭제 =================
-  document.querySelectorAll(".btn.btn-danger").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (confirm("정말로 삭제하시겠습니까?")) {
-        btn.closest("tr").remove();
-      }
+    if (!confirm("정말로 선택한 상품을 삭제하시겠습니까?")) return;
+
+    const requests = [];
+
+    $checked.each(function () {
+      const cartId = $(this).val();
+
+      requests.push(
+        $.post("zangCart.hp", {
+          action: "delete",
+          cartId: cartId
+        })
+      );
+    });
+
+    $.when.apply($, requests).done(function () {
+      location.reload();
     });
   });
 
-  // ================= 선택 삭제 =================
-  document.querySelector(".btn.btn-danger.my-3")
-    .addEventListener("click", () => {
-
-		
-		const checkedItems = document.querySelectorAll(".item-checkbox:checked");
-		    if (checkedItems.length === 0) {
-		      alert("삭제할 상품을 선택하세요.");
-		      return;
-		    }
-
-		    if (!confirm("정말로 선택한 상품을 삭제하시겠습니까?")) return;
-
-		    checkedItems.forEach(chk => {
-		      chk.closest("tr").remove();
-		    });
-
-		    updateTotal();
-		  });
-
-  // ================= 금액 계산 =================
-  window.updateTotal = function() {
+  /* ================= 금액 계산 ================= */
+  window.updateTotal = function () {
     let total = 0;
 
-    document.querySelectorAll(".item-checkbox:checked").forEach(chk => {
-      const row = chk.closest("tr");
-      const priceText = row.querySelector("td.price:last-child").innerText;
-      const price = Number(priceText.replace(/[^0-9]/g, ""));
+    $(".item-checkbox:checked").each(function () {
+      const $row = $(this).closest("tr");
+      const price = Number(
+        $row.find(".row-total").text().replace(/[^0-9]/g, "")
+      );
       total += price;
     });
 
-    document.getElementById("totalProductPrice").innerText = total.toLocaleString() + "원";
-    document.getElementById("totalDiscount").innerText = "0원";
-    document.getElementById("finalTotal").innerText = total.toLocaleString() + "원";
+    $("#totalProductPrice").text(total.toLocaleString() + "원");
+    $("#totalDiscount").text("0원");
+    $("#finalTotal").text(total.toLocaleString() + "원");
   };
-  
-  
-  // ========= 구매하기 버튼을 누르면 구매 및 결제 페이지로 이동 (단 1개의 상품도 없을때 ) ================
-  $(function () {
 
-    $(".checkout-btn").on("click", function () {
+  /* ================= 수량 + / - ================= */
+  window.changeQty = function (cartId, diff) {
 
-      const checkedCount = $(".item-checkbox:checked").length;
+    const $row = $(`tr[data-cartid='${cartId}']`);
+    const $input = $row.find(".quantity-input");
 
-      if (checkedCount != 0) {
-        alert("주문한 상품이 없습니다."); // ㅎㅇ
-        return;
-      }
+    let qty = Number($input.val()) + diff;
 
-      // 주문 / 결제 페이지 이동
-      location.href = ctxPath + "/pay/payMent.hp";
+    if (qty < 1) {
+      alert("수량은 1개 이상이어야 합니다.");
+      return;
+    }
+    if (qty > 50) {
+      alert("최대 구매 수량은 50개입니다.");
+      return;
+    }
+
+    $input.val(qty);
+    updateRowTotal($row);
+    updateTotal();
+
+    sendQtyToServer(cartId, qty);
+  };
+
+  /* ================= 직접 입력 ================= */
+  $(".quantity-input")
+    .on("input", function () {
+      let val = $(this).val().replace(/[^0-9]/g, "");
+      if (val === "") val = 1;
+      val = Math.min(50, Math.max(1, Number(val)));
+      $(this).val(val);
+    })
+    .on("blur", function () {
+      const $row = $(this).closest("tr");
+      const qty = Number($(this).val());
+
+      updateRowTotal($row);
+      updateTotal();
+
+      sendQtyToServer($row.data("cartid"), qty);
     });
 
+  /* ================= 행 합계 ================= */
+  function updateRowTotal($row) {
+    const price = Number($row.data("price"));
+    const qty = Number($row.find(".quantity-input").val());
+    $row.find(".row-total").text((price * qty).toLocaleString());
+  }
+
+  /* ================= 서버 전송 ================= */
+  function sendQtyToServer(cartId, qty) {
+    return $.post("zangCart.hp", {
+      action: "updateQty",
+      cartId: cartId,
+      quantity: qty
+    });
+  }
+
+  /* ================= 구매하기 ================= */
+  $(".checkout-btn").on("click", function () {
+
+    if ($(".item-checkbox:checked").length === 0) {
+      alert("주문한 상품이 없습니다.");
+      return;
+    }
+
+    location.href = ctxPath + "/pay/payMent.hp";
   });
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
 });
