@@ -6,7 +6,8 @@ public class ProductDTO {
 	  private String productName;	//상품명
 	  private String brandName;		//브랜드명
 	  private String productDesc;	//상품설명
-	  private String saleStatus;	//판매상태
+	  private String saleStatus;		//판매상태
+	  private String imagePath;		//제품이미지경로
 	  
 	  
 	  public String getProductCode() {
@@ -38,6 +39,12 @@ public class ProductDTO {
 	  }
 	  public void setSaleStatus(String saleStatus) {
 		  this.saleStatus = saleStatus;
+	  }
+	  public String getImagePath() {
+		  return imagePath;
+	  }
+	  public void setImagePath(String imagePath) {
+		  this.imagePath = imagePath;
 	  }
 	  
 }

@@ -1,14 +1,14 @@
 package product.domain;
 
 //제품상세 테이블의 컬럼
-public class ProductDetailDTO {
+public class ProductOptionDTO {
 	  private int optionId;				//옵션번호
 	  private String fkProductCode;	//상품코드참조키
 	  private String color;				//색상
 	  private String storageSize;		//저장용량
 	  private int price;				//가격
 	  private int stockQty;			//재고량
-	  private String imagePath;			//제품이미지경로
+	  
 	  
 	  
 	  
@@ -48,10 +48,5 @@ public class ProductDetailDTO {
 	  public void setStockQty(int stockQty) {
 		  this.stockQty = stockQty;
 	  }
-	  public String getImagePath() {
-		  return imagePath;
-	  }
-	  public void setImagePath(String imagePath) {
-		  this.imagePath = imagePath;
-	  }
+	  
 }

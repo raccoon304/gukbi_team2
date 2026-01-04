@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!-- 사용자 CSS -->
 <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/productDetail.css">
 
@@ -9,16 +10,6 @@
 
 
 <div class="container" style="margin-top: 5%">
-
-	<%-- <h3>확인차 받은 데이터 확인합니다.</h3>
-	<p>${proDetilDto.optionId}</p><br>
-	<p>${proDetilDto.fkProductCode}</p><br>
-	<p>${proDetilDto.color}</p><br>
-	<p>${proDetilDto.storageSize}</p><br>
-	<p>${proDetilDto.price}</p><br>
-	<p>${proDetilDto.stockQty}</p><br>
-	<p>${proDetilDto.imagePath}</p><br> --%>
-
 
     <div class="product-container mt-4">
         <div class="product-header">
@@ -30,7 +21,7 @@
                 <!-- 상품 이미지 -->
                 <div class="col-md-5">
                     <div class="product-image-section">
-                        <img src="${proDetilDto.imagePath}" alt="${proDto.productName}" class="product-image" id="productImage">
+                        <img src="<%=ctxPath%>/image/product_TH/${proDto.imagePath}" alt="${proDto.productName}" class="product-image" id="productImage">
                     </div>
                 </div>
 
@@ -55,11 +46,22 @@
                             </div>
                             <div class="spec-item">
                                 <div class="spec-label">저장용량</div>
-                                <div class="spec-value">${proDetilDto.storageSize}</div>
+                                <%-- <div class="spec-value">${proDetilDto.storageSize}</div> --%>
+                                <select class="sort-select form-control" id="sortSelectStorageSize">
+				                    <option value="price_high">256GB</option>
+				                    <option value="price_low">512GB</option>
+				                </select>
                             </div>
+                            
                             <div class="spec-item">
                                 <div class="spec-label">색상</div>
-                                <div class="spec-value">${proDetilDto.color}</div>
+                                <%-- <div class="spec-value">${proDetilDto.color}</div> --%>
+                                <select class="sort-select form-control" id="sortSelectColor">
+				                    <option value="Black">Black</option>
+				                    <option value="White">White</option>
+				                    <option value="Blue">Blue</option>
+				                    <option value="Red">Red</option>
+				                </select>
                             </div>
                             <div class="spec-item">
                                 <div class="spec-label">재고상태</div>
@@ -88,7 +90,9 @@
 
                             <div class="total-price-section">
                                 <span class="total-label">총 상품 금액</span>
-                                <span class="total-price" id="totalPrice">1,590,000원</span>
+                                <span class="total-price" id="totalPrice">
+                                		<fmt:formatNumber value="${proDetilDto.price}" pattern="###,###"/>>&nbsp;원
+                                </span>
                             </div>
                         </div>
 
@@ -149,8 +153,8 @@
     $(document).ready(function() {
         // 로그인 상태 변수
         var isLoggedIn = true;
-        var unitPrice = 1590000;
-        var maxStock = 48;
+        var unitPrice = ${proDetilDto.price};
+        var maxStock = ${proDetilDto.stockQty};
 
         // 페이지 로드 시 로그인 상태 확인
         updateLoginStatus();

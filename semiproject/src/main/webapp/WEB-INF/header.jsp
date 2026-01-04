@@ -93,6 +93,8 @@
                     <i class="fa-solid fa-user-plus"></i> 회원가입
                 </button>
             </div>
+            
+            
         </div>
     </div>
 </nav>

@@ -62,9 +62,9 @@
                     <option value="latest">최신순</option>
                     <option value="price_high">고가순</option>
                     <option value="price_low">저가순</option>
-                    <!-- <option value="review">리뷰 많은순</option> -->
                 </select>
             </div>
+            
         </div>
     </div>
 
@@ -115,8 +115,6 @@
     </div>
 </div>
 
-<!-- 임시 -->
-<!-- 임시 -->
 
 <!-- 푸터부분 가져오기 -->
 <jsp:include page="../footer.jsp"/>
