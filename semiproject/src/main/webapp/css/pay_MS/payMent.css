@@ -9,7 +9,7 @@
 /* 상단 두 영역 가로 정렬 */
 .payment-top-flex {
     display: flex;
-    gap: 24px;              /* 박스 사이 간격 */
+    gap: 24px;              
     margin-left : 0;
     width: 90%;
 }
@@ -44,7 +44,7 @@
 
 .recipient-info,
 .price-summary {
-    padding: 40px 32px;   /* 위아래 여유 ↑ */
+    padding: 40px 32px;   
     min-height: 200px;    
 }
 

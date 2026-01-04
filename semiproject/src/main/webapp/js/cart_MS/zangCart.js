@@ -9,23 +9,20 @@ $(document).ready(function () {
   /* ================= 전체 선택 ================= */
   window.toggleSelectAll = function (allChk) {
     $(".item-checkbox").prop("checked", allChk.checked);
-    updateTotal();
+    updateTotal();  // 체크박스 클릭 시 금액 계산
   };
 
   const $allCheck = $("thead input[type='checkbox']");
 
-  /* ================= 개별 체크 ================= */
+  //* ================= 개별 체크 ================= */
   $(document).on("click", ".item-checkbox", function () {
-    if (!this.checked) {
-      $allCheck.prop("checked", false);
-    } else {
-      const isAllChecked =
-        $(".item-checkbox:checked").length === $(".item-checkbox").length;
-      $allCheck.prop("checked", isAllChecked);
-    }
-    updateTotal();
+    const isAllChecked =
+      $(".item-checkbox:checked").length === $(".item-checkbox").length;
+    $("thead input[type='checkbox']").prop("checked", isAllChecked); // 전체 선택 체크박스 반영
+    updateTotal();  // 개별 체크 시 금액 계산
   });
 
+  
   /* ================= 선택 삭제 ================= */
   $("#btnDeleteSelected").on("click", function () {
     const $checked = $(".item-checkbox:checked");
@@ -57,10 +54,9 @@ $(document).ready(function () {
 
     $(".item-checkbox:checked").each(function () {
       const $row = $(this).closest("tr");
-      const price = Number(
-        $row.find(".row-total").text().replace(/[^0-9]/g, "")
-      );
-      total += price;
+	  const unitPrice = Number($row.data("price"));
+	  const qty = Number($row.find(".quantity-input").val());
+	  total += unitPrice * qty;
     });
 
     let discount = 0;
@@ -91,8 +87,8 @@ $(document).ready(function () {
       alert("수량은 1개 이상이어야 합니다.");
       return;
     }
-    if (qty > 50) {
-      alert("최대 구매 수량은 50개입니다.");
+    if (qty > 10) {
+      alert("최대 구매 수량은 10개입니다.");
       return;
     }
 
@@ -107,7 +103,7 @@ $(document).ready(function () {
     .on("input", function () {
       let val = $(this).val().replace(/[^0-9]/g, "");
       if (val === "") val = 1;
-      val = Math.min(50, Math.max(1, Number(val)));
+      val = Math.min(10, Math.max(1, Number(val)));
       $(this).val(val);
     })
     .on("blur", function () {
@@ -137,11 +133,19 @@ $(document).ready(function () {
 
   /* ================= 구매하기 ================= */
   $(".checkout-btn").on("click", function () {
-    if ($(".item-checkbox:checked").length != 0) {
-      alert("주문한 상품이 없습니다.");
+    const selectedItems = $(".item-checkbox:checked");
+
+    if (selectedItems.length === 0) {
+      alert("주문할 상품을 선택하세요.");
       return;
     }
-    location.href = ctxPath + "/pay/payMent.hp";
+
+    const cartIds = selectedItems
+      .map(function () { return this.value; })
+      .get()
+      .join(",");
+
+    location.href = ctxPath + "/pay/payMent.hp?cartIds=" + cartIds;
   });
 
   /* ================= 최초 1회 계산 (중요) ================= */

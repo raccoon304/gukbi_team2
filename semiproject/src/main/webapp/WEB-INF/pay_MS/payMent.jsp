@@ -88,7 +88,7 @@
 	
 	                    <div class="product-price-info">
 	                        <span class="product-quantity">
-	                            수량 x ${item.quantity}
+	                            ${item.price} × ${item.quantity}
 	                        </span>
 	                        <span class="product-price">
 	                            ${item.totalPrice} 원
@@ -101,7 +101,7 @@
 	        <div class="subtotal-section">
 	            <div class="subtotal-row">
 	                <span class="subtotal-label">주문금액</span>
-	                <span class="subtotal-amount">${price} × ${seq} = ${price * seq} 원</span>
+	                <span class="subtotal-amount">${calcExpr} = ${finalPrice} 원</span>
 	            </div>
 	        </div>
 	    </div>

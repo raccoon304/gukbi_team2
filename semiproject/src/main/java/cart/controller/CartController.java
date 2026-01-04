@@ -10,6 +10,7 @@ import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 
 public class CartController extends AbstractController {
 
@@ -18,30 +19,39 @@ public class CartController extends AbstractController {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        HttpSession session = request.getSession();
+    HttpSession session = request.getSession();
         
 
-     // 임시 로그인
-     if (session.getAttribute("loginUser") == null) {
-         session.setAttribute("loginUser", "testuser");
-     }
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+        
+    if (loginUser == null) {
+        loginUser = new MemberDTO();
+        loginUser.setMemberid("testuser");
+        loginUser.setName("테스트유저");
+        loginUser.setMobile("010-0000-0000");
 
-     String memberId = (String) session.getAttribute("loginUser");
-        
-        
+        session.setAttribute("loginUser", loginUser);
+    }
+    
+    
         // 로그인 안 했으면 경고만 띄우고 접근 차단
-        if (memberId == null) {
-            response.setContentType("text/html; charset=UTF-8");
-            response.getWriter().println("""
-                <script>
-                    alert('로그인한 회원만 장바구니를 이용할 수 있습니다.');
-                    history.back();
-                </script>
-            """);
-            return;
-        }
+		/*    
+		    if (loginUser == null) {
+		        response.setContentType("text/html; charset=UTF-8");
+		        response.getWriter().println(
+		            "<script>" +
+		            "alert('로그인한 회원만 장바구니를 이용할 수 있습니다.');" +
+		            "location.href = '\" + request.getContextPath() + \"/login/login.jsp';" +
+		            "</script>"
+		        );
+		        return;
+		    }
+		*/
+		    // DAO에서 쓰는 memberId (String)
+		    String memberId = loginUser.getMemberid();
+		
+		    String method = request.getMethod();
 
-        String method = request.getMethod();
 
         // GET : 장바구니 페이지 조회
         if ("GET".equalsIgnoreCase(method)) {
@@ -92,6 +102,7 @@ public class CartController extends AbstractController {
         	    return;
         	}
         	
+        	/*
         	// 개별 삭제
         	if ("delete".equals(action)) {
 
@@ -103,6 +114,7 @@ public class CartController extends AbstractController {
         	    response.getWriter().print("{\"result\":" + n + "}");
         	    return;
         	}
+        	*/
         	
         	// 전체 삭제
         	if ("deleteAll".equals(action)) {

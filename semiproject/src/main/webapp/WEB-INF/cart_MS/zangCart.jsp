@@ -5,7 +5,7 @@
 
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 
 <!DOCTYPE html>
@@ -29,10 +29,9 @@
     
      <div class="container">
 	
+	<h4> 장바구니 </h4>
 	
-    <h4>장바구니</h4>
-
-	<c:if test="${not empty cartList}">
+	<c:if test="${empty cartList}">
   <div class="cart-empty-wrapper">
     <h4 class="cart-title"></h4>
 
@@ -48,8 +47,9 @@
   </div>
 </c:if>
 
-<c:if test="${empty cartList}">
+<c:if test="${not empty cartList}">
     <!-- ================= 장바구니 테이블 ================= -->
+    <div id = "minsoo">
     <table class="cart-table">
         <thead>
             <tr>
@@ -59,7 +59,6 @@
                 <th>가격</th>
                 <th>수량</th>
                 <th>합계</th>
-                <th>삭제</th>
             </tr>
         </thead>
 
@@ -92,7 +91,9 @@
 	
 	    <!-- 가격 -->
 	    <td class="price">
-	        <span class="unit-price">${cart.price}</span>원
+	        <span class="unit-price">
+	         <fmt:formatNumber value="${cart.price}" pattern="#,###"/>
+	         </span>원
 	    </td>
 	
 	    <!-- 수량 -->
@@ -111,21 +112,17 @@
 	            <button type="button"
 	                    class="quantity-btn"
 	                    onclick="changeQty(${cart.cart_id}, 1)">+</button>
-	        </div>
-	    </td>
+	       </div>
+	   </td>
 	
 	    <!-- 합계 -->
 	    <td class="price">
-	        <span class="row-total">${cart.total_price}</span>원
+	        <span class="row-total">
+	         <fmt:formatNumber value="${cart.total_price}" pattern="#,###"/>
+	        </span>원
 	    </td>
 	
-	    <!-- 삭제 -->
-	    <td>
-	        <button type="button"
-        	class="btn btn-danger btn-sm btn-delete">
-	            삭제
-	        </button>
-	    </td>
+	    
 	</tr>
 </c:forEach>
 
@@ -150,11 +147,12 @@
 		                <span id="finalTotal">0원</span>
 		            </div>
 		
-		            <button class="checkout-btn">구매하기</button>
+		            <button class="checkout-btn btn-info">구매하기</button>
 		            <button type="button" id="btnDeleteSelected" class="btn btn-danger my-3">선택삭제</button>
 		        </div>
-		    </div>
-		</c:if>
+			   </div>
+			 </div>
+	</c:if>
     
     </div>
 

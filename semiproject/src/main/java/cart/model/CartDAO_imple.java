@@ -14,6 +14,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import cart.domain.CartDTO;
+
 public class CartDAO_imple implements CartDAO {
     
     private DataSource ds;
@@ -116,9 +118,9 @@ public class CartDAO_imple implements CartDAO {
             + "       p.image_path, "
             + "       (o.price * c.quantity) as total_price "
             + " from tbl_cart c "
-            + " join tbl_product_option o "
+            + " left join tbl_product_option o "
             + "  on c.fk_option_id = o.option_id "
-            + " join tbl_product p "
+            + " left join tbl_product p "
             + "  on o.fk_product_code = p.product_code "
             + " where c.fk_member_id = ? "
             + " order by c.added_date desc ";
@@ -169,6 +171,7 @@ public class CartDAO_imple implements CartDAO {
         return n; // 👉 1이면 성공, 0이면 실패
     }
    
+    /*
 	// 행에 해당되는 칸 대상으로만 선택 삭제
 	@Override
 	public int deleteCart(int cartId, String memberId) throws SQLException {
@@ -189,7 +192,9 @@ public class CartDAO_imple implements CartDAO {
 	    }
 		return n;
 	}
-
+     */
+    
+    
 	// 선택한 내용을 대상으로 전체 삭제
 	@Override
 	public int deleteAll(String memberId) throws SQLException {
@@ -211,32 +216,72 @@ public class CartDAO_imple implements CartDAO {
 
 	@Override
 	public Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException {
-
-	    Map<String, Object> map = null;
-
-	    String sql =
-	        " select c.cart_id, c.quantity, (o.price * c.quantity) as total_price " +
-	        " from tbl_cart c " +
-	        " join tbl_product_option o on c.fk_option_id = o.option_id " +
-	        " where c.cart_id = ? and c.fk_member_id = ? ";
-
+	    Map<String, Object> map = new HashMap<>();
+	    
+	    String sql = 
+	        " SELECT c.cart_id, " +
+	        "        c.quantity, " +
+	        "        o.price, " +
+	        "        (o.price * c.quantity) as total_price " +
+	        " FROM tbl_cart c " +
+	        " JOIN tbl_product_option o ON c.fk_option_id = o.option_id " +
+	        " WHERE c.cart_id = ? AND c.fk_member_id = ? ";
+	    
 	    try (Connection conn = ds.getConnection();
 	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+	        
 	        pstmt.setInt(1, cartId);
 	        pstmt.setString(2, memberId);
-
+	        
 	        try (ResultSet rs = pstmt.executeQuery()) {
 	            if (rs.next()) {
-	                map = new HashMap<>();
 	                map.put("cart_id", rs.getInt("cart_id"));
 	                map.put("quantity", rs.getInt("quantity"));
+	                map.put("price", rs.getInt("price"));
 	                map.put("total_price", rs.getInt("total_price"));
 	            }
 	        }
 	    }
+	    
+	    return map.isEmpty() ? null : map;
+	}
 
-	    return map;
+	@Override
+	public List<CartDTO> selectCartListForPay(String memberId) throws SQLException {
+		
+		 List<CartDTO> list = new ArrayList<>();
+
+		    String sql =
+		        " select c.cart_id, " +
+		        "        c.quantity, " +
+		        "        o.price, " +
+		        "        p.product_name, " +
+		        "        p.image_path " +
+		        " from tbl_cart c " +
+		        " join tbl_product_option o on c.fk_option_id = o.option_id " +
+		        " join tbl_product p on o.fk_product_code = p.product_code " +
+		        " where c.fk_member_id = ? " +
+		        " order by c.added_date desc ";
+
+		    try (Connection conn = ds.getConnection();
+		         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+		        pstmt.setString(1, memberId);
+
+		        try (ResultSet rs = pstmt.executeQuery()) {
+		            while (rs.next()) {
+		                CartDTO dto = new CartDTO();
+		                dto.setCartId(rs.getInt("cart_id"));
+		                dto.setQuantity(rs.getInt("quantity"));
+		                dto.setPrice(rs.getInt("price"));
+		                dto.setProductName(rs.getString("product_name"));
+		                dto.setImagePath(rs.getString("image_path"));
+
+		                list.add(dto);
+		            }
+		        }
+		    }
+		    return list;
 	}
 
 	
