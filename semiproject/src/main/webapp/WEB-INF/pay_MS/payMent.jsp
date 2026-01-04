@@ -3,6 +3,7 @@
     <%String ctxPath = request.getContextPath();%>
     
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+    <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
     
 <!DOCTYPE html>
 <html lang="ko">
@@ -53,17 +54,23 @@
 	    <div class="price-summary">
 	        <div class="price-row">
 	            <span>총 상품금액</span>
-	            <span>${totalPrice} 원</span>
+	            <span>
+				  <fmt:formatNumber value="${totalPrice}" pattern="#,###"/> 원
+				</span>
 	        </div>
 	
 	        <div class="price-row">
 	            <span>쿠폰 할인금액</span>
-	            <span>- ${discountPrice} 원</span>
+	            <span>
+			     	- <fmt:formatNumber value="${discountPrice}" pattern="#,###"/> 원
+			    </span>
 	        </div>
 	
 	        <div class="price-row total">
 	            <span>총 주문금액</span>
-	            <span class="amount">${finalPrice} 원</span>
+	            <span class="amount">
+	            <fmt:formatNumber value="${finalPrice}" pattern="#,###"/> 원
+	            </span>
 	        </div>
 	    </div>
 	</div>
@@ -88,11 +95,11 @@
 	
 	                    <div class="product-price-info">
 	                        <span class="product-quantity">
-	                            ${item.price} × ${item.quantity}
-	                        </span>
+							  <fmt:formatNumber value="${item.price}" pattern="#,###"/> x ${item.quantity}
+							</span>
 	                        <span class="product-price">
-	                            ${item.totalPrice} 원
-	                        </span>
+							  <fmt:formatNumber value="${item.totalPrice}" pattern="#,###"/>원
+							</span>
 	                    </div>
 	                </div>
 	            </div>
@@ -101,7 +108,10 @@
 	        <div class="subtotal-section">
 	            <div class="subtotal-row">
 	                <span class="subtotal-label">주문금액</span>
-	                <span class="subtotal-amount">${calcExpr} = ${finalPrice} 원</span>
+	                <span class="subtotal-amount">
+					  ${calcExpr} =
+					  <fmt:formatNumber value="${finalPrice}" pattern="#,###"/>
+					</span>
 	            </div>
 	        </div>
 	    </div>
