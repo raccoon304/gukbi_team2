@@ -224,7 +224,7 @@
                         </div>
                         <div class="label">
                             <!-- <i class="fas fa-won-sign"></i> -->
-                            매출액
+                            할인 적용 전 매출액
                         </div>
                         <div class="value" id="totalRevenue">₩100,000,000</div>
                     </div>

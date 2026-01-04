@@ -16,7 +16,7 @@ public class Adminpage extends AbstractController {
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		AdminDAO mdao = new AdminDAO_imple();
+		AdminDAO adao = new AdminDAO_imple();
 		
 		// 관리자(admin) 로 로그인 했을때만 접속 가능하도록 한다
 		
@@ -30,16 +30,24 @@ public class Adminpage extends AbstractController {
 		
 		
 			// 오늘 가입한 회원
-			List<MemberDTO> todayNewMembers = mdao.todayNewMembers();
+			List<MemberDTO> todayNewMembers = adao.todayNewMembers();
 			request.setAttribute("todayNewMembers", todayNewMembers);
 			
 			// 품절 임박 상품
-			List<AdminPageDTO> lowStockProducts = mdao.lowStockProducts();
+			List<AdminPageDTO> lowStockProducts = adao.lowStockProducts();
 			request.setAttribute("lowStockProducts", lowStockProducts);
 			
 			// 최근 주문 5건
-			List<AdminPageDTO> currentOrders = mdao.currentOrders();
+			List<AdminPageDTO> currentOrders = adao.currentOrders();
 			request.setAttribute("currentOrders", currentOrders);
+			
+			// 오늘 주문 수
+			int todayOrderCount = adao.todayOrderCount();
+			request.setAttribute("todayOrderCount", todayOrderCount);
+			
+			// 오늘 매출
+			long todaySales = adao.todaySales();
+			request.setAttribute("todaySales", todaySales);
 			
 			
 			super.setRedirect(false);

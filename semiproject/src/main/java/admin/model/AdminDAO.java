@@ -35,6 +35,12 @@ public interface AdminDAO {
 
 	// 최근 주문 5건
 	List<AdminPageDTO> currentOrders() throws Exception;
+
+	// 오늘 주문 수
+	int todayOrderCount() throws Exception;
+
+	// 오늘 매출액
+	long todaySales() throws Exception;
 	
 	
 }

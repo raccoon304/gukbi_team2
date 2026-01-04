@@ -58,8 +58,8 @@
                                         <h6 class="text-muted mb-0">오늘 주문수</h6>
                                         <i class="fas fa-shopping-cart text-primary"></i>
                                     </div>
-                                    <h3 class="mb-1">test건</h3>
-                                    <small class="text-muted">전일 대비 +test%</small>
+                                    <h3 class="mb-1">${todayOrderCount} 건</h3>
+                                    <small class="text-white">오늘 주문수</small>
                                 </div>
                             </div>
                         </div>
@@ -71,8 +71,8 @@
                                         <h6 class="text-muted mb-0">오늘 매출</h6>
                                         <i class="fas fa-dollar-sign text-success"></i>
                                     </div>
-                                    <h3 class="mb-1">₩test</h3>
-                                    <small class="text-muted">전일 대비 +test%</small>
+                                    <h3 class="mb-1">₩ <fmt:formatNumber value="${todaySales}" pattern="#,###"/></h3>
+                                    <small class="text-muted">쿠폰 차감 후 실 결제액 기준</small>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,7 @@
                                         <h6 class="text-muted mb-0">품절 임박 상품</h6>
                                         <i class="fas fa-box-open text-danger"></i>
                                     </div>
-                                    <h3 class="mb-1">${fn:length(lowStockProducts)}개</h3>
+                                    <h3 class="mb-1">${fn:length(lowStockProducts)} 개</h3>
                                     <small class="text-muted">판매중인 상품 중 재고 10개 미만</small>
                                 </div>
                             </div>
@@ -97,7 +97,7 @@
                                         <h6 class="text-muted mb-0">오늘 가입 회원</h6>
                                         <i class="fas fa-user-plus text-purple"></i>
                                     </div>
-                                    <h3 class="mb-1">${fn:length(todayNewMembers)}명</h3>
+                                    <h3 class="mb-1">${fn:length(todayNewMembers)} 명</h3>
                                     <small class="text-muted">신규 가입 회원</small>
                                 </div>
                             </div>

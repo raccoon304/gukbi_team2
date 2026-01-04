@@ -442,7 +442,7 @@ public class AdminDAO_imple implements AdminDAO {
 		List<MemberDTO> list = new ArrayList<>();
 
 	    String sql =
-	        " select member_id, name, email, created_at " +
+	        " select member_id, name, email, to_char(created_at, 'YYYY-MM-DD HH24:MI') as created_at " +
 	        " from tbl_member " +
 	        " where trunc(created_at) = trunc(sysdate) " +
 	        " order by created_at desc ";
@@ -574,6 +574,60 @@ public class AdminDAO_imple implements AdminDAO {
 	        close();
 	    }
 	    return list;
+		
+	}
+
+
+	// 오늘 주문 수
+	@Override
+	public int todayOrderCount() throws Exception {
+		
+		int cnt = 0;
+
+	    String sql =	 " select count(*) as CNT "
+	               + " from TBL_ORDERS "
+	               + " where trunc(ORDER_DATE) = trunc(sysdate) ";
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            cnt = rs.getInt("CNT");
+	        }
+	    } finally {
+	        close();
+	    }
+
+	    return cnt;
+		
+	}
+
+
+	// 오늘 매출액
+	@Override
+	public long todaySales() throws Exception {
+		
+		long sales = 0;
+
+	    String sql =	 " select nvl(sum(total_amount - discount_amount),0) as real_amount "
+	    		       + " from tbl_orders "
+	    		       + " where trunc(ORDER_DATE) = trunc(sysdate) ";
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            sales = rs.getInt("real_amount");
+	        }
+	    } finally {
+	        close();
+	    }
+
+	    return sales;
 		
 	}
 	

@@ -24,7 +24,7 @@
         <td>${row.memberId}</td>
         <td>${row.memberName}</td>
         <td>${row.issueDate}</td>
-        <td>${row.expireDate}</td>
+        <td>${fn:substring(row.expireDate,0,10)}</td>
         <td>
           <c:choose>
             <c:when test="${row.usedYn == 1}">
