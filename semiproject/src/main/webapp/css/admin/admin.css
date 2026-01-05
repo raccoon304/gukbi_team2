@@ -280,3 +280,9 @@ body {
 .modal select.form-control {
   height: calc(1.5em + 1.25rem + 2px);
 }
+
+
+.custom-select {
+  border-radius: 6px;
+}
+

@@ -1,0 +1,27 @@
+package product.model;
+
+import java.sql.SQLException;
+import java.util.List;
+
+import product.domain.ProductDTO;
+import product.domain.ProductListDTO;
+import product.domain.ProductOptionDTO;
+
+public interface ProductDAO {
+	//임시: 제품 목록들 전부 출력해 가져오기(select)
+	List<ProductDTO> selectProduct() throws SQLException;
+
+	//임시: 제품상세 목록들 출력해보기(select)
+	List<ProductOptionDTO> selectProductOption() throws SQLException;
+
+	//받아온 상품코드(상품테이블)의 값을 이용해 제품정보 가져오기
+	ProductDTO selectOne(String productCode) throws SQLException;
+	//임시: 받아온 상품코드(상품테이블)의 값을 이용해 상품상세값 가져오기
+	ProductOptionDTO selectDetailOne(String productCode) throws SQLException;
+
+	//가져온 상품코드로 이에 맞는 옵션값들 리스트로 가져오기
+	List<ProductOptionDTO> selectProductOption(String productCode) throws SQLException;
+
+	//상품페이지의 카드UI용 DTO를 이용해 상품정보 가져오기(상품코드, 상품명, 브랜드명, 이미지경로, 옵션중 가장 낮은 가격)
+	List<ProductListDTO> productCardList() throws SQLException;
+}

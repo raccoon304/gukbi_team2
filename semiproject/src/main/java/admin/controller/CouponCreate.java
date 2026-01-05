@@ -13,11 +13,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 public class CouponCreate extends AbstractController {
-
-	private CouponDAO cpDao = new CouponDAO_imple();
 	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		CouponDAO cpDao = new CouponDAO_imple();
 		
 		String method = request.getMethod();
 		int n = 0;

@@ -58,11 +58,39 @@
                         </button>
                     </div>
                     
+                    <c:if test="${not empty msg}">
+					  <div class="alert alert-info alert-dismissible fade show" role="alert">
+					    ${msg}
+					    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					      <span aria-hidden="true">&times;</span>
+					    </button>
+					  </div>
+					</c:if>
+                    
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">쿠폰 목록</h5>
                         </div>
                         <div class="card-body">
+                        	<!-- filters -->
+							<form id="couponFilterFrm" method="get" action="<%=ctxPath%>/admin/coupon.hp" class="form-inline mb-3">
+							  <input type="hidden" name="sizePerPage" value="${requestScope.sizePerPage}" />
+							  <input type="hidden" name="currentShowPageNo" value="1" />
+							
+							  <label class="mr-2">할인타입</label>
+							  <select name="type" id="filterType" class="form-control mr-4">
+							    <option value=""  ${empty param.type ? 'selected' : ''}>전체</option>
+							    <option value="0" ${param.type == '0' ? 'selected' : ''}>정액</option>
+							    <option value="1" ${param.type == '1' ? 'selected' : ''}>정률</option>
+							  </select>
+							
+							  <label class="mr-2">정렬</label>
+							  <select name="sort" id="filterSort" class="form-control">
+							    <option value=""         ${empty param.sort ? 'selected' : ''}>전체</option>
+							    <option value="valueDesc" ${param.sort == 'valueDesc' ? 'selected' : ''}>할인값 큰순</option>
+							    <option value="valueAsc"  ${param.sort == 'valueAsc' ? 'selected' : ''}>할인값 작은순</option>
+							  </select>
+							</form>
                             <div class="table-responsive">
                                 <table class="table table-hover" id="couponTable">
                                     <thead>
@@ -70,12 +98,14 @@
                                             <th>쿠폰번호</th>
                                             <th>쿠폰명</th>
                                             <th>할인타입</th>
-                                            <th>할인값</th>                                   
+                                            <th>할인값</th>
+                                            <th>사용여부</th>
+										   <th>관리</th>                                   
                                         </tr>
                                     </thead>
                                     <tbody id="couponTableBody">
                                     	<c:forEach var="coupon" items="${couponList}">
-										    <tr class="coupon-row" data-coupon-no="${coupon.couponCategoryNo}" data-coupon-name="${coupon.couponName}" style="cursor:pointer;">
+										    <tr class="coupon-row" data-coupon-no="${coupon.couponCategoryNo}" data-coupon-name="${coupon.couponName}" data-usable="${coupon.usable}" style="cursor:pointer;">
 										      <td>${coupon.couponCategoryNo}</td>
 										      <td>${coupon.couponName}</td>
 										      <td>
@@ -94,6 +124,39 @@
 											      </c:otherwise>
 											    </c:choose>
 										      </td>
+										      
+										      <!-- 사용여부 -->
+											  <td class="coupon-usable-cell">
+											    <c:choose>
+											      <c:when test="${coupon.usable == 1}">
+											        <span class="badge badge-success">사용중</span>
+											      </c:when>
+											      <c:otherwise>
+											        <span class="badge badge-secondary">사용안함</span>
+											      </c:otherwise>
+											    </c:choose>
+											  </td>
+											
+											  <!-- 사용안함 처리 버튼(POST) -->
+											  <td class="coupon-action">
+											    <c:choose>
+											      <c:when test="${coupon.usable == 1}">
+											        <form method="post" action="<%=ctxPath%>/admin/couponDisable.hp" class="d-inline"
+												          onsubmit="return confirm('이 쿠폰을 사용안함 처리할까요?');">
+												      <input type="hidden" name="couponCategoryNo" value="${coupon.couponCategoryNo}">
+												      <button type="submit" class="btn btn-sm btn-outline-danger">사용안함</button>
+												    </form>
+											      </c:when>
+											      <c:otherwise>
+												    <form method="post" action="<%=ctxPath%>/admin/couponEnable.hp" class="d-inline"
+												          onsubmit="return confirm('이 쿠폰을 다시 사용함으로 변경할까요?');">
+												      <input type="hidden" name="couponCategoryNo" value="${coupon.couponCategoryNo}">
+												      <button type="submit" class="btn btn-sm btn-outline-primary">사용함</button>
+												    </form>
+												  </c:otherwise>
+											    </c:choose>
+											  </td>
+										      
 										    </tr>
 										</c:forEach>
 										
@@ -105,6 +168,11 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div id="pageBar">
+							  <nav>
+							    <ul class="pagination justify-content-center">${requestScope.pageBar}</ul>
+							  </nav>
+						   </div>
                         </div>
                     </div>
                 </div>
@@ -151,7 +219,7 @@
     
     <!-- Member Selection Modal -->
     <div class="modal fade" id="memberSelectModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">쿠폰 발급 대상 선택</h5>
@@ -175,12 +243,12 @@
                         </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" id="searchType" style="max-width: 120px;">
-                                    <option value="userId">아이디</option>
+                                <select class="form-control" id="searchType" name="searchType" style="max-width: 120px;">
+                                    <option value="member_id">아이디</option>
                                     <option value="name">이름</option>
                                     <option value="email">이메일</option>
                                 </select>
-                                <input type="text" class="form-control" id="memberSearch" placeholder="검색어 입력">
+                                <input type="text" class="form-control" id="searchWord" name="searchWord" placeholder="검색어 입력">
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-secondary" id="searchBtn">검색</button>
                                 </div>
@@ -207,6 +275,14 @@
                         </table>
                     </div>
                     
+                    <div class="row mb-3">
+					  <div class="col-md-3 mt-4">
+					    <label class="mb-1">만료일 입력</label>
+					    <input type="date" class="form-control" id="expireDate" name="expireDate">
+					    <small class="text-muted">선택일 23:59:59까지 사용 가능</small>
+					  </div>
+					</div>
+                    
                     <!-- Pagination -->
                     <nav>
                         <ul class="pagination justify-content-center" id="pagination"></ul>
@@ -214,11 +290,24 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                    <button type="button" class="btn btn-primary" id="sendCoupon">전송</button>
+                    
+                    <form id="issueCouponForm" method="post" action="<%=ctxPath%>/admin/couponSend.hp" class="m-0">
+					   <input type="hidden" name="couponCategoryNo" id="hiddenCouponCategoryNo" />
+					   <input type="hidden" name="memberIds" id="hiddenMemberIds" />
+					   <input type="hidden" name="expireDate" id="hiddenExpireDate" />
+					   
+					   <input type="hidden" id="hiddenAllSelected"     name="allSelected">
+					   <input type="hidden" id="hiddenDeselectedIds"   name="deselectedIds">
+						
+					   <button type="submit" class="btn btn-primary" id="sendCoupon">전송</button>
+				    </form>
+				    
                 </div>
             </div>
         </div>
     </div>
+    
+    
     
     <!-- Issued Members Modal -->
     <div class="modal fade" id="issuedMembersModal" tabindex="-1" role="dialog">
@@ -232,24 +321,43 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info" id="issuedCouponInfo"></div>
+                    <div class="form-inline mb-2">
+					  <label class="mr-2">필터</label>
+					  <select class="form-control" id="issuedFilter">
+					    <option value="all">전체</option>
+					    <option value="unused">미사용만</option>
+					    <!--
+					    <option value="used">사용</option>
+					    <option value="expired">기간만료</option>
+					    -->
+					  </select>
+					</div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>발급번호</th>
                                     <th>아이디</th>
                                     <th>이름</th>
                                     <th>발급일</th>
+                                    <th>만료일 (23시 59분 59초 까지)</th>
                                     <th>상태</th>
                                 </tr>
                             </thead>
                             <tbody id="issuedMembersTableBody"></tbody>
                         </table>
                     </div>
+                    
+                    <nav class="mt-3">
+					  <ul class="pagination justify-content-center" id="issuedPagination"></ul>
+					</nav>
                 </div>
+                
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
-                    <button type="button" class="btn btn-primary" id="sendMoreCoupons">쿠폰 전송</button>
+                    <button type="button" class="btn btn-primary" id="sendMoreCoupons">회원에게 해당 쿠폰 전송</button>
                 </div>
+                
             </div>
         </div>
     </div>
