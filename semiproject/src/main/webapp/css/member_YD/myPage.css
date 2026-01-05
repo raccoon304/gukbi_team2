@@ -1,0 +1,106 @@
+
+/* Custom styles that can't be achieved with Tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Smooth transitions for interactive elements */
+button, a {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Swiper carousel styles */
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.swiper-pagination-bullet-active {
+    background-color: #3B82F6 !important;
+}
+
+/* Product card hover effect */
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+/* Top navigation styling */
+.container {
+    max-width: 1400px;
+}
+
+/* Adjust for fixed header */
+body {
+    padding-top: 116px;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 132px;
+    }
+}
+nav a {
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+nav a:hover {
+    border-bottom-color: #4F46E5;
+}
+.address-item, .order-item {
+    transition: all 0.2s ease;
+}
+.address-item:hover, .order-item:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+#orderModal button.bg-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+}
+.address-item input[type="checkbox"]:checked + div {
+    color: #4F46E5;
+}
+
+#addressModal input {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#addressModal input:focus {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+#addressModal button[type="submit"] {
+    transition: all 0.2s;
+}
+
+#addressModal button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+}
+#deleteAddressBtn:disabled,
+#setDefaultBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
