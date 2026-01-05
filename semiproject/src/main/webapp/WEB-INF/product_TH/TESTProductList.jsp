@@ -13,7 +13,7 @@
 <script type="text/javascript" src="<%=ctxPath%>/js/product_TH/TESTProductList.js"></script>
 
 
-
+<!-- 임시 수정본 주석처리 -->
 
 <!-- 페이지 헤더 -->
 <div class="page-header" style="margin-top: 5%">
