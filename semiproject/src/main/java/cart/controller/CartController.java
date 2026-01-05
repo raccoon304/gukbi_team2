@@ -23,31 +23,32 @@ public class CartController extends AbstractController {
         
 
     MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-        
+   
+    
     if (loginUser == null) {
         loginUser = new MemberDTO();
-        loginUser.setMemberid("anth");
-        loginUser.setName("안태훈");
+        loginUser.setMemberid("ansjdhsl");
+        loginUser.setName("김민수");
 
         loginUser.setMobile("010-2516-1070");
 
         session.setAttribute("loginUser", loginUser);
     }
     
-    
-        // 로그인 안 했으면 경고만 띄우고 접근 차단
-		/*    
-		    if (loginUser == null) {
-		        response.setContentType("text/html; charset=UTF-8");
-		        response.getWriter().println(
-		            "<script>" +
-		            "alert('로그인한 회원만 장바구니를 이용할 수 있습니다.');" +
-		            "location.href = '\" + request.getContextPath() + \"/login/login.jsp';" +
-		            "</script>"
-		        );
-		        return;
-		    }
+    /*
+	        // 로그인 안 했으면 경고만 띄우고 접근 차단
+	    if (loginUser == null) {
+	        response.setContentType("text/html; charset=UTF-8");
+	        response.getWriter().println("""
+	            <script>
+	                alert('로그인한 회원만 장바구니를 이용할 수 있습니다.');
+	                history.back();
+	            </script>
+	        """);
+	        return;
+	    }
 		*/
+    
 		    // DAO에서 쓰는 memberId (String)
 		    String memberId = loginUser.getMemberid();
 		
@@ -124,8 +125,7 @@ public class CartController extends AbstractController {
 
         		    response.setContentType("application/json; charset=UTF-8");
         		    response.getWriter().print("{\"result\":" + n + "}");
-        		    return;
-        		
+        		    return;	
         	}
         	*/
         	

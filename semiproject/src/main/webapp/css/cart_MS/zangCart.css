@@ -181,24 +181,15 @@ h4 {
 }
 
 
-/* =========================
-   요약 섹션 (가격 및 결제 금액)
-========================= */
-.summary-section {
-    width: 400px;         
-    margin-top: 30px;
-}
-
-
 .summary-section .summary-box {
-    padding: 25px;
+    padding: 18px;
     border: 2px solid #333;
     border-radius: 8px;
     text-align: right;
 }
 
 .summary-box {
-    padding: 25px;
+    padding: 14px 16px;
     border: 2px solid #333;
     border-radius: 8px;
     width: 100%;
@@ -212,16 +203,51 @@ h4 {
     font-size: 15px;
 }
 
-.summary-item.total {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 2px solid #333;
-    font-size: 18px;
-    font-weight: bold;
-}
+
 
 .summary-item,
 .summary-item.total {
     border-top: none !important;
 }
 
+.summary-section {
+    width: 400px;
+    margin-top: 30px;
+    position: sticky;
+    top: 100px; /* 스크롤 따라오게 (선택) */
+}
+
+.summary-section .summary-box {
+    padding: 28px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(180deg, #ffffff, #f9fafb);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.summary-item.total {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px dashed #ddd;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+}
+
+.summary-item.total span:last-child {
+    color: #e74c3c; /* 금액 강조 */
+}
+
+.summary-item {
+    padding: 6px 0;
+    font-size: 15px;
+    color: #333;
+}
+
+.summary-section {
+    width: 400px;
+    margin-top: 30px;
+    position: sticky;
+    top: 150px;   /* 헤더 높이만큼 띄우기 */
+    align-self: flex-start; 
+}

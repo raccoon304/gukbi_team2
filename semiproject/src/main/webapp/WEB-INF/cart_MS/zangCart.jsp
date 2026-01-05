@@ -140,7 +140,7 @@
 		            </div>
 		
 		            <button class="checkout-btn btn-info">구매하기</button>
-		            <button type="button" id="btnDeleteSelected" class="btn btn-danger my-3">선택삭제</button>
+		            <button type="button" id="btnDeleteSelected" class="btn btn-danger my-3">삭제</button>
 		        </div>
 			</div>
 			 </div>

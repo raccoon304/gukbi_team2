@@ -27,7 +27,7 @@ public interface CartDAO {
     /*
     // 전체 삭제
     int deleteAll(String memberId) throws SQLException;
-     */
+    */
     
     // 장바구니 내부에서 수량 변경
 	int updateQuantity(int cartId, String memberId, int quantity) throws SQLException;
