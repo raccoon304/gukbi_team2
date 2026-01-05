@@ -50,13 +50,19 @@ $(document).ready(function() {
 	  // window.location.href = 'login.hp';
 	});
 
-
+	
     // 회원가입 버튼
     $('#signupBtn').click(function() {
 		window.location.href = ctxPath + "/member/memberRegister.hp";
-		//console.log('이동: memberRegister.hp');
-		// window.location.href = 'memberRegister.hp';
     });
+	
+	
+	// 로그아웃 버튼
+	$(document).on("click", "#logoutBtn", function () {
+		if (!confirm("로그아웃 하시겠습니까?")) return;
+		
+		location.href = ctxPath + "/member/logout.hp";
+	});
 
 	
 	

@@ -93,7 +93,7 @@
 			<div class="col-md-3 mb-4 product-item"
 						data-name="${product.productName}"
 						data-brand="${product.brandName}"
-						data-price="${product.minPrice}">
+						data-price="${product.price}">
 				<div class="card h-100">
 					<img src="<%=ctxPath%>/image/product_TH/${product.imagePath}" class="card-img-top">
 					<div class="card-body">
@@ -101,7 +101,7 @@
 						<p class="card-text">${product.brandName}</p>
 						<p class="card-text">256GB</p>
 						<p class="card-text">
-							<fmt:formatNumber value="${product.minPrice}" pattern="###,###"/>&nbsp;원
+							<fmt:formatNumber value="${product.price}" pattern="###,###"/>&nbsp;원
 						</p>
 					</div>
 					
