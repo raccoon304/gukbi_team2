@@ -18,17 +18,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-// ㅎㅇ
 
 @WebServlet(
 		description = "사용자가 웹에서 *.hp을 했을 경우 이 서블릿이 응답을 해주도록 한다.", 
 		urlPatterns = { "*.hp" },  
 		initParams = { 
 
-				@WebInitParam(name = "propertyConfig", value = "C:/Users/sist/git/gukbi_team2/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
+				@WebInitParam(name = "propertyConfig", value = "C:/Users/user/git/gukbi_team2/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
+		})														
 
-
-		})
 public class FrontController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -130,7 +128,7 @@ public class FrontController extends HttpServlet {
 		// 웹 브라우저의 주소 입력창에서 
 		// http://localhost:9090/MyMVC/member/idDuplicateCheck.up?userid=leess 와 같이 입력되었더라면 
 		String uri = request.getRequestURI();
-		System.out.println("확인용 uri =>"+uri);
+
 		// 확인용 uri =>/MyMVC/member/idDuplicateCheck.up
 		// 확인용 uri =>/MyMVC/test1.up
 		// 확인용 uri =>/MyMVC/test/test2.up
@@ -150,7 +148,7 @@ public class FrontController extends HttpServlet {
 		// 다형성 
 		
 		if(action == null) {// 존재하지 않는 uri값을 넣었을 경우 
-			System.out.println(" "+ key +"는 uri 패턴에 맵핑된 클래스는 없습니다.");
+
 		}
 		else {// 존재하는 uri 값을 넣어준 경우.
 			try {

@@ -24,7 +24,17 @@ $(document).ready(function() {
     });
 	//=================화면줄일때 이벤트================//
 
-	
+
+	// 상품 카드 호버(마우스 올렸을 때) 효과
+	$('.product-card').hover(
+	    function() {
+	        $(this).find('.product-image-wrapper img').css('transform', 'scale(1.1)');
+	    },
+	    function() {
+	        $(this).find('.product-image-wrapper img').css('transform', 'scale(1)');
+	    }
+	);
+
     // 네비게이션 메뉴 클릭
 	$('.nav-cart').click(function(e) {
 	    e.preventDefault(); // href 막을 때만
@@ -40,6 +50,7 @@ $(document).ready(function() {
 	  // window.location.href = 'login.hp';
 	});
 
+
     // 회원가입 버튼
     $('#signupBtn').click(function() {
 		window.location.href = ctxPath + "/member/memberRegister.hp";
@@ -47,16 +58,23 @@ $(document).ready(function() {
 		// window.location.href = 'memberRegister.hp';
     });
 
-    // 상품 카드 호버(마우스 올렸을 때) 효과
-    $('.product-card').hover(
-        function() {
-            $(this).find('.product-image-wrapper img').css('transform', 'scale(1.1)');
-        },
-        function() {
-            $(this).find('.product-image-wrapper img').css('transform', 'scale(1)');
-        }
-    );
-});
+	
+	
+	//카드 클릭에 대한 이벤트
+	const cards = document.querySelectorAll(".product-card");
+	cards.forEach(card => {
+		card.addEventListener("click", function() {
+			const id = card.dataset.id;
+			
+			//alert(`상품ID: ${id}`);
+			
+			//카드에 data-id를 통해 제품ID(상품테이블의 상품코드값)를 GET 방식으로 넘겨주기
+			window.location.href = 'product/productOption.hp?productCode=' + id;
+		});
+	});
+	
+	
+});//end of $(document).ready(function(){})-----
 
 
 
@@ -78,3 +96,20 @@ $(window).scroll(function() {
         $('.navbar-custom').css('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
     }
 });
+
+
+
+//==========Function Decalaration==========//
+// 상품 상세 페이지로 이동
+function goToProductOption(productCode) {
+    //alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productCode);
+    //console.log('이동: productOption.hp?id=' + productCode);
+    
+	//상품상세 페이지에 체품아이디값(상품테이블의 상품코드 값)을 GET 방식으로 보내주기
+    window.location.href = 'product/productOption.hp?productCode=' + productCode;
+}
+
+
+
+
+

@@ -28,6 +28,7 @@ public class CartController extends AbstractController {
         loginUser = new MemberDTO();
         loginUser.setMemberid("anth");
         loginUser.setName("안태훈");
+
         loginUser.setMobile("010-2516-1070");
 
         session.setAttribute("loginUser", loginUser);

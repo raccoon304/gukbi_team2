@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -49,7 +50,7 @@
 
 <body>
 <!-- 네비게이션 -->
-<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top mx-4 py-3">
     <div class="container">
     	<!-- 로고부분 -->
         <a class="navbar-brand" href="<%=ctxPath%>/index.hp">
@@ -65,6 +66,7 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/product/productList.hp">
+                    <%-- <a class="nav-link" href="<%=ctxPath%>/product/testProductList.hp"> --%>
                         <i class="fa-solid fa-list"></i> 상품목록
                     </a>
                 </li>
@@ -85,8 +87,11 @@
                     </a>
                 </li> --%>
                 
+                <!-- 관리자페이지는 admin으로 로그인했을 경우에만 접근이 가능하도록 조건문 사용 -->
+                <%-- <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.userid == 'admin'}">
+                </c:if> --%>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
                         <i class="fa-solid fa-gear"></i> 관리자페이지
                     </a>
                 </li>
@@ -102,6 +107,8 @@
                     <i class="fa-solid fa-user-plus"></i> 회원가입
                 </button>
             </div>
+            
+            
         </div>
     </div>
 </nav>
@@ -148,6 +155,7 @@
                        <i class="fa-solid fa-key mr-1"></i>비밀번호 찾기
                    </a>
                </div>
+
 
                 </form>
             </div>
