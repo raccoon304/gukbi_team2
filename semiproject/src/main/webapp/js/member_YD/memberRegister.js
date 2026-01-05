@@ -1,5 +1,6 @@
-let b_idcheck_click = false;  // 아이디 중복확인을 클릭했는지 클릭하지 않았는지 여부를 알아오기 위한 용도 
-let b_email_click = false;  // 이메일 중복확인을 클릭했는지 클릭하지 않았는지 여부를 알아오기 위한 용도 
+let b_idcheck_click = true;  // 아이디 중복확인을 클릭했는지 클릭하지 않았는지 여부를 알아오기 위한 용도 (true일경우 부적합.)
+let b_email_click = true;  // 이메일 중복확인을 클릭했는지 클릭하지 않았는지 여부를 알아오기 위한 용도 (true일경우 부적합.)
+let b_mobile_click = true;  // 휴대폰 번호 중복인지 여부를 알아오기 위한 용도 (true일경우 부적합.)
 
 const $modal = $('#termsModal');
 const $terms = $('#terms');
@@ -187,7 +188,7 @@ $(function () {
 	    return;
 	  	}
 
-	  	// 5) 비밀번호 유효성 검사 ( 특수문자, 영 대/소문자, 숫자 포함 8자 - 15자 이내로  )
+	  	// 비밀번호 유효성 검사 ( 특수문자, 영 대/소문자, 숫자 포함 8자 - 15자 이내로  )
 	  	const regPwd = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,15}$/;
 	  	if (!regPwd.test(password)) {
 	    	alert("비밀번호는 8~15자이며, 영문 대/소문자, 숫자, 특수문자를 모두 포함해야 합니다.");
@@ -199,9 +200,59 @@ $(function () {
 	  	if (password !== confirmpw) {
 	    	alert("비밀번호가 일치하지 않습니다.");
 	    	$('#confirmpassword').focus();
-	    return;
+	    	return;
 	  	}
+		
+		//아이디 중복확인 유효성 검사 
+		if(b_idcheck_click){
+			alert("아이디 중복검사가 필요합니다.")
+			$('#id_check').focus();
+			return;
+		}
+		
+		//이메일 중복확인 유효성 검사 
+		if(b_email_click){
+			alert("이메일 중복검사가 필요합니다.")
+			$('#email_check').focus();
+			return;
+		}
+		
 
+		// --- 휴대폰 번호 중복일 경우 처리하기 시작 ---
+		// 입력하고자 하는 이메일이 데이터베이스 테이블에 존재하는지, 존재하지 않는지 알아오기
+		if( $('#mobile').val().trim() != ""){
+			$.ajax({
+				url: "mobileDuplicateCheck.hp" ,
+				data: {"mobile" : $('#mobile').val()} ,
+				// mobileDuplicateCheck.hp 로 jsp의 mobile 밸류값 전송 
+				type: "post" , 
+				async: true , // 동기방식으로 보낸다.
+				success:function(text){				
+					const json = JSON.parse(text);
+				
+					if(json.isExists){
+						//입력한 email이 이미 사용중인 경우.
+						$('#mobile').val("");
+					}
+					else{
+						//입력한 email이 아직 사용되지 않은 경우.
+						b_mobile_click = false;
+					}
+				},
+				error:function(request, status, error){
+					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+		        }
+			});
+		}// EoP if( $('input#userid').val().trim() != ""){}
+		// --- 휴대폰 번호 중복일 경우 처리하기 끝 ---
+		
+		//휴대폰 번호 중복확인 유효성 검사 
+		if(b_mobile_click){
+			alert("휴대폰번호가 이미 사용중입니다.")
+			$('#mobile').focus();
+			return;
+		}
+		
 		// 위 유효성 검사에서 문제가 없다면( return 되지 않았다ㅓ면.) post 방식으로 submit 하게됨.
 	  	this.method = "post";
 	  	this.submit();
@@ -230,5 +281,87 @@ $(function () {
 	
 	
 	
+	// --- 아이디중복확인을 클릭했을 때 이벤트 처리하기 시작 ---
+	$('button#id_check').click(function(){
+		// 입력하고자 하는 아이디가 데이터베이스 테이블에 존재하는지, 존재하지 않는지 알아오기
+		if( $('#memberid').val().trim() != ""){
+			$.ajax({
+				url: "idDuplicateCheck.hp" ,
+				data: {"memberid" : $('#memberid').val()} ,
+				// idDuplicateCheck.hp 로 jsp의 memberid 밸류값 전송 
+				type: "post" , 
+				async: true , // 동기방식으로 보낸다.
+				success:function(text){				
+					const json = JSON.parse(text);
+				
+					if(json.isExists){
+						//입력한 memberid가 이미 사용중인 경우.
+						alert($('#memberid').val() + "은 이미 사용중이므로 다른 아이디를 입력하세요.");	
+						$('#memberid').val("");
+					}
+					else{
+						//입력한 memberid가 아직 사용되지 않은 경우.
+						alert($('#memberid').val() + "은 사용가능합니다.");	
+						b_idcheck_click = false;
+					}
+				},
+				error:function(request, status, error){
+					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+		        }
+			});
+		}// EoP if( $('input#userid').val().trim() != ""){}
+	});	
+	// --- 아이디 중복확인을 클릭했을 때 이벤트 처리하기 끝 ---
+	
+	
+	
+	
+	
+	// --- 이메일중복확인을 클릭했을 때 이벤트 처리하기 시작 ---
+	$('#email_check').click(function(){
+		// 입력하고자 하는 이메일이 데이터베이스 테이블에 존재하는지, 존재하지 않는지 알아오기
+		if( $('#email').val().trim() != ""){
+			$.ajax({
+				url: "emailDuplicateCheck.hp" ,
+				data: {"email" : $('#email').val()} ,
+				// emailDuplicateCheck.hp 로 jsp의 email 밸류값 전송 
+				type: "post" , 
+				async: true , // 동기방식으로 보낸다.
+				success:function(text){				
+					const json = JSON.parse(text);
+				
+					if(json.isExists){
+						//입력한 email이 이미 사용중인 경우.
+						alert($('#email').val() + "은 이미 사용중이므로 다른 이메일을 입력하세요.");	
+						$('#email').val("");
+					}
+					else{
+						//입력한 email이 아직 사용되지 않은 경우.
+						alert($('#email').val() + "은 사용가능합니다.");	
+						b_email_click = false;
+					}
+				},
+				error:function(request, status, error){
+					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+		        }
+			});
+		}// EoP if( $('input#userid').val().trim() != ""){}
+	});	
+	// --- 이메일 중복확인을 클릭했을 때 이벤트 처리하기 끝 ---
+	
+
+	
+	
+	// --- 아이디값이 변경되면 가입하기 버튼 클릭시 아이디 중복확인을 클릭했는지 알아보기 위한 용도 초기화 시키기---
+	$('#memberid').bind("change", function(){
+		b_idcheck_click = true;
+	})
+	
+	// --- 이메일값이 변경되면 가입하기 버튼 클릭시 아이디 중복확인을 클릭했는지 알아보기 위한 용도 초기화 시키기---
+	$('#email').bind("change", function(){
+		b_email_click = true;
+	})		
+	
+
 });
 
