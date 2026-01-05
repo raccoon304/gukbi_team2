@@ -189,7 +189,7 @@ public class CartDAO_imple implements CartDAO {
 	        pstmt.setInt(1, cartId);
 	        pstmt.setString(2, memberId);
 
-	        n = pstmt.executeUpdate();
+	        n = pstmt.executeUpdate(); 
 	    }
 		return n;
 	}
