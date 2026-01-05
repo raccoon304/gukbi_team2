@@ -34,7 +34,12 @@ $(document).ready(function() {
 	        $(this).find('.product-image-wrapper img').css('transform', 'scale(1)');
 	    }
 	);
-	
+
+    // 네비게이션 메뉴 클릭
+	$('.nav-cart').click(function(e) {
+	    e.preventDefault(); // href 막을 때만
+	    location.href = '/semiproject/cart/zangCart.hp';
+	});
 
 
 	// 로그인 버튼
@@ -70,6 +75,16 @@ $(document).ready(function() {
 	
 	
 });//end of $(document).ready(function(){})-----
+
+
+
+// 상품 상세 페이지로 이동
+function goToProductDetail(productId) {
+    alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productId);
+    console.log('이동: productDetail.hp?id=' + productId);
+    // 실제로는 아래 코드 사용
+    // window.location.href = 'productDetail.hp?id=' + productId;
+}
 
 
 
