@@ -132,16 +132,8 @@
 		    <!-- ================= 요약 영역 ================= -->
 		    <div class="summary-section">
 		
-		        <div class="summary-box">
-		            <div class="summary-item">
-		                <span>전체 상품 금액</span>
-		                <span id="totalProductPrice">0원</span>
-		            </div>
-		
-		            <div class="summary-item">
-		                <span>-총 할인 금액</span>
-		                <span id="totalDiscount">0원</span>
-		            </div>  		
+		        <div class="summary-box">	            
+		 		
 		            <div class="summary-item total">
 		                <span>총 주문금액</span>
 		                <span id="finalTotal">0원</span>
@@ -150,7 +142,7 @@
 		            <button class="checkout-btn btn-info">구매하기</button>
 		            <button type="button" id="btnDeleteSelected" class="btn btn-danger my-3">선택삭제</button>
 		        </div>
-			   </div>
+			</div>
 			 </div>
 	</c:if>
     

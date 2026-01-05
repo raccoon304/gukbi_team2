@@ -226,3 +226,8 @@ h4 {
     font-weight: bold;
 }
 
+.summary-item,
+.summary-item.total {
+    border-top: none !important;
+}
+

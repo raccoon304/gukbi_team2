@@ -45,9 +45,35 @@
         </div>
 
         <div class="info-row">
-            <span class="info-label">주소</span>
-            <span class="address-box">${address}</span>
-        </div>
+    <span class="info-label">주소</span>
+
+	    <div style="flex:1;">
+	        <div style="display:flex; gap:8px;">
+	            <!-- 기본주소 (직접 입력 X) -->
+	            <input type="text"
+	                   id="address"
+	                   name="address"
+	                   class="form-control"
+	                   value="${address}"
+	                   placeholder="주소 검색을 눌러주세요"
+	                   readonly>
+	
+	            <!-- 검색 버튼 -->
+	            <button type="button"
+	                    class="btn btn-outline-secondary"
+	                    onclick="execDaumPostcode()">
+	                검색
+	            </button>
+	        </div>
+	
+	        <!-- 상세주소 -->
+	        <input type="text"
+	               id="detailAddress"
+	               name="detailAddress"
+	               class="form-control mt-2"
+	               placeholder="상세주소를 입력하세요">
+	    </div>
+	</div>
     </div>
 
 	    <!-- 금액 정보 -->
@@ -146,6 +172,7 @@
   </div>
 </div>
 
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="<%= ctxPath %>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>

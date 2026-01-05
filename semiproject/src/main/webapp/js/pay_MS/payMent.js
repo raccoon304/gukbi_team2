@@ -1,55 +1,48 @@
-// 수량, 가격, 총합을 연산하는 곳
-let appliedCoupon = null; // 쿠폰이 없는 상태가 초기 상태
+// ===============================
+// 우편번호 검색 클릭 여부
+// ===============================
+let b_zipcodeSearch_click = false;
 
-function updatePayTotal() {
-  let total = 0;
+// ===============================
+// 다음 우편번호 검색
+// ===============================
+function execDaumPostcode() {
+    b_zipcodeSearch_click = true;
 
-  document.querySelectorAll("tr[data-cartid]").forEach(row => {
-    const price = Number(row.dataset.price);
-    const qty = Number(row.querySelector(".quantity-input").value);
-    total += price * qty;
-  });
+    new daum.Postcode({
+        oncomplete: function (data) {
 
-  let discount = 0;
+            const addr = data.roadAddress || data.jibunAddress;
 
-  if (appliedCoupon) {
-    if (appliedCoupon.type === 0) {
-      discount = appliedCoupon.value; // 정액
-    } else if (appliedCoupon.type === 1) {
-      discount = Math.floor(total * appliedCoupon.value / 100); // 정률
-    }
-  }
+            // 기본 주소 세팅
+            $("#address").val(addr);
 
-  if (discount > total) discount = total;
-
-  document.querySelector("#totalProductPrice").innerText =
-    total.toLocaleString() + "원";
-  document.querySelector("#totalDiscount").innerText =
-    discount.toLocaleString() + "원";
-  document.querySelector("#finalTotal").innerText =
-    (total - discount).toLocaleString() + "원";
+            // 상세주소 입력으로 포커스
+            $("#detailAddress").focus();
+        }
+    }).open();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
 
-	updatePayTotal();
-	
-  document.querySelectorAll(".btn-apply-coupon").forEach(btn => {
-    btn.addEventListener("click", () => {
-      appliedCoupon = {
-        type: Number(btn.dataset.type),   // 0: 정액, 1: 정률
-        value: Number(btn.dataset.value)  // 금액 or %
-      };
-
-      updatePayTotal();
-    });
-  });
-
-});
-
-
-// 최종 결제 팝업창을 여는 코드
+// ===============================
+// 결제 팝업 열기
+// ===============================
 function openPaymentPopup(ctxPath, userid) {
+
+    const address = $.trim($("#address").val());
+    const detailAddress = $.trim($("#detailAddress").val());
+
+    // 주소 검색 버튼 클릭 여부 확인
+    if (!b_zipcodeSearch_click) {
+        alert("주소 검색 버튼을 눌러 주소를 선택해주세요.");
+        return;
+    }
+
+    // 주소 입력값 검증
+    if (address === "" || detailAddress === "") {
+        alert("주소와 상세주소를 모두 입력해주세요.");
+        return;
+    }
 
     const popupWidth  = 500;
     const popupHeight = 700;
@@ -57,7 +50,12 @@ function openPaymentPopup(ctxPath, userid) {
     const left = (window.screen.width / 2) - (popupWidth / 2);
     const top  = (window.screen.height / 2) - (popupHeight / 2);
 
-    const url = ctxPath + "/payment/coinPaymentPopup.hp?userid=" + encodeURIComponent(userid);
+    const url =
+        ctxPath
+        + "/payment/coinPaymentPopup.hp"
+        + "?userid=" + encodeURIComponent(userid)
+        + "&address=" + encodeURIComponent(address)
+        + "&detailAddress=" + encodeURIComponent(detailAddress);
 
     window.open(
         url,
