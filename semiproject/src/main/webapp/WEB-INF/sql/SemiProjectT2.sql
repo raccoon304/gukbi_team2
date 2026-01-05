@@ -248,7 +248,7 @@ select * from tab;
 select * from tbl_member;
 select * from tbl_delivery;
 
-
+select * from TBL_COUPON_ISSUE
 
 
 
