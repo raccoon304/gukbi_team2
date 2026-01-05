@@ -24,7 +24,7 @@ import java.util.Properties;
 		urlPatterns = { "*.hp" },  
 		initParams = { 
 
-				@WebInitParam(name = "propertyConfig", value = "C:/Users/user/git/gukbi_team2/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
+				@WebInitParam(name = "propertyConfig", value = "C:/Users/sist/git/gukbi_team2/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
 		})														
 
 public class FrontController extends HttpServlet {
