@@ -76,7 +76,7 @@ public class CartController extends AbstractController {
         		int cartId   = Integer.parseInt(request.getParameter("cartId"));
         		int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        		 if (quantity < 1 || quantity > 50) {
+        		 if (quantity < 1 || quantity > 10) {
         		        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         		        return;
         		 }
@@ -102,7 +102,7 @@ public class CartController extends AbstractController {
         	    return;
         	}
         	
-        	/*
+        	
         	// 개별 삭제
         	if ("delete".equals(action)) {
 
@@ -114,8 +114,8 @@ public class CartController extends AbstractController {
         	    response.getWriter().print("{\"result\":" + n + "}");
         	    return;
         	}
-        	*/
         	
+        	/*
         	// 전체 삭제
         	if ("deleteAll".equals(action)) {
 
@@ -126,6 +126,7 @@ public class CartController extends AbstractController {
         		    return;
         		
         	}
+        	*/
         	
             String optionIdStr = request.getParameter("optionId");
             String quantityStr = request.getParameter("quantity");
@@ -157,6 +158,8 @@ public class CartController extends AbstractController {
                     """);
                     return;
                 }
+                
+                
 
                 // 장바구니에 이미 있는지 확인 후 처리
                 boolean exists = mdao.isOptionInCart(memberId, optionId);
@@ -197,7 +200,9 @@ public class CartController extends AbstractController {
                         history.back();
                     </script>
                 """);
+                
             }
+            
         }
     }
 }

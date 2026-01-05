@@ -1,11 +1,6 @@
 $(document).ready(function () {
 
-  /* ================= 쿠폰 정보 ================= */
-  const coupon = {
-    type: 0,    // 0: 정액, 1: 정률
-    value: 10000
-  };
-
+ 
   /* ================= 전체 선택 ================= */
   window.toggleSelectAll = function (allChk) {
     $(".item-checkbox").prop("checked", allChk.checked);
@@ -59,21 +54,10 @@ $(document).ready(function () {
 	  total += unitPrice * qty;
     });
 
-    let discount = 0;
-
-    if (coupon.type === 0) {
-      discount = coupon.value;
-    } else if (coupon.type === 1) {
-      discount = Math.floor(total * coupon.value / 100);
-    }
-
-    if (discount > total) discount = total;
-
-    const finalTotal = total - discount;
-
-    $("#totalProductPrice").text(total.toLocaleString() + "원");
-    $("#totalDiscount").text(discount.toLocaleString() + "원");
-    $("#finalTotal").text(finalTotal.toLocaleString() + "원");
+ 
+	$("#totalProductPrice").text(total.toLocaleString() + "원");
+	$("#totalDiscount").text("0원");
+	$("#finalTotal").text(total.toLocaleString() + "원");
   };
 
   /* ================= 수량 + / - ================= */

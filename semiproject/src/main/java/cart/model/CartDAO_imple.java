@@ -171,7 +171,7 @@ public class CartDAO_imple implements CartDAO {
         return n; // 👉 1이면 성공, 0이면 실패
     }
    
-    /*
+    
 	// 행에 해당되는 칸 대상으로만 선택 삭제
 	@Override
 	public int deleteCart(int cartId, String memberId) throws SQLException {
@@ -192,9 +192,9 @@ public class CartDAO_imple implements CartDAO {
 	    }
 		return n;
 	}
-     */
+     
     
-    
+    /*
 	// 선택한 내용을 대상으로 전체 삭제
 	@Override
 	public int deleteAll(String memberId) throws SQLException {
@@ -213,6 +213,7 @@ public class CartDAO_imple implements CartDAO {
 	    }
 		return n;
 	}
+	*/
 
 	@Override
 	public Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException {
