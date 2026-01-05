@@ -91,7 +91,7 @@
                 <%-- <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.userid == 'admin'}">
                 </c:if> --%>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
                         <i class="fa-solid fa-gear"></i> 관리자페이지
                     </a>
                 </li>
