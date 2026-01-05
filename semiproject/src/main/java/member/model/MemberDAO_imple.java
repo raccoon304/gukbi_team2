@@ -194,7 +194,8 @@ public class MemberDAO_imple implements MemberDAO {
 
 	        String sql =
 	              " SELECT "
-	            + "   USERSEQ, MEMBER_ID, NAME, MOBILE_PHONE, EMAIL, BIRTH_DATE, GENDER, STATUS, IDLE "
+	            + " 	USERSEQ, MEMBER_ID, NAME, MOBILE_PHONE, EMAIL, BIRTH_DATE, GENDER, STATUS, IDLE, "
+	            + " 	TO_CHAR(CREATED_AT, 'YYYYMMDD') AS CREATED_AT "
 	            + " FROM TBL_MEMBER "
 	            + " WHERE STATUS = 0 "
 	            + "   AND MEMBER_ID = ? "
@@ -220,6 +221,7 @@ public class MemberDAO_imple implements MemberDAO {
 	            memberDto.setGender(rs.getInt("GENDER"));
 	            memberDto.setStatus(rs.getInt("STATUS"));
 	            memberDto.setIdle(rs.getInt("IDLE"));
+	            memberDto.setRegisterday(rs.getString("CREATED_AT"));
 	        }
 
 	    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
