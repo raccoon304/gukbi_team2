@@ -60,7 +60,7 @@ $(document).ready(function() {
 		card.addEventListener("click", function() {
 			const id = card.dataset.id;
 			
-			alert(`상품ID: ${id}`);
+			//alert(`상품ID: ${id}`);
 			
 			//카드에 data-id를 통해 제품ID(상품테이블의 상품코드값)를 GET 방식으로 넘겨주기
 			window.location.href = 'product/productOption.hp?productCode=' + id;
@@ -86,8 +86,8 @@ $(window).scroll(function() {
 //==========Function Decalaration==========//
 // 상품 상세 페이지로 이동
 function goToProductOption(productCode) {
-    alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productCode);
-    console.log('이동: productOption.hp?id=' + productCode);
+    //alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productCode);
+    //console.log('이동: productOption.hp?id=' + productCode);
     
 	//상품상세 페이지에 체품아이디값(상품테이블의 상품코드 값)을 GET 방식으로 보내주기
     window.location.href = 'product/productOption.hp?productCode=' + productCode;

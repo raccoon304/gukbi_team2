@@ -2,11 +2,15 @@
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<!-- 사용자 CSS -->
-<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/productDetail.css">
-
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
+
+<!-- 사용자 CSS -->
+<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/productOption.css">
+
+<!-- 사용자 JS -->
+<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/productOption.js"></script>
+
 
 
 <div class="container" style="margin-top: 5%">
@@ -31,7 +35,9 @@
                         <h1 class="product-title" id="productTitle">${proDto.productName}</h1>
 
                         <div class="product-price">
-                            <span id="unitPrice">${proDetilDto.price}</span><small>원</small>
+                            <span id="unitPrice">
+                            <fmt:formatNumber value="${proDetilDto.price}" pattern="###,###"/>
+                            </span><small>원</small>
                         </div>
 
                         <!-- 상품 스펙 -->
@@ -91,7 +97,7 @@
                             <div class="total-price-section">
                                 <span class="total-label">총 상품 금액</span>
                                 <span class="total-price" id="totalPrice">
-                                		<fmt:formatNumber value="${proDetilDto.price}" pattern="###,###"/>>&nbsp;원
+                                		<fmt:formatNumber value="${proDetilDto.price}" pattern="###,###"/>&nbsp;원
                                 </span>
                             </div>
                         </div>
@@ -149,131 +155,133 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        // 로그인 상태 변수
-        var isLoggedIn = true;
-        var unitPrice = ${proDetilDto.price};
-        var maxStock = ${proDetilDto.stockQty};
 
-        // 페이지 로드 시 로그인 상태 확인
-        updateLoginStatus();
+<script type="text/javascript">
+$(document).ready(function() {
+    // 로그인 상태 변수
+    var isLoggedIn = true;
+    var unitPrice = ${proDetilDto.price};
+    var maxStock = ${proDetilDto.stockQty};
 
-        // 로그인 상태 업데이트
-        function updateLoginStatus() {
-            if (isLoggedIn) {
-                $('#loginBtn').hide();
-                $('#logoutBtn').show();
-                $('#userInfo').show();
-                $('#loginRequiredMsg').hide();
-                $('#quantitySection').removeClass('disabled-section');
-            } else {
-                $('#loginBtn').show();
-                $('#logoutBtn').hide();
-                $('#userInfo').hide();
-                $('#loginRequiredMsg').show();
-                $('#quantitySection').addClass('disabled-section');
-            }
+    // 페이지 로드 시 로그인 상태 확인
+    updateLoginStatus();
+
+    // 로그인 상태 업데이트
+    function updateLoginStatus() {
+        if (isLoggedIn) {
+            $('#loginBtn').hide();
+            $('#logoutBtn').show();
+            $('#userInfo').show();
+            $('#loginRequiredMsg').hide();
+            $('#quantitySection').removeClass('disabled-section');
+        } else {
+            $('#loginBtn').show();
+            $('#logoutBtn').hide();
+            $('#userInfo').hide();
+            $('#loginRequiredMsg').show();
+            $('#quantitySection').addClass('disabled-section');
         }
+    }
 
-        // 수량 증가
-        $('#increaseBtn').click(function() {
-            if (!isLoggedIn) return;
-            
-            var currentQty = parseInt($('#quantity').val());
-            if (currentQty < maxStock) {
-                $('#quantity').val(currentQty + 1);
-                updateTotalPrice();
-            } else {
-                alert('최대 재고 수량입니다.');
-            }
-        });
-
-        // 수량 감소
-        $('#decreaseBtn').click(function() {
-            if (!isLoggedIn) return;
-            
-            var currentQty = parseInt($('#quantity').val());
-            if (currentQty > 1) {
-                $('#quantity').val(currentQty - 1);
-                updateTotalPrice();
-            }
-        });
-
-        // 총 가격 업데이트
-        function updateTotalPrice() {
-            var quantity = parseInt($('#quantity').val());
-            var total = unitPrice * quantity;
-            $('#totalPrice').text(total.toLocaleString() + '원');
-        }
-
-        // 장바구니 버튼
-        $('#cartBtn').click(function() {
-            if (!isLoggedIn) {
-                alert('로그인이 필요합니다.');
-                $('#loginModal').modal('show');
-                return;
-            }
-
-            var quantity = $('#quantity').val();
-            var total = unitPrice * quantity;
-            
-            if (confirm(quantity + '개의 상품을 장바구니에 담으시겠습니까?\n총 금액: ' + total.toLocaleString() + '원')) {
-                alert('장바구니에 상품이 추가되었습니다!');
-                console.log({
-                    product: '아이폰 16 Pro Max',
-                    quantity: quantity,
-                    unitPrice: unitPrice,
-                    totalPrice: total
-                });
-            }
-        });
-
-        // 구매하기 버튼
-        $('#purchaseBtn').click(function() {
-            if (!isLoggedIn) {
-                alert('로그인이 필요합니다.');
-                $('#loginModal').modal('show');
-                return;
-            }
-
-            var quantity = $('#quantity').val();
-            var total = unitPrice * quantity;
-            
-            if (confirm('상품을 구매하시겠습니까?\n\n수량: ' + quantity + '개\n총 금액: ' + total.toLocaleString() + '원')) {
-                alert('구매가 완료되었습니다!\n주문 내역은 마이페이지에서 확인하실 수 있습니다.');
-                console.log({
-                    action: '구매하기',
-                    product: '아이폰 16 Pro Max',
-                    quantity: quantity,
-                    unitPrice: unitPrice,
-                    totalPrice: total,
-                    timestamp: new Date()
-                });
-            }
-        });
-
-        // 리뷰 보기 버튼
-        $('#reviewBtn').click(function() {
-            // 실제로는 리뷰 페이지로 이동
-            if (confirm('상품 리뷰 페이지로 이동하시겠습니까?')) {
-                // window.location.href = 'review.html?productId=1';
-                alert('리뷰 페이지로 이동합니다.\n(실제로는 review.html?productId=1 으로 이동)');
-                console.log('리뷰 페이지 이동: review.html?productId=1');
-            }
-        });
-
-        // 수량 직접 입력 방지 (readonly 해제 시)
-        $('#quantity').on('input', function() {
-            var val = parseInt($(this).val());
-            if (val < 1) $(this).val(1);
-            if (val > maxStock) $(this).val(maxStock);
+    // 수량 증가
+    $('#increaseBtn').click(function() {
+        if (!isLoggedIn) return;
+        
+        var currentQty = parseInt($('#quantity').val());
+        if (currentQty < maxStock) {
+            $('#quantity').val(currentQty + 1);
             updateTotalPrice();
-        });
+        } else {
+            alert('최대 재고 수량입니다.');
+        }
+    });
 
-        // 초기 가격 표시
+    // 수량 감소
+    $('#decreaseBtn').click(function() {
+        if (!isLoggedIn) return;
+        
+        var currentQty = parseInt($('#quantity').val());
+        if (currentQty > 1) {
+            $('#quantity').val(currentQty - 1);
+            updateTotalPrice();
+        }
+    });
+
+    // 총 가격 업데이트
+    function updateTotalPrice() {
+        var quantity = parseInt($('#quantity').val());
+        var total = unitPrice * quantity;
+        $('#totalPrice').text(total.toLocaleString() + '원');
+    }
+
+    // 장바구니 버튼
+    $('#cartBtn').click(function() {
+        if (!isLoggedIn) {
+            alert('로그인이 필요합니다.');
+            $('#loginModal').modal('show');
+            return;
+        }
+
+        var quantity = $('#quantity').val();
+        var total = unitPrice * quantity;
+        
+        if (confirm(quantity + '개의 상품을 장바구니에 담으시겠습니까?\n총 금액: ' + total.toLocaleString() + '원')) {
+            alert('장바구니에 상품이 추가되었습니다!');
+            console.log({
+                product: '아이폰 16 Pro Max',
+                quantity: quantity,
+                unitPrice: unitPrice,
+                totalPrice: total
+            });
+        }
+    });
+
+    // 구매하기 버튼
+    $('#purchaseBtn').click(function() {
+        if (!isLoggedIn) {
+            alert('로그인이 필요합니다.');
+            $('#loginModal').modal('show');
+            return;
+        }
+
+        var quantity = $('#quantity').val();
+        var total = unitPrice * quantity;
+        
+        if (confirm('상품을 구매하시겠습니까?\n\n수량: ' + quantity + '개\n총 금액: ' + total.toLocaleString() + '원')) {
+            alert('구매가 완료되었습니다!\n주문 내역은 마이페이지에서 확인하실 수 있습니다.');
+            console.log({
+                action: '구매하기',
+                product: '아이폰 16 Pro Max',
+                quantity: quantity,
+                unitPrice: unitPrice,
+                totalPrice: total,
+                timestamp: new Date()
+            });
+        }
+    });
+
+    // 리뷰 보기 버튼
+    $('#reviewBtn').click(function() {
+        // 실제로는 리뷰 페이지로 이동
+        if (confirm('상품 리뷰 페이지로 이동하시겠습니까?')) {
+            // window.location.href = 'review.html?productId=1';
+            alert('리뷰 페이지로 이동합니다.\n(실제로는 review.html?productId=1 으로 이동)');
+            console.log('리뷰 페이지 이동: review.html?productId=1');
+        }
+    });
+
+    // 수량 직접 입력 방지 (readonly 해제 시)
+    $('#quantity').on('input', function() {
+        var val = parseInt($(this).val());
+        if (val < 1) $(this).val(1);
+        if (val > maxStock) $(this).val(maxStock);
         updateTotalPrice();
     });
+
+    // 초기 가격 표시
+    updateTotalPrice();
+});
+
 </script>
 
 <!-- 푸터부분 가져오기 -->

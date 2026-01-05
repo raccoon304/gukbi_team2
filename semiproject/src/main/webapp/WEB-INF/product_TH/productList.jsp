@@ -20,9 +20,9 @@
         <h1><i class="fas fa-mobile-alt mr-3"></i>전체 상품</h1>
         <p class="mb-0">최신 스마트폰을 만나보세요</p>
         
-	    <a href="<%=ctxPath%>/product/TESTproductList.hp" style="font-size: 15pt; font-weight: bold; color: black;">
+	    <%-- <a href="<%=ctxPath%>/product/TESTproductList.hp" style="font-size: 15pt; font-weight: bold; color: black;">
 			<i class="fa-solid fa-list"></i> 테스트상품페이지 가기
-		</a>
+		</a> --%>
     </div>
 </div>
 
