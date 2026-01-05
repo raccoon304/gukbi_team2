@@ -24,7 +24,7 @@ import java.util.Properties;
 		urlPatterns = { "*.hp" },  
 		initParams = { 
 
-				@WebInitParam(name = "propertyConfig", value = "C:/Users/user/git/gukbi_team2/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
+				@WebInitParam(name = "propertyConfig", value = "C:/git/gukbi_team2/semiproject/src/main/webapp/WEB-INF/Command.properties", description = "*.hp 에 대한 클래스의 매핑파일")
 		})														
 
 public class FrontController extends HttpServlet {
@@ -119,6 +119,7 @@ public class FrontController extends HttpServlet {
 	
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	//	request.setCharacterEncoding("UTF-8");
 		// 웹 브라우저의 주소 입력창에서 
 		// http://localhost:9090/MyMVC/member/idDuplicateCheck.up?userid=leess 와 같이 입력되었더라면 
 		//String url = request.getRequestURL().toString();
@@ -183,6 +184,7 @@ public class FrontController extends HttpServlet {
 
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	//	request.setCharacterEncoding("UTF-8");
 		doGet(request, response);
 	}
 

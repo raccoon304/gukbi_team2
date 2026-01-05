@@ -75,7 +75,8 @@ public class AdminDAO_imple implements AdminDAO {
 			
 			String sql = " SELECT ceil(count(*)/?) "
 					   + " FROM tbl_member "
-					   + " WHERE MEMBER_ID != 'admin' "; 
+					   + " WHERE MEMBER_ID != 'admin' "
+					   + " AND status = 0 "; 
 			
 			String colname = paraMap.get("searchType");
 			String searchWord = paraMap.get("searchWord");
@@ -137,7 +138,8 @@ public class AdminDAO_imple implements AdminDAO {
 			
 			String sql = " SELECT member_id, name, email, gender, to_char(created_at, 'yyyy-mm-dd') AS created_at "
 					   + " FROM tbl_member "
-					   + " WHERE member_id != 'admin' "; 
+					   + " WHERE member_id != 'admin' "
+					   + " AND status = 0 "; 
 			
 			String colname = paraMap.get("searchType");
 			String searchWord = paraMap.get("searchWord");
@@ -223,7 +225,8 @@ public class AdminDAO_imple implements AdminDAO {
 			
 			String sql = " SELECT count(*) "
 					   + " FROM tbl_member "
-					   + " WHERE member_id != 'admin' "; 
+					   + " WHERE member_id != 'admin'"
+					   + " AND status = 0 "; 
 			
 			String colname = paraMap.get("searchType");
 			String searchWord = paraMap.get("searchWord");

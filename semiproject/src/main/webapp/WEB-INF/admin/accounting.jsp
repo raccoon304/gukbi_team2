@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%String ctxPath=request.getContextPath();%>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,6 +30,10 @@
 	
 	<%-- 직접 만든 JS --%>
     <script src="<%=ctxPath%>/js/admin/accounting.js"></script>
+ 
+<script>
+  const ctxPath = "<%= request.getContextPath() %>";
+</script> 
     
     <style>
         body {
@@ -180,14 +186,45 @@
                         <h1 class="page-title">회계</h1>
                         <p class="page-subtitle">기간별, 상품별 판매수량 및 매출을 확인할 수 있습니다</p>
                     </div>
-                    <select class="period-select" id="periodSelect">
-                        <option value="day">1일</option>
-                        <option value="week" selected>1주</option>
-                        <option value="month">1개월</option>
-                        <option value="quarter">분기</option>
-                        <option value="halfyear">반기</option>
-                        <option value="year">1년</option>
-                    </select>
+                    
+                    <div class="accounting-controls">
+	                    <select class="period-select" id="periodSelect">
+						  <optgroup label="일">
+						    <option value="TODAY">오늘</option>
+						    <option value="YESTERDAY">어제</option>
+						    <option value="LAST_7" selected>최근 7일</option>
+						    <option value="LAST_30">최근 30일</option>
+						  </optgroup>
+						
+						  <optgroup label="월/분기/연">
+						    <option value="MTD">이번 달(MTD)</option>
+						    <option value="LAST_MONTH">지난 달</option>
+						    <option value="QTD">이번 분기(QTD)</option>
+						    <option value="LAST_QUARTER">지난 분기</option>
+						    <option value="YTD">올해(YTD)</option>
+						    <option value="LAST_YEAR">작년</option>
+						  </optgroup>
+						
+						  <optgroup label="직접 선택">
+						    <option value="CUSTOM">사용자 지정</option>
+						  </optgroup>
+						</select>
+						
+						<!-- 사용자 지정 날짜 영역 -->
+						<div id="customRange" class="mt-2" style="display:none;">
+						  <input type="text" id="startDate" class="period-select" style="width:140px;" placeholder="시작일">
+						  <span class="mx-1">~</span>
+						  <input type="text" id="endDate" class="period-select" style="width:140px;" placeholder="종료일">
+						  <button type="button" id="applyCustom" class="btn btn-sm btn-primary ml-2">적용</button>
+						
+						  <div class="text-muted mt-1" style="font-size:12px;">
+						    * 종료일 포함(예: 01-01~01-05는 5일까지)
+						  </div>
+						</div>
+						
+						<!-- 선택된 실제 기간 표시 -->
+						<div id="rangeLabel" class="text-muted mt-2" style="font-size:13px;"></div>
+					</div>
                 </div>
             </div>
             
