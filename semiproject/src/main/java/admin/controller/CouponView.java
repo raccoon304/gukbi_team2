@@ -43,6 +43,8 @@ public class CouponView extends AbstractController {
 	        
 	        String sizePerPage = request.getParameter("sizePerPage");
 	        String currentShowPageNo = request.getParameter("currentShowPageNo");
+	        String filterType = request.getParameter("type");
+	        String filterSort = request.getParameter("sort");
 
 	        if(sizePerPage == null || (!"10".equals(sizePerPage) && !"5".equals(sizePerPage) && !"3".equals(sizePerPage))) {
 	            sizePerPage = "10";
@@ -52,8 +54,15 @@ public class CouponView extends AbstractController {
 	            currentShowPageNo = "1";
 	        }
 
-	        int totalPage = cpDao.getTotalPageCoupon(Integer.parseInt(sizePerPage));
-
+	        
+	        Map<String,String> paraMap = new HashMap<>();
+	        paraMap.put("sizePerPage", sizePerPage);
+	        paraMap.put("currentShowPageNo", currentShowPageNo);
+	        paraMap.put("type", (filterType == null ? "" : filterType));
+	        paraMap.put("sort", (filterSort == null ? "" : filterSort));
+	        
+	        int totalPage = cpDao.getTotalPageCoupon(paraMap);
+	        
 	        // 장난 방지
 	        try {
 	            if(Integer.parseInt(currentShowPageNo) > totalPage || Integer.parseInt(currentShowPageNo) <= 0) {
@@ -63,9 +72,10 @@ public class CouponView extends AbstractController {
 	            currentShowPageNo = "1";
 	        }
 
-	        Map<String,String> paraMap = new HashMap<>();
-	        paraMap.put("sizePerPage", sizePerPage);
+	        
 	        paraMap.put("currentShowPageNo", currentShowPageNo);
+	        
+
 
 	        // === 페이지바 만들기 ===
 	        String pageBar = "";

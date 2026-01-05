@@ -168,6 +168,10 @@ $(document).ready(function() {
 	});
 	
 	
+	// 쿠폰 리스트에서 필터 바뀌면 submit
+	$(document).on("change", "#filterType, #filterSort", function () {
+	  $("#couponFilterFrm").submit();
+	});
 	
 	
 

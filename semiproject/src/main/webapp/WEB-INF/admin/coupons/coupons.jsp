@@ -72,6 +72,25 @@
                             <h5 class="mb-0">쿠폰 목록</h5>
                         </div>
                         <div class="card-body">
+                        	<!-- filters -->
+							<form id="couponFilterFrm" method="get" action="<%=ctxPath%>/admin/coupon.hp" class="form-inline mb-3">
+							  <input type="hidden" name="sizePerPage" value="${requestScope.sizePerPage}" />
+							  <input type="hidden" name="currentShowPageNo" value="1" />
+							
+							  <label class="mr-2">할인타입</label>
+							  <select name="type" id="filterType" class="form-control mr-4">
+							    <option value=""  ${empty param.type ? 'selected' : ''}>전체</option>
+							    <option value="0" ${param.type == '0' ? 'selected' : ''}>정액</option>
+							    <option value="1" ${param.type == '1' ? 'selected' : ''}>정률</option>
+							  </select>
+							
+							  <label class="mr-2">정렬</label>
+							  <select name="sort" id="filterSort" class="form-control">
+							    <option value=""         ${empty param.sort ? 'selected' : ''}>전체</option>
+							    <option value="valueDesc" ${param.sort == 'valueDesc' ? 'selected' : ''}>할인값 큰순</option>
+							    <option value="valueAsc"  ${param.sort == 'valueAsc' ? 'selected' : ''}>할인값 작은순</option>
+							  </select>
+							</form>
                             <div class="table-responsive">
                                 <table class="table table-hover" id="couponTable">
                                     <thead>

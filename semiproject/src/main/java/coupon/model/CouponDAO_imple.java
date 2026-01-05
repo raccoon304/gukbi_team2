@@ -124,15 +124,30 @@ public class CouponDAO_imple implements CouponDAO {
 
 	// 쿠폰 총 페이지수
 	@Override
-	public int getTotalPageCoupon(int sizePerPage) throws SQLException {
+	public int getTotalPageCoupon(Map<String,String> paraMap) throws SQLException {
 		
 		int totalPage = 0;
+		String type = paraMap.get("type");
+		
 	    try {
 	        conn = ds.getConnection();
-	        String sql = "select ceil(count(*)/?) from TBL_COUPON";
+	        String sql = " SELECT ceil(count(*)/?) "
+	        		   + " FROM tbl_coupon "
+	        		   + " WHERE 1 = 1 ";
+	        
+	        if(type != null && !type.isBlank()) {
+	            sql += " AND discount_type = ? ";
+	        }
+	        		
 	        pstmt = conn.prepareStatement(sql);
-	        pstmt.setInt(1, sizePerPage);
+	        pstmt.setInt(1, Integer.parseInt(paraMap.get("sizePerPage")));
+	        
+	        if(type != null && !type.isBlank()) {
+	        	pstmt.setInt(2, Integer.parseInt(type));
+	        }
+	        
 	        rs = pstmt.executeQuery();
+	        
 	        if(rs.next()) totalPage = rs.getInt(1);
 	        
 	    } finally {
@@ -150,21 +165,32 @@ public class CouponDAO_imple implements CouponDAO {
 
 	    int sizePerPage = Integer.parseInt(paraMap.get("sizePerPage"));
 	    int currentShowPageNo = Integer.parseInt(paraMap.get("currentShowPageNo"));
+	    String type = paraMap.get("type");
+	    String sort = paraMap.get("sort");
 
 	    int begin = (currentShowPageNo - 1) * sizePerPage + 1;
 	    int end   = begin + sizePerPage - 1;
+	    
+	    String orderBy = " COUPON_CATEGORY_NO desc ";
+	    
+	    if("valueDesc".equals(sort)) {
+	      orderBy = " discount_value DESC, coupon_category_no DESC ";
+	    } else if("valueAsc".equals(sort)) {
+	      orderBy = " discount_value ASC, coupon_category_no DESC ";
+	    }
+
 
 	    try {
 	        conn = ds.getConnection();
 
 	        String sql =
-	          " select COUPON_CATEGORY_NO, COUPON_NAME, DISCOUNT_TYPE, DISCOUNT_VALUE, USABLE " +
-	          " from ( " +
-	          "   select row_number() over(order by COUPON_CATEGORY_NO desc) as rno, " +
-	          "          COUPON_CATEGORY_NO, COUPON_NAME, DISCOUNT_TYPE, DISCOUNT_VALUE, USABLE " +
-	          "   from TBL_COUPON " +
-	          " ) " +
-	          " where rno between ? and ? ";
+	            " SELECT coupon_category_no, coupon_name, discount_type, discount_value, usable "
+	          + " FROM ( "
+	          + "   SELECT row_number() over(order by coupon_category_no desc) AS rno, "
+	          + "          coupon_category_no, coupon_name, discount_type, discount_value, usable "
+	          + "   FROM tbl_coupon "
+	          + " ) "
+	          + " WHERE rno between ? and ? ";
 
 	        pstmt = conn.prepareStatement(sql);
 	        pstmt.setInt(1, begin);

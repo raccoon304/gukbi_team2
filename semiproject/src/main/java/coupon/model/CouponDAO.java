@@ -16,7 +16,7 @@ public interface CouponDAO {
 	List<CouponDTO> selectCouponList() throws SQLException;
 	
 	// 쿠폰 총 페이지수
-	int getTotalPageCoupon(int sizePerPage) throws SQLException;
+	int getTotalPageCoupon(Map<String,String> paraMap) throws SQLException;
 	
 	// 페이지별 쿠폰 리스트 가져오기
 	List<CouponDTO> selectCouponPaging(Map<String,String> paraMap) throws SQLException;
