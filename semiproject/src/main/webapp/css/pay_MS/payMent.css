@@ -1,0 +1,152 @@
+@charset "UTF-8";
+
+
+.payment-container {
+  max-width: 720px;
+  margin: 30px auto 0;
+}
+
+/* 상단 두 영역 가로 정렬 */
+.payment-top-flex {
+    display: flex;
+    gap: 24px;              
+    margin-left : 0;
+    width: 90%;
+}
+
+/* 왼쪽 : 받는분 정보 */
+.recipient-info {
+    flex: 1;
+    padding: 32px 28px;
+}
+
+/* 오른쪽 : 금액 정보 */
+.price-summary {
+    flex: 1;
+    padding: 32px 28px;
+}
+
+:root {
+  --purple-main: #6f63d2;
+  --purple-light: #f4f3ff;
+  --purple-border: #dcd9ff;
+  --blue-price: #5b7cff;
+  --gray-text: #6b7280;
+}
+
+.recipient-info {
+  border: 1px solid var(--purple-border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.recipient-info,
+.price-summary {
+    padding: 40px 32px;   
+    min-height: 200px;    
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--purple-main);
+  min-width: 90px;
+}
+
+.info-value,
+.address-box {
+  color: #333;
+}
+
+.price-summary {
+  border: 1px solid var(--purple-border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--gray-text);
+}
+
+.price-row.total {
+  border-top: 1px solid var(--purple-border);
+  padding-top: 10px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.price-row.total .amount {
+  color: var(--blue-price);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.confirm-btn {
+  width: 100%;
+  background-color: var(--purple-main);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.confirm-btn:hover {
+  background-color: #5c52c4;
+}
+
+.product-section {
+  background-color: var(--purple-light);
+  border: 1px solid var(--purple-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+}
+
+.product-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  margin-right: 12px;
+}
+
+.product-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.product-price-info {
+  display: flex;
+  justify-content: space-between;
+  color: var(--gray-text);
+}
+
+subtotal-section {
+  margin-top: 12px;
+  border-top: 1px solid var(--purple-border);
+  padding-top: 10px;
+}
+
+.subtotal-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
