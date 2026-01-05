@@ -131,18 +131,18 @@
 	            </div>
 	        </c:forEach>
 	
-	        <div class="subtotal-section">
-	            <div class="subtotal-row">
-	                <span class="subtotal-label">주문금액</span>
-	                <span class="subtotal-amount">
-					  ${calcExpr} =
-					  <fmt:formatNumber value="${finalPrice}" pattern="#,###"/>
-					</span>
-	            </div>
-	        </div>
+			<div class="subtotal-section">
+			    <div class="subtotal-row">
+			        <span class="subtotal-label">주문금액</span>
+			        <span class="subtotal-amount">
+			            <fmt:formatNumber value="${finalPrice}" pattern="#,###"/> 원
+			        </span>
+			    </div>
+			</div>
 	    </div>
 	</div>
 </div>
+
 <!-- 결제 모달 -->
 <div class="modal fade" id="payModal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-dialog-centered" role="document">

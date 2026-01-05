@@ -4,6 +4,7 @@
 .payment-container {
   max-width: 720px;
   margin: 30px auto 0;
+  margin-top: 80px;
 }
 
 /* 상단 두 영역 가로 정렬 */
