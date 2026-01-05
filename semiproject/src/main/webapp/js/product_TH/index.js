@@ -24,11 +24,22 @@ $(document).ready(function() {
     });
 	//=================화면줄일때 이벤트================//
 
-	
+
+	// 상품 카드 호버(마우스 올렸을 때) 효과
+	$('.product-card').hover(
+	    function() {
+	        $(this).find('.product-image-wrapper img').css('transform', 'scale(1.1)');
+	    },
+	    function() {
+	        $(this).find('.product-image-wrapper img').css('transform', 'scale(1)');
+	    }
+	);
+
     // 네비게이션 메뉴 클릭
-    $('.navbar-nav .nav-link').click(function() {
-        alert("네이게이션 메뉴를 클릭하셨습니다.")
-    });
+	$('.nav-cart').click(function(e) {
+	    e.preventDefault(); // href 막을 때만
+	    location.href = '/semiproject/cart/zangCart.hp';
+	});
 
 
 	// 로그인 버튼
@@ -39,12 +50,14 @@ $(document).ready(function() {
 	  // window.location.href = 'login.hp';
 	});
 
+
     // 회원가입 버튼
     $('#signupBtn').click(function() {
 		window.location.href = ctxPath + "/member/memberRegister.hp";
 		//console.log('이동: memberRegister.hp');
 		// window.location.href = 'memberRegister.hp';
     });
+
 
     // 상품 카드 호버(마우스 올렸을 때) 효과
     $('.product-card').hover(
@@ -57,8 +70,22 @@ $(document).ready(function() {
     );
 	
 
+	//카드 클릭에 대한 이벤트
+	const cards = document.querySelectorAll(".product-card");
+	cards.forEach(card => {
+		card.addEventListener("click", function() {
+			const id = card.dataset.id;
+			
+			//alert(`상품ID: ${id}`);
+			
+			//카드에 data-id를 통해 제품ID(상품테이블의 상품코드값)를 GET 방식으로 넘겨주기
+			window.location.href = 'product/productOption.hp?productCode=' + id;
+		});
+	});
 	
-});
+	
+});//end of $(document).ready(function(){})-----
+
 
 
 
@@ -69,6 +96,7 @@ function goToProductDetail(productId) {
     // 실제로는 아래 코드 사용
     // window.location.href = 'productDetail.hp?id=' + productId;
 }
+
 
 
 // 스크롤 시 네비게이션 그림자 효과
@@ -131,5 +159,18 @@ $(document).on('keydown', '#loginId, #loginPw', function (e) {
     	login();
   	}
 });
+
+//==========Function Decalaration==========//
+// 상품 상세 페이지로 이동
+function goToProductOption(productCode) {
+    //alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productCode);
+    //console.log('이동: productOption.hp?id=' + productCode);
+    
+	//상품상세 페이지에 체품아이디값(상품테이블의 상품코드 값)을 GET 방식으로 보내주기
+    window.location.href = 'product/productOption.hp?productCode=' + productCode;
+}
+
+
+
 
 

@@ -49,8 +49,17 @@ json-20250517.jar
 mail.jar
 ojdbc8.jar
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Java Resources.src.main.java.common.controller 내 FrontController.java 
+의 
+@WebServlet(
+		description = "사용자가 웹에서 *.up을 했을 경우 이 서블릿이 응답을 해주도록 한다.", 
+		urlPatterns = { "*.up" },  
+		initParams = { 
+				@WebInitParam(name = "propertyConfig", value = ", description = "*.up 에 대한 클래스의 매핑파일")
+		})
 
-
+해당 부분에서  value값을 본인의 Command.properties의 절대경로로 변경해주세요.
 
 

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -30,12 +31,26 @@
 	<%-- jQueryUI CSS 및 JS --%>
 	<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.css" />
 	<script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
+	
+	<style>
+	.navbar {
+  	height: 70px;
+ 	padding: 0 24px;
+	}
+	
+	.navbar .container {
+  	height: 100%;
+  	display: flex;
+  	align-items: center;
+	}
+</style>
 </head>
+
 
 
 <body>
 <!-- 네비게이션 -->
-<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top mx-4 py-3">
     <div class="container">
     	<!-- 로고부분 -->
         <a class="navbar-brand" href="<%=ctxPath%>/index.hp">
@@ -51,11 +66,12 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/product/productList.hp">
+                    <%-- <a class="nav-link" href="<%=ctxPath%>/product/testProductList.hp"> --%>
                         <i class="fa-solid fa-list"></i> 상품목록
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/cart/zangCart.hp">
                         <i class="fa-solid fa-cart-shopping"></i> 장바구니
                     </a>
                 </li>
@@ -71,8 +87,11 @@
                     </a>
                 </li> --%>
                 
+                <!-- 관리자페이지는 admin으로 로그인했을 경우에만 접근이 가능하도록 조건문 사용 -->
+                <%-- <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.userid == 'admin'}">
+                </c:if> --%>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
                         <i class="fa-solid fa-gear"></i> 관리자페이지
                     </a>
                 </li>
@@ -80,6 +99,7 @@
 
 
 			<!-- 오른쪽정렬 해주기 -->
+
 			<div class="ml-3">
 			<!--  로그인 컨트롤러에서 저장한 세션 키: "loginUser" -->
 			<%			
@@ -104,7 +124,6 @@
 			<% } %>
 			
 			</div>
-            
             
             
         </div>
@@ -155,6 +174,7 @@
                        <i class="fa-solid fa-key mr-1"></i>비밀번호 찾기
                    </a>
                </div>
+
 
                 </form>
             </div>
