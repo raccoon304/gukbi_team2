@@ -62,6 +62,7 @@ public class CouponView extends AbstractController {
 	        paraMap.put("sort", (filterSort == null ? "" : filterSort));
 	        
 	        int totalPage = cpDao.getTotalPageCoupon(paraMap);
+	        if(totalPage == 0) totalPage = 1;
 	        
 	        // 장난 방지
 	        try {
@@ -85,7 +86,9 @@ public class CouponView extends AbstractController {
 
 	        String ctxPath = request.getContextPath();
 	        String url = ctxPath + "/admin/coupon.hp"
-	                   + "?sizePerPage=" + sizePerPage;
+	                   + "?sizePerPage=" + sizePerPage
+	                   + "&type=" + (filterType == null ? "" : filterType)
+	                   + "&sort=" + (filterSort == null ? "" : filterSort);
 
 	        pageBar += "<li class='page-item'><a class='page-link' href='"+url+"&currentShowPageNo=1'>[처음]</a></li>";
 
