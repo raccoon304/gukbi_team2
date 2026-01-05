@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 show user;
 
 delete from tbl_product_option;
@@ -443,3 +444,5 @@ select * from tbl_product;
 --update tbl_product set image_path = 'iphone.jpg'
 --where brand_name = 'Apple';
 commit;
+=======
+>>>>>>> 631e720f86038cdc536a6db8875924c041eb210e

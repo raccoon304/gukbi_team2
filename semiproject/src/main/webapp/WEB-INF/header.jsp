@@ -19,7 +19,7 @@
 	<!-- 사용자 CSS -->
     <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/index.css">
     
-    
+    <script>const ctxPath = "<%= ctxPath %>";</script>
     <!-- JS -->
 	<script type="text/javascript" src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
 	<script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script>
@@ -31,7 +31,21 @@
 	<%-- jQueryUI CSS 및 JS --%>
 	<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.css" />
 	<script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
+	
+	<style>
+	.navbar {
+  	height: 70px;
+ 	padding: 0 24px;
+	}
+	
+	.navbar .container {
+  	height: 100%;
+  	display: flex;
+  	align-items: center;
+	}
+</style>
 </head>
+
 
 
 <body>
@@ -57,7 +71,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/cart/zangCart.hp">
                         <i class="fa-solid fa-cart-shopping"></i> 장바구니
                     </a>
                 </li>
@@ -77,7 +91,7 @@
                 <%-- <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.userid == 'admin'}">
                 </c:if> --%>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
                         <i class="fa-solid fa-gear"></i> 관리자페이지
                     </a>
                 </li>
@@ -132,15 +146,16 @@
                     </div>
 
                     <!-- 아이디 / 비밀번호 찾기 -->
-					<div class="text-center mb-3">
-					    <a href="#" class="text-secondary small mr-2">
-					        <i class="fa-solid fa-user-magnifying-glass mr-1"></i>아이디 찾기
-					    </a>
-					    <span class="text-muted mx-1">|</span>
-					    <a href="#" class="text-secondary small ml-2">
-					        <i class="fa-solid fa-key mr-1"></i>비밀번호 찾기
-					    </a>
-					</div>
+               <div class="text-center mb-3">
+                   <a href="#" class="text-secondary small mr-2">
+                       <i class="fa-solid fa-user-magnifying-glass mr-1"></i>아이디 찾기
+                   </a>
+                   <span class="text-muted mx-1">|</span>
+                   <a href="#" class="text-secondary small ml-2">
+                       <i class="fa-solid fa-key mr-1"></i>비밀번호 찾기
+                   </a>
+               </div>
+
 
                 </form>
             </div>
@@ -158,3 +173,4 @@
         </div>
     </div>
 </div>
+
