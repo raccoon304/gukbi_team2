@@ -14,25 +14,25 @@ public class CoinPaymentPopupController extends AbstractController {
 	        HttpSession session = request.getSession();
 	        MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-	        // 1️⃣ 로그인 체크
+	        // 1️ 로그인 체크
 	        if (loginUser == null) {
 	            response.setContentType("text/html; charset=UTF-8");
 	            response.getWriter().println("""
 	                <script>
-	                    alert('로그인 후 이용 가능합니다.');
+	                    alert('로그인 후 이용 가능합니다.');  
 	                    window.close();
 	                </script>
 	            """);
 	            return;
 	        }
 
-	        // 2️⃣ GET 요청만 허용
+	        // 2️ GET 요청만 허용
 	        if (!"GET".equalsIgnoreCase(request.getMethod())) {
 	            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 	            return;
 	        }
 
-	        // 3️⃣ finalPrice 검증 (🔥 핵심)
+	        // 3️ finalPrice 검증 (핵심)
 	        int finalPrice;
 	        try {
 	            finalPrice = Integer.parseInt(request.getParameter("finalPrice"));
@@ -47,7 +47,7 @@ public class CoinPaymentPopupController extends AbstractController {
 	            return;
 	        }
 
-	        // 4️⃣ JSP로 넘길 값
+	        // 4️ JSP로 넘길 값
 	        request.setAttribute("userid", loginUser.getMemberid());
 	        request.setAttribute("finalPrice", finalPrice);
 
