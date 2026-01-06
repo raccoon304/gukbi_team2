@@ -166,10 +166,10 @@ $(document).ready(function() {
     // 로그인 상태 변수
     var isLoggedIn = false;
     
-    /* if("${loginUser.name}" != ""){
+    if("${loginUser.name}" != ""){
 	    alert("${loginUser.name}");
-	    isLoggedIn = true;
-    } */
+	    var isLoggedIn = true;
+    }
     
     var unitPrice = Number("${proOptionDto.totalPrice}");
     var maxStock = ${proOptionDto.stockQty};

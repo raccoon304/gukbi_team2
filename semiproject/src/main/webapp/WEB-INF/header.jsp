@@ -85,20 +85,17 @@
                     </a>
                 </li>
                 
-                <%-- <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
-                        <i class="fa-solid fa-user"></i> 마이페이지
-                    </a>
-                </li> --%>
                 
                 <!-- 관리자페이지는 admin으로 로그인했을 경우에만 접근이 가능하도록 조건문 사용 -->
-                <%-- <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.userid == 'admin'}">
-                </c:if> --%>
-                <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
-                        <i class="fa-solid fa-gear"></i> 관리자페이지
-                    </a>
-                </li>
+                <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.memberid == 'admin'}">
+	                <li class="nav-item">
+	                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
+	                        <i class="fa-solid fa-gear"></i> 관리자페이지
+	                        <%-- ${sessionScope.loginUser.name} --%>
+	                    </a>
+	                </li>
+                </c:if>
+                
             </ul>
 
 			
