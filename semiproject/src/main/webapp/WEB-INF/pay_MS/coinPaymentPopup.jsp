@@ -17,7 +17,7 @@
 $(function () {
 
     const IMP = window.IMP;
-    IMP.init("imp11367655");
+    IMP.init("imp11367665");
 
     const userid = "${userid}";
     const finalPrice = ${finalPrice};
@@ -38,7 +38,7 @@ $(function () {
         amount: finalPrice,
         buyer_name: userid
     }, function (rsp) {
-
+    	
         if (rsp.success) {
             alert("결제 성공");
             window.close();
