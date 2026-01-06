@@ -29,7 +29,7 @@ public class Members extends AbstractController {
 		
 		MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 		
-//		if(loginUser != null && "admin".equals(loginUser.getMemberid())) {
+		if(loginUser != null && "admin".equals(loginUser.getMemberid())) {
 			// 관리자로 로그인 했을 경우
 			
 		String searchType = request.getParameter("searchType");
@@ -158,19 +158,19 @@ public class Members extends AbstractController {
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/admin/admin_members.jsp");
 			
-//		}
-//		else {
+		}
+		else {
 			// 관리자로 로그인 하지 않은 경우
 			String message = "관리자만 접근이 가능합니다";
 			String loc = "javascript:history.back()";
 			
-//			request.setAttribute("message", message);
-//			request.setAttribute("loc", loc);
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
 			
-//			super.setRedirect(false);
-//			super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+			super.setRedirect(false);
+			super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
 			
-//		}
+		}
 		
 	}
 
