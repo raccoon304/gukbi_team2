@@ -104,3 +104,4 @@ replay_pid*
 **/FrontController.java
 
 .sql
+.classpath
