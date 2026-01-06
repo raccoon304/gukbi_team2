@@ -24,6 +24,10 @@
 	<script type="text/javascript" src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
 	<script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script>
 	
+	<script>
+     const ctxPath = "<%= ctxPath %>";
+   </script>
+	
 	<!-- 사용자 JS -->
 	<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/index.js"></script>
     
@@ -97,6 +101,7 @@
                 </li>
             </ul>
 
+			
 
 			<!-- 오른쪽정렬 해주기 -->
 

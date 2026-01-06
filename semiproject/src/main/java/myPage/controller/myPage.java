@@ -1,3 +1,4 @@
+
 package myPage.controller;
 
 import common.controller.AbstractController;
@@ -47,3 +48,4 @@ public class myPage extends AbstractController {
         super.setViewPage("/WEB-INF/msg.jsp");
     }
 }
+
