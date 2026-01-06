@@ -15,7 +15,8 @@ public class myPage extends AbstractController {
 
         // ✅ 로그인 컨트롤러에서 저장한 키 그대로
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-
+        
+        
         if (loginUser == null) {
             String message = "로그인 후 이용 가능합니다.";
             String loc = request.getContextPath() + "/index.hp";
@@ -29,7 +30,7 @@ public class myPage extends AbstractController {
         }
 
         if ("GET".equalsIgnoreCase(request.getMethod())) {
-
+        	//System.out.println(loginUser.getName()+"하고"+loginUser.getRegisterday());
             request.setAttribute("memberInfo", loginUser);
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/member_YD/myPage.jsp");

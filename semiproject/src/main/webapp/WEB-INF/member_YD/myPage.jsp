@@ -25,17 +25,17 @@
         <div class="list-group list-group-flush">
           <a href="${pageContext.request.contextPath}/myPage/home.hp"
              class="list-group-item list-group-item-action active">
-            <i class="fa-regular fa-user mr-2"></i> My Profile
+            <i class="fa-regular fa-user mr-2"></i> 내 정보
           </a>
 
           <a href="${pageContext.request.contextPath}/myPage/orders.hp"
              class="list-group-item list-group-item-action">
-            <i class="fa-solid fa-bag-shopping mr-2"></i> Order History
+            <i class="fa-solid fa-bag-shopping mr-2"></i> 주문내역
           </a>
 
           <a href="${pageContext.request.contextPath}/myPage/delivery.hp"
              class="list-group-item list-group-item-action">
-            <i class="fa-solid fa-truck mr-2"></i> Delivery Addresses
+            <i class="fa-solid fa-truck mr-2"></i> 배송지 관리
           </a>
 
           <!-- wishlist / account settings 삭제 요청 반영 -->
@@ -47,29 +47,29 @@
     <div class="col-md-9">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h4 class="font-weight-bold mb-4">My Profile</h4>
+          <h4 class="font-weight-bold mb-4">내 정보</h4>
 
           <div class="row">
             <!-- Personal Information -->
             <div class="col-md-6 mb-4">
-              <h6 class="font-weight-bold mb-3">Personal Information</h6>
+              <h6 class="font-weight-bold mb-3">개인정보</h6>
 
               <div class="mb-3">
-                <small class="text-muted d-block">Full Name</small>
+                <small class="text-muted d-block">성 명</small>
                 <div class="font-weight-bold">
                   <c:out value="${memberInfo.name}" />
                 </div>
               </div>
 
               <div class="mb-3">
-                <small class="text-muted d-block">Email</small>
+                <small class="text-muted d-block">이메일</small>
                 <div class="font-weight-bold">
                   <c:out value="${memberInfo.email}" />
                 </div>
               </div>
 
               <div class="mb-3">
-                <small class="text-muted d-block">Phone</small>
+                <small class="text-muted d-block">전화번호</small>
                 <div class="font-weight-bold">
                   <c:out value="${memberInfo.mobile}" />
                 </div>
@@ -78,23 +78,23 @@
               <button type="button"
                       class="btn btn-outline-primary"
                       onclick="location.href='${pageContext.request.contextPath}/myPage/edit.hp';">
-                <i class="fa-regular fa-pen-to-square mr-1"></i> Edit Information
+                <i class="fa-regular fa-pen-to-square mr-1"></i> 정보 수정하기
               </button>
             </div>
 
             <!-- Account -->
             <div class="col-md-6 mb-4">
-              <h6 class="font-weight-bold mb-3">Account</h6>
+              <h6 class="font-weight-bold mb-3">계정 정보</h6>
 
               <div class="mb-3">
-                <small class="text-muted d-block">User ID</small>
+                <small class="text-muted d-block">아이디</small>
                 <div class="font-weight-bold">
                   <c:out value="${memberInfo.memberid}" />
                 </div>
               </div>
 
               <div class="mb-3">
-                <small class="text-muted d-block">Join Date</small>
+                <small class="text-muted d-block">회원가입일자</small>
                 <div class="font-weight-bold">
                   <c:out value="${memberInfo.registerday}" />
                 </div>
