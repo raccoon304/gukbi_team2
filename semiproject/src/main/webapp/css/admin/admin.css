@@ -293,10 +293,24 @@ select.form-control {
 }
 
 
-/* 회계페이지 select 태그 위치 조정 */
+ /* 회계페이지 select 태그 위치 조정 */ 
 .accounting-controls{
   display: flex;
   flex-direction: column;
-  align-items: flex-end;   /* 오른쪽 정렬 */
-  width: 420px;            /* ✅ 폭 고정: 여기 숫자만 조절 */
+  align-items: flex-end;    /* 오른쪽 정렬 */ 
+  width: 420px;             /* 폭 고정 */
+  
+  flex: 0 0 420px; /* 공간 고정 */
+}
+
+/* 회계페이지 select */
+#periodSelect {
+  width: 220px;      /* 셀렉트 폭 고정 */
+}
+
+/* 대시보드 스크롤 조정 */
+.scroll-card-body {
+  max-height: 600px;
+  overflow: auto;
+ 
 }

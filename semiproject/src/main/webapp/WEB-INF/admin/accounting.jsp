@@ -104,6 +104,8 @@
         }
         .table-wrapper {
             overflow-x: auto;
+            overflow-y: auto;     /* 세로 스크롤 */
+    			max-height: 420px;    /* 원하는 높이로 조절 */
         }
         .table {
             margin-bottom: 0;
@@ -115,6 +117,12 @@
             font-weight: 600;
             font-size: 13px;
             padding: 12px 16px;
+            
+            position: sticky;
+		    top: 0;
+		    background: white;   /* 헤더가 겹칠 때 배경 필요 */
+		    z-index: 2;
+            
         }
         .table tbody td {
             padding: 16px;
@@ -179,6 +187,7 @@
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         
         <div class="main-content">
+        		
             <!-- Page Header -->
             <div class="page-header">
                 <div class="d-flex justify-content-between align-items-start">
@@ -239,7 +248,7 @@
                             <!-- <i class="fas fa-box"></i> -->
                             주문건수
                         </div>
-                        <div class="value" id="totalOrders">test건</div>
+                        <div class="value" id="totalOrders"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -251,7 +260,7 @@
                             <!-- <i class="fas fa-box-open"></i> -->
                             판매수량
                         </div>
-                        <div class="value" id="totalSales">test개</div>
+                        <div class="value" id="totalSales"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -263,7 +272,7 @@
                             <!-- <i class="fas fa-won-sign"></i> -->
                             할인 적용 전 매출액
                         </div>
-                        <div class="value" id="totalRevenue">₩100,000,000</div>
+                        <div class="value" id="totalRevenue"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -275,7 +284,7 @@
                             <!-- <i class="fas fa-percent"></i> -->
                             할인액
                         </div>
-                        <div class="value" id="totalDiscount">₩10,000,000</div>
+                        <div class="value" id="totalDiscount"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -287,7 +296,7 @@
                             <!-- <i class="fas fa-receipt"></i> -->
                             최종결제액
                         </div>
-                        <div class="value" id="finalPayment">₩90,000,000</div>
+                        <div class="value" id="finalPayment"></div>
                     </div>
                 </div>
             </div>
@@ -302,7 +311,7 @@
                                 <th style="width: 25%;">기준일</th>
                                 <th style="width: 25%;" class="text-right">주문건수</th>
                                 <th style="width: 25%;" class="text-right">판매수량</th>
-                                <th style="width: 25%;" class="text-right">판매금액</th>
+                                <th style="width: 25%;" class="text-right">할인 전 판매금액</th>
                             </tr>
                         </thead>
                         <tbody id="dailyStatsBody">
@@ -330,7 +339,7 @@
                                 <th style="width: 30%;">상품명</th>
                                 <th style="width: 20%;">브랜드</th>
                                 <th style="width: 17.5%;" class="text-right">판매수량</th>
-                                <th style="width: 17.5%;" class="text-right">판매금액</th>
+                                <th style="width: 17.5%;" class="text-right">할인 전 판매금액</th>
                             </tr>
                         </thead>
                         <tbody id="productStatsBody">

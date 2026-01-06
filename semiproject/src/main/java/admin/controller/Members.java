@@ -37,7 +37,7 @@ public class Members extends AbstractController {
         String currentShowPageNo = request.getParameter("currentShowPageNo");
 
         if (searchType == null ||
-           (!"name".equals(searchType) && !"userid".equals(searchType) && !"email".equals(searchType))) {
+           (!"name".equals(searchType) && !"member_id".equals(searchType) && !"email".equals(searchType))) {
             searchType = "";
         }
 

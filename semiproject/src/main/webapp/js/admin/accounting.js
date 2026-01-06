@@ -16,9 +16,12 @@ $(function () {
       return;
     }
     $("#customRange").hide();
+	
+	
     fetchAccounting(period);
   });
 
+  
   // 사용자 지정 적용
   $("#applyCustom").on("click", function () {
     const s = $("#startDate").val();

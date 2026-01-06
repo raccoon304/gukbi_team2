@@ -310,9 +310,17 @@ MODIFY (REPLY_STATUS DEFAULT 1);
 select * from tab;
 select * from tbl_member;
 select * from tbl_delivery;
+select * from tbl_orders;
+select * from tbl_inquiry;
+select * from tbl_product_option;
 
 
+update tbl_member set created_at = sysdate
+where userseq = 16;
 
+rollback;
+
+commit;
 
 
 
