@@ -1,3 +1,4 @@
+
 show user;
 
 delete from tbl_product_option;
@@ -446,3 +447,4 @@ commit;
 
 select * from tbl_product;
 select * from tbl_product_option;
+
