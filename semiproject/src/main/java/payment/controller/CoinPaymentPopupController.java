@@ -45,7 +45,7 @@ public class CoinPaymentPopupController extends AbstractController {
 	                </script>
 	            """);
 	            return;
-	        }
+	        } // ㅎㅇ
 
 	        // 4️ JSP로 넘길 값
 	        request.setAttribute("userid", loginUser.getMemberid());
