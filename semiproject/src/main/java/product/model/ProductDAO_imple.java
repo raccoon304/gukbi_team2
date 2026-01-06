@@ -70,7 +70,8 @@ public class ProductDAO_imple implements ProductDAO {
 	}//end of public List<ProductDTO> selectProduct() throws SQLException-----
 
 
-	//임시--------- 제품상세옵션 목록 테스트해보기
+	//제품에 대한 옵션 리스트로 전부 검색하기(select)
+	/*
 	@Override
 	public List<ProductOptionDTO> selectProductOption() throws SQLException {
 		List<ProductOptionDTO> proOptionList = new ArrayList<>();
@@ -95,7 +96,7 @@ public class ProductDAO_imple implements ProductDAO {
 		} finally {close();}
 		return proOptionList;
 	}//end of public List<ProductDTO> selectProductOption() throws SQLException-----
-
+	*/
 
 	
 	
@@ -131,30 +132,32 @@ public class ProductDAO_imple implements ProductDAO {
 	
 	
 	
-	//임시: 제품상세 정보 가져오기(여기서 받아온 데이터는 상품테이블의 상품코드값)
+	//제품상세 정보 가져오기(여기서 받아온 데이터는 상품테이블의 상품코드값)
+	//폼태그로 받아온 productCode를 이용해 상품옵션정보 가져오기
 	@Override
-	public ProductOptionDTO selectDetailOne(String productCode) throws SQLException {
+	public ProductOptionDTO selectOptionOne(String productCode) throws SQLException {
 		ProductOptionDTO proDetilDto = new ProductOptionDTO();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT P.product_code, option_id, fk_product_code, P.product_name, color, storage_size, price, stock_qty "
+			String sql = " SELECT P.product_code, option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, "
+						+"	       (price + plus_price) as total_price "
 						+" FROM tbl_product_option O "
 						+" JOIN tbl_product P "
-						+" ON P.product_code = O.fk_product_code "
-						+" WHERE P.product_code = ? ";
+						+" ON O.fk_product_code = P.product_code "
+						+" WHERE product_code = ? ";
+			
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, productCode);
 			rs = pstmt.executeQuery();
+			
 			if(rs.next()) {
 				proDetilDto.setOptionId(rs.getInt("option_id"));
 				proDetilDto.setFkProductCode(rs.getString("fk_product_code"));
 				proDetilDto.setColor(rs.getString("color"));
 				proDetilDto.setStorageSize(rs.getString("storage_size"));
-				proDetilDto.setPrice(rs.getInt("price"));
 				proDetilDto.setStockQty(rs.getInt("stock_qty"));
-				//proDetilDto.setImagePath(rs.getString("image_path"));
+				proDetilDto.setTotalPrice(rs.getInt("total_price"));
 			}
-			
 		} finally {
 			close();
 		}
@@ -165,6 +168,7 @@ public class ProductDAO_imple implements ProductDAO {
 	
 	
 	//가져온 상품코드로 이에 맞는 옵션값들 리스트로 가져오기
+	/*
 	@Override
 	public List<ProductOptionDTO> selectProductOption(String productCode) throws SQLException {
 		List<ProductOptionDTO> proOptionList = new ArrayList<ProductOptionDTO>();
@@ -188,44 +192,35 @@ public class ProductDAO_imple implements ProductDAO {
 				proDetailDto.setStockQty(rs.getInt("stock_qty"));
 				proOptionList.add(proDetailDto);
 			}
-			
 		} finally {close();}
-		
 		return proOptionList;
 	}//end of public List<ProductDetailDTO> selectProductOption(String productCode) throws SQLException
+	*/
+	
 
 
-	//상품페이지의 카드UI용 DTO를 이용해 상품정보 가져오기
+	
+	
+	//상품페이지의 카드UI용 DTO를 이용해 상품정보 가져오기(상품코드,상품명,브랜드명,이미지경로,가격)
 	@Override
-	public List<ProductListDTO> productCardList() throws SQLException {
-		List<ProductListDTO> productCardList = new ArrayList<ProductListDTO>();
+	public List<ProductDTO> productCardList() throws SQLException {
+		List<ProductDTO> productCardList = new ArrayList<ProductDTO>();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT "
-						+"     p.product_code, "
-						+"     p.product_name, "
-						+"     p.brand_name, "
-						+"     p.image_path, "
-						+"     MIN(o.price) AS min_price "
-						+" FROM tbl_product p "
-						+" JOIN tbl_product_option o "
-						+"   ON p.product_code = o.fk_product_code "
-						+" WHERE p.sale_status = '판매중' "
-						+" GROUP BY "
-						+"     p.product_code, "
-						+"     p.product_name, "
-						+"     p.brand_name, "
-						+"     p.image_path ";
+			String sql = " SELECT product_code, product_name, brand_name, image_path, price, sale_status "
+						+" FROM tbl_product "
+						+" WHERE sale_status='판매중' ";
 			pstmt = conn.prepareStatement(sql);
 			rs = pstmt.executeQuery();
+			
 			while(rs.next()) {
-				ProductListDTO proListDto = new ProductListDTO();
-				proListDto.setProductCode(rs.getString("product_code"));
-				proListDto.setProductName(rs.getString("product_name"));
-				proListDto.setBrandName(rs.getString("brand_name"));
-				proListDto.setImagePath(rs.getString("image_path"));
-				proListDto.setMinPrice(rs.getInt("min_price"));
-				productCardList.add(proListDto);
+				ProductDTO proDto = new ProductDTO();
+				proDto.setProductCode(rs.getString("product_code"));
+				proDto.setProductName(rs.getString("product_name"));
+				proDto.setBrandName(rs.getString("brand_name"));
+				proDto.setImagePath(rs.getString("image_path"));
+				proDto.setPrice(rs.getInt("price"));
+				productCardList.add(proDto);
 			}
 			
 		} finally {close();}

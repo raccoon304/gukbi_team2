@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
 
@@ -20,6 +21,7 @@
             <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
         </div>
 
+
         <div class="product-content">
             <div class="row">
                 <!-- 상품 이미지 -->
@@ -36,7 +38,8 @@
 
                         <div class="product-price">
                             <span id="unitPrice">
-                            <fmt:formatNumber value="${proDetilDto.price}" pattern="###,###"/>
+                            	<%-- <fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/> --%>
+                            	<fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>
                             </span><small>원</small>
                         </div>
 
@@ -73,7 +76,7 @@
                                 <div class="spec-label">재고상태</div>
                                 <div class="spec-value">
                                     <span class="badge badge-success badge-stock">
-                                        <i class="fas fa-check mr-1"></i>재고 있음 (${proDetilDto.stockQty})
+                                        <i class="fas fa-check mr-1"></i>재고 있음 (${proOptionDto.stockQty})
                                     </span>
                                 </div>
                             </div>
@@ -97,7 +100,8 @@
                             <div class="total-price-section">
                                 <span class="total-label">총 상품 금액</span>
                                 <span class="total-price" id="totalPrice">
-                                		<fmt:formatNumber value="${proDetilDto.price}" pattern="###,###"/>&nbsp;원
+                                		<%-- <fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>&nbsp;원 --%>
+                                		<fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>&nbsp;원
                                 </span>
                             </div>
                         </div>
@@ -160,8 +164,9 @@
 $(document).ready(function() {
     // 로그인 상태 변수
     var isLoggedIn = true;
-    var unitPrice = ${proDetilDto.price};
-    var maxStock = ${proDetilDto.stockQty};
+    
+    var unitPrice = Number("${proOptionDto.totalPrice}");
+    var maxStock = ${proOptionDto.stockQty};
 
     // 페이지 로드 시 로그인 상태 확인
     updateLoginStatus();
