@@ -21,12 +21,14 @@ public class PayController extends AbstractController {
 
         HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-
+        
+        /*
         if (loginUser == null) {
             super.setRedirect(true);
             super.setViewPage(request.getContextPath() + "/login/login.jsp");
             return;
         }
+        */
 
         String cartIdsParam = request.getParameter("cartIds");
 

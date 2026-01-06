@@ -78,7 +78,7 @@
 	
 	    <!-- 이미지 -->
 	    <td>
-	        <img src="<%= ctxPath %>/images/${cart.image_path}"
+	        <img src="<%= ctxPath %>/image/product_TH/${cart.image_path}"
 	             class="product-image">
 	    </td>
 	

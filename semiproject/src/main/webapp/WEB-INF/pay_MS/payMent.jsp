@@ -89,7 +89,7 @@
           <div class="product-row">
 
             <div class="col-image">
-              <img src="<%= ctxPath %>/images/${item.image_path}"
+              <img src="<%= ctxPath %>/image/product_TH/${item.image_path}"
                    alt="상품 이미지"
                    class="product-image">
             </div>
@@ -126,13 +126,16 @@
         </div>
 
         <div class="price-row">
-          <span>쿠폰 할인금액</span>
-          <span>- <fmt:formatNumber value="${discountPrice}" pattern="#,###"/> 원</span>
+          <button type = "button" id="applyCouponBtn">쿠폰 적용금액</button>
+           <span id="discountAmount">- 0 원</span>
         </div>
-
+		<input type="hidden" id="couponDiscount" value="${discountPrice}" />
+		<input type="hidden" id="totalPrice" value="${totalPrice}" />	
+		<input type="hidden" id="finalPrice" value="${finalPrice}" />
+		
         <div class="price-row total">
           <span>총 주문금액</span>
-          <span class="amount">
+          <span class="amount" id="finalAmount">
             <fmt:formatNumber value="${finalPrice}" pattern="#,###"/> 원
           </span>
         </div>

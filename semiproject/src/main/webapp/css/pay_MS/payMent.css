@@ -93,7 +93,7 @@ body {
 }
 
 .product-image {
-  width: 90px;
+  width: 100px;
   height: auto;
   border-radius: 6px;
 }
@@ -141,6 +141,14 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   margin-bottom: 16px;
 }
+
+/* 쿠폰 적용 금액 */
+#applyCouponBtn {
+	border: 2px solid #fff;
+	background : #eee;
+	display : hidden;
+}
+
 
 .price-row {
   display: flex;
