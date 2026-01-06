@@ -11,7 +11,8 @@ public class MemberDTO {
 	private String registerday;		// 가입일자 										DB 디폴트 (sysdate)
 
    	private int status;             // 회원탈퇴유무   0: 사용가능(가입중) / 1:사용불능(탈퇴) 	DB 디폴트 ( 0 ) 
-   	private int idle;               // 휴면유무      0 : 활동중  /  1 : 휴면중				DB 디폴트 ( 0 ) 
+   	private int idle;               // 휴면유무      0 : 활동중  /  1 : 휴면중				DB 디폴트 ( 0 )
+   	private int userseq;
 //===============================================================================================================================
 	public String getMemberid() {
 		return memberid;
@@ -72,6 +73,12 @@ public class MemberDTO {
 	}
 	public void setIdle(int idle) {
 		this.idle = idle;
+	}
+	public int getUserseq() {
+		return userseq;
+	}
+	public void setUserseq(int userseq) {
+		this.userseq = userseq;
 	}
    	
 }

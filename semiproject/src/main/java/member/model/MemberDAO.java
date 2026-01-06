@@ -20,6 +20,9 @@ public interface MemberDAO {
 	// 휴대폰번호 중복검사
 	boolean mobileDuplicateCheck(String mobile) throws SQLException;
 
+	//로그인
+	MemberDTO login(Map<String, String> paraMap) throws SQLException;
+
 
 
 }

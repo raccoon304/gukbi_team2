@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -180,4 +181,61 @@ public class MemberDAO_imple implements MemberDAO {
 		}
 		return isExists;
 	}
+
+	
+	
+	// 로그인 
+	@Override
+	public MemberDTO login(Map<String, String> paraMap) throws SQLException {
+		MemberDTO memberDto = null;
+
+	    try {
+	    	conn = ds.getConnection();
+
+	        String sql =
+	              " SELECT "
+	            + " 	USERSEQ, MEMBER_ID, NAME, MOBILE_PHONE, EMAIL, BIRTH_DATE, GENDER, STATUS, IDLE, "
+	            + " 	TO_CHAR(CREATED_AT, 'YYYYMMDD') AS CREATED_AT "
+	            + " FROM TBL_MEMBER "
+	            + " WHERE STATUS = 0 "
+	            + "   AND MEMBER_ID = ? "
+	            + "   AND PASSWORD  = ? ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, paraMap.get("loginId"));
+	        pstmt.setString(2, Sha256.encrypt(paraMap.get("loginPw")));
+
+	        rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            memberDto = new MemberDTO();
+	            memberDto.setUserseq(rs.getInt("USERSEQ"));
+	            memberDto.setMemberid(rs.getString("MEMBER_ID"));
+	            memberDto.setName(rs.getString("NAME"));
+
+	            // 회원가입에서 AES로 저장했으니 로그인 시 복호화해서 DTO에 담기
+	            memberDto.setMobile(aes.decrypt(rs.getString("MOBILE_PHONE")));
+	            memberDto.setEmail(aes.decrypt(rs.getString("EMAIL")));
+
+	            memberDto.setBirthday(rs.getString("BIRTH_DATE"));
+	            memberDto.setGender(rs.getInt("GENDER"));
+	            memberDto.setStatus(rs.getInt("STATUS"));
+	            memberDto.setIdle(rs.getInt("IDLE"));
+	            memberDto.setRegisterday(rs.getString("CREATED_AT"));
+	        }
+
+	    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+	        e.printStackTrace();
+	        throw new SQLException(e);
+	    } finally {
+	        close();
+	    }
+
+	    return memberDto;
+	}
+
+
+
+
+
 }

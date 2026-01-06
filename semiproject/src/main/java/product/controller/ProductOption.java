@@ -23,16 +23,16 @@ public class ProductOption extends AbstractController {
 		try {
 			//제품정보 가져오기(제품테이블)
 			ProductDTO proDto = proDao.selectOne(productCode);
+
 			//제품상세 옵션 리스트 정보 가져오기(제품상세테이블)
-			List<ProductOptionDTO> proOptionList = proDao.selectProductOption(productCode);
+			//List<ProductOptionDTO> proOptionList = proDao.selectProductOption(productCode);
 			
-			ProductOptionDTO proDetilDto = proDao.selectDetailOne(productCode);
-			
+			ProductOptionDTO proOptionDto = proDao.selectOptionOne(productCode);
+			//System.out.println(proOptionDto.getTotalPrice());
 			
 			request.setAttribute("proDto", proDto);
-			request.setAttribute("proOptionList", proOptionList);
-			
-			request.setAttribute("proDetilDto", proDetilDto);
+			//request.setAttribute("proOptionList", proOptionList);
+			request.setAttribute("proOptionDto", proOptionDto);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
