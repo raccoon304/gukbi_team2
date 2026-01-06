@@ -19,7 +19,7 @@
 	<!-- 사용자 CSS -->
     <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/index.css">
     
-    <script>const ctxPath = "<%= ctxPath %>";</script>
+    
     <!-- JS -->
 	<script type="text/javascript" src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
 	<script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script>
@@ -32,7 +32,7 @@
 	<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.css" />
 	<script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
 	
-	<style>
+<style>
 	.navbar {
   	height: 70px;
  	padding: 0 24px;
@@ -99,14 +99,31 @@
 
 
 			<!-- 오른쪽정렬 해주기 -->
-            <div class="ml-3">
-                <button class="btn btn-login" id="loginBtn">
-                    <i class="fa-solid fa-right-to-bracket"></i> 로그인
-                </button>
-                <button class="btn btn-signup" id="signupBtn">
-                    <i class="fa-solid fa-user-plus"></i> 회원가입
-                </button>
-            </div>
+
+			<div class="ml-3">
+			<!--  로그인 컨트롤러에서 저장한 세션 키: "loginUser" -->
+			<%			
+				member.domain.MemberDTO loginUser = (member.domain.MemberDTO) session.getAttribute("loginUser");
+			%>
+			<% if (loginUser == null) { %> <!-- 비로그인 -->
+			
+			<button class="btn btn-login" id="loginBtn">
+			    <i class="fa-solid fa-right-to-bracket"></i> 로그인
+			</button>
+			<button class="btn btn-signup" id="signupBtn">
+			    <i class="fa-solid fa-user-plus"></i> 회원가입
+			</button>
+			<% } else { %><!-- 로그인 -->
+			
+			<a class="btn btn-login" id="myPageBtn" href="<%=ctxPath%>/myPage/myPage.hp">
+			    <i class="fa-solid fa-user"></i> 마이페이지
+			</a>
+			<button type="button" class="btn btn-signup" id="logoutBtn">
+			    <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+			</button>
+			<% } %>
+			
+			</div>
             
             
         </div>
@@ -132,17 +149,19 @@
             <!-- 모달 바디 -->
             <div class="modal-body">
                 <form id="loginForm">
-
+                	<!-- 로그인 오류를 보여줌. -->
+					<div id="loginError" class="alert alert-danger py-2" style="display:none;"></div>
+					
                     <!-- 아이디 -->
                     <div class="form-group">
                         <label for="loginId">아이디</label>
-                        <input type="text" class="form-control" id="loginId" placeholder="아이디를 입력하세요">
+                        <input type="text" class="form-control" name="loginId" id="loginId" placeholder="아이디를 입력하세요">
                     </div>
 
                     <!-- 비밀번호 -->
                     <div class="form-group">
                         <label for="loginPw">비밀번호</label>
-                        <input type="password" class="form-control" id="loginPw" placeholder="비밀번호를 입력하세요">
+                        <input type="password" class="form-control" name="loginPw" id="loginPw" placeholder="비밀번호를 입력하세요">
                     </div>
 
                     <!-- 아이디 / 비밀번호 찾기 -->

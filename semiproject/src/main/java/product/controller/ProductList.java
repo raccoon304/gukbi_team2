@@ -5,7 +5,7 @@ import java.util.List;
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import product.domain.ProductListDTO;
+import product.domain.ProductDTO;
 import product.model.ProductDAO;
 import product.model.ProductDAO_imple;
 
@@ -18,8 +18,8 @@ public class ProductList extends AbstractController {
 		//String method = request.getMethod();
 		
 		try {
-			//상품페이지의 카드UI용 DTO를 이용해 상품정보 가져오기(상품코드, 상품명, 브랜드명, 이미지경로, 옵션중 가장 낮은 가격)
-			List<ProductListDTO> productCardList = proDao.productCardList();
+			//상품페이지의 카드UI용 DTO를 이용해 상품정보 가져오기(상품코드,상품명,브랜드명,이미지경로,가격)
+			List<ProductDTO> productCardList = proDao.productCardList();
 			request.setAttribute("productCardList", productCardList);
 			
 		} catch (Exception e) {

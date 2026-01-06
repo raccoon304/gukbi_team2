@@ -50,16 +50,32 @@ $(document).ready(function() {
 	  // window.location.href = 'login.hp';
 	});
 
-
+	
     // 회원가입 버튼
     $('#signupBtn').click(function() {
 		window.location.href = ctxPath + "/member/memberRegister.hp";
-		//console.log('이동: memberRegister.hp');
-		// window.location.href = 'memberRegister.hp';
     });
+	
+	
+	// 로그아웃 버튼
+	$(document).on("click", "#logoutBtn", function () {
+		if (!confirm("로그아웃 하시겠습니까?")) return;
+		
+		location.href = ctxPath + "/member/logout.hp";
+	});
 
+
+    // 상품 카드 호버(마우스 올렸을 때) 효과
+    $('.product-card').hover(
+        function() {
+            $(this).find('.product-image-wrapper img').css('transform', 'scale(1.1)');
+        },
+        function() {
+            $(this).find('.product-image-wrapper img').css('transform', 'scale(1)');
+        }
+    );
 	
-	
+
 	//카드 클릭에 대한 이벤트
 	const cards = document.querySelectorAll(".product-card");
 	cards.forEach(card => {
@@ -75,6 +91,7 @@ $(document).ready(function() {
 	
 	
 });//end of $(document).ready(function(){})-----
+
 
 
 
@@ -98,6 +115,56 @@ $(window).scroll(function() {
 });
 
 
+// ====== 로그인 처리 함수 ======= //
+function login() {
+	const loginId = $('#loginId').val().trim();
+  	const loginPw = $('#loginPw').val().trim();
+
+  	$('#loginError').hide().text('');
+
+  	if (!loginId) {
+    	$('#loginError').show().text('아이디를 입력하세요.');
+    	$('#loginId').focus();
+    return;
+ 	}
+  	if (!loginPw) {
+    	$('#loginError').show().text('비밀번호를 입력하세요.');
+    	$('#loginPw').focus();
+    	return;
+  	}
+
+  	$.ajax({
+    	url: ctxPath + '/member/login.hp',
+    	type: 'post',
+    	dataType: 'json',
+    	data: { loginId, loginPw },
+    	success: function (json) {
+	      	if (json.success) {
+	        	$('#loginModal').modal('hide');
+	
+	        	// 성공 시 인덱스 페이지로 이동.
+	        	// location.reload();
+	        	location.href = json.redirect || (ctxPath + '/index.hp');
+	      	} else {
+	        $('#loginError').show().text(json.message || '로그인에 실패했습니다.');
+	      	}
+    	},
+		error: function (xhr, status, err) {
+		  console.log("statusCode:", xhr.status);
+		  console.log("status:", status, "err:", err);
+		  console.log("responseText:", xhr.responseText); // 여기 보면 HTML인지 에러메시지인지 나옴
+		  $('#loginError').show().text('로그인에 오류가 발생하였습니다.');
+		}
+  	});
+}
+
+// 엔터로 로그인 처리 (아이디/비번 입력 중 Enter 누르면)
+$(document).on('keydown', '#loginId, #loginPw', function (e) {
+  	if (e.keyCode === 13) {
+    	e.preventDefault();
+    	login();
+  	}
+});
 
 //==========Function Decalaration==========//
 // 상품 상세 페이지로 이동
