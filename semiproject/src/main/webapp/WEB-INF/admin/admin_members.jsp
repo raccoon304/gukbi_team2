@@ -196,14 +196,14 @@
                                 <table class="table table-hover" id="memberTbl">
                                     <thead>
                                         <tr>
-                                        	   <th>번호</th>
+                                        	<th>번호</th>
                                             <th>아이디</th>
                                             <th>이름</th>
                                             <th>이메일</th>
                                             <th>성별</th>
                                             <th>가입일</th>
-                                            <th>주문건수</th>
-                                            <th>총 결제액</th>
+                                            <%-- <th>주문건수</th> --%>
+                                            <%-- <th>총 결제액</th> --%>
                                         </tr>
                                     </thead>
                                     <tbody id="memberTableBody">
@@ -251,13 +251,13 @@
 								                   </c:choose>
 								                </td>
 								                <td>${mbrDto.registerday}</td>
-								                <td class="text-right">
-												  ${requestScope.orderStatMap[mbrDto.memberid]["order_cnt"]}
-												</td>
+								                <%-- <td class="text-right">--%> 
+												  <%-- ${requestScope.orderStatMap[mbrDto.memberid]["order_cnt"]} --%>
+												<%--</td>--%>
 												
-												<td class="text-right">
-												  <fmt:formatNumber value='${requestScope.orderStatMap[mbrDto.memberid]["real_pay_sum"]}' pattern="#,###" />원
-												</td>
+												<%--<td class="text-right">--%>
+												  <%-- <fmt:formatNumber value='${requestScope.orderStatMap[mbrDto.memberid]["real_pay_sum"]}' pattern="#,###" />원 --%>
+												<%--</td>--%>
 								             </tr>
 								         </c:forEach> 
 								      </c:if>
@@ -295,20 +295,20 @@
 				      <div class="modal-body">
 				        <c:if test="${not empty requestScope.detailMember}">
 				          <div class="row">
-				            <div class="col-md-6 mb-2"><b>아이디:</b> ${detailMember.member_id}</div>
-				            <div class="col-md-6 mb-2"><b>이름:</b> ${detailMember.name}</div>
+				            <div class="col-md-6 mb-2"><b>아이디 : </b> ${detailMember.member_id}</div>
+				            <div class="col-md-6 mb-2"><b>이름 : </b> ${detailMember.name}</div>
 				
-				            <div class="col-md-6 mb-2"><b>이메일:</b> ${detailMember.email}</div>
-				            <div class="col-md-6 mb-2"><b>성별:</b> ${detailMember.gender_text}</div>
+				            <div class="col-md-6 mb-2"><b>이메일 : </b> ${detailMember.email}</div>
+				            <div class="col-md-6 mb-2"><b>성별 : </b> ${detailMember.gender_text}</div>
 				
-				            <div class="col-md-6 mb-2"><b>전화번호:</b> 
+				            <div class="col-md-6 mb-2"><b>전화번호 : </b> 
 					            <c:set var="hp" value="${detailMember.mobile_phone}" />
 								${fn:substring(hp,0,3)}-${fn:substring(hp,3,7)}-${fn:substring(hp,7,11)}
 				            </div>
-				            <div class="col-md-6 mb-2"><b>가입일:</b> ${detailMember.created_at}</div>
+				            <div class="col-md-6 mb-2"><b>가입일 : </b> ${detailMember.created_at}</div>
 				
-				            <div class="col-md-6 mb-2"><b>휴면여부:</b> ${detailMember.idle_text}</div>
-				            <div class="col-md-6 mb-2"><b>탈퇴여부:</b> ${detailMember.status_text}</div>
+				            <div class="col-md-6 mb-2"><b>휴면여부 : </b> ${detailMember.idle_text}</div>
+				            <%-- <div class="col-md-6 mb-2"><b>탈퇴여부 : </b> ${detailMember.status_text}</div> --%>
 				
 				            <div class="col-md-12 mt-2">
 				              <b>기본배송지:</b>
@@ -324,10 +324,10 @@
 				
 				            <hr class="col-md-12">
 				
-				            <div class="col-md-6 mb-2"><b>주문건수:</b> ${requestScope.detailOrderCnt}</div>
+				            <div class="col-md-6 mb-2"><b>주문건수 : </b> ${requestScope.detailOrderCnt} 건</div>
 				            <div class="col-md-6 mb-2">
-				              <b>총 결제액:</b>
-				              <fmt:formatNumber value="${requestScope.detailRealPaySum}" pattern="#,###" />원
+				              <b>총 결제액 : </b>
+				              <fmt:formatNumber value="${requestScope.detailRealPaySum}" pattern="#,###" /> 원
 				            </div>
 				          </div>
 				        </c:if>

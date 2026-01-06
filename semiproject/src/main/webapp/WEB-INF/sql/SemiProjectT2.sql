@@ -1,3 +1,333 @@
+-------- í…Œì´ë¸” ìƒì„± --------
+
+-------- MEMBER TABLE --------
+CREATE TABLE TBL_MEMBER (
+  MEMBER_ID       VARCHAR2(40)            NOT NULL,
+  NAME            VARCHAR2(30)            NOT NULL,
+  MOBILE_PHONE    VARCHAR2(100)           NOT NULL,
+  PASSWORD        VARCHAR2(200)           NOT NULL,
+  EMAIL           VARCHAR2(200)           NOT NULL,
+  BIRTH_DATE      VARCHAR2(10)            NOT NULL,
+  GENDER          NUMBER(1)               NOT NULL, 
+  CREATED_AT      DATE DEFAULT SYSDATE    NOT NULL,
+  STATUS          NUMBER(1)               NOT NULL,
+  IDLE            NUMBER(1)               NOT NULL,
+
+  CONSTRAINT PK_TBL_MEMBER_MEMBER_ID PRIMARY KEY (MEMBER_ID),
+  CONSTRAINT CK_TBL_MEMBER_GENDER CHECK (GENDER IN (0,1)),
+  CONSTRAINT CK_TBL_MEMBER_STATUS CHECK (STATUS IN (0,1)),
+  CONSTRAINT CK_TBL_MEMBER_IDLE CHECK (IDLE IN (0,1)),
+  CONSTRAINT UQ_TBL_MEMBER_EMAIL UNIQUE (EMAIL),
+  CONSTRAINT UQ_TBL_MEMBER_MOBILE_PHONE UNIQUE (MOBILE_PHONE)
+);
+
+-- status ì»¬ëŸ¼ ë””í´íŠ¸ê°’ ì„¤ì •
+ALTER TABLE TBL_MEMBER
+  MODIFY (STATUS DEFAULT 0);
+  
+-- idle ì»¬ëŸ¼ ë””í´íŠ¸ê°’ ì„¤ì •
+ALTER TABLE TBL_MEMBER
+  MODIFY (IDLE DEFAULT 0);
+  
+
+create table tbl_member_backup
+as
+select * from tbl_member;
+
+-- ì‹œí€€ìŠ¤ ìƒì„±
+CREATE SEQUENCE SEQ_TBL_MEMBER_USERSEQ
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+-- userseq ì»¬ëŸ¼ ì¶”ê°€
+alter table tbl_member
+add userseq number;
+
+update tbl_member set userseq = SEQ_TBL_MEMBER_USERSEQ.nextval
+where MEMBER_ID = 'eomjh';
+
+update tbl_member set userseq = SEQ_TBL_MEMBER_USERSEQ.nextval
+where MEMBER_ID = 'smon0376';
+
+-- userseq ì»¬ëŸ¼ ìœ ë‹ˆí¬ì œì•½ ì„¤ì •
+alter table tbl_member
+add constraint UQ_TBL_MEMBER_USERSEQ unique(userseq);
+
+-- userseq ì»¬ëŸ¼ not null ì„¤ì •
+alter table tbl_member
+modify userseq constraint NN_TBL_MEMBER_USERSEQ not null;
+
+commit;
+
+
+-------- PRODUCT TABLE --------
+CREATE TABLE TBL_PRODUCT (
+  PRODUCT_CODE  VARCHAR2(20)    NOT NULL,
+  PRODUCT_NAME  VARCHAR2(100)   NOT NULL,
+  BRAND_NAME    VARCHAR2(50)    NOT NULL,
+  PRODUCT_DESC  VARCHAR2(1000)  NOT NULL,
+  SALE_STATUS   VARCHAR2(20)    NOT NULL,
+  IMAGE_PATH    VARCHAR2(200)   NOT NULL,
+
+  CONSTRAINT PK_TBL_PRODUCT_PRODUCT_CODE PRIMARY KEY (PRODUCT_CODE)
+);
+
+-- IMAGE_PATH ì»¬ëŸ¼ ì¶”ê°€
+ALTER TABLE TBL_PRODUCT
+ADD (IMAGE_PATH VARCHAR2(200));
+
+-- IMAGE_PATH ì»¬ëŸ¼ NOT NULL ì œì•½
+ALTER TABLE TBL_PRODUCT
+MODIFY (IMAGE_PATH VARCHAR2(200) NOT NULL);
+
+
+-------- COUPON TABLE --------
+CREATE TABLE TBL_COUPON (
+  COUPON_CATEGORY_NO NUMBER                  NOT NULL,
+  COUPON_NAME        VARCHAR2(20)            NOT NULL,
+  DISCOUNT_VALUE     NUMBER                  NOT NULL,
+  DISCOUNT_TYPE      NUMBER(1)               NOT NULL,  
+  USABLE             NUMBER(1) DEFAULT 1     NOT NULL, 
+
+  CONSTRAINT PK_TBL_COUPON_COUPON_CATEGORY_NO PRIMARY KEY (COUPON_CATEGORY_NO),
+  CONSTRAINT CK_TBL_COUPON_DISCOUNT_TYPE CHECK (DISCOUNT_TYPE IN (0,1)),
+  CONSTRAINT CK_TBL_COUPON_USABLE CHECK (USABLE IN (0,1)),
+  CONSTRAINT CK_TBL_COUPON_DISCOUNT_VALUE CHECK (DISCOUNT_VALUE > 0)
+);
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_COUPON_COUPON_CATEGORY_NO
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+-------- PRODUCT_OPTION TABLE --------
+CREATE TABLE TBL_PRODUCT_OPTION (
+  OPTION_ID             NUMBER         NOT NULL,
+  FK_PRODUCT_CODE       VARCHAR2(20)   NOT NULL,
+  COLOR                 VARCHAR2(20)   NOT NULL,
+  STORAGE_SIZE          VARCHAR2(20)   NOT NULL,
+  PRICE                 NUMBER         NOT NULL,
+  STOCK_QTY             NUMBER         NOT NULL,
+  IMAGE_PATH            VARCHAR2(200)  NOT NULL,
+
+  CONSTRAINT PK_TBL_PRODUCT_OPTION_OPTION_ID PRIMARY KEY (OPTION_ID),
+  CONSTRAINT FK_TBL_PRODUCT_OPTION_FK_PRODUCT_CODE FOREIGN KEY (FK_PRODUCT_CODE)
+  REFERENCES TBL_PRODUCT (PRODUCT_CODE),
+  CONSTRAINT CK_TBL_PRODUCT_OPTION_PRICE CHECK (PRICE > 0),
+  CONSTRAINT CK_TBL_PRODUCT_OPTION_STOCK_QTY CHECK (STOCK_QTY >= 0),
+  CONSTRAINT UQ_TBL_PRODUCT_OPTION_FK_PRODUCT_CODE_COLOR_STORAGE_SIZE UNIQUE (FK_PRODUCT_CODE, COLOR, STORAGE_SIZE)
+);
+
+-- IMAGE_PATH ì»¬ëŸ¼ ì‚­ì œ
+ALTER TABLE TBL_PRODUCT_OPTION
+DROP COLUMN IMAGE_PATH;
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_PRODUCT_OPTION_OPTION_ID
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE; 
+
+
+-------- COUPON_ISSUE TABLE --------
+CREATE TABLE TBL_COUPON_ISSUE (
+  FK_COUPON_CATEGORY_NO         NUMBER                  NOT NULL,
+  COUPON_ID                     NUMBER                  NOT NULL,  
+  FK_MEMBER_ID                  VARCHAR2(40)            NOT NULL,
+  ISSUE_DATE                    DATE DEFAULT SYSDATE    NOT NULL,
+  EXPIRE_DATE                   DATE                    NOT NULL,
+  USED_YN                       NUMBER(1) DEFAULT 0     NOT NULL, 
+
+  CONSTRAINT PK_TBL_COUPON_ISSUE_FK_COUPON_CATEGORY_NO_COUPON_ID PRIMARY KEY (FK_COUPON_CATEGORY_NO, COUPON_ID),
+  CONSTRAINT FK_TBL_COUPON_ISSUE_FK_COUPON_CATEGORY_NO FOREIGN KEY (FK_COUPON_CATEGORY_NO)
+  REFERENCES TBL_COUPON (COUPON_CATEGORY_NO),
+  CONSTRAINT FK_TBL_COUPON_ISSUE_FK_MEMBER_ID FOREIGN KEY (FK_MEMBER_ID)
+  REFERENCES TBL_MEMBER (MEMBER_ID),
+  CONSTRAINT CK_TBL_COUPON_ISSUE_USED_YN CHECK (USED_YN IN (0,1)),
+  CONSTRAINT CK_TBL_COUPON_ISSUE_EXPIRE_DATE CHECK (EXPIRE_DATE > ISSUE_DATE)
+);
+
+
+-------- DELIVERY TABLE --------
+CREATE TABLE TBL_DELIVERY (
+  DELIVERY_ADDRESS_ID   NUMBER                NOT NULL,
+  FK_MEMBER_ID          VARCHAR2(40)          NOT NULL,
+  RECIPIENT_NAME        VARCHAR2(50)          NOT NULL,
+  RECIPIENT_PHONE       VARCHAR2(100)         NOT NULL,
+  ADDRESS               VARCHAR2(200)         NOT NULL,
+  ADDRESS_DETAIL        VARCHAR2(200)         NOT NULL,
+  ADDRESS_EXTRA         VARCHAR2(200)                 , 
+  IS_DEFAULT            NUMBER(1) DEFAULT 0   NOT NULL,
+  POSTAL_CODE           VARCHAR2(50)          NOT NULL, 
+
+  CONSTRAINT PK_TBL_DELIVERY_DELIVERY_ADDRESS_ID PRIMARY KEY (DELIVERY_ADDRESS_ID),
+  CONSTRAINT FK_TBL_DELIVERY_FK_MEMBER_ID FOREIGN KEY (FK_MEMBER_ID)
+  REFERENCES TBL_MEMBER (MEMBER_ID),
+  CONSTRAINT CK_TBL_DELIVERY_IS_DEFAULT CHECK (IS_DEFAULT IN (0,1))
+);
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_DELIVERY_DELIVERY_ADDRESS_ID
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+-------- CART TABLE --------
+CREATE TABLE TBL_CART (
+  CART_ID         NUMBER                      NOT NULL,
+  FK_MEMBER_ID    VARCHAR2(40)                NOT NULL,
+  FK_OPTION_ID    NUMBER                      NOT NULL,
+  ADDED_DATE      DATE    DEFAULT SYSDATE     NOT NULL,
+  QUANTITY        NUMBER                      NOT NULL,
+
+  CONSTRAINT PK_TBL_CART_CART_ID PRIMARY KEY (CART_ID),
+  CONSTRAINT FK_TBL_CART_FK_MEMBER_ID FOREIGN KEY (FK_MEMBER_ID)
+  REFERENCES TBL_MEMBER (MEMBER_ID),
+  CONSTRAINT FK_TBL_CART_FK_OPTION_ID FOREIGN KEY (FK_OPTION_ID)
+  REFERENCES TBL_PRODUCT_OPTION (OPTION_ID),
+  CONSTRAINT CK_TBL_CART_QUANTITY CHECK (QUANTITY > 0),
+  CONSTRAINT UQ_TBL_CART_FK_MEMBER_ID_FK_OPTION_ID UNIQUE (FK_MEMBER_ID, FK_OPTION_ID)
+);
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_CART_CART_ID
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+-------- ORDERS TABLE --------
+CREATE TABLE TBL_ORDERS (
+  ORDER_ID               NUMBER                     NOT NULL,
+  FK_MEMBER_ID           VARCHAR2(40)               NOT NULL,
+  ORDER_DATE             DATE DEFAULT SYSDATE       NOT NULL,
+  TOTAL_AMOUNT           NUMBER                     NOT NULL,
+  DISCOUNT_AMOUNT        NUMBER                     NOT NULL,
+  ORDER_STATUS           VARCHAR2(20)               NOT NULL,
+  DELIVERY_ADDRESS       VARCHAR2(300)              NOT NULL,
+
+  CONSTRAINT PK_TBL_ORDERS_ORDER_ID PRIMARY KEY (ORDER_ID),
+  CONSTRAINT FK_TBL_ORDERS_FK_MEMBER_ID FOREIGN KEY (FK_MEMBER_ID)
+  REFERENCES TBL_MEMBER (MEMBER_ID),
+  CONSTRAINT CK_TBL_ORDERS_TOTAL_AMOUNT CHECK (TOTAL_AMOUNT > 0),
+  CONSTRAINT CK_TBL_ORDERS_DISCOUNT_AMOUNT CHECK (
+    DISCOUNT_AMOUNT >= 0 AND DISCOUNT_AMOUNT < TOTAL_AMOUNT
+  )
+);
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_ORDERS_ORDER_ID
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+-------- ORDER_DETAIL TABLE --------
+CREATE TABLE TBL_ORDER_DETAIL (
+  ORDER_DETAIL_ID       NUMBER                   NOT NULL,
+  FK_OPTION_ID          NUMBER                   NOT NULL,
+  FK_ORDER_ID           NUMBER                   NOT NULL,
+  QUANTITY              NUMBER                   NOT NULL,
+  UNIT_PRICE            NUMBER                   NOT NULL,
+  IS_REVIEW_WRITTEN     NUMBER(1) DEFAULT 0      NOT NULL, 
+  PRODUCT_NAME          VARCHAR2(100)            NOT NULL,
+  BRAND_NAME            VARCHAR2(50)             NOT NULL,
+
+  CONSTRAINT PK_TBL_ORDER_DETAIL_ORDER_DETAIL_ID PRIMARY KEY (ORDER_DETAIL_ID),
+  CONSTRAINT FK_TBL_ORDER_DETAIL_FK_OPTION_ID FOREIGN KEY (FK_OPTION_ID)
+  REFERENCES TBL_PRODUCT_OPTION (OPTION_ID),
+  CONSTRAINT FK_TBL_ORDER_DETAIL_FK_ORDER_ID FOREIGN KEY (FK_ORDER_ID)
+  REFERENCES TBL_ORDERS (ORDER_ID),
+  CONSTRAINT CK_TBL_ORDER_DETAIL_QUANTITY CHECK (QUANTITY > 0),
+  CONSTRAINT CK_TBL_ORDER_DETAIL_UNIT_PRICE CHECK (UNIT_PRICE > 0),
+  CONSTRAINT CK_TBL_ORDER_DETAIL_IS_REVIEW_WRITTEN CHECK (IS_REVIEW_WRITTEN IN (0,1))
+);
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_ORDER_DETAIL_ORDER_DETAIL_ID
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+-------- REVIEW TABLE --------
+CREATE TABLE TBL_REVIEW (
+  REVIEW_NUMBER         NUMBER                  NOT NULL,
+  FK_OPTION_ID          NUMBER                  NOT NULL,
+  FK_ORDER_DETAIL_ID    NUMBER                  NOT NULL,
+  REVIEW_CONTENT        VARCHAR2(1000)          NOT NULL,
+  WRITEDAY              DATE DEFAULT SYSDATE    NOT NULL,
+
+  CONSTRAINT PK_TBL_REVIEW_REVIEW_NUMBER PRIMARY KEY (REVIEW_NUMBER),
+  CONSTRAINT FK_TBL_REVIEW_FK_OPTION_ID FOREIGN KEY (FK_OPTION_ID)
+  REFERENCES TBL_PRODUCT_OPTION (OPTION_ID),
+  CONSTRAINT FK_TBL_REVIEW_FK_ORDER_DETAIL_ID FOREIGN KEY (FK_ORDER_DETAIL_ID)
+  REFERENCES TBL_ORDER_DETAIL (ORDER_DETAIL_ID),
+  CONSTRAINT UQ_TBL_REVIEW_FK_ORDER_DETAIL_ID UNIQUE (FK_ORDER_DETAIL_ID)
+);
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_REVIEW_REVIEW_NUMBER
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+-------- INQUIRY TABLE --------
+CREATE TABLE TBL_INQUIRY (
+  INQUIRY_NUMBER        NUMBER                     NOT NULL,
+  FK_MEMBER_ID          VARCHAR2(40)               NOT NULL,
+  INQUIRY_TYPE          VARCHAR2(30)               NOT NULL,
+  TITLE                 VARCHAR2(100)              NOT NULL,
+  REGISTERDAY           DATE DEFAULT SYSDATE       NOT NULL,
+  INQUIRY_CONTENT       VARCHAR2(1000)             NOT NULL,
+  REPLY_CONTENT         VARCHAR2(1000),
+  REPLY_REGISTERDAY     DATE,                                         
+  REPLY_STATUS          NUMBER(1) DEFAULT 1   NOT NULL, 
+
+  CONSTRAINT PK_TBL_INQUIRY_INQUIRY_NUMBER PRIMARY KEY (INQUIRY_NUMBER),
+  CONSTRAINT FK_TBL_INQUIRY_FK_MEMBER_ID FOREIGN KEY (FK_MEMBER_ID)
+  REFERENCES TBL_MEMBER (MEMBER_ID),
+  CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS CHECK (REPLY_STATUS IN (0,1,2))
+);
+
+-------- ì‹œí€€ìŠ¤ ìƒì„± --------
+
+CREATE SEQUENCE SEQ_TBL_INQUIRY_INQUIRY_NUMBER
+START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+
+-- ì²´í¬ì œì•½ ì‚­ì œ
+ALTER TABLE TBL_INQUIRY
+DROP CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS;
+
+-- ì²´í¬ì œì•½ ìƒì„±
+ALTER TABLE TBL_INQUIRY
+ADD CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS
+CHECK (REPLY_STATUS IN (0,1,2));
+
+-- REPLY_STATUS ë””í´íŠ¸ê°’ 1ë¡œ ë³€ê²½
+ALTER TABLE TBL_INQUIRY
+MODIFY (REPLY_STATUS DEFAULT 1);
+
+select * from tab;
+select * from tbl_member;
+select * from tbl_delivery;
+select * from tbl_orders;
+select * from tbl_inquiry;
+select * from tbl_product_option;
+
+
+update tbl_member set created_at = sysdate
+where userseq = 16;
+
+rollback;
+
+commit;
+
+
+
+
+
+
+
+
 
 
 show user;
@@ -7,12 +337,12 @@ delete from tbl_product;
 commit;
 
 
------- »óÇ°Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+------ ìƒí’ˆí…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select *
 from tbl_product
 order by product_name;
 
------- »óÇ°»ó¼¼Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+------ ìƒí’ˆìƒì„¸í…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select * from tbl_product_option;
 
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
@@ -26,58 +356,58 @@ ORDER BY product_code;
 --delete from tbl_product where product_code = '1000AP';
 --commit;
 
--- ¾ÆÀÌÆù17 µ¥ÀÌÅÍ°ª
+-- ì•„ì´í°17 ë°ì´í„°ê°’
 insert into tbl_product
-values('1000AP', 'iPhone17', 'Apple', '¾ÆÀÌÆù17¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1000AP', 'iPhone17', 'Apple', 'ì•„ì´í°17ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1100AP', 'iPhone17 Pro', 'Apple', '¾ÆÀÌÆù17 Pro¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1100AP', 'iPhone17 Pro', 'Apple', 'ì•„ì´í°17 Proì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1200AP', 'iPhone17 Pro Max', 'Apple', '¾ÆÀÌÆù17 Pro Max¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1200AP', 'iPhone17 Pro Max', 'Apple', 'ì•„ì´í°17 Pro Maxì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 
--- ¾ÆÀÌÆù16 µ¥ÀÌÅÍ°ª
+-- ì•„ì´í°16 ë°ì´í„°ê°’
 insert into tbl_product
-values('2000AP', 'iPhone16', 'Apple', '¾ÆÀÌÆù16¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2000AP', 'iPhone16', 'Apple', 'ì•„ì´í°16ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2100AP', 'iPhone16 Pro', 'Apple', '¾ÆÀÌÆù16 Pro¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2100AP', 'iPhone16 Pro', 'Apple', 'ì•„ì´í°16 Proì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2200AP', 'iPhone16 Pro Max', 'Apple', '¾ÆÀÌÆù16 Pro Max¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2200AP', 'iPhone16 Pro Max', 'Apple', 'ì•„ì´í°16 Pro Maxì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
--- ¾ÆÀÌÆù15 µ¥ÀÌÅÍ°ª
+-- ì•„ì´í°15 ë°ì´í„°ê°’
 insert into tbl_product
-values('3000AP', 'iPhone15', 'Apple', '¾ÆÀÌÆù15¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3000AP', 'iPhone15', 'Apple', 'ì•„ì´í°15ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3100AP', 'iPhone15 Pro', 'Apple', '¾ÆÀÌÆù15 Pro¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3100AP', 'iPhone15 Pro', 'Apple', 'ì•„ì´í°15 Proì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3200AP', 'iPhone15 Pro Max', 'Apple', '¾ÆÀÌÆù15 Pro Max¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3200AP', 'iPhone15 Pro Max', 'Apple', 'ì•„ì´í°15 Pro Maxì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
--- °¶·°½ÃÆù µ¥ÀÌÅÍ°ª
+-- ê°¤ëŸ­ì‹œí° ë°ì´í„°ê°’
 insert into tbl_product
-values('1000GX', 'Galaxy Z Fold7', 'Galaxy', '°¶·°½Ã ZÆúµå7¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1000GX', 'Galaxy Z Fold7', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí´ë“œ7ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1100GX', 'Galaxy Z Flip7', 'Galaxy', '°¶·°½Ã ZÇÃ¸³7¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1100GX', 'Galaxy Z Flip7', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí”Œë¦½7ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', '°¶·°½Ã s25 ¿ïÆ®¶ó¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', 'ê°¤ëŸ­ì‹œ s25 ìš¸íŠ¸ë¼ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
----------------- °¶·°½Ã6, 24
+---------------- ê°¤ëŸ­ì‹œ6, 24
 insert into tbl_product
-values('2000GX', 'Galaxy Z Fold6', 'Galaxy', '°¶·°½Ã ZÆúµå6¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2000GX', 'Galaxy Z Fold6', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí´ë“œ6ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2100GX', 'Galaxy Z Flip6', 'Galaxy', '°¶·°½Ã ZÇÃ¸³6¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2100GX', 'Galaxy Z Flip6', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí”Œë¦½6ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', '°¶·°½Ã s24 ¿ïÆ®¶ó¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', 'ê°¤ëŸ­ì‹œ s24 ìš¸íŠ¸ë¼ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
----------------- °¶·°½Ã5, 23
+---------------- ê°¤ëŸ­ì‹œ5, 23
 insert into tbl_product
-values('3000GX', 'Galaxy Z Fold5', 'Galaxy', '°¶·°½Ã ZÆúµå5¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3000GX', 'Galaxy Z Fold5', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí´ë“œ5ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3100GX', 'Galaxy Z Flip5', 'Galaxy', '°¶·°½Ã ZÇÃ¸³5¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3100GX', 'Galaxy Z Flip5', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí”Œë¦½5ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', '°¶·°½Ã s23 ¿ïÆ®¶ó¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', 'ê°¤ëŸ­ì‹œ s23 ìš¸íŠ¸ë¼ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
 
@@ -91,8 +421,8 @@ select * from tbl_product_option;
 
 
 
----------------------------------------¾ÆÀÌÆù »ó¼¼¿É¼Ç µ¥ÀÌÅÍ »ğÀÔ----------------------------------------------------
---¾ÆÀÌÆù17 »ó¼¼Á¤º¸
+---------------------------------------ì•„ì´í° ìƒì„¸ì˜µì…˜ ë°ì´í„° ì‚½ì…----------------------------------------------------
+--ì•„ì´í°17 ìƒì„¸ì •ë³´
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Black', '256GB', '1290000', 50);
 
@@ -120,7 +450,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Red', '512GB', '1584
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---¾ÆÀÌÆù17 Pro »ó¼¼¿É¼Ç
+--ì•„ì´í°17 Pro ìƒì„¸ì˜µì…˜
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Black', '256GB', '1790000', 50);
 
@@ -148,7 +478,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Red', '512GB', '2090
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---¾ÆÀÌÆù17 Pro Max »ó¼¼¿É¼Ç
+--ì•„ì´í°17 Pro Max ìƒì„¸ì˜µì…˜
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Black', '256GB', '1980000', 50);
 
@@ -176,7 +506,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Red', '512GB', '2288
 
 
 
---¾ÆÀÌÆù16 »ó¼¼¿É¼Ç
+--ì•„ì´í°16 ìƒì„¸ì˜µì…˜
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Black', '256GB', '1440000', 50);
 
@@ -203,7 +533,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Red', '512GB', '1700000', 35);
 commit;
 
---¾ÆÀÌÆù16 Pro »ó¼¼Á¤º¸
+--ì•„ì´í°16 Pro ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Blue',  '256GB', '1700000', 35);
@@ -215,7 +545,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
--- ¾ÆÀÌÆù16 Pro Max »ó¼¼Á¤º¸
+-- ì•„ì´í°16 Pro Max ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Black', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'White', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Blue',  '256GB', '1980000', 35);
@@ -227,7 +557,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Red',   '512GB', '2288000', 35);
 commit;
 
---¾ÆÀÌÆù15 »ó¼¼Á¤º¸
+--ì•„ì´í°15 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Black', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'White', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Blue',  '256GB', '1400000', 35);
@@ -239,7 +569,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Red',   '512GB', '1700000', 35);
 commit;
 
---¾ÆÀÌÆù15 Pro »ó¼¼Á¤º¸
+--ì•„ì´í°15 Pro ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Blue',  '256GB', '1700000', 35);
@@ -251,7 +581,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
---¾ÆÀÌÆù 15 Pro Max »ó¼¼Á¤º¸
+--ì•„ì´í° 15 Pro Max ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Black', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'White', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Blue',  '256GB', '1900000', 35);
@@ -263,19 +593,19 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Red',   '512GB', '2200000', 35);
 commit;
 
--- »óÇ°»ó¼¼ Á¤º¸¿Í »óÇ°¸í Á¶ÀÎÇÏ¿© °°ÀÌ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆìƒì„¸ ì •ë³´ì™€ ìƒí’ˆëª… ì¡°ì¸í•˜ì—¬ ê°™ì´ ì¶œë ¥í•˜ê¸°
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
 ON P.product_code = O.fk_product_code
 ORDER BY product_code;
 
--- »óÇ°Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆí…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select * from tbl_product;
 commit;
 
----------------------------------------°¶·°½Ã »ó¼¼¿É¼Ç µ¥ÀÌÅÍ »ğÀÔ----------------------------------------------------
--- Galaxy Z Fold7 »ó¼¼¿É¼Ç
+---------------------------------------ê°¤ëŸ­ì‹œ ìƒì„¸ì˜µì…˜ ë°ì´í„° ì‚½ì…----------------------------------------------------
+-- Galaxy Z Fold7 ìƒì„¸ì˜µì…˜
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Black','256GB', '2379000', 50);
 insert into tbl_product_option 
@@ -297,7 +627,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Red','512GB', '2537000', 50);
 
 
--- Galaxy Z Flip7 »ó¼¼¿É¼Ç
+-- Galaxy Z Flip7 ìƒì„¸ì˜µì…˜
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Black','256GB','1485000','35');
 insert into tbl_product_option 
@@ -319,7 +649,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Red','512GB','1643400','35');
 
 
--- Galaxy S25 Ultra »ó¼¼¿É¼Ç
+-- Galaxy S25 Ultra ìƒì„¸ì˜µì…˜
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Black','256GB','1698400','35');
 insert into tbl_product_option 
@@ -340,7 +670,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','256GB','1698400'
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','512GB','1856800','35');
 
--- °¶·°½Ã zÆúµå6 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ zí´ë“œ6 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Black','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','White','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','256GB','2229000',35);
@@ -351,7 +681,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','512GB','2469000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Red','512GB','2469000',35);
 
--- °¶·°½Ã zÇÃ¸³6 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ zí”Œë¦½6 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Black','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','White','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','256GB','1485000',35);
@@ -362,7 +692,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','512GB','1643000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Red','512GB','1643000',35);
 
--- °¶·°½Ã s24 ¿ïÆ®¶ó »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ s24 ìš¸íŠ¸ë¼ ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Black','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','White','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','256GB','1698400',35);
@@ -373,7 +703,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','512GB','1841400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Red','512GB','1841400',35);
 
--- °¶·°½Ã Æúµå5 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ í´ë“œ5 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Black','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','White','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','256GB','2097700',35);
@@ -384,7 +714,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','512GB','2336400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Red','512GB','2336400',35);
 
--- °¶·°½Ã ÇÃ¸³5 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ í”Œë¦½5 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Black','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','White','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','256GB','1399200',35);
@@ -395,7 +725,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','512GB','1522400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Red','512GB','1522400',35);
 
--- °¶·°½Ã s23 ¿ïÆ®¶ó »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ s23 ìš¸íŠ¸ë¼ ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Black','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','White','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','256GB','1599400',35);
@@ -406,7 +736,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','512GB','1720400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Red','512GB','1720400',35);
 
--- »óÇ°»ó¼¼ Á¤º¸¿Í »óÇ°¸í Á¶ÀÎÇÏ¿© °°ÀÌ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆìƒì„¸ ì •ë³´ì™€ ìƒí’ˆëª… ì¡°ì¸í•˜ì—¬ ê°™ì´ ì¶œë ¥í•˜ê¸°
 SELECT P.product_code, P.brand_name, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
@@ -417,12 +747,12 @@ ORDER BY product_code;
 commit;
 
 
--- »óÇ°Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆí…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select * from tbl_product;
 commit;
 
 
---»óÇ°¿¡ ´ëÇÑ Á¤º¸¿Í °¡°İÀÌ Á¦ÀÏ ³·Àº ¿É¼ÇÀÇ Á¤º¸¸¦ Á¶ÀÎÇÏ¿© Ãâ·Â
+--ìƒí’ˆì— ëŒ€í•œ ì •ë³´ì™€ ê°€ê²©ì´ ì œì¼ ë‚®ì€ ì˜µì…˜ì˜ ì •ë³´ë¥¼ ì¡°ì¸í•˜ì—¬ ì¶œë ¥
 SELECT
     p.product_code,
     p.product_name,
@@ -432,7 +762,7 @@ SELECT
 FROM tbl_product p
 JOIN tbl_product_option o
   ON p.product_code = o.fk_product_code
-WHERE p.sale_status = 'ÆÇ¸ÅÁß'
+WHERE p.sale_status = 'íŒë§¤ì¤‘'
 GROUP BY
     p.product_code,
     p.product_name,
@@ -457,12 +787,12 @@ delete from tbl_product;
 commit;
 
 
------- »óÇ°Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+------ ìƒí’ˆí…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select *
 from tbl_product
 order by product_name;
 
------- »óÇ°»ó¼¼Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+------ ìƒí’ˆìƒì„¸í…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select * from tbl_product_option;
 
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
@@ -476,58 +806,58 @@ ORDER BY product_code;
 --delete from tbl_product where product_code = '1000AP';
 --commit;
 
--- ¾ÆÀÌÆù17 µ¥ÀÌÅÍ°ª
+-- ì•„ì´í°17 ë°ì´í„°ê°’
 insert into tbl_product
-values('1000AP', 'iPhone17', 'Apple', '¾ÆÀÌÆù17¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1000AP', 'iPhone17', 'Apple', 'ì•„ì´í°17ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1100AP', 'iPhone17 Pro', 'Apple', '¾ÆÀÌÆù17 Pro¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1100AP', 'iPhone17 Pro', 'Apple', 'ì•„ì´í°17 Proì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1200AP', 'iPhone17 Pro Max', 'Apple', '¾ÆÀÌÆù17 Pro Max¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1200AP', 'iPhone17 Pro Max', 'Apple', 'ì•„ì´í°17 Pro Maxì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 
--- ¾ÆÀÌÆù16 µ¥ÀÌÅÍ°ª
+-- ì•„ì´í°16 ë°ì´í„°ê°’
 insert into tbl_product
-values('2000AP', 'iPhone16', 'Apple', '¾ÆÀÌÆù16¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2000AP', 'iPhone16', 'Apple', 'ì•„ì´í°16ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2100AP', 'iPhone16 Pro', 'Apple', '¾ÆÀÌÆù16 Pro¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2100AP', 'iPhone16 Pro', 'Apple', 'ì•„ì´í°16 Proì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2200AP', 'iPhone16 Pro Max', 'Apple', '¾ÆÀÌÆù16 Pro Max¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2200AP', 'iPhone16 Pro Max', 'Apple', 'ì•„ì´í°16 Pro Maxì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
--- ¾ÆÀÌÆù15 µ¥ÀÌÅÍ°ª
+-- ì•„ì´í°15 ë°ì´í„°ê°’
 insert into tbl_product
-values('3000AP', 'iPhone15', 'Apple', '¾ÆÀÌÆù15¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3000AP', 'iPhone15', 'Apple', 'ì•„ì´í°15ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3100AP', 'iPhone15 Pro', 'Apple', '¾ÆÀÌÆù15 Pro¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3100AP', 'iPhone15 Pro', 'Apple', 'ì•„ì´í°15 Proì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3200AP', 'iPhone15 Pro Max', 'Apple', '¾ÆÀÌÆù15 Pro Max¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3200AP', 'iPhone15 Pro Max', 'Apple', 'ì•„ì´í°15 Pro Maxì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
--- °¶·°½ÃÆù µ¥ÀÌÅÍ°ª
+-- ê°¤ëŸ­ì‹œí° ë°ì´í„°ê°’
 insert into tbl_product
-values('1000GX', 'Galaxy Z Fold7', 'Galaxy', '°¶·°½Ã ZÆúµå7¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1000GX', 'Galaxy Z Fold7', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí´ë“œ7ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1100GX', 'Galaxy Z Flip7', 'Galaxy', '°¶·°½Ã ZÇÃ¸³7¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1100GX', 'Galaxy Z Flip7', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí”Œë¦½7ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', '°¶·°½Ã s25 ¿ïÆ®¶ó¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', 'ê°¤ëŸ­ì‹œ s25 ìš¸íŠ¸ë¼ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
----------------- °¶·°½Ã6, 24
+---------------- ê°¤ëŸ­ì‹œ6, 24
 insert into tbl_product
-values('2000GX', 'Galaxy Z Fold6', 'Galaxy', '°¶·°½Ã ZÆúµå6¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2000GX', 'Galaxy Z Fold6', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí´ë“œ6ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2100GX', 'Galaxy Z Flip6', 'Galaxy', '°¶·°½Ã ZÇÃ¸³6¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2100GX', 'Galaxy Z Flip6', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí”Œë¦½6ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', '°¶·°½Ã s24 ¿ïÆ®¶ó¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', 'ê°¤ëŸ­ì‹œ s24 ìš¸íŠ¸ë¼ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
----------------- °¶·°½Ã5, 23
+---------------- ê°¤ëŸ­ì‹œ5, 23
 insert into tbl_product
-values('3000GX', 'Galaxy Z Fold5', 'Galaxy', '°¶·°½Ã ZÆúµå5¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3000GX', 'Galaxy Z Fold5', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí´ë“œ5ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3100GX', 'Galaxy Z Flip5', 'Galaxy', '°¶·°½Ã ZÇÃ¸³5¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3100GX', 'Galaxy Z Flip5', 'Galaxy', 'ê°¤ëŸ­ì‹œ Zí”Œë¦½5ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 insert into tbl_product
-values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', '°¶·°½Ã s23 ¿ïÆ®¶ó¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù. ÀÓ½Ã ¼³¸íÀÔ´Ï´Ù. ³ªÁß¿¡ update·Î ¹Ù²Ù¼¼¿ä.', 'ÆÇ¸ÅÁß', 'test.jpg');
+values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', 'ê°¤ëŸ­ì‹œ s23 ìš¸íŠ¸ë¼ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤. ì„ì‹œ ì„¤ëª…ì…ë‹ˆë‹¤. ë‚˜ì¤‘ì— updateë¡œ ë°”ê¾¸ì„¸ìš”.', 'íŒë§¤ì¤‘', 'test.jpg');
 commit;
 
 
@@ -541,8 +871,8 @@ select * from tbl_product_option;
 
 
 
----------------------------------------¾ÆÀÌÆù »ó¼¼¿É¼Ç µ¥ÀÌÅÍ »ğÀÔ----------------------------------------------------
---¾ÆÀÌÆù17 »ó¼¼Á¤º¸
+---------------------------------------ì•„ì´í° ìƒì„¸ì˜µì…˜ ë°ì´í„° ì‚½ì…----------------------------------------------------
+--ì•„ì´í°17 ìƒì„¸ì •ë³´
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Black', '256GB', '1290000', 50);
 
@@ -570,7 +900,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Red', '512GB', '1584
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---¾ÆÀÌÆù17 Pro »ó¼¼¿É¼Ç
+--ì•„ì´í°17 Pro ìƒì„¸ì˜µì…˜
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Black', '256GB', '1790000', 50);
 
@@ -598,7 +928,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Red', '512GB', '2090
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---¾ÆÀÌÆù17 Pro Max »ó¼¼¿É¼Ç
+--ì•„ì´í°17 Pro Max ìƒì„¸ì˜µì…˜
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Black', '256GB', '1980000', 50);
 
@@ -626,7 +956,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Red', '512GB', '2288
 
 
 
---¾ÆÀÌÆù16 »ó¼¼¿É¼Ç
+--ì•„ì´í°16 ìƒì„¸ì˜µì…˜
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Black', '256GB', '1440000', 50);
 
@@ -653,7 +983,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Red', '512GB', '1700000', 35);
 commit;
 
---¾ÆÀÌÆù16 Pro »ó¼¼Á¤º¸
+--ì•„ì´í°16 Pro ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Blue',  '256GB', '1700000', 35);
@@ -665,7 +995,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
--- ¾ÆÀÌÆù16 Pro Max »ó¼¼Á¤º¸
+-- ì•„ì´í°16 Pro Max ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Black', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'White', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Blue',  '256GB', '1980000', 35);
@@ -677,7 +1007,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Red',   '512GB', '2288000', 35);
 commit;
 
---¾ÆÀÌÆù15 »ó¼¼Á¤º¸
+--ì•„ì´í°15 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Black', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'White', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Blue',  '256GB', '1400000', 35);
@@ -689,7 +1019,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Red',   '512GB', '1700000', 35);
 commit;
 
---¾ÆÀÌÆù15 Pro »ó¼¼Á¤º¸
+--ì•„ì´í°15 Pro ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Blue',  '256GB', '1700000', 35);
@@ -701,7 +1031,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
---¾ÆÀÌÆù 15 Pro Max »ó¼¼Á¤º¸
+--ì•„ì´í° 15 Pro Max ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Black', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'White', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Blue',  '256GB', '1900000', 35);
@@ -713,19 +1043,19 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Red',   '512GB', '2200000', 35);
 commit;
 
--- »óÇ°»ó¼¼ Á¤º¸¿Í »óÇ°¸í Á¶ÀÎÇÏ¿© °°ÀÌ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆìƒì„¸ ì •ë³´ì™€ ìƒí’ˆëª… ì¡°ì¸í•˜ì—¬ ê°™ì´ ì¶œë ¥í•˜ê¸°
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
 ON P.product_code = O.fk_product_code
 ORDER BY product_code;
 
--- »óÇ°Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆí…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select * from tbl_product;
 commit;
 
----------------------------------------°¶·°½Ã »ó¼¼¿É¼Ç µ¥ÀÌÅÍ »ğÀÔ----------------------------------------------------
--- Galaxy Z Fold7 »ó¼¼¿É¼Ç
+---------------------------------------ê°¤ëŸ­ì‹œ ìƒì„¸ì˜µì…˜ ë°ì´í„° ì‚½ì…----------------------------------------------------
+-- Galaxy Z Fold7 ìƒì„¸ì˜µì…˜
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Black','256GB', '2379000', 50);
 insert into tbl_product_option 
@@ -747,7 +1077,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Red','512GB', '2537000', 50);
 
 
--- Galaxy Z Flip7 »ó¼¼¿É¼Ç
+-- Galaxy Z Flip7 ìƒì„¸ì˜µì…˜
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Black','256GB','1485000','35');
 insert into tbl_product_option 
@@ -769,7 +1099,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Red','512GB','1643400','35');
 
 
--- Galaxy S25 Ultra »ó¼¼¿É¼Ç
+-- Galaxy S25 Ultra ìƒì„¸ì˜µì…˜
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Black','256GB','1698400','35');
 insert into tbl_product_option 
@@ -790,7 +1120,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','256GB','1698400'
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','512GB','1856800','35');
 
--- °¶·°½Ã zÆúµå6 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ zí´ë“œ6 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Black','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','White','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','256GB','2229000',35);
@@ -801,7 +1131,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','512GB','2469000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Red','512GB','2469000',35);
 
--- °¶·°½Ã zÇÃ¸³6 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ zí”Œë¦½6 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Black','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','White','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','256GB','1485000',35);
@@ -812,7 +1142,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','512GB','1643000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Red','512GB','1643000',35);
 
--- °¶·°½Ã s24 ¿ïÆ®¶ó »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ s24 ìš¸íŠ¸ë¼ ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Black','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','White','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','256GB','1698400',35);
@@ -823,7 +1153,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','512GB','1841400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Red','512GB','1841400',35);
 
--- °¶·°½Ã Æúµå5 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ í´ë“œ5 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Black','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','White','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','256GB','2097700',35);
@@ -834,7 +1164,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','512GB','2336400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Red','512GB','2336400',35);
 
--- °¶·°½Ã ÇÃ¸³5 »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ í”Œë¦½5 ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Black','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','White','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','256GB','1399200',35);
@@ -845,7 +1175,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','512GB','1522400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Red','512GB','1522400',35);
 
--- °¶·°½Ã s23 ¿ïÆ®¶ó »ó¼¼Á¤º¸
+-- ê°¤ëŸ­ì‹œ s23 ìš¸íŠ¸ë¼ ìƒì„¸ì •ë³´
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Black','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','White','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','256GB','1599400',35);
@@ -856,7 +1186,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','512GB','1720400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Red','512GB','1720400',35);
 
--- »óÇ°»ó¼¼ Á¤º¸¿Í »óÇ°¸í Á¶ÀÎÇÏ¿© °°ÀÌ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆìƒì„¸ ì •ë³´ì™€ ìƒí’ˆëª… ì¡°ì¸í•˜ì—¬ ê°™ì´ ì¶œë ¥í•˜ê¸°
 SELECT P.product_code, P.brand_name, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
@@ -867,12 +1197,12 @@ ORDER BY product_code;
 commit;
 
 
--- »óÇ°Å×ÀÌºí Á¤º¸ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆí…Œì´ë¸” ì •ë³´ ì¶œë ¥í•˜ê¸°
 select * from tbl_product;
 commit;
 
 
---»óÇ°¿¡ ´ëÇÑ Á¤º¸¿Í °¡°İÀÌ Á¦ÀÏ ³·Àº ¿É¼ÇÀÇ Á¤º¸¸¦ Á¶ÀÎÇÏ¿© Ãâ·Â
+--ìƒí’ˆì— ëŒ€í•œ ì •ë³´ì™€ ê°€ê²©ì´ ì œì¼ ë‚®ì€ ì˜µì…˜ì˜ ì •ë³´ë¥¼ ì¡°ì¸í•˜ì—¬ ì¶œë ¥
 SELECT
     p.product_code,
     p.product_name,
@@ -882,7 +1212,7 @@ SELECT
 FROM tbl_product p
 JOIN tbl_product_option o
   ON p.product_code = o.fk_product_code
-WHERE p.sale_status = 'ÆÇ¸ÅÁß'
+WHERE p.sale_status = 'íŒë§¤ì¤‘'
 GROUP BY
     p.product_code,
     p.product_name,
@@ -904,7 +1234,7 @@ select * from tbl_cart;
 
 
 
--- »óÇ°¿É¼ÇÅ×ÀÌºíÀÇ Á¦¾àÁ¶°Çµé È®ÀÎÇÏ±â
+-- ìƒí’ˆì˜µì…˜í…Œì´ë¸”ì˜ ì œì•½ì¡°ê±´ë“¤ í™•ì¸í•˜ê¸°
 SELECT constraint_name,
        constraint_type,
        table_name,
@@ -912,14 +1242,14 @@ SELECT constraint_name,
 FROM user_constraints
 WHERE table_name = 'TBL_PRODUCT_OPTION';
 
--- »óÇ°¿É¼ÇÅ×ÀÌºíÀÇ °¡°İ Ã¼Å©Á¶°Ç »èÁ¦
+-- ìƒí’ˆì˜µì…˜í…Œì´ë¸”ì˜ ê°€ê²© ì²´í¬ì¡°ê±´ ì‚­ì œ
 ALTER TABLE tbl_product_option DROP CONSTRAINT CK_TBL_PRODUCT_OPTION_PRICE;
 
--- »óÇ°¿É¼ÇÅ×ÀÌºíÀÇ pric ÄÃ·³ »èÁ¦
+-- ìƒí’ˆì˜µì…˜í…Œì´ë¸”ì˜ pric ì»¬ëŸ¼ ì‚­ì œ
 ALTER TABLE tbl_product_option
 DROP COLUMN price;
 
--- »óÇ°¿É¼ÇÅ×ÀÌºí¿¡ plus_price ÄÃ·³ Ãß°¡(Á¦¾àÁ¶°Ç 0°ú °°°Å³ª Å­)
+-- ìƒí’ˆì˜µì…˜í…Œì´ë¸”ì— plus_price ì»¬ëŸ¼ ì¶”ê°€(ì œì•½ì¡°ê±´ 0ê³¼ ê°™ê±°ë‚˜ í¼)
 ALTER TABLE tbl_product_option
 ADD plus_price NUMBER DEFAULT 0
     CONSTRAINT ck_tbl_product_option_plus_price CHECK (plus_price >= 0);
@@ -927,7 +1257,7 @@ ADD plus_price NUMBER DEFAULT 0
 select * from tbl_product_option;
 
 
--- »óÇ°Å×ÀÌºíÀÇ Á¦¾àÁ¶°Çµé È®ÀÎÇÏ±â
+-- ìƒí’ˆí…Œì´ë¸”ì˜ ì œì•½ì¡°ê±´ë“¤ í™•ì¸í•˜ê¸°
 SELECT constraint_name,
        constraint_type,
        table_name,
@@ -935,7 +1265,7 @@ SELECT constraint_name,
 FROM user_constraints
 WHERE table_name = 'TBL_PRODUCT';
 
--- »óÇ°Å×ÀÌºí¿¡ price ÄÃ·³ Ãß°¡(Á¦¾àÁ¶°Ç 0º¸´Ù Ä¿¾ß ÇÔ)
+-- ìƒí’ˆí…Œì´ë¸”ì— price ì»¬ëŸ¼ ì¶”ê°€(ì œì•½ì¡°ê±´ 0ë³´ë‹¤ ì»¤ì•¼ í•¨)
 ALTER TABLE tbl_product
 ADD price NUMBER
     CONSTRAINT ck_tbl_product_price CHECK (price > 0);
@@ -945,7 +1275,7 @@ from tbl_product
 where brand_name = 'Samsung'
 order by product_code;
 
--- »óÇ°Å×ÀÌºíÀÇ °¡°İÄÃ·´¿¡ °ª ¾÷µ¥ÀÌÆ®ÇÏ±â
+-- ìƒí’ˆí…Œì´ë¸”ì˜ ê°€ê²©ì»¬ëŸ½ì— ê°’ ì—…ë°ì´íŠ¸í•˜ê¸°
 update tbl_product set price = 2200000
 where product_code = '3000GX';
 
@@ -953,7 +1283,7 @@ commit;
 
 
 
--- »óÇ°»ó¼¼ Á¤º¸¿Í »óÇ°¸í Á¶ÀÎÇÏ¿© °°ÀÌ Ãâ·ÂÇÏ±â
+-- ìƒí’ˆìƒì„¸ ì •ë³´ì™€ ìƒí’ˆëª… ì¡°ì¸í•˜ì—¬ ê°™ì´ ì¶œë ¥í•˜ê¸°
 SELECT P.product_code, option_id, P.product_name,storage_size, price, plus_price
 FROM tbl_product_option O
 JOIN tbl_product P
@@ -961,17 +1291,17 @@ ON P.product_code = O.fk_product_code
 WHERE brand_name = 'Samsung' and storage_size = '512GB'
 ORDER BY product_code, storage_size desc;
 
--- »óÇ°¿É¼ÇÅ×ÀÌºíÀÇ Ãß°¡±İ¾× ÄÃ·³¿¡ °ª ¾÷µ¥ÀÌÆ®ÇÏ±â
+-- ìƒí’ˆì˜µì…˜í…Œì´ë¸”ì˜ ì¶”ê°€ê¸ˆì•¡ ì»¬ëŸ¼ì— ê°’ ì—…ë°ì´íŠ¸í•˜ê¸°
 update tbl_product_option set plus_price = 150000
 where fk_product_code = '2100GX' and storage_size = '512GB';
 
 commit;
 
 
---(»óÇ°ÄÚµå,»óÇ°¸í,ºê·£µå¸í,ÀÌ¹ÌÁö°æ·Î,°¡°İ)
+--(ìƒí’ˆì½”ë“œ,ìƒí’ˆëª…,ë¸Œëœë“œëª…,ì´ë¯¸ì§€ê²½ë¡œ,ê°€ê²©)
 select product_code, product_name, brand_name, image_path, price, sale_status
 from tbl_product
-where sale_status='ÆÇ¸ÅÁß';
+where sale_status='íŒë§¤ì¤‘';
 
 
 select * from tbl_product_option;
@@ -987,6 +1317,7 @@ WHERE product_code = '1100GX';
 
 
 commit;
+<<<<<<< HEAD
 
 
 
@@ -1005,3 +1336,8 @@ WHERE member_id = 'anth';
 
 DELETE FROM tbl_member
 WHERE member_id = 'anth';
+
+
+-- ìˆ˜ì •í–ˆìŠµë‹ˆë‹¤...
+-- ìˆ˜ì •í–ˆìŠµë‹ˆë‹¤...
+

@@ -28,6 +28,10 @@
 	<script type="text/javascript" src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
 	<script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script>
 	
+	<script>
+     const ctxPath = "<%= ctxPath %>";
+   </script>
+	
 	<!-- 사용자 JS -->
 	<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/index.js"></script>
     
@@ -85,22 +89,20 @@
                     </a>
                 </li>
                 
-                <%-- <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
-                        <i class="fa-solid fa-user"></i> 마이페이지
-                    </a>
-                </li> --%>
                 
                 <!-- 관리자페이지는 admin으로 로그인했을 경우에만 접근이 가능하도록 조건문 사용 -->
-                <%-- <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.userid == 'admin'}">
-                </c:if> --%>
-                <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
-                        <i class="fa-solid fa-gear"></i> 관리자페이지
-                    </a>
-                </li>
+                <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.memberid == 'admin'}">
+	                <li class="nav-item">
+	                    <a class="nav-link" href="<%=ctxPath%>/admin/adminpage.hp">
+	                        <i class="fa-solid fa-gear"></i> 관리자페이지
+	                        <%-- ${sessionScope.loginUser.name} --%>
+	                    </a>
+	                </li>
+                </c:if>
+                
             </ul>
 
+			
 
 			<!-- 오른쪽정렬 해주기 -->
 
