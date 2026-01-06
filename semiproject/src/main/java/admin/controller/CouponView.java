@@ -11,6 +11,7 @@ import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 
 public class CouponView extends AbstractController {
 	
@@ -23,9 +24,9 @@ public class CouponView extends AbstractController {
 		
 		HttpSession session = request.getSession();
 		
-//		MemberDTO loginuser = (MemberDTO) session.getAttribute("loginuser");
+		MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 		
-//		if(loginuser != null && "admin".equals(loginuser.getUserid())) {
+//		if(loginUser != null && "admin".equals(loginUser.getMemberid())) {
 		    // 관리자로 로그인 했을 경우
 		
 		
@@ -136,7 +137,7 @@ public class CouponView extends AbstractController {
 //			request.setAttribute("loc", loc);
 			
 //			super.setRedirect(false);
-//			super.setViewPage("/WEB-INF/msg.jsp");
+//			super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
 			
 //		}		
 		
