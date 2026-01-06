@@ -125,7 +125,7 @@ public class AccountingDAO_imple implements AccountingDAO {
 			        + "   SELECT order_id, TRUNC(order_date) AS base_date, total_amount "
 			        + "     FROM tbl_orders "
 			        + "    WHERE order_date >= ? AND order_date < ? "
-			       // "      AND order_status = '결제완료' " +   // 필요하면 추가
+			        + "      AND order_status = 'PAID' "   // 추후에 추가
 			        + " ), order_qty AS ( "
 			        + "   SELECT d.fk_order_id AS order_id, SUM(d.quantity) AS qty "
 			        + "     FROM tbl_order_detail d "
@@ -188,7 +188,7 @@ public class AccountingDAO_imple implements AccountingDAO {
 	    			   + "   SELECT order_id "
 	    			   + "     FROM tbl_orders "
 	    			   + "    WHERE order_date >= ? AND order_date < ? "
-	    			   // "      AND order_status = '결제완료' " +  // 필요하면 추가
+	    			   + "      AND order_status = 'PAID' "  // 추후에 추가
 	    			   + " ) "
 	    			   + " SELECT "
 	    			   + "   p.product_code AS productNo, "
