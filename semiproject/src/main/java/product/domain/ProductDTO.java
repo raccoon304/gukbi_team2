@@ -8,6 +8,7 @@ public class ProductDTO {
 	  private String productDesc;	//상품설명
 	  private String saleStatus;		//판매상태
 	  private String imagePath;		//제품이미지경로
+	  private int price;				//제품가격
 	  
 	  
 	  public String getProductCode() {
@@ -45,6 +46,12 @@ public class ProductDTO {
 	  }
 	  public void setImagePath(String imagePath) {
 		  this.imagePath = imagePath;
+	  }
+	  public int getPrice() {
+		  return price;
+	  }
+	  public void setPrice(int price) {
+		  this.price = price;
 	  }
 	  
 }
