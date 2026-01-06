@@ -29,6 +29,7 @@ public class MemberDAO_imple implements MemberDAO {
 	private AES256 aes;
 	
 	public MemberDAO_imple() { //기본생성자 
+			
 	    Context initContext;
 		try {
 			initContext = new InitialContext();
@@ -188,7 +189,7 @@ public class MemberDAO_imple implements MemberDAO {
 	@Override
 	public MemberDTO login(Map<String, String> paraMap) throws SQLException {
 		MemberDTO memberDto = null;
-
+	
 	    try {
 	    	conn = ds.getConnection();
 
@@ -234,6 +235,7 @@ public class MemberDAO_imple implements MemberDAO {
 	    return memberDto;
 	}
 
+	// 회원 정보 수정 
 	@Override
 	public int updateMember(Map<String, String> paraMap) throws SQLException {
 
@@ -248,7 +250,9 @@ public class MemberDAO_imple implements MemberDAO {
 
 	        pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, paraMap.get("name"));
-	        pstmt.setString(2, paraMap.get("email"));
+	        
+	        String email = paraMap.get("email");
+	        pstmt.setString(2, aes.encrypt(email));
 	        
 	        String mobile = paraMap.get("mobile");  
 	        pstmt.setString(3, aes.encrypt(mobile));
@@ -265,10 +269,4 @@ public class MemberDAO_imple implements MemberDAO {
 
 	    return n;
 	}
-
-
-
-
-
-
 }

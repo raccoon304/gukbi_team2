@@ -4,13 +4,16 @@
 <!-- header.jsp (수정 금지) -->
 <jsp:include page="/WEB-INF/header.jsp" />
 
-<!-- myPage 전용 CSS (선택) -->
+<script>const ctxPath = "${pageContext.request.contextPath}";</script>
+<script src="${pageContext.request.contextPath}/js/myPage_YD/memberEdit.js"></script>
+
+
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member_YD/myPage.css" />
 
 <div class="container my-5">
   <div class="row">
 
-    <!-- Sidebar -->
+    <!-- 사이드바 -->
     <div class="col-md-3 mb-4">
       <div class="card shadow-sm position-sticky" style="top: 100px;">
         <div class="card-body text-center">
@@ -41,7 +44,7 @@
       </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- 메인 컨텐츠 -->
     <div class="col-md-9">
       <div class="card shadow-sm">
         <div class="card-body">
@@ -58,7 +61,7 @@
           <!-- 안내 메시지 -->
           <div class="alert alert-light border small mb-4">
             <i class="fa-solid fa-circle-info mr-1"></i>
-            아이디/가입일자는 변경할 수 없습니다. 이름/이메일/전화번호만 수정 가능합니다.
+            아이디/가입일자는 변경할 수 없습니다. 이름/이메일/전화번호/비밀번호만 수정 가능합니다.
           </div>
 
           <!-- 회원정보 수정 폼 -->
@@ -125,6 +128,38 @@
                      name="email"
                      value="<c:out value='${memberInfo.email}'/>"
                      required />
+            </div>
+            
+            <hr class="my-4" />
+
+            <div class="row">
+              <!-- 비밀번호 -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="font-weight-bold" for="password">비밀 번호</label>
+                  <input type="password"
+                         class="form-control"
+                         id="password"
+                         name="password"
+                         value=""
+                         placeholder="특수문자,대,소문자를 포함한 8-15자이내"
+                          />
+                </div>
+              </div>
+
+              <!-- 비밀번호확인 -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="font-weight-bold" for="passwordChk">비밀번호확인</label>
+                  <input type="password"
+                         class="form-control"
+                         id="passwordChk"
+                         name="passwordChk"
+                         value=""
+                         placeholder="특수문자,대,소문자를 포함한 8-15자이내"
+                          />
+                </div>
+              </div>
             </div>
 
             <div class="d-flex justify-content-end mt-4">

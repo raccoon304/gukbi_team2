@@ -987,3 +987,21 @@ WHERE product_code = '1100GX';
 
 
 commit;
+
+
+
+
+
+
+
+
+select * from tab;
+select * from tbl_member;
+
+
+SELECT userseq, member_id, name, email, mobile_phone
+FROM tbl_member
+WHERE member_id = 'anth';
+
+DELETE FROM tbl_member
+WHERE member_id = 'anth';

@@ -76,7 +76,7 @@
               </div>
 
 			<form id="memberEditForm"
-				method="post"
+				method="get"
 				action="${pageContext.request.contextPath}/myPage/memberEdit.hp"
 				style="display:none;">
 			</form>
