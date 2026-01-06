@@ -60,63 +60,46 @@ $(function () {
 		// 결제 팝업 열기
 		function openPaymentPopup(ctxPath, userid) {
 
-		    const address = $.trim($("#address").val());
-		    const detailAddress = $.trim($("#detailAddress").val());
-			const finalPrice = $("#finalPrice").val();
-			
-			// 상세주소 정규식
-			const detailAddrRegex = /^[가-힣a-zA-Z0-9\s\-#,()]+$/;
-			
-		    // 주소 검색 버튼 클릭 여부 확인
-		    if (!b_zipcodeSearch_click) {
-		        alert("주소 검색 버튼을 눌러 주소를 선택해주세요.");
-		        return;
-		    }
+		  const finalPrice = Number($("#finalPrice").val());
+		  const address = $.trim($("#address").val());
+		  const detailAddress = $.trim($("#detailAddress").val());
 
-		    // 주소 입력값 검증
-		    if (address === "" || detailAddress === "") {
-		        alert("주소와 상세주소를 모두 입력해주세요.");
-		        return;
-		    }
-			
-			// 길이 체크
-		    if (detailAddress.length < 2 || detailAddress.length > 50) {
-		        alert("상세주소는 2자 이상 50자 이하로 입력해주세요.");
-		        $("#detailAddress").focus();
-		        return;
-		    }
-			
-			// 정규식 검사
-		    if (!detailAddrRegex.test(detailAddress)) {
-		        alert("상세주소에 사용할 수 없는 문자가 포함되어 있습니다.");
-		        $("#detailAddress").focus();
-		        return;
-		    }
-			
-			// 같은 글자 3번 이상 반복 방지 ⭐
-			if (/(.)\1\1/.test(detailAddress)) {
-			    alert("상세주소를 너무 반복적으로 입력했습니다.");
-			    $("#detailAddress").focus();
-			    return;
-			}
+		  // 1️⃣ 팝업 먼저 열기 (가장 중요)
+		  const popup = window.open(
+		    "",
+		    "inicisPopup",
+		    "width=500,height=700,resizable=no,scrollbars=yes"
+		  );
 
-		    const popupWidth  = 500;
-		    const popupHeight = 700;
+		  if (!popup) {
+		    alert("팝업 차단을 해제해주세요.");
+		    return;
+		  }
 
-		    const left = (window.screen.width / 2) - (popupWidth / 2);
-		    const top  = (window.screen.height / 2) - (popupHeight / 2);
+		  // 2️ form 생성
+		  const form = document.createElement("form");
+		  form.method = "POST";
+		  form.action = ctxPath + "/payment/coinPaymentPopup.hp";
+		  form.target = "inicisPopup";
 
-		    const url =
-		        ctxPath
-		        + "/payment/coinPaymentPopup.hp"
-		        + "?userid=" + encodeURIComponent(userid)
-				+ "&finalPrice=" + encodeURIComponent(finalPrice)
-		        + "&address=" + encodeURIComponent(address)
-		        + "&detailAddress=" + encodeURIComponent(detailAddress);
+		  [
+		    ["userid", userid],
+		    ["finalPrice", finalPrice],
+		    ["address", address],
+		    ["detailAddress", detailAddress]
+		  ].forEach(([name, value]) => {
+		    const input = document.createElement("input");
+		    input.type = "hidden";
+		    input.name = name;
+		    input.value = value;
+		    form.appendChild(input);
+		  });
 
-		    window.open(
-		        url,
-		        "inicisPopup",
-		        `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=no,scrollbars=yes`
-		    );
+		  document.body.appendChild(form);
+
+		  // 3️ POST 전송
+		  form.submit();
+
+		  // 4️ cleanup
+		  document.body.removeChild(form);
 		}

@@ -24,13 +24,17 @@ public class PayController extends AbstractController {
         HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
         
-        /*
+        
+        /* ================= 로그인 체크 ================= */
         if (loginUser == null) {
-            super.setRedirect(true);
-            super.setViewPage(request.getContextPath() + "/login/login.jsp");
+            response.setContentType("text/html; charset=UTF-8");
+            response.getWriter().println(
+                "<script>alert('로그인 후 이용 가능합니다.');location.href='"
+                + request.getContextPath() + "/login/login.jsp';</script>"
+            );
             return;
         }
-        */
+        
 
         String cartIdsParam = request.getParameter("cartIds");
 
@@ -70,8 +74,7 @@ public class PayController extends AbstractController {
         int totalPrice = 0;
 
         for (Map<String, Object> item : orderList) {
-            int lineTotal = (Integer) item.get("total_price");
-            totalPrice += lineTotal;
+        	 totalPrice += (Integer) item.get("total_price");
         }
 
         // 3. 할인
@@ -86,10 +89,9 @@ public class PayController extends AbstractController {
         request.setAttribute("discountPrice", discountPrice);
         request.setAttribute("finalPrice", finalPrice);
 
-        request.setAttribute("memberName", loginUser.getName());
-        request.setAttribute("mobilePhone", loginUser.getMobile());
+        request.setAttribute("loginUser", loginUser);
         request.setAttribute("address", "기본 배송지");
-
+        
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");
     }

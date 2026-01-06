@@ -36,7 +36,7 @@
       <div class="info-row">
         <span class="info-label">받는분 정보</span>
         <span class="info-value">
-          ${memberName}, ${mobilePhone}
+          ${loginUser.name}, ${loginUser.mobile}
         </span>
       </div>
 
@@ -140,11 +140,10 @@
           </span>
         </div>
       </div>
-
-      <button class="confirm-btn"
-              onclick="openPaymentPopup('<%=ctxPath%>', '${loginUser}')">
-        결제하기
-      </button>
+		
+		<button class="confirm-btn" id="coinPayBtn">
+		 결제하기
+		</button>
 
     </div>
     <!-- ===== 오른쪽 끝 ===== -->
@@ -155,43 +154,37 @@
 </div>
 
 
-<!-- ================= 결제 모달 ================= -->
-<div class="modal fade" id="payModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title">결제하기</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <p>결제를 진행하시겠습니까?</p>
-        <p>
-          <strong>
-            결제 금액 :
-            <span id="modalTotalPrice">
-              <fmt:formatNumber value="${finalPrice}" pattern="#,###"/> 원
-            </span>
-          </strong>
-        </p>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-        <button type="button" class="btn btn-primary" onclick="doPay()">결제 진행</button>
-      </div>
-
-    </div>
-  </div>
-</div>
 
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="<%= ctxPath %>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
+<script>
+$(function () {
+
+  $("#coinPayBtn").on("click", function () {
+
+    // hidden input에서 최종 결제금액 읽기
+    const finalPrice = $("#finalPrice").val();
+
+    if (!finalPrice || finalPrice <= 0) {
+      alert("결제 금액 오류");
+      return;
+    }
+
+    window.open(
+      "<%=ctxPath%>/payment/coinPaymentPopup.hp?finalPrice=" + finalPrice,
+      "coinPay",
+      "width=500,height=600"
+    );
+  });
+
+});
+</script>
 
 </body>
+
+
+
+
 </html>
