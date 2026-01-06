@@ -6,14 +6,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
 
-public class myPage extends AbstractController {
+public class MyPage extends AbstractController {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         HttpSession session = request.getSession();
 
-        // ✅ 로그인 컨트롤러에서 저장한 키 그대로
+        // 로그인 컨트롤러에서 저장한 키 그대로
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
         
         

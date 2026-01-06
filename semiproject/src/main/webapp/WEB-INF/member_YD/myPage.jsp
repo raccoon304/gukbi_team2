@@ -75,11 +75,17 @@
                 </div>
               </div>
 
-              <button type="button"
-                      class="btn btn-outline-primary"
-                      onclick="location.href='${pageContext.request.contextPath}/myPage/edit.hp';">
-                <i class="fa-regular fa-pen-to-square mr-1"></i> 정보 수정하기
-              </button>
+			<form id="memberEditForm"
+				method="post"
+				action="${pageContext.request.contextPath}/myPage/memberEdit.hp"
+				style="display:none;">
+			</form>
+
+			<button type="button"
+			        class="btn btn-outline-primary"
+			        onclick="document.getElementById('memberEditForm').submit();">
+			  	<i class="fa-regular fa-pen-to-square mr-1"></i> 정보 수정하기
+			</button>
             </div>
 
             <!-- Account -->

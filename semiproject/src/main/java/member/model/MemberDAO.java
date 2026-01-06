@@ -23,6 +23,9 @@ public interface MemberDAO {
 	//로그인
 	MemberDTO login(Map<String, String> paraMap) throws SQLException;
 
+	// 회원 정보 수정 
+	int updateMember(Map<String, String> paraMap) throws SQLException;
+
 
 
 }

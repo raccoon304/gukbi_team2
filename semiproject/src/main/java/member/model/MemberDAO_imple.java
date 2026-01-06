@@ -234,6 +234,39 @@ public class MemberDAO_imple implements MemberDAO {
 	    return memberDto;
 	}
 
+	@Override
+	public int updateMember(Map<String, String> paraMap) throws SQLException {
+
+	    int n = 0;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " update tbl_member "
+	                   + " set NAME = ?, EMAIL = ?, MOBILE_PHONE = ? "
+	                   + " where MEMBER_ID = ? ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, paraMap.get("name"));
+	        pstmt.setString(2, paraMap.get("email"));
+	        
+	        String mobile = paraMap.get("mobile");  
+	        pstmt.setString(3, aes.encrypt(mobile));
+	        
+	        pstmt.setString(4, paraMap.get("memberid")); 
+
+	        n = pstmt.executeUpdate();
+
+	    } catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		} finally {
+	        close(); 
+	    }
+
+	    return n;
+	}
+
+
 
 
 

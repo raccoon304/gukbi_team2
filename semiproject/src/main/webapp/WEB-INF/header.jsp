@@ -16,6 +16,10 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
 
+	<script>
+	  const ctxPath = "<%= ctxPath %>";
+	</script>
+
 	<!-- 사용자 CSS -->
     <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/index.css">
     
