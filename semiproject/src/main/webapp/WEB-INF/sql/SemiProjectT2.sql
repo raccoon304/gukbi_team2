@@ -444,3 +444,94 @@ select * from tbl_product;
 --where brand_name = 'Apple';
 commit;
 
+
+select * from tbl_product;
+select * from tbl_product_option;
+
+select * from tbl_cart;
+
+
+
+-- 상품옵션테이블의 제약조건들 확인하기
+SELECT constraint_name,
+       constraint_type,
+       table_name,
+       search_condition
+FROM user_constraints
+WHERE table_name = 'TBL_PRODUCT_OPTION';
+
+-- 상품옵션테이블의 가격 체크조건 삭제
+ALTER TABLE tbl_product_option DROP CONSTRAINT CK_TBL_PRODUCT_OPTION_PRICE;
+
+-- 상품옵션테이블의 pric 컬럼 삭제
+ALTER TABLE tbl_product_option
+DROP COLUMN price;
+
+-- 상품옵션테이블에 plus_price 컬럼 추가(제약조건 0과 같거나 큼)
+ALTER TABLE tbl_product_option
+ADD plus_price NUMBER DEFAULT 0
+    CONSTRAINT ck_tbl_product_option_plus_price CHECK (plus_price >= 0);
+    
+select * from tbl_product_option;
+
+
+-- 상품테이블의 제약조건들 확인하기
+SELECT constraint_name,
+       constraint_type,
+       table_name,
+       search_condition
+FROM user_constraints
+WHERE table_name = 'TBL_PRODUCT';
+
+-- 상품테이블에 price 컬럼 추가(제약조건 0보다 커야 함)
+ALTER TABLE tbl_product
+ADD price NUMBER
+    CONSTRAINT ck_tbl_product_price CHECK (price > 0);
+
+select product_code, product_name, price
+from tbl_product
+where brand_name = 'Samsung'
+order by product_code;
+
+-- 상품테이블의 가격컬럽에 값 업데이트하기
+update tbl_product set price = 2200000
+where product_code = '3000GX';
+
+commit;
+
+
+
+-- 상품상세 정보와 상품명 조인하여 같이 출력하기
+SELECT P.product_code, option_id, P.product_name,storage_size, price, plus_price
+FROM tbl_product_option O
+JOIN tbl_product P
+ON P.product_code = O.fk_product_code
+WHERE brand_name = 'Samsung' and storage_size = '512GB'
+ORDER BY product_code, storage_size desc;
+
+-- 상품옵션테이블의 추가금액 컬럼에 값 업데이트하기
+update tbl_product_option set plus_price = 150000
+where fk_product_code = '2100GX' and storage_size = '512GB';
+
+commit;
+
+
+--(상품코드,상품명,브랜드명,이미지경로,가격)
+select product_code, product_name, brand_name, image_path, price, sale_status
+from tbl_product
+where sale_status='판매중';
+
+
+select * from tbl_product_option;
+
+
+
+SELECT P.product_code, option_id, fk_product_code, P.product_name, color, storage_size, stock_qty,
+       (price + plus_price) as total_price
+FROM tbl_product_option O
+JOIN tbl_product P
+ON O.fk_product_code = P.product_code
+WHERE product_code = '1100GX';
+
+
+commit;
