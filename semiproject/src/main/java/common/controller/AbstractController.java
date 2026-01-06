@@ -1,5 +1,9 @@
 package common.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
+
 public abstract class AbstractController implements InterCommand {
 	/*
     === 다음의 나오는 것은 우리끼리한 약속이다. ===
@@ -44,5 +48,15 @@ public abstract class AbstractController implements InterCommand {
 		this.viewPage = viewPage;
 	}
 	
-	
+	public boolean checkLogin(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		MemberDTO loginuser =  (MemberDTO)session.getAttribute("loginUser");
+		
+		if(loginuser != null) { // 로그인 한 경우
+			return true; 
+		}
+		else { // 로그인 하지 않은 경우 
+			return false; 
+		}
+	}// EoP public boolean checkLogin(HttpServletRequest request) {
 }
