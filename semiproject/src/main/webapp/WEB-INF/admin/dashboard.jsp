@@ -113,40 +113,51 @@
                                         <i class="fas fa-clock mr-2"></i>최근 주문 5건
                                     </h5>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body scroll-card-body">
                                     <div id="recentOrders">
-                                    		<c:if test="${empty recentOrders}">
+                                    		<c:if test="${empty currentOrders}">
 									      <div class="text-muted">최근 주문이 없습니다.</div>
 									    </c:if>
 									
-									    <c:if test="${not empty recentOrders}">
+									    <c:if test="${not empty currentOrders}">
 									      <ul class="list-group list-group-flush">
-									        <c:forEach var="r" items="${recentOrders}">
+									        <c:forEach var="r" items="${currentOrders}">
 									          <li class="list-group-item px-0">
 									            <div class="d-flex justify-content-between align-items-start">
 									              <div>
+									                <%-- <div class="small text-muted">
+									                  ${r.name} <span class="ml-1">(${r.memberId})</span>
+									                </div> --%>
+													<div class="small text-muted">
+									                  <small class="text-muted">${r.brandName}</small>
+									                </div>
+									                <strong>${r.productName}</strong>
+									                <%-- <small class="text-muted ml-2">${r.brandName}</small> --%>
+														<c:if test="${r.detailCnt > 1}">
+									                    · <span class="text-danger">외 ${r.detailCnt - 1}건</span>
+									                  	</c:if>
+									
 									                <div class="small text-muted">
+									              <%--  ${r.quantity}개 --%>
+									                  <%-- <c:if test="${r.detailCnt > 1}">
+									                    · <span class="text-danger">외 ${r.detailCnt - 1}건</span>
+									                  </c:if> --%>
+									                </div>
+													<div class="small text-muted">
 									                  ${r.name} <span class="ml-1">(${r.memberId})</span>
 									                </div>
-									
-									                <strong>${r.productName}</strong>
-									                <small class="text-muted ml-2">${r.brandName}</small>
-									
-									                <div class="small text-muted">
-									                  ${r.quantity}개
-									                  <c:if test="${r.detailCnt > 1}">
-									                    · <span class="text-danger">외 ${r.detailCnt - 1}건</span>
-									                  </c:if>
-									                </div>
-									
-									                <div class="small text-muted">${r.orderDate}</div>
+									                <%-- <small class="text-muted">${r.brandName}</small> --%>
 									              </div>
 									
 									              <div class="text-right">
+									              	<div class="small text-muted">
+									              		${r.quantity}개
+									              	</div>
 									                <div class="font-weight-bold">
 									                  <fmt:formatNumber value="${r.payAmount}" pattern="#,###"/>원
 									                </div>
-									                <div class="small text-muted">#${r.orderId}</div>
+									                	<div class="small text-muted">${r.orderDate}</div>	
+									                <%-- <div class="small text-muted">#${r.orderId}</div> --%>
 									              </div>
 									            </div>
 									          </li>
@@ -165,7 +176,7 @@
                                         <i class="fas fa-box-open mr-2"></i>품절 임박 상품
                                     </h5>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body scroll-card-body" >
                                     <div id="lowStockProducts">
                                     		<c:if test="${empty lowStockProducts}">
 										  <div class="text-muted">재고 10개 미만 상품이 없습니다.</div>
@@ -204,7 +215,7 @@
                                         <i class="fas fa-user-plus mr-2"></i>오늘 가입한 회원 (${fn:length(todayNewMembers)}명)
                                     </h5>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body scroll-card-body">
                                     <div id="todayNewMembers">
                                     		<c:if test="${empty todayNewMembers}">
 									      <div class="text-muted">오늘 가입한 회원이 없습니다.</div>
@@ -217,7 +228,7 @@
 									            <div class="d-flex justify-content-between">
 									              <div>
 									                <strong>${m.name}</strong>
-									                <small class="text-muted ml-2">#${m.memberid}</small>
+									                <small class="text-muted ml-2">(${m.memberid})</small>
 									                <div class="small text-muted">${m.email}</div>
 									              </div>
 									              <div class="small text-muted">

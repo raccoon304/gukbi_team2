@@ -3,11 +3,12 @@ package product.domain;
 //제품상세 테이블의 컬럼
 public class ProductOptionDTO {
 	  private int optionId;				//옵션번호
-	  private String fkProductCode;	//상품코드참조키
+	  private String fkProductCode;		//상품코드참조키
 	  private String color;				//색상
 	  private String storageSize;		//저장용량
-	  private int price;				//가격
-	  private int stockQty;			//재고량
+	  private int plusPrice;				//추가금액
+	  private int totalPrice;			//최종금액
+	  private int stockQty;				//재고량
 	  
 	  
 	  
@@ -36,17 +37,24 @@ public class ProductOptionDTO {
 	  public void setStorageSize(String storageSize) {
 		  this.storageSize = storageSize;
 	  }
-	  public int getPrice() {
-		  return price;
+	  public int getPlusPrice() {
+		return plusPrice;
 	  }
-	  public void setPrice(int price) {
-		  this.price = price;
+	  public void setPlusPrice(int plusPrice) {
+		  this.plusPrice = plusPrice;
 	  }
 	  public int getStockQty() {
 		  return stockQty;
 	  }
 	  public void setStockQty(int stockQty) {
 		  this.stockQty = stockQty;
+	  }
+	  
+	  public int getTotalPrice() {
+		  return totalPrice;
+	  }
+	  public void setTotalPrice(int totalPrice) {
+		  this.totalPrice = totalPrice;
 	  }
 	  
 }

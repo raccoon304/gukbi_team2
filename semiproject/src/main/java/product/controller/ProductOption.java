@@ -1,10 +1,11 @@
 package product.controller;
 
-import java.util.List;
 
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 import product.domain.ProductDTO;
 import product.domain.ProductOptionDTO;
 import product.model.ProductDAO;
@@ -16,6 +17,12 @@ public class ProductOption extends AbstractController {
 	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		//로그인을 한 세션정보 가져오기(MemberLogin.java / myPage.java 참고)
+		HttpSession session = request.getSession();
+		MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+		
+		request.setAttribute("loginUser", loginUser);
+
 		
 		String productCode = request.getParameter("productCode");
 		//위의 받아온 productCode는 상품테이블의 상품코드임!!
@@ -23,16 +30,14 @@ public class ProductOption extends AbstractController {
 		try {
 			//제품정보 가져오기(제품테이블)
 			ProductDTO proDto = proDao.selectOne(productCode);
-			//제품상세 옵션 리스트 정보 가져오기(제품상세테이블)
-			List<ProductOptionDTO> proOptionList = proDao.selectProductOption(productCode);
-			
-			ProductOptionDTO proDetilDto = proDao.selectDetailOne(productCode);
-			
+
+			ProductOptionDTO proOptionDto = proDao.selectOptionOne(productCode);
+			//System.out.println(proOptionDto.getTotalPrice());
 			
 			request.setAttribute("proDto", proDto);
-			request.setAttribute("proOptionList", proOptionList);
+			//request.setAttribute("proOptionList", proOptionList);
+			request.setAttribute("proOptionDto", proOptionDto);
 			
-			request.setAttribute("proDetilDto", proDetilDto);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

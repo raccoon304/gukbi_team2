@@ -11,6 +11,7 @@ import admin.model.AdminDAO_imple;
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
 
 
@@ -24,11 +25,11 @@ public class Members extends AbstractController {
 		
 		// 관리자(admin) 로 로그인 했을때만 접속 가능하도록 한다
 		
-//		HttpSession session = request.getSession();
+		HttpSession session = request.getSession();
 		
-//		MemberDTO loginuser = (MemberDTO) session.getAttribute("loginuser");
+		MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 		
-//		if(loginuser != null && "admin".equals(loginuser.getUserid())) {
+		if(loginUser != null && "admin".equals(loginUser.getMemberid())) {
 			// 관리자로 로그인 했을 경우
 			
 		String searchType = request.getParameter("searchType");
@@ -37,7 +38,7 @@ public class Members extends AbstractController {
         String currentShowPageNo = request.getParameter("currentShowPageNo");
 
         if (searchType == null ||
-           (!"name".equals(searchType) && !"userid".equals(searchType) && !"email".equals(searchType))) {
+           (!"name".equals(searchType) && !"member_id".equals(searchType) && !"email".equals(searchType))) {
             searchType = "";
         }
 
@@ -157,19 +158,19 @@ public class Members extends AbstractController {
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/admin/admin_members.jsp");
 			
-//		}
-//		else {
+		}
+		else {
 			// 관리자로 로그인 하지 않은 경우
-//			String message = "관리자만 접근이 가능합니다";
-//			String loc = "javascript:history.back()";
+			String message = "관리자만 접근이 가능합니다";
+			String loc = "javascript:history.back()";
 			
-//			request.setAttribute("message", message);
-//			request.setAttribute("loc", loc);
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
 			
-//			super.setRedirect(false);
-//			super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+			super.setRedirect(false);
+			super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
 			
-//		}
+		}
 		
 	}
 

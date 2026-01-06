@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%String ctxPath=request.getContextPath();%>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,6 +30,10 @@
 	
 	<%-- 직접 만든 JS --%>
     <script src="<%=ctxPath%>/js/admin/accounting.js"></script>
+ 
+<script>
+  const ctxPath = "<%= request.getContextPath() %>";
+</script> 
     
     <style>
         body {
@@ -98,6 +104,8 @@
         }
         .table-wrapper {
             overflow-x: auto;
+            overflow-y: auto;     /* 세로 스크롤 */
+    			max-height: 420px;    /* 원하는 높이로 조절 */
         }
         .table {
             margin-bottom: 0;
@@ -109,6 +117,12 @@
             font-weight: 600;
             font-size: 13px;
             padding: 12px 16px;
+            
+            position: sticky;
+		    top: 0;
+		    background: white;   /* 헤더가 겹칠 때 배경 필요 */
+		    z-index: 2;
+            
         }
         .table tbody td {
             padding: 16px;
@@ -173,6 +187,7 @@
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         
         <div class="main-content">
+        		
             <!-- Page Header -->
             <div class="page-header">
                 <div class="d-flex justify-content-between align-items-start">
@@ -180,14 +195,45 @@
                         <h1 class="page-title">회계</h1>
                         <p class="page-subtitle">기간별, 상품별 판매수량 및 매출을 확인할 수 있습니다</p>
                     </div>
-                    <select class="period-select" id="periodSelect">
-                        <option value="day">1일</option>
-                        <option value="week" selected>1주</option>
-                        <option value="month">1개월</option>
-                        <option value="quarter">분기</option>
-                        <option value="halfyear">반기</option>
-                        <option value="year">1년</option>
-                    </select>
+                    
+                    <div class="accounting-controls">
+	                    <select class="period-select" id="periodSelect">
+						  <optgroup label="일">
+						    <option value="TODAY">오늘</option>
+						    <option value="YESTERDAY">어제</option>
+						    <option value="LAST_7" selected>최근 7일</option>
+						    <option value="LAST_30">최근 30일</option>
+						  </optgroup>
+						
+						  <optgroup label="월/분기/연">
+						    <option value="MTD">이번 달(MTD)</option>
+						    <option value="LAST_MONTH">지난 달</option>
+						    <option value="QTD">이번 분기(QTD)</option>
+						    <option value="LAST_QUARTER">지난 분기</option>
+						    <option value="YTD">올해(YTD)</option>
+						    <option value="LAST_YEAR">작년</option>
+						  </optgroup>
+						
+						  <optgroup label="직접 선택">
+						    <option value="CUSTOM">사용자 지정</option>
+						  </optgroup>
+						</select>
+						
+						<!-- 사용자 지정 날짜 영역 -->
+						<div id="customRange" class="mt-2" style="display:none;">
+						  <input type="text" id="startDate" class="period-select" style="width:140px;" placeholder="시작일">
+						  <span class="mx-1">~</span>
+						  <input type="text" id="endDate" class="period-select" style="width:140px;" placeholder="종료일">
+						  <button type="button" id="applyCustom" class="btn btn-sm btn-primary ml-2">적용</button>
+						
+						  <div class="text-muted mt-1" style="font-size:12px;">
+						    * 종료일 포함(예: 01-01~01-05는 5일까지)
+						  </div>
+						</div>
+						
+						<!-- 선택된 실제 기간 표시 -->
+						<div id="rangeLabel" class="text-muted mt-2" style="font-size:13px;"></div>
+					</div>
                 </div>
             </div>
             
@@ -202,7 +248,7 @@
                             <!-- <i class="fas fa-box"></i> -->
                             주문건수
                         </div>
-                        <div class="value" id="totalOrders">test건</div>
+                        <div class="value" id="totalOrders"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -214,7 +260,7 @@
                             <!-- <i class="fas fa-box-open"></i> -->
                             판매수량
                         </div>
-                        <div class="value" id="totalSales">test개</div>
+                        <div class="value" id="totalSales"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -226,7 +272,7 @@
                             <!-- <i class="fas fa-won-sign"></i> -->
                             할인 적용 전 매출액
                         </div>
-                        <div class="value" id="totalRevenue">₩100,000,000</div>
+                        <div class="value" id="totalRevenue"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -238,7 +284,7 @@
                             <!-- <i class="fas fa-percent"></i> -->
                             할인액
                         </div>
-                        <div class="value" id="totalDiscount">₩10,000,000</div>
+                        <div class="value" id="totalDiscount"></div>
                     </div>
                 </div>
                 <div class="col-md-2-4 col-sm-6">
@@ -250,7 +296,7 @@
                             <!-- <i class="fas fa-receipt"></i> -->
                             최종결제액
                         </div>
-                        <div class="value" id="finalPayment">₩90,000,000</div>
+                        <div class="value" id="finalPayment"></div>
                     </div>
                 </div>
             </div>
@@ -265,7 +311,7 @@
                                 <th style="width: 25%;">기준일</th>
                                 <th style="width: 25%;" class="text-right">주문건수</th>
                                 <th style="width: 25%;" class="text-right">판매수량</th>
-                                <th style="width: 25%;" class="text-right">판매금액</th>
+                                <th style="width: 25%;" class="text-right">할인 전 판매금액</th>
                             </tr>
                         </thead>
                         <tbody id="dailyStatsBody">
@@ -293,7 +339,7 @@
                                 <th style="width: 30%;">상품명</th>
                                 <th style="width: 20%;">브랜드</th>
                                 <th style="width: 17.5%;" class="text-right">판매수량</th>
-                                <th style="width: 17.5%;" class="text-right">판매금액</th>
+                                <th style="width: 17.5%;" class="text-right">할인 전 판매금액</th>
                             </tr>
                         </thead>
                         <tbody id="productStatsBody">

@@ -73,9 +73,9 @@ $(document).ready(function() {
 
     // 쿠폰 생성 Create coupon
     $('#submitCoupon').click(function() {
-        const couponName = $('#couponName').val();
+        const couponName = $('#couponName').val().trim();;
         const discountType = $('#discountType').val();
-        const discountValue = $('#discountValue').val();
+        const discountValue = $('#discountValue').val().trim();
 
 		
 		console.log('len', $('#couponName').length, $('#discountType').length, $('#discountValue').length);
@@ -86,25 +86,27 @@ $(document).ready(function() {
             return;
         }
 
+	
 		const discountValueNum = parseInt(discountValue, 10);
 
-		  // 정률이면 1~100만 허용
 		  if (discountType === "percentage") {
-		    if (isNaN(discountValueNum) || discountValueNum < 1 || discountValueNum > 100) {
+		    // 정률: 1~100
+		    if (discountValueNum < 1 || discountValueNum > 100) {
 		      alert("비율 할인은 1~100 사이만 입력 가능합니다.");
 		      return;
 		    }
-		  }
-
-		  // 정액은 최소 1 이상만
-		  if (discountType === "fixed") {
-		    if (isNaN(discountValueNum) || discountValueNum < 1) {
-		      alert("금액 할인은 1원 이상 입력하세요.");
+		  } else { 
+		    // 정액: 5000 이상 + 5000 단위
+		    if (discountValueNum < 5000) {
+		      alert("금액 할인은 최소 5,000원 이상 입력하세요.");
+		      return;
+		    }
+		    if (discountValueNum % 5000 !== 0) {
+		      alert("금액 할인은 5,000원 단위로만 입력 가능합니다.");
 		      return;
 		    }
 		  }
-		
-		
+		  
         $.ajax({
             url: ctxPath + '/admin/couponCreate.hp',
             method: 'POST',
@@ -112,7 +114,7 @@ $(document).ready(function() {
             data: {
                 couponName: couponName,
                 discountType: discountType,
-                discountValue: discountValue,
+                discountValue: discountValueNum,
             },
             success: function(json) {
 				alert(json.message);
@@ -126,11 +128,14 @@ $(document).ready(function() {
     });
 	
 	
-	// 타입이 정률일때 100 이상 입력 못하게함
+	// 쿠폰 생성시 할인값 설정(마우스 클릭)
 	function applyDiscountValueConstraints() {
 	  const type = $("#discountType").val();
+	  
+	//  $("#discountValue").attr({ min: 1, step: 1 });
 
-	  if (type === "percentage") {
+	  if (type === "percentage") {// 정률일때
+		
 	    $("#discountValue")
 	      .attr({ min: 1, max: 100, step: 1 })
 	      .prop("placeholder", "1~100")
@@ -139,11 +144,12 @@ $(document).ready(function() {
 	        if (isNaN(n)) return v;
 	        return Math.min(n, 100);
 	      });
-	  } else { // fixed
+		  
+	  } else { // 정액일때
 	    $("#discountValue")
+		  .attr({ min: 5000, step: 5000 }) 
 	      .removeAttr("max")
-	      .attr({ min: 1, step: 1 })
-	      .prop("placeholder", "금액(원)")
+	      .prop("placeholder", "단위 : 5,000 (원)")
 	  }
 	}
 
@@ -158,14 +164,55 @@ $(document).ready(function() {
 	});
 	
 	
-	// 타입이 정률일때 키보드로 100 이상 입력 못하게함
+	// 할인값 키보드 입력 설정(즉시)
 	$(document).on("input", "#discountValue", function () {
-	  if ($("#discountType").val() === "percentage") {
-	    const n = parseInt(this.value, 10);
-	    if (!isNaN(n) && n > 100) this.value = 100;
-	    if (!isNaN(n) && n < 1) this.value = 1;
-	  }
+		
+		this.value = this.value.replace(/[^\d]/g, "");
+
+		  const type = $("#discountType").val();
+		  if (type === "percentage" && this.value !== "") {
+		    let n = parseInt(this.value, 10);
+		    if (n > 100) this.value = "100"; // 정률은 100 초과만 컷 (입력 방해 최소화)
+		  }
+		
 	});
+	
+	// 할인값 키보드 입력 설정(포커스 잃었을때)
+	$(document).on("blur", "#discountValue", function () {
+	  if (this.value == "") return;
+
+	  let n = parseInt(this.value, 10);
+	  const type = $("#discountType").val();
+
+	  if (type == "percentage") {
+	    if (n < 1) n = 1;
+	    if (n > 100) n = 100;
+	  } else {
+	    if (n < 5000) n = 0;
+	    n = Math.floor(n / 5000) * 5000; // 5000 단위 버림
+	  }
+
+	  this.value = n;
+	});
+	
+	
+	// 쿠폰 생성 모달 닫힐 때 입력값 초기화(취소 버튼 포함)
+	$("#createCouponModal").on("hidden.bs.modal", function () {
+		
+	  // form 값 초기화
+	  document.getElementById("createCouponForm").reset();
+
+	  // 남아있는 값/속성 초기화
+	  $("#couponName").val("");
+	  $("#discountValue").val("");
+
+	  // 할인타입 기본값
+	  $("#discountType").val("percentage");
+
+	  // min/max/step 다시 적용
+	  applyDiscountValueConstraints();
+	});
+	
 	
 	
 	// 쿠폰 리스트에서 필터 바뀌면 submit
