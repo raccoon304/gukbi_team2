@@ -985,3 +985,6 @@ WHERE product_code = '1100GX';
 
 
 commit;
+
+
+-- 수정했습니다.
