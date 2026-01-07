@@ -6,7 +6,7 @@ public class ProductOptionDTO {
 	  private String fkProductCode;		//상품코드참조키
 	  private String color;				//색상
 	  private String storageSize;		//저장용량
-	  private int plusPrice;				//추가금액
+	  private int plusPrice;			//추가금액
 	  private int totalPrice;			//최종금액
 	  private int stockQty;				//재고량
 	  

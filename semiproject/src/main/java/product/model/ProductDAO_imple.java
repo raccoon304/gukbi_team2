@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -13,7 +15,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import product.domain.ProductDTO;
-import product.domain.ProductListDTO;
 import product.domain.ProductOptionDTO;
 
 public class ProductDAO_imple implements ProductDAO {
@@ -108,7 +109,7 @@ public class ProductDAO_imple implements ProductDAO {
 		
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT product_code, product_name, brand_name, product_desc, sale_status, image_path "
+			String sql = " SELECT product_code, product_name, brand_name, product_desc, sale_status, image_path, price "
 						+" FROM tbl_product "
 						+" WHERE product_code = ? ";
 			
@@ -122,6 +123,7 @@ public class ProductDAO_imple implements ProductDAO {
 				proDto.setProductDesc(rs.getString("product_desc"));
 				proDto.setSaleStatus(rs.getString("sale_status"));
 				proDto.setImagePath(rs.getString("image_path"));
+				proDto.setPrice(rs.getInt("price"));
 			}
 		} finally {
 			close();
@@ -140,7 +142,7 @@ public class ProductDAO_imple implements ProductDAO {
 		try {
 			conn = ds.getConnection();
 			String sql = " SELECT P.product_code, option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, "
-						+"	       (price + plus_price) as total_price "
+						+"	       (price + plus_price) as total_price, plus_price "
 						+" FROM tbl_product_option O "
 						+" JOIN tbl_product P "
 						+" ON O.fk_product_code = P.product_code "
@@ -157,6 +159,7 @@ public class ProductDAO_imple implements ProductDAO {
 				proDetilDto.setStorageSize(rs.getString("storage_size"));
 				proDetilDto.setStockQty(rs.getInt("stock_qty"));
 				proDetilDto.setTotalPrice(rs.getInt("total_price"));
+				proDetilDto.setPlusPrice(rs.getInt("plus_price"));
 			}
 		} finally {
 			close();
@@ -164,42 +167,6 @@ public class ProductDAO_imple implements ProductDAO {
 		return proDetilDto;
 	}//end of public ProductDetailDTO selectOne(String test) throws SQLException-----
 
-
-	
-	
-	//가져온 상품코드로 이에 맞는 옵션값들 리스트로 가져오기
-	/*
-	@Override
-	public List<ProductOptionDTO> selectProductOption(String productCode) throws SQLException {
-		List<ProductOptionDTO> proOptionList = new ArrayList<ProductOptionDTO>();
-		try {
-			conn = ds.getConnection();
-			String sql = " SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty "
-						+" FROM tbl_product_option O "
-						+" JOIN tbl_product P "
-						+" ON P.product_code = O.fk_product_code "
-						+" WHERE P.product_code = ? ";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, productCode);
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				ProductOptionDTO proDetailDto = new ProductOptionDTO();
-				proDetailDto.setOptionId(rs.getInt("option_id"));
-				proDetailDto.setColor(rs.getString("color"));
-				proDetailDto.setStorageSize(rs.getString("storage_size"));
-				proDetailDto.setPrice(rs.getInt("price"));
-				proDetailDto.setStockQty(rs.getInt("stock_qty"));
-				proOptionList.add(proDetailDto);
-			}
-		} finally {close();}
-		return proOptionList;
-	}//end of public List<ProductDetailDTO> selectProductOption(String productCode) throws SQLException
-	*/
-	
-
-
-	
 	
 	//상품페이지의 카드UI용 DTO를 이용해 상품정보 가져오기(상품코드,상품명,브랜드명,이미지경로,가격)
 	@Override
@@ -226,6 +193,26 @@ public class ProductDAO_imple implements ProductDAO {
 		} finally {close();}
 		return productCardList;
 	}//end of public List<ProductListDTO> productCardList() throws SQLException-----
+
+
+	//제품코드에 따른 옵션 중 추가금 리스트로 전부 가져오기
+	@Override
+	public Map<String, String> selectOptionPlusPrice() throws SQLException {
+		Map<String, String> paraMap = new HashMap<String, String>();
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " select distinct fk_product_code, plus_price, storage_size "
+						+" from tbl_product_option ";
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				paraMap.put(rs.getString("fk_product_code"), String.valueOf(rs.getString("plus_price")));
+			}
+		} finally {close();}
+		
+		return paraMap;
+	}//end of public Map<String, String> selectOptionPlusPrice() throws SQLException-----
 
 
 

@@ -1,6 +1,9 @@
 package product.controller;
 
 
+import java.util.List;
+import java.util.Map;
+
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,10 +23,8 @@ public class ProductOption extends AbstractController {
 		//로그인을 한 세션정보 가져오기(MemberLogin.java / myPage.java 참고)
 		HttpSession session = request.getSession();
 		MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-		
 		request.setAttribute("loginUser", loginUser);
 
-		
 		String productCode = request.getParameter("productCode");
 		//위의 받아온 productCode는 상품테이블의 상품코드임!!
 		
@@ -31,13 +32,20 @@ public class ProductOption extends AbstractController {
 			//제품정보 가져오기(제품테이블)
 			ProductDTO proDto = proDao.selectOne(productCode);
 
+			//제품코드에 대한 제품상세정보 가져오기(제품상세테이블)
 			ProductOptionDTO proOptionDto = proDao.selectOptionOne(productCode);
 			//System.out.println(proOptionDto.getTotalPrice());
 			
+			//제품코드에 따른 옵션 중 추가금을 Map<>으로 전부 가져오기(256GB, 512GB)
+			Map<String, String> paraMap = proDao.selectOptionPlusPrice();
+			
+				
 			request.setAttribute("proDto", proDto);
 			//request.setAttribute("proOptionList", proOptionList);
 			request.setAttribute("proOptionDto", proOptionDto);
 			
+			request.setAttribute("paraMap", paraMap);
+			//System.out.println(paraMap.get(productCode));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
