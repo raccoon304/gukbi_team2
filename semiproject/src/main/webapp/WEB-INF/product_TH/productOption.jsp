@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
@@ -19,8 +20,9 @@
     <div class="product-container mt-4">
         <div class="product-header">
             <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
+            <h5>유저이름: ${loginUser.name}</h5>
         </div>
-
+		
 
         <div class="product-content">
             <div class="row">
@@ -38,7 +40,6 @@
 
                         <div class="product-price">
                             <span id="unitPrice">
-                            	<%-- <fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/> --%>
                             	<fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>
                             </span><small>원</small>
                         </div>
@@ -163,7 +164,12 @@
 <script type="text/javascript">
 $(document).ready(function() {
     // 로그인 상태 변수
-    var isLoggedIn = true;
+    var isLoggedIn = false;
+    
+    if("${loginUser.name}" != ""){
+	    alert("${loginUser.name}");
+	    var isLoggedIn = true;
+    }
     
     var unitPrice = Number("${proOptionDto.totalPrice}");
     var maxStock = ${proOptionDto.stockQty};
