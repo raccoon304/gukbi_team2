@@ -1,8 +1,8 @@
 $(function () {
 
-  /* =========================
-     주소 검색 버튼
-  ========================= */
+  
+   //  주소 검색 버튼
+  
   $("#addressSearchBtn").on("click", function () {
 
     new daum.Postcode({
@@ -24,9 +24,9 @@ $(function () {
 
   });
 
-  /* =========================
-     결제 버튼
-  ========================= */
+
+   //  결제 버튼
+ 
   $("#coinPayBtn").on("click", function () {
 
     const address = $("#address").val().trim();
@@ -52,7 +52,7 @@ $(function () {
     window.open(
       ctxPath + "/payment/coinPaymentPopup.hp?finalPrice=" + finalPrice,
       "paymentPopup",
-      "width=500,height=600,scrollbars=yes"
+      "width=1000,height=700,scrollbars=yes"
     );
   });
 
