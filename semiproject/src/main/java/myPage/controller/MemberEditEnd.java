@@ -43,12 +43,14 @@ public class MemberEditEnd extends AbstractController {
         String name   = request.getParameter("name");
         String email  = request.getParameter("email");
         String mobile = request.getParameter("mobile");
+        String password = request.getParameter("password");
 
         Map<String,String> paraMap = new HashMap<>();
         paraMap.put("memberid", memberid);
         paraMap.put("name", name);
         paraMap.put("email", email);
         paraMap.put("mobile", mobile);
+        paraMap.put("password", password);
 
         int n = mbDao.updateMember(paraMap);
 

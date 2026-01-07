@@ -38,7 +38,7 @@ public class MemberDAO_imple implements MemberDAO {
 		    
 		    // SecretMyKey.KEY 은 우리가 만든 암호화/복호화 키이다.
 		    aes = new AES256(SecretMyKey.KEY);
-		    
+    
 		} catch (NamingException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
@@ -245,7 +245,7 @@ public class MemberDAO_imple implements MemberDAO {
 	        conn = ds.getConnection();
 
 	        String sql = " update tbl_member "
-	                   + " set NAME = ?, EMAIL = ?, MOBILE_PHONE = ? "
+	                   + " set NAME = ?, EMAIL = ?, MOBILE_PHONE = ?, PASSWORD = ? "
 	                   + " where MEMBER_ID = ? ";
 
 	        pstmt = conn.prepareStatement(sql);
@@ -257,7 +257,10 @@ public class MemberDAO_imple implements MemberDAO {
 	        String mobile = paraMap.get("mobile");  
 	        pstmt.setString(3, aes.encrypt(mobile));
 	        
-	        pstmt.setString(4, paraMap.get("memberid")); 
+	        String password = paraMap.get("password");
+	        pstmt.setString(4, Sha256.encrypt(password));
+	        
+	        pstmt.setString(5, paraMap.get("memberid")); 
 
 	        n = pstmt.executeUpdate();
 
