@@ -186,16 +186,32 @@ public class CouponDAO_imple implements CouponDAO {
 	        String sql =
 	            " SELECT coupon_category_no, coupon_name, discount_type, discount_value, usable "
 	          + " FROM ( "
-	          + "   SELECT row_number() over(order by coupon_category_no desc) AS rno, "
+	          + "   SELECT row_number() over(order by "+orderBy+") AS rno, "
 	          + "          coupon_category_no, coupon_name, discount_type, discount_value, usable "
 	          + "   FROM tbl_coupon "
-	          + " ) "
-	          + " WHERE rno between ? and ? ";
+	          + "   WHERE 1 = 1 ";
 
+	        
+	        if(type != null && !type.isBlank()) {
+	            sql += " AND discount_type = ? ";
+	          }
+
+	        sql += " ) ";
+	        sql += " WHERE rno between ? and ? ";
+	        
 	        pstmt = conn.prepareStatement(sql);
-	        pstmt.setInt(1, begin);
-	        pstmt.setInt(2, end);
-
+	        
+	        if(type != null && !type.isBlank()) {
+	            pstmt.setInt(1, Integer.parseInt(type));
+	            pstmt.setInt(2, begin);
+		        pstmt.setInt(3, end);
+	        }
+	        else {
+	        	pstmt.setInt(1, begin);
+		        pstmt.setInt(2, end);
+	        }
+	        
+	        
 	        rs = pstmt.executeQuery();
 
 	        while(rs.next()) {

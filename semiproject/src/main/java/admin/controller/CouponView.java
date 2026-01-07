@@ -11,6 +11,7 @@ import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 
 public class CouponView extends AbstractController {
 	
@@ -23,9 +24,9 @@ public class CouponView extends AbstractController {
 		
 		HttpSession session = request.getSession();
 		
-//		MemberDTO loginuser = (MemberDTO) session.getAttribute("loginuser");
+		MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 		
-//		if(loginuser != null && "admin".equals(loginuser.getUserid())) {
+		if(loginUser != null && "admin".equals(loginUser.getMemberid())) {
 		    // 관리자로 로그인 했을 경우
 		
 		
@@ -62,6 +63,7 @@ public class CouponView extends AbstractController {
 	        paraMap.put("sort", (filterSort == null ? "" : filterSort));
 	        
 	        int totalPage = cpDao.getTotalPageCoupon(paraMap);
+	        if(totalPage == 0) totalPage = 1;
 	        
 	        // 장난 방지
 	        try {
@@ -85,7 +87,9 @@ public class CouponView extends AbstractController {
 
 	        String ctxPath = request.getContextPath();
 	        String url = ctxPath + "/admin/coupon.hp"
-	                   + "?sizePerPage=" + sizePerPage;
+	                   + "?sizePerPage=" + sizePerPage
+	                   + "&type=" + (filterType == null ? "" : filterType)
+	                   + "&sort=" + (filterSort == null ? "" : filterSort);
 
 	        pageBar += "<li class='page-item'><a class='page-link' href='"+url+"&currentShowPageNo=1'>[처음]</a></li>";
 
@@ -123,19 +127,19 @@ public class CouponView extends AbstractController {
 	        super.setRedirect(false);
 	        super.setViewPage("/WEB-INF/admin/coupons/coupons.jsp");
 			
-//		}
-//		else {
+		}
+		else {
 			// 관리자로 로그인 하지 않은 경우
-//			String message = "관리자만 접근이 가능합니다";
-//			String loc = "javascript:history.back()";
+			String message = "관리자만 접근이 가능합니다";
+			String loc = "javascript:history.back()";
 			
-//			request.setAttribute("message", message);
-//			request.setAttribute("loc", loc);
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
 			
-//			super.setRedirect(false);
-//			super.setViewPage("/WEB-INF/msg.jsp");
+			super.setRedirect(false);
+			super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
 			
-//		}		
+		}		
 		
 		
 	}

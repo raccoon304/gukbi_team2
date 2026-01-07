@@ -1,16 +1,12 @@
 package admin.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import common.controller.AbstractController;
-import coupon.domain.CouponDTO;
 import coupon.model.CouponDAO;
 import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 
 public class Accounting extends AbstractController {
 	
@@ -23,9 +19,9 @@ public class Accounting extends AbstractController {
 		
 		HttpSession session = request.getSession();
 		
-//		MemberDTO loginuser = (MemberDTO) session.getAttribute("loginuser");
+		MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 		
-//		if(loginuser != null && "admin".equals(loginuser.getUserid())) {
+		if(loginUser != null && "admin".equals(loginUser.getMemberid())) {
 		    // 관리자로 로그인 했을 경우
 		
 		
@@ -35,19 +31,19 @@ public class Accounting extends AbstractController {
 	        super.setRedirect(false);
 	        super.setViewPage("/WEB-INF/admin/accounting.jsp");
 			
-//		}
-//		else {
+		}
+		else {
 			// 관리자로 로그인 하지 않은 경우
-//			String message = "관리자만 접근이 가능합니다";
-//			String loc = "javascript:history.back()";
+			String message = "관리자만 접근이 가능합니다";
+			String loc = "javascript:history.back()";
 			
-//			request.setAttribute("message", message);
-//			request.setAttribute("loc", loc);
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
 			
-//			super.setRedirect(false);
-//			super.setViewPage("/WEB-INF/msg.jsp");
+			super.setRedirect(false);
+			super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
 			
-//		}		
+		}		
 		
 		
 	}
