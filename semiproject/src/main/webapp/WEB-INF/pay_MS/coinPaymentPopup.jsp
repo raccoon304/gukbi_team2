@@ -34,7 +34,7 @@ $(function () {
         pg: "html5_inicis",
         pay_method: "card",
         merchant_uid: merchantUid,
-        name: "코인 충전",
+        name: "상품명",
         amount: finalPrice,
         buyer_name: userid
     }, function (rsp) {
