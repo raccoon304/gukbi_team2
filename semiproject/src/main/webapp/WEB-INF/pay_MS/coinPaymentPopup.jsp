@@ -34,22 +34,44 @@ $(function () {
         pg: "html5_inicis",
         pay_method: "card",
         merchant_uid: merchantUid,
-        name: "상품명",
-        amount: finalPrice,
+        name: "ㅇ",
+        amount: 100,
         buyer_name: userid
     }, function (rsp) {
     	
-        if (rsp.success) {
-            alert("결제 성공");
-            window.close();
-        } else {
-            alert("결제 실패: " + rsp.error_msg);
-            window.close();
-        }
-    });
+    	 if (rsp.success) {
 
-});
-</script>
+             // 
+             const form = opener.document.createElement("form");
+             form.method = "POST";
+             form.action = "<%= request.getContextPath() %>/payment/paymentSuccess.hp";
 
-</body>
-</html>
+             const impUid = opener.document.createElement("input");
+             impUid.type = "hidden";
+             impUid.name = "imp_uid";
+             impUid.value = rsp.imp_uid;
+
+             const merchantUidInput = opener.document.createElement("input");
+             merchantUidInput.type = "hidden";
+             merchantUidInput.name = "merchant_uid";
+             merchantUidInput.value = rsp.merchant_uid;
+
+             form.appendChild(impUid);
+             form.appendChild(merchantUidInput);
+
+             opener.document.body.appendChild(form);
+             form.submit();
+
+             window.close();
+
+         } else {
+             alert("결제 실패: " + rsp.error_msg);
+             window.close();
+         }
+     });
+
+ });
+ </script>
+
+ </body>
+ </html>

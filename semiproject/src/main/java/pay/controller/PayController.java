@@ -30,7 +30,7 @@ public class PayController extends AbstractController {
             response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
                 "<script>alert('로그인 후 이용 가능합니다.');location.href='"
-                + request.getContextPath() + "/login/login.jsp';</script>"
+                + request.getContextPath() + "/WEB-INF/index.jsp';</script>"
             );
             return;
         }
@@ -90,7 +90,7 @@ public class PayController extends AbstractController {
         request.setAttribute("finalPrice", finalPrice);
 
         request.setAttribute("loginUser", loginUser);
-        request.setAttribute("address", "기본 배송지");
+        
         
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");

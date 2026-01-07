@@ -8,7 +8,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-
 <link rel="stylesheet" href="<%= ctxPath %>/bootstrap-4.6.2-dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="<%= ctxPath %>/css/pay_MS/payMent.css">
 
@@ -33,13 +32,16 @@
           결제 페이지 입니다.
         </span>
       </div>
-
-      <div class="info-row">
-        <span class="info-label">받는분 정보</span>
-        <span class="info-value">
-          ${loginUser.name}, ${loginUser.mobile}
-        </span>
-      </div>
+		<div class="info-row two-col">
+		  <div class="half">
+		    <span class="info-label">받는분 이름</span>
+		    <span class="info-value">${loginUser.name}</span>
+		  </div>
+		  <div class="half">
+		    <span class="info-label">전화번호</span>
+		    <span class="info-value">${loginUser.mobile}</span>
+		  </div>
+		</div>
 
       <div class="info-row">
         <span class="info-label">주소</span>
@@ -53,7 +55,7 @@
                    readonly>
             <button type="button"
                     class="btn btn-outline-secondary"
-                    onclick="execDaumPostcode()">
+                    id="addressSearchBtn">
               검색
             </button>
           </div>
@@ -62,9 +64,21 @@
                  id="detailAddress"
                  class="form-control mt-2"
                  placeholder="상세주소를 입력하세요">
+                 
         </div>
       </div>
-
+      
+		<div class="info-row two-col">
+		  <div class="half">
+		    <span class="info-label">우편번호</span>
+		    <input type="text" id="zipcode" class="form-control" readonly>
+		  </div>
+		  <div class="half">
+		    <button type="button" id="selectAddressBtn" class="btn btn-outline-secondary w-100">
+		      배송지선택
+		    </button>
+		  </div>
+		</div>
     </div>
 
   </div>
@@ -162,7 +176,7 @@
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
 <script>
 
-  
+
 </script>
 
 </body>
