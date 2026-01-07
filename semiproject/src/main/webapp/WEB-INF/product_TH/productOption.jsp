@@ -167,7 +167,7 @@ $(document).ready(function() {
     var isLoggedIn = false;
     
     if("${loginUser.name}" != ""){
-	    alert("${loginUser.name}");
+	    //alert("${loginUser.name}");
 	    var isLoggedIn = true;
     }
     
