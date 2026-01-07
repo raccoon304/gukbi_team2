@@ -28,20 +28,20 @@ $(document).ready(function() {
 	
     // 네비게이션 메뉴 클릭
     $('.navbar-nav .nav-link').click(function() {
-        alert("네이게이션 메뉴를 클릭하셨습니다.")
+        //alert("네이게이션 메뉴를 클릭하셨습니다.")
     });
 
 
     // 로그인 버튼
     $('#loginBtn').click(function() {
-		alert("로그인페이지로 이동합니다.");
+		//alert("로그인페이지로 이동합니다.");
 		console.log('이동: login.hp');
 		// window.location.href = 'login.hp';
     });
 
     // 회원가입 버튼
     $('#signupBtn').click(function() {
-        alert("회원가입페이지로 이동합니다.");
+        //alert("회원가입페이지로 이동합니다.");
 		console.log('이동: memberRegister.hp');
 		// window.location.href = 'memberRegister.hp';
     });
@@ -59,13 +59,6 @@ $(document).ready(function() {
 
 
 
-// 상품 상세 페이지로 이동
-function goToProductDetail(productId) {
-    alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productId);
-    console.log('이동: productDetail.hp?id=' + productId);
-    // 실제로는 아래 코드 사용
-    // window.location.href = 'productDetail.hp?id=' + productId;
-}
 
 
 // 스크롤 시 네비게이션 그림자 효과
@@ -171,17 +164,6 @@ $(document).ready(function() {
 	
 	
 });//end of $(document).ready(function(){})-----
-
-
-
-
-// 상품 상세 페이지로 이동
-function goToProductDetail(productId) {
-    alert('상품 상세 페이지로 이동합니다.\n상품 ID: ' + productId);
-    console.log('이동: productDetail.hp?id=' + productId);
-    // 실제로는 아래 코드 사용
-    // window.location.href = 'productDetail.hp?id=' + productId;
-}
 
 
 
