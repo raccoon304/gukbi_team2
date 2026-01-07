@@ -71,8 +71,8 @@ $(document).ready(function () {
       alert("수량은 1개 이상이어야 합니다.");
       return;
     }
-    if (qty > 10) {
-      alert("최대 구매 수량은 10개입니다.");
+    if (qty > 50) {
+      alert("최대 구매 수량은 50개입니다.");
       return;
     }
 
@@ -87,7 +87,7 @@ $(document).ready(function () {
     .on("input", function () {
       let val = $(this).val().replace(/[^0-9]/g, "");
       if (val === "") val = 1;
-      val = Math.min(10, Math.max(1, Number(val)));
+      val = Math.min(50, Math.max(1, Number(val)));
       $(this).val(val);
     })
     .on("blur", function () {

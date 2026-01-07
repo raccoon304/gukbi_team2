@@ -8,6 +8,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+
 <link rel="stylesheet" href="<%= ctxPath %>/bootstrap-4.6.2-dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="<%= ctxPath %>/css/pay_MS/payMent.css">
 
@@ -160,26 +161,8 @@
 <script src="<%= ctxPath %>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
 <script>
-$(function () {
 
-  $("#coinPayBtn").on("click", function () {
-
-    // hidden input에서 최종 결제금액 읽기
-    const finalPrice = $("#finalPrice").val();
-
-    if (!finalPrice || finalPrice <= 0) {
-      alert("결제 금액 오류");
-      return;
-    }
-
-    window.open(
-      "<%=ctxPath%>/payment/coinPaymentPopup.hp?finalPrice=" + finalPrice,
-      "coinPay",
-      "width=500,height=600"
-    );
-  });
-
-});
+  
 </script>
 
 </body>

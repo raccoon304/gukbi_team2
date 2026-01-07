@@ -78,7 +78,7 @@ public class CartController extends AbstractController {
         		int cartId   = Integer.parseInt(request.getParameter("cartId"));
         		int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        		 if (quantity < 1 || quantity > 10) {
+        		 if (quantity < 1 || quantity > 50) {
         		        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         		        return;
         		 }
