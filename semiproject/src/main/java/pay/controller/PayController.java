@@ -83,6 +83,7 @@ public class PayController extends AbstractController {
         // 4. 최종 금액
         int finalPrice = totalPrice - discountPrice;
 
+  
         // 5. JSP 전달
         request.setAttribute("orderList", orderList);
         request.setAttribute("totalPrice", totalPrice);
