@@ -1,5 +1,6 @@
 package payment.controller;
 
+
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ public class PaymentSuccess extends AbstractController {
             return;
         }
 
+  
         // POST 데이터
         String impUid = request.getParameter("imp_uid");
         String merchantUid = request.getParameter("merchant_uid");
@@ -30,10 +32,11 @@ public class PaymentSuccess extends AbstractController {
             return;
         }
 
-        // 🔥 여기서 DB 처리 / 결제 검증
-
+        
+        
+        //  여기서 DB 처리 / 결제 검증
         setRedirect(false);
-        setViewPage("/WEB-INF/payment/paymentSuccess.jsp");
+        setViewPage("/WEB-INF/pay_MS/paymentSuccess.jsp");
     }
 }
 
