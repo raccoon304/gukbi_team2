@@ -60,7 +60,7 @@
 				                    <option value="256GB">256GB</option>
 				                    <option value="512GB">
 				                    	512GB&nbsp;&nbsp;+&nbsp;&nbsp;
-				                    	<fmt:formatNumber value="${paraMap[proOptionDto.fkProductCode]}" pattern="###,###"/>
+				                    	<fmt:formatNumber value="${plusPrice}" pattern="###,###"/>
 				                    </option>
 				                </select>
                             </div>
@@ -156,7 +156,7 @@
         isLoggedIn: "${loginUser.name}" !== "", //사용자가 로그인을 했는지 true/false 값
         productCode: "${proOptionDto.fkProductCode}", //상품코드
         unitPrice: Number("${proDto.price}"), // 기본금액(상품 초기 설정가격)
-        plusPrice: Number("${paraMap[proOptionDto.fkProductCode]}"),  //용량에 따른 추가금액
+        plusPrice: Number("${plusPrice}"),  //512GB에 따른 추가금액
         maxStock: Number("${proOptionDto.stockQty}") // 재고 수량(수량을 증가할 때 재고수량은 넘길 수 없음)
     };
 </script>

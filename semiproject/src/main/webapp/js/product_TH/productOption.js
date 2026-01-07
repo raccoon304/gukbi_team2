@@ -4,12 +4,12 @@ $(document).ready(function () {
        🔹 전역 상태 변수
     ======================= */
     const { isLoggedIn, productCode, unitPrice, plusPrice, maxStock } = pageData;
-	//const defaultPrice = unitPrice;
 	
     let quantity = parseInt($('#quantity').val()) || 1; //기본 수량
     let totalPrice = 0;  //총 금액
     let selectStorageSize = "";  //선택한 용량
     let selectedColor = "";  //선택한 색깔
+	const l_unitPrice = Number(unitPrice);
 
     /* =======================
        🔹 초기 실행
@@ -38,11 +38,20 @@ $(document).ready(function () {
         }
     }
 
+	//최종금액을 계산해주기
     function updateTotalPrice() {
-        totalPrice = unitPrice * quantity;
-        $('#totalPrice').text(totalPrice.toLocaleString() + '원');
-    }
+		if(selectStorageSize == '512GB'){
+			totalPrice = (l_unitPrice + plusPrice) * quantity;
+	        $('#totalPrice').text(totalPrice.toLocaleString() + ' 원');
+		}
+		else if(selectStorageSize == '256GB'){
+			totalPrice = l_unitPrice * quantity;
+	        $('#totalPrice').text(totalPrice.toLocaleString() + ' 원');
+		}
+		
+    }//end of function updateTotalPrice()-----
 
+	
 	// 수량 입력값을 검증·보정하고, 총 금액을 다시 계산
 	function syncQuantity() {
 	    let inputVal = parseInt($('#quantity').val(), 10);
@@ -92,10 +101,14 @@ $(document).ready(function () {
 
     $('#sortSelectStorageSize').change(function () {
         selectStorageSize = $(this).val();
+		//console.log(selectStorageSize);
+		updateTotalPrice();
     });
 
     $('#sortSelectColor').change(function () {
         selectedColor = $(this).val();
+		//console.log(selectedColor);
+		updateTotalPrice();
     });
 
     /* =======================
@@ -116,10 +129,10 @@ $(document).ready(function () {
             console.log({
                 productCode,
                 quantity,
-                unitPrice,
+                l_unitPrice,
                 totalPrice,
                 storage: selectStorageSize,
-                color: selectedColor
+                color: selectedColor,
             });
         }
     });
@@ -144,7 +157,7 @@ $(document).ready(function () {
                 action: 'purchase',
                 productCode,
                 quantity,
-                unitPrice,
+                l_unitPrice,
                 totalPrice,
                 storage: selectStorageSize,
                 color: selectedColor,
@@ -157,14 +170,16 @@ $(document).ready(function () {
        🔹 리뷰
     ======================= */
     $('#reviewBtn').click(function () {
+		updateTotalPrice();
+		
         if (confirm('상품 리뷰 페이지로 이동하시겠습니까?')) {
             console.log({
                 productCode,
                 storage: selectStorageSize,
                 color: selectedColor,
+				l_unitPrice,
                 totalPrice,
-				quantity,
-				plusPrice
+				quantity
             });
         }
 		
@@ -174,9 +189,9 @@ $(document).ready(function () {
 				"productCode":productCode,
 				"storage":selectStorageSize,
 				"color":selectedColor,
+				"unitPrice":l_unitPrice,
 				"totalPrice":totalPrice,
-				"quantity":quantity,
-				"plusPrice":plusPrice
+				"quantity":quantity
 			},
 			dataType:"json",
 			success:function(json){

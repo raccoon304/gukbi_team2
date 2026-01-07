@@ -20,19 +20,22 @@ public class TestJSON extends AbstractController {
 		String storage =request.getParameter("storage");
 		String color =request.getParameter("color");
 		
-		//장바구니에서 결제하기 위한 주문수량과 총금액
+		//장바구니에서 결제하기 위한 주문수량과 기본금액, 추가금
 		String quantity = request.getParameter("quantity");
-		String totalPrice =request.getParameter("totalPrice");
+		String totalPrice = request.getParameter("totalPrice");
+		String unitPrice = request.getParameter("unitPrice");
+		
 		
 		
 		Map<String, String> paraMap = new HashMap<String, String>();
-		paraMap.put("", productCode);
-		paraMap.put("", storage);
-		paraMap.put("", color);
-		paraMap.put("", quantity);
-		paraMap.put("", totalPrice);
+		paraMap.put("productCode", productCode);
+		paraMap.put("storage", storage);
+		paraMap.put("color", color);
+		paraMap.put("quantity", quantity);
+		paraMap.put("totalPrice", totalPrice);
+		paraMap.put("unitPrice", unitPrice);
 		
-		System.out.println("\n"+ productCode +"\n"+ storage +"\n"+ color +"\n"+ totalPrice+ "\n" +quantity);
+		System.out.println("\n"+ productCode +"\n"+ storage +"\n"+ color +"\n"+ totalPrice+ "\n" +quantity+ "\n" +unitPrice);
 		//proDao.selectFindProductOption();
 		
 	}

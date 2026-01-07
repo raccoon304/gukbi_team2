@@ -2,7 +2,6 @@ package product.model;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 import product.domain.ProductDTO;
 import product.domain.ProductOptionDTO;
@@ -28,5 +27,8 @@ public interface ProductDAO {
 
 	//제품코드에 따른 옵션 중 512GB의 추가금 리스트로 전부 가져오기
 	//List<ProductOptionDTO> selectOptionPlusPrice() throws SQLException;
-	Map<String, String> selectOptionPlusPrice() throws SQLException;
+	//Map<String, String> selectOptionPlusPrice() throws SQLException;
+
+	//제품코드에 따른 추가금을 가져오기(512GB만 추가금이 있으므로 그것만 가져오기
+	int selectOptionPlusPrice(String productCode) throws SQLException;
 }

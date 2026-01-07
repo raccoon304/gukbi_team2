@@ -5,9 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -195,7 +193,9 @@ public class ProductDAO_imple implements ProductDAO {
 	}//end of public List<ProductListDTO> productCardList() throws SQLException-----
 
 
+
 	//제품코드에 따른 옵션 중 추가금 리스트로 전부 가져오기
+	/*
 	@Override
 	public Map<String, String> selectOptionPlusPrice() throws SQLException {
 		Map<String, String> paraMap = new HashMap<String, String>();
@@ -213,9 +213,29 @@ public class ProductDAO_imple implements ProductDAO {
 		
 		return paraMap;
 	}//end of public Map<String, String> selectOptionPlusPrice() throws SQLException-----
+	*/
 
-
-
+	
+	//제품코드에 따른 추가금을 가져오기(512GB만 추가금이 있으므로 그것만 가져오기
+	@Override
+	public int selectOptionPlusPrice(String productCode) throws SQLException {
+		int plusPrice = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT distinct fk_product_code, plus_price "
+						+" FROM tbl_product_option "
+						+" WHERE storage_size = '512GB' AND fk_product_code = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productCode);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				plusPrice = rs.getInt("plus_price");
+			}
+			
+		} finally {close();}
+		return plusPrice;
+	}//end of public int selectOptionPlusPrice(String productCode) throws SQLException-----
 	
 	
 	
