@@ -1,13 +1,19 @@
 package myPage.controller;
 
+import java.util.List;
+
 import common.controller.AbstractController;
+import coupon.domain.CouponDTO;
+import coupon.model.CouponDAO;
+import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
 
 public class MyPage extends AbstractController {
-
+    CouponDAO cdao = new CouponDAO_imple();
+	
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -32,8 +38,15 @@ public class MyPage extends AbstractController {
         if ("GET".equalsIgnoreCase(request.getMethod())) {
         	//System.out.println(loginUser.getName()+"하고"+loginUser.getRegisterday());
             request.setAttribute("memberInfo", loginUser);
+            
+            List<CouponDTO> couponList = cdao.selectCouponList(); 
+            
+            System.out.println(couponList);
+            
+            
+            
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/member_YD/myPage.jsp");
+            super.setViewPage("/WEB-INF/myPage_YD/myPage.jsp");
             return;
         }
 

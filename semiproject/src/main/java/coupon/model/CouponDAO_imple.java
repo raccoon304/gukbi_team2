@@ -97,7 +97,6 @@ public class CouponDAO_imple implements CouponDAO {
 
 			pstmt = conn.prepareStatement(sql);
 			
-			
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {

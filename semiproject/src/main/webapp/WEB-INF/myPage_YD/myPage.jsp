@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <!-- header.jsp (수정 금지) -->
 <jsp:include page="/WEB-INF/header.jsp" />
@@ -105,15 +106,86 @@
                   <c:out value="${memberInfo.registerday}" />
                 </div>
               </div>
-
-              <!-- 멤버쉽 삭제 요청 반영 -->
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Recent Orders 삭제 요청 반영 -->
+      
+      
+      
+      
+      
+      
+      <!-- 사용자 쿠폰정보 -->
+		<div class="card shadow-sm mt-4">
+		  <div class="card-body">
+		    <h4 class="font-weight-bold mb-4">내 쿠폰</h4>
+		
+		    <c:choose>
+		      <c:when test="${empty couponList}">
+		        <div class="text-muted">보유한 쿠폰이 없습니다.</div>
+		      </c:when>
+		
+		      <c:otherwise>
+		        <div class="table-responsive">
+		          <table class="table table-bordered mb-0">
+		            <thead class="thead-light">
+		              <tr>
+		                <th style="width: 50%;">쿠폰명</th>
+		                <th style="width: 25%;">할인가격</th>
+		                <th style="width: 25%;">사용가능여부</th>
+		              </tr>
+		            </thead>
+		            <tbody>
+		              <c:forEach var="c" items="${couponList}">
+		                <tr>
+		                  <td>
+		                    <c:out value="${c.couponName}" />
+		                  </td>
+		
+		                  <td>
+		                    <fmt:formatNumber value="${c.discountAmount}" type="number" />원
+		                  </td>
+		
+		                  <td>
+		                    <c:choose>
+		                      <c:when test="${c.usable}">
+		                        <span class="badge badge-success">사용 가능</span>
+		                      </c:when>
+		                      <c:otherwise>
+		                        <span class="badge badge-secondary">사용 불가</span>
+		                      </c:otherwise>
+		                    </c:choose>
+		                  </td>
+		                </tr>
+		              </c:forEach>
+		            </tbody>
+		          </table>
+		        </div>
+		      </c:otherwise>
+		    </c:choose>
+		  </div>
+		</div>
+      
+      
+      
+      
+      
+      
+      
     </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
   </div>
 </div>
