@@ -122,7 +122,7 @@
         <div class="product-total-row">
           <span>주문금액</span>
           <span>
-            <fmt:formatNumber value="${finalPrice}" pattern="#,###"/> 원
+            <fmt:formatNumber value="${totalPrice}" pattern="#,###"/> 원
           </span>
         </div>
 
@@ -134,19 +134,53 @@
     <!-- ===== 오른쪽 : 금액 요약 + 결제 ===== -->
     <div class="payment-right">
 
+
       <div class="price-summary">
         <div class="price-row">
           <span>총 상품금액</span>
           <span><fmt:formatNumber value="${totalPrice}" pattern="#,###"/> 원</span>
         </div>
+        
+        
+	<div class="price-row">
+			
+<select id="couponSelect" class="form-control">
+  <option value="">쿠폰 선택</option>
+
+  <c:forEach var="row" items="${couponList}">
+    <c:set var="coupon" value="${row.coupon}" />
+    <c:set var="issue" value="${row.issue}" />
+
+    <%-- 정액 할인 --%>
+    <c:if test="${coupon.discountType == 0}">
+      <option value="${issue.couponId}"
+              data-discount="${coupon.discountValue}">
+        ${coupon.couponName}
+        ( <fmt:formatNumber value="${coupon.discountValue}" pattern="#,###"/>원 할인 )
+      </option>
+    </c:if>
+
+    <%-- 정률 할인 --%>
+    <c:if test="${coupon.discountType == 1}">
+      <option value="${issue.couponId}"
+              data-discount="${totalPrice * coupon.discountValue / 100}">
+        ${coupon.couponName}
+        ( ${coupon.discountValue}% 할인 )
+      </option>
+    </c:if>
+
+  </c:forEach>
+</select>
+		</div>
 
         <div class="price-row">
           <button type = "button" id="applyCouponBtn">쿠폰 적용금액</button>
            <span id="discountAmount">- 0 원</span>
         </div>
-		<input type="hidden" id="couponDiscount" value="${totalPrice}" />
+		<input type="hidden" id="couponDiscount" value="0" />
 		<input type="hidden" id="totalPrice" value="${totalPrice}" />	
-		<input type="hidden" id="finalPrice" value="${finalPrice}" />
+		<input type="hidden" id="finalPrice" value="${totalPrice}" />
+		<input type="hidden" id="couponId" name="couponId" />
 		
         <div class="price-row total">
           <span>총 주문금액</span>
@@ -173,10 +207,13 @@
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="<%= ctxPath %>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
-<script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
+
 <script>
-  const PAY_CTX = "<%= request.getContextPath() %>";
+  const ctxpath = '<%= ctxPath %>';
 </script>
+
+<script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
+
 
 </body>
 

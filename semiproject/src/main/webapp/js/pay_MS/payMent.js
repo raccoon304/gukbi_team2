@@ -1,88 +1,92 @@
 $(function () {
 
-	let couponApplied = false;
-	
-   //  주소 검색 버튼
-  
+  let couponApplied = false;
+
+  // =========================
+  // 쿠폰 적용 버튼
+  // =========================
+  $("#applyCouponBtn").on("click", function () {
+
+    const selectedOption = $("#couponSelect option:selected");
+
+    if ($("#couponSelect").prop("selectedIndex") === 0) {
+      alert("쿠폰을 선택해주세요.");
+      return;
+    }
+
+    const discount = Number(selectedOption.data("discount")) || 0;
+    const totalPrice = Number($("#totalPrice").val()) || 0;
+
+    if (discount <= 0) {
+      alert("적용할 수 없는 쿠폰입니다.");
+      return;
+    }
+
+    let finalPrice = totalPrice - discount;
+    if (finalPrice < 0) finalPrice = 0;
+
+    // 화면 반영
+    $("#discountAmount").text("- " + discount.toLocaleString() + " 원");
+    $("#finalAmount").text(finalPrice.toLocaleString() + " 원");
+
+    // hidden 값 세팅 (서버로 보낼 값)
+    $("#couponDiscount").val(discount);
+    $("#finalPrice").val(finalPrice);
+    $("#couponId").val(selectedOption.val());
+
+    couponApplied = true;
+  });
+
+
+  // =========================
+  // 결제 버튼
+  // =========================
+  $("#coinPayBtn").on("click", function () {
+
+    if (!couponApplied && $("#couponSelect").val()) {
+      alert("쿠폰 적용 버튼을 눌러주세요.");
+      return;
+    }
+
+    // 주소 체크 (최소 방어)
+    if (!$("#address").val() || !$("#detailAddress").val()) {
+      alert("배송 주소를 입력해주세요.");
+      return;
+    }
+
+    // 실제 결제 요청
+    const form = $("<form>", {
+      method: "post",
+      action: ctxpath + "/pay/paymentSuccess.hp"
+    });
+
+    form.append($("<input>", { type: "hidden", name: "couponId", value: $("#couponId").val() }));
+    form.append($("<input>", { type: "hidden", name: "discountPrice", value: $("#couponDiscount").val() }));
+    form.append($("<input>", { type: "hidden", name: "finalPrice", value: $("#finalPrice").val() }));
+    form.append($("<input>", { type: "hidden", name: "address", value: $("#address").val() }));
+    form.append($("<input>", { type: "hidden", name: "detailAddress", value: $("#detailAddress").val() }));
+
+    $("body").append(form);
+    form.submit();
+  });
+
+
+  // =========================
+  // 주소 검색 (다음 API)
+  // =========================
   $("#addressSearchBtn").on("click", function () {
 
     new daum.Postcode({
       oncomplete: function (data) {
 
-        // 도로명 / 지번 주소
         const addr = data.roadAddress || data.jibunAddress;
 
-        // 주소 input
         $("#address").val(addr);
-
-        // 우편번호 input
         $("#zipcode").val(data.zonecode);
-
-        // 상세주소로 포커스
         $("#detailAddress").focus();
       }
     }).open();
 
-  });
-
-  // 쿠폰 버튼을 누르면 작동되는 코드
-  $("#applyCouponBtn").on("click", function () {
-
-    const discount = Number($("#couponDiscount").val()) || 0;
-    const finalPrice = Number($("#finalPrice").val()) || 0;
-
-	
-    if (discount === 0) {
-      alert("적용 가능한 쿠폰이 없습니다.");
-      return;
-    }
-
-	const newFinalPrice = totalPrice - discount;
-	
-    $("#discountAmount").text("- " + discount.toLocaleString() + " 원");
-    $("#finalAmount").text(finalPrice.toLocaleString() + " 원");
-
-	$("#finalPrice").val(newFinalPrice);
-	
-    couponApplied = true; // 
-  });
-  
-
-   //  결제 버튼
-  $("#coinPayBtn").on("click", function () {
-
-    const address = $("#address").val().trim();
-    const detailAddress = $("#detailAddress").val().trim();
-    const finalPrice = Number($("#finalPrice").val());
-	const discount = Number($("#couponDiscount").val()) || 0;
-
-    if (!address) {
-      alert("주소를 검색해주세요.");
-      return;
-    }
-
-    if (!detailAddress) {
-      alert("상세주소를 입력해주세요.");
-      $("#detailAddress").focus();
-      return; 
-    }
-	
-	if (discount > 0 && !couponApplied) {
-	    alert("쿠폰 적용금액 버튼을 눌러주세요.");
-	    return;
-	  }
-
-
-    if (!finalPrice || finalPrice <= 0) {
-      alert("결제 금액 오류");
-      return;
-    }
-
-    window.open(
-       ctx_path + "/payment/coinPaymentPopup.hp?finalPrice=" + finalPrice,
-      "paymentPopup",
-      "width=1000,height=700,scrollbars=yes"
-    );
   });
 
 });
