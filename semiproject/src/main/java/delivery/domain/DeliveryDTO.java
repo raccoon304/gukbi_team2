@@ -10,7 +10,7 @@ public class DeliveryDTO {
 	private int isDefault;			// 기본배송지 유무 ( 1=> 기본배송지, 0 => 기본배송지x )		DB디폴트 ( 0 )
     private String postalCode;		// 우편번호
 	private String addressExtra;    // 참고항목
-	private String addressName;		// 배송지 주소
+	private String addressName;		// 배송지 이름
 	
 	public int getDeliveryAddressId() {
 		return deliveryAddressId;

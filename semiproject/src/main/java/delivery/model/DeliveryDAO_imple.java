@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -102,26 +103,110 @@ public class DeliveryDAO_imple implements DeliveryDAO {
 		
 		return deliveryList;
 	}
+	
+	// 배송지 삭제 메서드
+    @Override
+	public int deleteDelivery(Map<String, String> paraMap) throws SQLException {
 
-	// 배송지를 삭제하는 메서드
-	@Override
-	public int deleteDelivery(String memberid) throws SQLException {
-		int n = 0;
-		
-		conn = ds.getConnection();
-		
-		String sql = " select delivery_address_id, recipient_name, recipient_phone, address, address_detail, is_default, postal_code, address_name "
-				+ " from tbl_delivery "
-				+ " where fk_member_id = ? ";
-		
-		pstmt = conn.prepareStatement(sql);
-		
-		pstmt.setString(1, memberid);
-		rs = pstmt.executeQuery();
-		
-		
-		
-		return 0;
-	}
+        int n = 0;
 
+        String memberid = paraMap.get("memberid");
+
+        // paraMap 에서 selectAddId_0, selectAddId_1 ... 뽑아서 리스트로 만들기
+        List<String> idList = new ArrayList<>();
+        int i = 0;
+        while (true) {
+            String key = "selectAddId_" + i;
+            String val = paraMap.get(key);
+            
+            if (val == null) break;
+            idList.add(val);
+            i++;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int j = 0; j < idList.size(); j++) {
+            sb.append("?");
+            if (j < idList.size() - 1) sb.append(", ");
+        }
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = " delete from tbl_delivery "
+                       + " where fk_member_id = ? "
+                       + " and delivery_address_id in (" + sb.toString() + ") ";
+
+            pstmt = conn.prepareStatement(sql);
+
+            int idx = 1;
+            pstmt.setString(idx++, memberid);
+
+            for (String deliveryAddressId : idList) {
+                pstmt.setString(idx++, deliveryAddressId);
+            }
+
+            n = pstmt.executeUpdate();
+
+        } finally {
+            close();
+        }
+
+        return n;
+    }
+
+    // 체크박스 내 기본배송지가 있는지 확인해주는 메서드 
+    @Override
+    public boolean hasDefaultAddressInSelection(Map<String, String> paraMap) throws SQLException {
+
+    	String memberid = paraMap.get("memberid");
+
+        // selectAddId_0,1,2... 수집
+        List<String> idList = new ArrayList<>();
+        
+        int i = 0;
+        
+        while (true) {
+            String val = paraMap.get("selectAddId_" + i);
+            if (val == null) break;
+            idList.add(val);
+            i++;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int j = 0; j < idList.size(); j++) {
+            sb.append("?");
+            if (j < idList.size() - 1) sb.append(", ");
+        }
+
+        boolean hasDefault = false;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = " select count(*) "
+                       + " from tbl_delivery "
+                       + " where fk_member_id = ? "
+                       + "   and is_default = 1 "
+                       + "   and delivery_address_id in (" + sb.toString() + ") ";
+
+            pstmt = conn.prepareStatement(sql);
+
+            int idx = 1;
+            pstmt.setString(idx++, memberid);
+            for (String id : idList) {
+                pstmt.setString(idx++, id);
+            }
+
+            rs = pstmt.executeQuery();
+            rs.next();
+
+            hasDefault = (rs.getInt(1) > 0);
+
+        } finally {
+            close();
+        }
+
+        return hasDefault;
+    }
 }
