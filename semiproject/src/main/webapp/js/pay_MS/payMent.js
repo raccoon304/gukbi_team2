@@ -57,7 +57,7 @@ $(function () {
     // 실제 결제 요청
     const form = $("<form>", {
       method: "post",
-      action: ctxpath + "/pay/paymentSuccess.hp"
+      action: ctxpath + "/payment/paymentSuccess.hp"
     });
 
     form.append($("<input>", { type: "hidden", name: "couponId", value: $("#couponId").val() }));
