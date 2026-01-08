@@ -37,7 +37,7 @@ public class MemberDAO_imple implements MemberDAO {
 		    ds = (DataSource)envContext.lookup("SemiProject");
 		    
 		    // SecretMyKey.KEY 은 우리가 만든 암호화/복호화 키이다.
-		    aes = new AES256(SecretMyKey.KEY);
+		    aes = new AES256(SecretMyKey.KEY);	    
 		    
 		} catch (NamingException e) {
 			e.printStackTrace();
@@ -235,7 +235,8 @@ public class MemberDAO_imple implements MemberDAO {
 	    return memberDto;
 	}
 
-	// 회원 정보 수정 
+	
+	//회원 정보 수정
 	@Override
 	public int updateMember(Map<String, String> paraMap) throws SQLException {
 
@@ -244,27 +245,38 @@ public class MemberDAO_imple implements MemberDAO {
 	    try {
 	        conn = ds.getConnection();
 
+	        String password = paraMap.get("password");
+	        boolean changePw = (password != null && !password.trim().isEmpty());
+
 	        String sql = " update tbl_member "
 	                   + " set NAME = ?, EMAIL = ?, MOBILE_PHONE = ? "
+	                   + (changePw ? ", PASSWORD = ? " : "")
 	                   + " where MEMBER_ID = ? ";
 
 	        pstmt = conn.prepareStatement(sql);
+
 	        pstmt.setString(1, paraMap.get("name"));
-	        
+
 	        String email = paraMap.get("email");
 	        pstmt.setString(2, aes.encrypt(email));
-	        
-	        String mobile = paraMap.get("mobile");  
+
+	        String mobile = paraMap.get("mobile");
 	        pstmt.setString(3, aes.encrypt(mobile));
-	        
-	        pstmt.setString(4, paraMap.get("memberid")); 
+
+	        int idx = 4;
+
+	        if (changePw) {
+	            pstmt.setString(idx++, Sha256.encrypt(password));
+	        }
+
+	        pstmt.setString(idx, paraMap.get("memberid"));
 
 	        n = pstmt.executeUpdate();
 
 	    } catch (UnsupportedEncodingException | GeneralSecurityException e) {
-			e.printStackTrace();
-		} finally {
-	        close(); 
+	        e.printStackTrace();
+	    } finally {
+	        close();
 	    }
 
 	    return n;

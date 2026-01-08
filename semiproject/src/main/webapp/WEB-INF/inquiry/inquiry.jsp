@@ -5,13 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
-  // ===== 테스트용 임시 로그인 처리 =====
-  session.setAttribute("memberID", "kangkc"); // 원하는 아이디
- 
-  // session.removeAttribute("memberID");
-
   String ctxPath = request.getContextPath();
-  String memberID = (String)session.getAttribute("memberID");
 %>
 
 <!DOCTYPE html>
@@ -31,10 +25,25 @@
   <link rel="stylesheet" href="<%=ctxPath%>/css/inquiry/inquiry.css">
 
   <script>
-    const ctxPath = "<%=ctxPath%>";
-    const isLoggedIn = <%= (memberID != null) ? "true" : "false" %>;
-    const currentUser = <%= (memberID != null) ? ("\"" + memberID + "\"") : "null" %>;
+    const isLoggedIn = ${not empty sessionScope.loginUser};
+    
+    <c:choose>
+    <c:when test="${not empty sessionScope.loginUser}">
+      const currentUser = "${fn:escapeXml(sessionScope.loginUser.memberid)}";
+    </c:when>
+    <c:otherwise>
+      const currentUser = null;
+    </c:otherwise>
+  </c:choose>
+    
   </script>
+  
+  <!-- JS -->
+  <script type="text/javascript" src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
+  <script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- 사용자 JS -->
+  <script type="text/javascript" src="<%=ctxPath%>/js/inquiry/inquiry.js"></script>
  
 </head>
 
@@ -85,50 +94,67 @@
     <div class="row inquiry-grid">
       <!-- 문의 목록 -->
       <div class="col-lg-6 mb-4">
-        <div class="card inquiry-card">
-          <div class="card-header d-flex align-items-center justify-content-between">
-            <div style="font-weight:700;">문의 목록</div>
-            <small class="text-muted" style="font-weight:500;">클릭하면 상세가 열립니다</small>
-          </div>
+		  <div class="card inquiry-card">
+		
+		    <div class="card-header d-flex align-items-center justify-content-between">
+		      <div class="d-flex align-items-center">
+		        <div style="font-weight:700;">문의 목록</div>
+		        <small class="text-muted ml-3 d-none d-md-inline" style="font-weight:500;">클릭하면 상세가 열립니다</small>
+		      </div>
+		
+		      <!-- form은 오른쪽으로 따로! (헤더 안에서 분리) -->
+		      <form id="filterFrm" action="<%=ctxPath%>/inquiry/inquiryList.hp" method="get" class="mb-0">
+		        <input type="hidden" name="currentShowPageNo" id="currentShowPageNo"
+		               value="${empty param.currentShowPageNo ? 1 : param.currentShowPageNo}">
+		
+		        <select name="inquiryType" id="inquiryTypeFilter" class="form-control form-control-sm">
+		          <option value="">전체</option>
+		          <option value="서비스 문의" ${param.inquiryType == '서비스 문의' ? 'selected' : ''}>서비스 문의</option>
+		          <option value="기술 지원" ${param.inquiryType == '기술 지원' ? 'selected' : ''}>기술 지원</option>
+		          <option value="결제 문의" ${param.inquiryType == '결제 문의' ? 'selected' : ''}>결제 문의</option>
+		          <option value="계정 문의" ${param.inquiryType == '계정 문의' ? 'selected' : ''}>계정 문의</option>
+		          <option value="기타" ${param.inquiryType == '기타' ? 'selected' : ''}>기타</option>
+		        </select>
+		      </form>
+		    </div>
 
           <!-- JS 렌더 아님: JSP에서 바로 렌더 -->
           <div class="card-body inquiry-list" id="inquiryList">
-
-            <c:if test="${empty inquiryList}">
-              <div class="p-3 text-muted">문의가 없습니다.</div>
-            </c:if>
-
-            <c:if test="${not empty inquiryList}">
-              <c:forEach var="inq" items="${inquiryList}">
-                <div class="inquiry-item p-3 border-bottom" data-id="${inq.inquiryNumber}">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge badge-primary">${inq.inquiryType}</span>
-
-                    <c:choose>
-                      <c:when test="${inq.replyStatus == 0}">
-                        <span class="badge status-badge badge-secondary">보류</span>
-                      </c:when>
-                      <c:when test="${inq.replyStatus == 1}">
-                        <span class="badge status-badge badge-info">접수</span>
-                      </c:when>
-                      <c:when test="${inq.replyStatus == 2}">
-                        <span class="badge status-badge badge-success">답변완료</span>
-                      </c:when>
-                      <c:otherwise>
-                        <span class="badge status-badge badge-secondary">-</span>
-                      </c:otherwise>
-                    </c:choose>
-                  </div>
-
-                  <h6 class="mb-1">${inq.title}</h6>
-
-                  <!-- LocalDateTime -> toString() -> 2025-12-31T00:00:00 -->
-                  <small class="text-muted">
-				    <c:out value="${fn:replace(inq.registerday, 'T', ' ')}" />
-				  </small>
-                </div>
-              </c:forEach>
-            </c:if>
+		
+		      <c:if test="${empty inquiryList}">
+		        <div class="p-3 text-muted">문의가 없습니다.</div>
+		      </c:if>
+		
+		      <c:if test="${not empty inquiryList}">
+		        <c:forEach var="inq" items="${inquiryList}">
+		          <div class="inquiry-item p-3 border-bottom" data-id="${inq.inquiryNumber}">
+		            <div class="d-flex justify-content-between align-items-center mb-2">
+		              <span class="badge badge-primary">${inq.inquiryType}</span>
+		
+		              <c:choose>
+		                <c:when test="${inq.replyStatus == 0}">
+		                  <span class="badge status-badge badge-secondary">보류</span>
+		                </c:when>
+		                <c:when test="${inq.replyStatus == 1}">
+		                  <span class="badge status-badge badge-info">접수</span>
+		                </c:when>
+		                <c:when test="${inq.replyStatus == 2}">
+		                  <span class="badge status-badge badge-success">답변완료</span>
+		                </c:when>
+		                <c:otherwise>
+		                  <span class="badge status-badge badge-secondary">-</span>
+		                </c:otherwise>
+		              </c:choose>
+		            </div>
+		
+		            <h6 class="mb-1">${inq.title}</h6>
+		
+		            <small class="text-muted">
+		              <c:out value="${fn:replace(inq.registerday, 'T', ' ')}" />
+		            </small>
+		          </div>
+		        </c:forEach>
+		      </c:if>
 
           </div>
         </div>
@@ -203,11 +229,18 @@
 
   <jsp:include page="../footer.jsp"/>
 
-  <!-- JS -->
-  <script type="text/javascript" src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
-  <script type="text/javascript" src="<%=ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- 사용자 JS -->
-  <script type="text/javascript" src="<%=ctxPath%>/js/inquiry/inquiry.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const sel = document.getElementById("inquiryTypeFilter");
+    if (sel) {
+      sel.addEventListener("change", function () {
+        document.getElementById("currentShowPageNo").value = "1";
+        document.getElementById("filterFrm").submit();
+      });
+    }
+  });
+</script>
+  
 </body>
 </html>

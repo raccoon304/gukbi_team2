@@ -43,12 +43,20 @@ public class MemberEditEnd extends AbstractController {
         String name   = request.getParameter("name");
         String email  = request.getParameter("email");
         String mobile = request.getParameter("mobile");
+        String password = request.getParameter("password");
 
+        boolean changePw = (password != null && !password.trim().isEmpty());
+        
         Map<String,String> paraMap = new HashMap<>();
         paraMap.put("memberid", memberid);
         paraMap.put("name", name);
         paraMap.put("email", email);
         paraMap.put("mobile", mobile);
+        
+        // 비밀번호는 입력했을때만 전송  
+        if(changePw) {
+            paraMap.put("password", password);
+        }
 
         int n = mbDao.updateMember(paraMap);
 

@@ -95,7 +95,7 @@ public class CartController extends AbstractController {
     	        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     	        
 	    } catch (NumberFormatException e) {
-	        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+	        response.sendError(HttpServletResponse.SC_BAD_REQUEST); 
 	
 	    } catch (IllegalStateException e) {
 	        response.setContentType("text/html; charset=UTF-8");

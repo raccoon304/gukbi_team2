@@ -1,13 +1,21 @@
 package myPage.controller;
 
+import java.util.List;
+import java.util.Map;
+
 import common.controller.AbstractController;
+import coupon.domain.CouponDTO;
+import coupon.domain.CouponIssueDTO;
+import coupon.model.CouponDAO;
+import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
 
 public class MyPage extends AbstractController {
-
+    CouponDAO cdao = new CouponDAO_imple();
+	
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -15,8 +23,7 @@ public class MyPage extends AbstractController {
 
         // 로그인 컨트롤러에서 저장한 키 그대로
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-        
-        
+                
         if (loginUser == null) {
             String message = "로그인 후 이용 가능합니다.";
             String loc = request.getContextPath() + "/index.hp";
@@ -31,9 +38,25 @@ public class MyPage extends AbstractController {
 
         if ("GET".equalsIgnoreCase(request.getMethod())) {
         	//System.out.println(loginUser.getName()+"하고"+loginUser.getRegisterday());
+        	
+        	String userid = loginUser.getMemberid();
             request.setAttribute("memberInfo", loginUser);
+            
+            List<Map<String, Object>> couponList = cdao.selectCouponList(userid); 
+            //System.out.println(couponList);
+            
+			/*
+			 * for (Map<String, Object> row : couponList) { CouponDTO c = (CouponDTO)
+			 * row.get("coupon"); CouponIssueDTO i = (CouponIssueDTO) row.get("issue");
+			 * 
+			 * System.out.println(c.getCouponCategoryNo());
+			 * System.out.println(i.getIssueDate()); }
+			*/
+            
+            request.setAttribute("couponList", couponList);
+            
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/member_YD/myPage.jsp");
+            super.setViewPage("/WEB-INF/myPage_YD/myPage.jsp");
             return;
         }
 
