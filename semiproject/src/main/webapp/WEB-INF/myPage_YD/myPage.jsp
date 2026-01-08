@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <!-- header.jsp (수정 금지) -->
 <jsp:include page="/WEB-INF/header.jsp" />
@@ -10,7 +11,7 @@
 <div class="container my-5">
   <div class="row">
 
-    <!-- Sidebar -->
+    <!-- 사이드바 -->
     <div class="col-md-3 mb-4">
       <div class="card shadow-sm position-sticky" style="top: 100px;">
         <div class="card-body text-center">
@@ -38,19 +39,18 @@
             <i class="fa-solid fa-truck mr-2"></i> 배송지 관리
           </a>
 
-          <!-- wishlist / account settings 삭제 요청 반영 -->
         </div>
       </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- 메인 컨텐츠 -->
     <div class="col-md-9">
       <div class="card shadow-sm">
         <div class="card-body">
           <h4 class="font-weight-bold mb-4">내 정보</h4>
 
           <div class="row">
-            <!-- Personal Information -->
+            <!-- 개인정보 표시 -->
             <div class="col-md-6 mb-4">
               <h6 class="font-weight-bold mb-3">개인정보</h6>
 
@@ -88,7 +88,7 @@
 			</button>
             </div>
 
-            <!-- Account -->
+            <!-- 계정정보 표시 -->
             <div class="col-md-6 mb-4">
               <h6 class="font-weight-bold mb-3">계정 정보</h6>
 
@@ -105,15 +105,99 @@
                   <c:out value="${memberInfo.registerday}" />
                 </div>
               </div>
-
-              <!-- 멤버쉽 삭제 요청 반영 -->
             </div>
           </div>
         </div>
       </div>
+   
+	  <!-- 사용자 쿠폰정보 -->
+	  <div class="card shadow-sm mt-4">
+	    <div class="card-body">
+	      <h4 class="font-weight-bold mb-4">내 쿠폰</h4>
+	
+	      <c:choose>
+	        <c:when test="${empty couponList}">
+	          <div class="text-muted">보유한 쿠폰이 없습니다.</div>
+	        </c:when>
+	
+  	      <c:otherwise>
+	          <div class="table-responsive">
+	            <table class="table table-bordered mb-0">
+	              <thead class="thead-light">
+	                <tr>
+	                  <th style="width: 50%;">쿠폰명</th>
+	                  <th style="width: 25%;">할인가격</th>
+	                  <th style="width: 25%;">사용가능여부</th>
+	                </tr>
+	              </thead>
+	
+	              <tbody>
+	                <c:forEach var="row" items="${couponList}">
+	                  <tr>
+	                    <td>
+	                      <c:out value="${row['coupon'].couponName}" />
+	                    </td>
+			            <%-- 아래는 정액/정률에 따라 표시 방법이 달라짐. --%>
+						<td>
+						  <c:choose>
+						    <c:when test="${row['coupon'].discountType == 0}">
+						      <fmt:formatNumber value="${row['coupon'].discountValue}" type="number" />원
+						    </c:when>
+						    <c:otherwise>
+						      <c:out value="${row['coupon'].discountValue}" />%
+						    </c:otherwise>
+						  </c:choose>
+						</td>
+						
+	                    <td>
+	                      <c:choose>
+	                        <c:when test="${row['coupon'].usable == 1}">
+	                          <c:choose>
+	                            <c:when test="${row['issue'].usedYn == 1}">
+	                              <span class="badge badge-secondary">사용 완료</span>
+	                            </c:when>
+	                            <c:otherwise>
+	                              <span class="badge badge-success">사용 가능</span>
+	                            </c:otherwise>
+	                          </c:choose>
+	                        </c:when>
+	
+	                        <c:otherwise>
+	                          <span class="badge badge-secondary">사용 불가</span>
+	                        </c:otherwise>
+	                      </c:choose>
+	                    </td>
+	                  </tr>
+	                </c:forEach>
+	              </tbody>
+	            </table>
+	          </div>
+	        </c:otherwise>
+	      </c:choose>
+	    </div>
+	  </div>
 
-      <!-- Recent Orders 삭제 요청 반영 -->
+
+      
+      
+      
+      
+      
+      
+      
     </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
   </div>
 </div>
