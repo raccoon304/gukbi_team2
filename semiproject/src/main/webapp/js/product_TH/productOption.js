@@ -133,7 +133,7 @@ $(document).ready(function () {
 				data:{
 					"loginUserId":loginUserId, //회원아이디
 					"productOptionId": productOptionId, //옵션아이디
-					"quantity":quantity //재고량
+					"quantity":quantity //상품개수
 				},
 				type: "post",
 				dataType:"json",
@@ -163,10 +163,30 @@ $(document).ready(function () {
             return;
         }
 
-        if (confirm('상품을 구매하시겠습니까?\n'+'수량: '+quantity+'개\n'+'총 금액: '+totalPrice.toLocaleString()+'원')) {
-            alert('상품 구매 페이지로 이동합니다.');
-			location.href = 
-			window.location.href = '/semiproject/pay/payMent.hp';
+        if (confirm('상품을 구매하시겠습니까?\n'+'수량: '+quantity+'개\n'+
+				    '총 금액: '+totalPrice.toLocaleString()+'원\n확인 버튼을 누르면 상품 구매 페이지로 이동합니다.')) {
+            //alert('상품 구매 페이지로 이동합니다.');
+			//window.location.href = '/semiproject/pay/payMent.hp';
+			
+			//보내줘야 할 데이터: 옵션ID, 상품개수
+			$.ajax({
+				url:"productInsertPay.hp",
+				data:{
+					"loginUserId":loginUserId, //회원아이디
+					"productOptionId": productOptionId, //옵션아이디
+					"quantity":quantity //상품개수
+				},
+				type: "post",
+				dataType:"json",
+				success:function(json){
+					//console.log("확인용 json:" ,json);
+					alert(json.message);
+					location.href = json.loc;
+				},
+				error:function(request, status, error){
+					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+				}
+			});
         }
     });//end of $('#purchaseBtn').click(function()-----
 

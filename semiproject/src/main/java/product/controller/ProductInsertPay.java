@@ -11,10 +11,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import product.model.ProductDAO;
 import product.model.ProductDAO_imple;
 
-// ====== 장바구니 페이지 =======
-public class ProductInsertCart extends AbstractController {
+
+// ======= 구매하기 페이지 =======
+public class ProductInsertPay extends AbstractController {
 	private ProductDAO proDao = new ProductDAO_imple();
-	
+
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String method = request.getMethod();
@@ -37,8 +38,8 @@ public class ProductInsertCart extends AbstractController {
 			int result = proDao.insertProductCart(paraMap);
 			
 			if(result == 1) {
-				message = "장바구니 페이지로 이동하시겠습니까?";
-				loc = request.getContextPath() + "/cart/zangCart.hp";
+				message = "상품 구매 페이지로 이동합니다.";
+				loc = request.getContextPath() + "/pay/payMent.hp";
 			} else {
 				System.out.println("Insert문 SQL에 오류가 발생했습니다.");
 			}
@@ -59,7 +60,7 @@ public class ProductInsertCart extends AbstractController {
 		
 		super.setRedirect(false);
 		super.setViewPage("/WEB-INF/jsonview.jsp");
-		
+
 	}//end of execute()-----
 
 }
