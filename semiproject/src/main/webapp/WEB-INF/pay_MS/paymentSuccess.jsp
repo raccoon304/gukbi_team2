@@ -74,7 +74,7 @@ for (CartDTO cart : cartList) {
             − 할인금액 <fmt:formatNumber value="${orderList[0].discount_amount}" />원
         </p>
         <p class="final">
-            실결제금액
+            실제금액
             <fmt:formatNumber value="${orderList[0].total_amount - orderList[0].discount_amount}" />원
         </p>
     </div>
