@@ -73,10 +73,11 @@ public class CartController extends AbstractController {
 
     	            response.setContentType("application/json; charset=UTF-8");
     	            response.getWriter().printf(
-    	                "{\"quantity\":%d,\"total\":%d}",
-    	                cart.get("quantity"),
-    	                cart.get("total_price")
-    	            );
+    	            	    "{\"quantity\":%d,\"unitPrice\":%d,\"total\":%d}",
+    	            	    cart.get("quantity"),
+    	            	    cart.get("unit_price"),
+    	            	    cart.get("total_price")
+    	            	);
     	            return;
     	        }
 
