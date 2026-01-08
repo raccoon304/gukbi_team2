@@ -5,6 +5,7 @@ import java.util.Map;
 
 import common.controller.AbstractController;
 import coupon.domain.CouponDTO;
+import coupon.domain.CouponIssueDTO;
 import coupon.model.CouponDAO;
 import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,10 +43,17 @@ public class MyPage extends AbstractController {
             request.setAttribute("memberInfo", loginUser);
             
             List<Map<String, Object>> couponList = cdao.selectCouponList(userid); 
+            //System.out.println(couponList);
             
-            System.out.println(couponList);
+			/*
+			 * for (Map<String, Object> row : couponList) { CouponDTO c = (CouponDTO)
+			 * row.get("coupon"); CouponIssueDTO i = (CouponIssueDTO) row.get("issue");
+			 * 
+			 * System.out.println(c.getCouponCategoryNo());
+			 * System.out.println(i.getIssueDate()); }
+			*/
             
-            
+            request.setAttribute("couponList", couponList);
             
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/myPage_YD/myPage.jsp");
