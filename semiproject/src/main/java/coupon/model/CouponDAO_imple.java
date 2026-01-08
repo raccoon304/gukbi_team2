@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -121,44 +122,63 @@ public class CouponDAO_imple implements CouponDAO {
 	}
 	
 	// 쿠폰 리스트를 보여주는 메서드
-	   @Override
-	   public List<CouponDTO> selectCouponList(String userid) throws SQLException {
-	      
-	      List<CouponDTO> couponList = new ArrayList<>();
-	      
-	      try {
-	         conn = ds.getConnection();
-	         
-	         String sql = " SELECT coupon_category_no, coupon_name, discount_type, discount_value, usable "
-	                  + " FROM tbl_coupon "
-	                  + " WHERE member_id = ? "
-	                  + " ORDER BY coupon_category_no DESC ";
+	@Override
+	public List<Map<String, Object>> selectCouponList(String userid) throws SQLException {
 
-	         pstmt = conn.prepareStatement(sql);
-	         pstmt.setString(1, userid);
-	         
-	         rs = pstmt.executeQuery();
-	         
-	         while(rs.next()) {
-	            
+	    List<Map<String, Object>> couponList = new ArrayList<>();
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " SELECT c.coupon_category_no "
+	                   + "      , c.coupon_name "
+	                   + "      , c.discount_type "
+	                   + "      , c.discount_value "
+	                   + "      , c.usable "
+	                   + "      , ci.fk_member_id "
+	                   + "      , ci.issue_date "
+	                   + "      , ci.expire_date "
+	                   + "      , ci.used_yn "
+	                   + " FROM tbl_coupon_issue ci "
+	                   + " JOIN tbl_coupon c "
+	                   + "   ON c.coupon_category_no = ci.fk_coupon_category_no "
+	                   + " WHERE ci.fk_member_id = ? "
+	                   + " ORDER BY ci.issue_date DESC, c.coupon_category_no DESC ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, userid);
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+
 	            CouponDTO cpDto = new CouponDTO();
-	            
+	            CouponIssueDTO cpissDto = new CouponIssueDTO();
+
 	            cpDto.setCouponCategoryNo(rs.getInt("coupon_category_no"));
 	            cpDto.setCouponName(rs.getString("coupon_name"));
 	            cpDto.setDiscountType(rs.getInt("discount_type"));
 	            cpDto.setDiscountValue(rs.getInt("discount_value"));
 	            cpDto.setUsable(rs.getInt("usable"));
-	            
-	            couponList.add(cpDto);
-	            
-	         }// end of while(rs.next()) -------
-	         
-	      }finally {
-	         close();
-	      }
-	      
-	      return couponList;
-	   }
+
+	            cpissDto.setMemberId(rs.getString("fk_member_id"));
+	            cpissDto.setIssueDate(rs.getString("issue_date"));
+	            cpissDto.setExpireDate(rs.getString("expire_date"));
+	            cpissDto.setUsedYn(rs.getInt("used_yn"));
+
+	            Map<String, Object> row = new HashMap<>();
+	            row.put("coupon", cpDto);
+	            row.put("issue", cpissDto);
+
+	            couponList.add(row);
+	        }
+
+	    } finally {
+	        close();
+	    }
+
+	    return couponList;
+	}
 
 
 	// 쿠폰 총 페이지수

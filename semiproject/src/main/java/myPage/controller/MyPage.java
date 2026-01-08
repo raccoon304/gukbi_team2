@@ -1,6 +1,7 @@
 package myPage.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import common.controller.AbstractController;
 import coupon.domain.CouponDTO;
@@ -21,8 +22,7 @@ public class MyPage extends AbstractController {
 
         // 로그인 컨트롤러에서 저장한 키 그대로
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-        
-        
+                
         if (loginUser == null) {
             String message = "로그인 후 이용 가능합니다.";
             String loc = request.getContextPath() + "/index.hp";
@@ -37,9 +37,11 @@ public class MyPage extends AbstractController {
 
         if ("GET".equalsIgnoreCase(request.getMethod())) {
         	//System.out.println(loginUser.getName()+"하고"+loginUser.getRegisterday());
+        	
+        	String userid = loginUser.getMemberid();
             request.setAttribute("memberInfo", loginUser);
             
-            List<CouponDTO> couponList = cdao.selectCouponList(); 
+            List<Map<String, Object>> couponList = cdao.selectCouponList(userid); 
             
             System.out.println(couponList);
             

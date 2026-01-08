@@ -14,7 +14,7 @@ public interface CouponDAO {
 
 	// 쿠폰 리스트를 보여주는 메서드
 	List<CouponDTO> selectCouponList() throws SQLException;
-	public List<CouponDTO> selectCouponList(String userid) throws SQLException;
+	public List<Map<String, Object>> selectCouponList(String userid) throws SQLException;
 	
 	// 쿠폰 총 페이지수
 	int getTotalPageCoupon(Map<String,String> paraMap) throws SQLException;
