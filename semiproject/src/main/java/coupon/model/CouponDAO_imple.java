@@ -120,6 +120,46 @@ public class CouponDAO_imple implements CouponDAO {
 		
 		return couponList;
 	}
+	
+	// 쿠폰 리스트를 보여주는 메서드
+	   @Override
+	   public List<CouponDTO> selectCouponList(String userid) throws SQLException {
+	      
+	      List<CouponDTO> couponList = new ArrayList<>();
+	      
+	      try {
+	         conn = ds.getConnection();
+	         
+	         String sql = " SELECT coupon_category_no, coupon_name, discount_type, discount_value, usable "
+	                  + " FROM tbl_coupon "
+	                  + " WHERE member_id = ? "
+	                  + " ORDER BY coupon_category_no DESC ";
+
+	         pstmt = conn.prepareStatement(sql);
+	         pstmt.setString(1, userid);
+	         
+	         rs = pstmt.executeQuery();
+	         
+	         while(rs.next()) {
+	            
+	            CouponDTO cpDto = new CouponDTO();
+	            
+	            cpDto.setCouponCategoryNo(rs.getInt("coupon_category_no"));
+	            cpDto.setCouponName(rs.getString("coupon_name"));
+	            cpDto.setDiscountType(rs.getInt("discount_type"));
+	            cpDto.setDiscountValue(rs.getInt("discount_value"));
+	            cpDto.setUsable(rs.getInt("usable"));
+	            
+	            couponList.add(cpDto);
+	            
+	         }// end of while(rs.next()) -------
+	         
+	      }finally {
+	         close();
+	      }
+	      
+	      return couponList;
+	   }
 
 
 	// 쿠폰 총 페이지수
@@ -607,5 +647,45 @@ public class CouponDAO_imple implements CouponDAO {
 	    return n;
 		
 	}
+
+
+	// 쿠폰의 총개수 알아오기
+	@Override
+	public int getTotalCouponCount(Map<String, String> paraMap) throws SQLException {
+		
+		int totalCouponCount = 0;
+		
+		try {
+			
+			String type = paraMap.get("type");
+		//	String sort = paraMap.get("sort");
+			
+			conn = ds.getConnection();
+			
+			String sql = " SELECT count(*) "
+					   + " FROM tbl_coupon "
+					   + " Where 1 = 1 ";
+			
+			if(type != null && !type.isBlank()) {
+	            sql += " AND discount_type = ? ";
+	        }
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			if(type != null && !type.isBlank()) {
+				pstmt.setInt(1, Integer.parseInt(type));
+	        }
+			
+			rs = pstmt.executeQuery();
+			
+			rs.next();
+			
+			totalCouponCount = rs.getInt(1);
+		}finally {
+			close();
+		}
+		return totalCouponCount;
+		
+	}// end of public int getTotalCouponCount(Map<String, String> paraMap) throws SQLException -------
 
 }
