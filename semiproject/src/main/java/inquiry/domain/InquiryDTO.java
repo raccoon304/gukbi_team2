@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 
 public class InquiryDTO {
     private int inquiryNumber;
-    private String memberID;          // DB: FK_MEMBER_ID
+    private String memberid;          // DB: FK_MEMBER_ID
     private String inquiryType;
     private String title;
-    private LocalDateTime registerday;
+    private String registerday;
     private String inquiryContent;
     private String replyContent;
-    private LocalDateTime replyRegisterday;
+    private String replyRegisterday;
     private int replyStatus;          // 0:보류, 1:접수, 2:답변완료
     
     // Getter & Setter
@@ -22,12 +22,12 @@ public class InquiryDTO {
         this.inquiryNumber = inquiryNumber;
     }
     
-    public String getMemberID() {
-        return memberID;
+    public String getMemberid() {
+        return memberid;
     }
     
-    public void setMemberID(String memberID) {
-        this.memberID = memberID;
+    public void setMemberid(String memberid) {
+        this.memberid = memberid;
     }
     
     public String getInquiryType() {
@@ -46,11 +46,11 @@ public class InquiryDTO {
         this.title = title;
     }
     
-    public LocalDateTime getRegisterday() {
+    public String getRegisterday() {
         return registerday;
     }
     
-    public void setRegisterday(LocalDateTime registerday) {
+    public void setRegisterday(String registerday) {
         this.registerday = registerday;
     }
     
@@ -70,11 +70,11 @@ public class InquiryDTO {
         this.replyContent = replyContent;
     }
     
-    public LocalDateTime getReplyRegisterday() {
+    public String getReplyRegisterday() {
         return replyRegisterday;
     }
     
-    public void setReplyRegisterday(LocalDateTime replyRegisterday) {
+    public void setReplyRegisterday(String replyRegisterday) {
         this.replyRegisterday = replyRegisterday;
     }
     

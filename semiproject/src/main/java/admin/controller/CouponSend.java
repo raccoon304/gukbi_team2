@@ -31,7 +31,7 @@ public class CouponSend extends AbstractController {
             request.setAttribute("message", message);
             request.setAttribute("loc", loc);
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/msg.jsp");
+            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
             return;
         }
 
@@ -57,7 +57,7 @@ public class CouponSend extends AbstractController {
                 request.setAttribute("message", "쿠폰 번호가 올바르지 않습니다.");
                 request.setAttribute("loc", ctxPath + "/admin/coupon.hp");
                 super.setRedirect(false);
-                super.setViewPage("/WEB-INF/msg.jsp");
+                super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
                 return;
             }
 
@@ -66,7 +66,7 @@ public class CouponSend extends AbstractController {
                 request.setAttribute("message", "만료일을 선택하세요.");
                 request.setAttribute("loc", ctxPath + "/admin/coupon.hp");
                 super.setRedirect(false);
-                super.setViewPage("/WEB-INF/msg.jsp");
+                super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
                 return;
             }
 
@@ -77,7 +77,7 @@ public class CouponSend extends AbstractController {
                 request.setAttribute("message", "만료일 형식이 올바르지 않습니다. (yyyy-MM-dd)");
                 request.setAttribute("loc", ctxPath + "/admin/coupon.hp");
                 super.setRedirect(false);
-                super.setViewPage("/WEB-INF/msg.jsp");
+                super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
                 return;
             }
 
@@ -86,7 +86,7 @@ public class CouponSend extends AbstractController {
                 request.setAttribute("message", "만료일은 오늘 이전으로 설정할 수 없습니다.");
                 request.setAttribute("loc", ctxPath + "/admin/coupon.hp");
                 super.setRedirect(false);
-                super.setViewPage("/WEB-INF/msg.jsp");
+                super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
                 return;
             }
 
@@ -130,7 +130,7 @@ public class CouponSend extends AbstractController {
                 request.setAttribute("message", "쿠폰을 발급할 회원이 없습니다.");
                 request.setAttribute("loc", ctxPath + "/admin/coupon.hp");
                 super.setRedirect(false);
-                super.setViewPage("/WEB-INF/msg.jsp");
+                super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
                 return;
             }
 
@@ -147,14 +147,14 @@ public class CouponSend extends AbstractController {
             request.setAttribute("message", msg);
             request.setAttribute("loc", ctxPath + "/admin/coupon.hp");
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/msg.jsp");
+            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
         }
         catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("message", "쿠폰 전송 중 오류가 발생했습니다.");
             request.setAttribute("loc", request.getContextPath() + "/admin/coupon.hp");
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/msg.jsp");
+            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
         }
     }
 
