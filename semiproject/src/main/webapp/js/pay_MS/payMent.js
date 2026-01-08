@@ -41,7 +41,7 @@ $(function () {
     if (!detailAddress) {
       alert("상세주소를 입력해주세요.");
       $("#detailAddress").focus();
-      return;
+      return; 
     }
 
     if (!finalPrice || finalPrice <= 0) {
