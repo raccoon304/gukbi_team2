@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -67,35 +68,6 @@ public class ProductDAO_imple implements ProductDAO {
 		} finally {close();}
 		return productList;
 	}//end of public List<ProductDTO> selectProduct() throws SQLException-----
-
-
-	//제품에 대한 옵션 리스트로 전부 검색하기(select)
-	/*
-	@Override
-	public List<ProductOptionDTO> selectProductOption() throws SQLException {
-		List<ProductOptionDTO> proOptionList = new ArrayList<>();
-		try {
-			conn = ds.getConnection();
-			String sql = " SELECT option_id,fk_product_code,color,storage_size,price,stock_qty "
-						+" FROM tbl_product_option ";
-			pstmt = conn.prepareStatement(sql);
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				ProductOptionDTO proDetailDto = new ProductOptionDTO();
-				proDetailDto.setOptionId(rs.getInt("option_id"));
-				proDetailDto.setFkProductCode(rs.getString("fk_product_code"));
-				proDetailDto.setColor(rs.getString("color"));
-				proDetailDto.setStorageSize(rs.getString("storage_size"));
-				proDetailDto.setPrice(rs.getInt("price"));
-				proDetailDto.setStockQty(rs.getInt("stock_qty"));
-				//proDetailDto.setImagePath(rs.getString("image_path"));
-
-				proOptionList.add(proDetailDto);
-			}
-		} finally {close();}
-		return proOptionList;
-	}//end of public List<ProductDTO> selectProductOption() throws SQLException-----
-	*/
 
 	
 	
@@ -166,6 +138,7 @@ public class ProductDAO_imple implements ProductDAO {
 	}//end of public ProductDetailDTO selectOne(String test) throws SQLException-----
 
 	
+	
 	//상품페이지의 카드UI용 DTO를 이용해 상품정보 가져오기(상품코드,상품명,브랜드명,이미지경로,가격)
 	@Override
 	public List<ProductDTO> productCardList() throws SQLException {
@@ -193,28 +166,6 @@ public class ProductDAO_imple implements ProductDAO {
 	}//end of public List<ProductListDTO> productCardList() throws SQLException-----
 
 
-
-	//제품코드에 따른 옵션 중 추가금 리스트로 전부 가져오기
-	/*
-	@Override
-	public Map<String, String> selectOptionPlusPrice() throws SQLException {
-		Map<String, String> paraMap = new HashMap<String, String>();
-		
-		try {
-			conn = ds.getConnection();
-			String sql = " select distinct fk_product_code, plus_price, storage_size "
-						+" from tbl_product_option ";
-			pstmt = conn.prepareStatement(sql);
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				paraMap.put(rs.getString("fk_product_code"), String.valueOf(rs.getString("plus_price")));
-			}
-		} finally {close();}
-		
-		return paraMap;
-	}//end of public Map<String, String> selectOptionPlusPrice() throws SQLException-----
-	*/
-
 	
 	//제품코드에 따른 추가금을 가져오기(512GB만 추가금이 있으므로 그것만 가져오기
 	@Override
@@ -236,6 +187,27 @@ public class ProductDAO_imple implements ProductDAO {
 		} finally {close();}
 		return plusPrice;
 	}//end of public int selectOptionPlusPrice(String productCode) throws SQLException-----
+
+
+	
+	//장바구니 테이블에 값 삽입하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
+	@Override
+	public int insertProductCart(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " insert into tbl_cart(cart_id, fk_member_id, fk_option_id, quantity) "
+						+" values(seq_tbl_cart_cart_id.nextval, ?, ?, ?) ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("loginUserId"));
+			pstmt.setString(2, paraMap.get("productOptionId"));
+			pstmt.setString(3, paraMap.get("quantity"));
+			
+			result = pstmt.executeUpdate();
+		} finally {close();}
+		
+		return result;
+	}//end of public CartDTO insertProductCart(Map<String, String> paraMap) throws SQLException-----
 	
 	
 	

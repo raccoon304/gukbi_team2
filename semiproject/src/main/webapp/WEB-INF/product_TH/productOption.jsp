@@ -154,7 +154,9 @@
 	//java단에서 받아온 데이터를 JS 파일로 넘겨주기
     var pageData = {
         isLoggedIn: "${loginUser.name}" !== "", //사용자가 로그인을 했는지 true/false 값
+        loginUserId: "${loginUser.memberid}",  //장바구니에 보낼 회원아이디
         productCode: "${proOptionDto.fkProductCode}", //상품코드
+        productOptionId: Number("${proOptionDto.optionId}"), //옵션아이디
         unitPrice: Number("${proDto.price}"), // 기본금액(상품 초기 설정가격)
         plusPrice: Number("${plusPrice}"),  //512GB에 따른 추가금액
         maxStock: Number("${proOptionDto.stockQty}") // 재고 수량(수량을 증가할 때 재고수량은 넘길 수 없음)

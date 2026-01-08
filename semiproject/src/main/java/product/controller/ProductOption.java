@@ -33,18 +33,12 @@ public class ProductOption extends AbstractController {
 			ProductOptionDTO proOptionDto = proDao.selectOptionOne(productCode);
 			//System.out.println(proOptionDto.getTotalPrice());
 			
-			//제품코드에 따른 옵션 중 추가금을 Map<>으로 전부 가져오기(256GB, 512GB)
-			//Map<String, String> paraMap = proDao.selectOptionPlusPrice();
-			
 			//제품코드에 따른 추가금을 가져오기(512GB만 추가금이 있으므로 그것만 가져오기
 			int plusPrice = proDao.selectOptionPlusPrice(productCode);
 				
 			request.setAttribute("proDto", proDto);
 			//request.setAttribute("proOptionList", proOptionList);
 			request.setAttribute("proOptionDto", proOptionDto);
-			
-			//request.setAttribute("paraMap", paraMap);
-			//System.out.println(paraMap.get(productCode));
 			
 			request.setAttribute("plusPrice", plusPrice);
 			//System.out.println(plusPrice);
