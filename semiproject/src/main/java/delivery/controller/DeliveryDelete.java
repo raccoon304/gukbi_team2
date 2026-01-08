@@ -1,6 +1,8 @@
-package myPage.controller;
+package delivery.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import common.controller.AbstractController;
 import delivery.domain.DeliveryDTO;
@@ -11,10 +13,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
 
-public class Delivery extends AbstractController {
-
-	private DeliveryDAO dDao = new DeliveryDAO_imple(); // 너희가 만든 DAO로
-
+public class DeliveryDelete extends AbstractController {
+	DeliveryDAO dDao = new DeliveryDAO_imple();
+	
 	@Override
   	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -30,14 +31,24 @@ public class Delivery extends AbstractController {
   		}
 
   		String memberid = loginUser.getMemberid();
-
-  		// 배송지 목록 조회
-  		List<DeliveryDTO> deliveryList = dDao.selectDeliveryList(memberid);
-
-  		request.setAttribute("memberInfo", loginUser);
-  		request.setAttribute("deliveryList", deliveryList);
-
-  		super.setRedirect(false);
-  		super.setViewPage("/WEB-INF/myPage_YD/delivery.jsp"); 
+  		
+  		String[] selectAddId = request.getParameterValues("deliveryAddressId");
+		/*
+		 * System.out.println(ids.length);  1 개 체크시 1 
+		 * System.out.println(ids[0]); delivery_address_id가 나옴.
+		 */
+  		Map<String, String> paraMap = new HashMap<>();
+  		
+  		paraMap.put("memberid", memberid);
+  		
+  		for(int i=0; i<selectAddId.length; i++) {
+  			//System.out.println("selectAddId"+i + selectAddId[i]);
+  			paraMap.put("selectAddId"+i, selectAddId[i]);
+  		}
+  		
+  		
+  		super.setRedirect(true);
+  		super.setViewPage(request.getContextPath() + "/myPage/delivery.hp"); 
   	}
+
 }

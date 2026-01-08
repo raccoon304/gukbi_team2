@@ -103,4 +103,25 @@ public class DeliveryDAO_imple implements DeliveryDAO {
 		return deliveryList;
 	}
 
+	// 배송지를 삭제하는 메서드
+	@Override
+	public int deleteDelivery(String memberid) throws SQLException {
+		int n = 0;
+		
+		conn = ds.getConnection();
+		
+		String sql = " select delivery_address_id, recipient_name, recipient_phone, address, address_detail, is_default, postal_code, address_name "
+				+ " from tbl_delivery "
+				+ " where fk_member_id = ? ";
+		
+		pstmt = conn.prepareStatement(sql);
+		
+		pstmt.setString(1, memberid);
+		rs = pstmt.executeQuery();
+		
+		
+		
+		return 0;
+	}
+
 }
