@@ -144,7 +144,7 @@
           <button type = "button" id="applyCouponBtn">쿠폰 적용금액</button>
            <span id="discountAmount">- 0 원</span>
         </div>
-		<input type="hidden" id="couponDiscount" value="${discountPrice}" />
+		<input type="hidden" id="couponDiscount" value="${totalPrice}" />
 		<input type="hidden" id="totalPrice" value="${totalPrice}" />	
 		<input type="hidden" id="finalPrice" value="${finalPrice}" />
 		
@@ -175,8 +175,7 @@
 <script src="<%= ctxPath %>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
 <script>
-
-
+  const PAY_CTX = "<%= request.getContextPath() %>";
 </script>
 
 </body>

@@ -12,6 +12,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
 
+import coupon.model.CouponDAO;
+import coupon.model.CouponDAO_imple;
+import coupon.domain.CouponDTO;
+import coupon.domain.CouponIssueDTO;
+
 public class PayController extends AbstractController {
 
     private CartDAO cartDao = new CartDAO_imple();
@@ -37,6 +42,7 @@ public class PayController extends AbstractController {
         
 
         String cartIdsParam = request.getParameter("cartIds");
+        String couponIdParam = request.getParameter("couponId");
 
         if (cartIdsParam == null || cartIdsParam.trim().isEmpty()) {
             response.setContentType("text/html; charset=UTF-8");
@@ -77,9 +83,45 @@ public class PayController extends AbstractController {
         	 totalPrice += (Integer) item.get("total_price");
         }
 
+        
         // 3. 할인
         int discountPrice = 0;
 
+        
+        if (couponIdParam != null && !couponIdParam.isBlank()) {
+
+            try {
+                int couponId = Integer.parseInt(couponIdParam);
+
+                CouponDAO cdao = new CouponDAO_imple();
+                List<Map<String, Object>> couponList =
+                        cdao.selectCouponList(loginUser.getMemberid());
+
+                for (Map<String, Object> row : couponList) {
+
+                    CouponDTO coupon = (CouponDTO) row.get("coupon");
+                    CouponIssueDTO issue = (CouponIssueDTO) row.get("issue");
+
+                    if (issue.getCouponId() == couponId
+                        && issue.getUsedYn() == 0) {   
+
+                        if (coupon.getDiscountType() == 1) { // 정액
+                            discountPrice = coupon.getDiscountValue();
+                        }
+                        else if (coupon.getDiscountType() == 2) { // 정률
+                            discountPrice = totalPrice
+                                            * coupon.getDiscountValue() / 100;
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception ignore) {}
+        }
+
+        // 방어
+        if (discountPrice > totalPrice) {
+            discountPrice = totalPrice;
+        }
         // 4. 최종 금액
         int finalPrice = totalPrice - discountPrice;
 
