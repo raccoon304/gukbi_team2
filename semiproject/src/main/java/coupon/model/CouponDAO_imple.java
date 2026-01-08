@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +98,6 @@ public class CouponDAO_imple implements CouponDAO {
 
 			pstmt = conn.prepareStatement(sql);
 			
-			
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
@@ -119,6 +119,65 @@ public class CouponDAO_imple implements CouponDAO {
 		}
 		
 		return couponList;
+	}
+	
+	// 쿠폰 리스트를 보여주는 메서드
+	@Override
+	public List<Map<String, Object>> selectCouponList(String userid) throws SQLException {
+
+	    List<Map<String, Object>> couponList = new ArrayList<>();
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " SELECT c.coupon_category_no "
+	                   + "      , c.coupon_name "
+	                   + "      , c.discount_type "
+	                   + "      , c.discount_value "
+	                   + "      , c.usable "
+	                   + "      , ci.fk_member_id "
+	                   + "      , ci.issue_date "
+	                   + "      , ci.expire_date "
+	                   + "      , ci.used_yn "
+	                   + " FROM tbl_coupon_issue ci "
+	                   + " JOIN tbl_coupon c "
+	                   + "   ON c.coupon_category_no = ci.fk_coupon_category_no "
+	                   + " WHERE ci.fk_member_id = ? "
+	                   + " ORDER BY ci.issue_date DESC, c.coupon_category_no DESC ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, userid);
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+
+	            CouponDTO cpDto = new CouponDTO();
+	            CouponIssueDTO cpissDto = new CouponIssueDTO();
+
+	            cpDto.setCouponCategoryNo(rs.getInt("coupon_category_no"));
+	            cpDto.setCouponName(rs.getString("coupon_name"));
+	            cpDto.setDiscountType(rs.getInt("discount_type"));
+	            cpDto.setDiscountValue(rs.getInt("discount_value"));
+	            cpDto.setUsable(rs.getInt("usable"));
+
+	            cpissDto.setMemberId(rs.getString("fk_member_id"));
+	            cpissDto.setIssueDate(rs.getString("issue_date"));
+	            cpissDto.setExpireDate(rs.getString("expire_date"));
+	            cpissDto.setUsedYn(rs.getInt("used_yn"));
+
+	            Map<String, Object> row = new HashMap<>();
+	            row.put("coupon", cpDto);
+	            row.put("issue", cpissDto);
+
+	            couponList.add(row);
+	        }
+
+	    } finally {
+	        close();
+	    }
+
+	    return couponList;
 	}
 
 
@@ -607,5 +666,45 @@ public class CouponDAO_imple implements CouponDAO {
 	    return n;
 		
 	}
+
+
+	// 쿠폰의 총개수 알아오기
+	@Override
+	public int getTotalCouponCount(Map<String, String> paraMap) throws SQLException {
+		
+		int totalCouponCount = 0;
+		
+		try {
+			
+			String type = paraMap.get("type");
+		//	String sort = paraMap.get("sort");
+			
+			conn = ds.getConnection();
+			
+			String sql = " SELECT count(*) "
+					   + " FROM tbl_coupon "
+					   + " Where 1 = 1 ";
+			
+			if(type != null && !type.isBlank()) {
+	            sql += " AND discount_type = ? ";
+	        }
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			if(type != null && !type.isBlank()) {
+				pstmt.setInt(1, Integer.parseInt(type));
+	        }
+			
+			rs = pstmt.executeQuery();
+			
+			rs.next();
+			
+			totalCouponCount = rs.getInt(1);
+		}finally {
+			close();
+		}
+		return totalCouponCount;
+		
+	}// end of public int getTotalCouponCount(Map<String, String> paraMap) throws SQLException -------
 
 }

@@ -1,5 +1,7 @@
 package inquiry.model;
 
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import inquiry.domain.InquiryDTO;
+import member.domain.MemberDTO;
 
 public class InquiryDAO_imple implements InquiryDAO {
     
@@ -59,12 +62,12 @@ public class InquiryDAO_imple implements InquiryDAO {
         try {
             conn = ds.getConnection();
             
-            String sql = " INSERT INTO TBL_INQUIRY (INQUIRY_NUMBER, FK_MEMBER_ID, INQUIRY_TYPE, TITLE, " +
-                         " INQUIRY_CONTENT, REPLY_STATUS) " +
+            String sql = " INSERT INTO tbl_inquiry (inquiry_number, fk_member_id, inquiry_type, title, " +
+                         " inquiry_content, reply_status) " +
                          " VALUES (SEQ_TBL_INQUIRY_INQUIRY_NUMBER.NEXTVAL, ?, ?, ?, ?, 1) ";
             
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, inquiry.getMemberID());
+            pstmt.setString(1, inquiry.getMemberid());
             pstmt.setString(2, inquiry.getInquiryType());
             pstmt.setString(3, inquiry.getTitle());
             pstmt.setString(4, inquiry.getInquiryContent());
@@ -86,35 +89,32 @@ public class InquiryDAO_imple implements InquiryDAO {
         try {
             conn = ds.getConnection();
             
-            String sql = " SELECT INQUIRY_NUMBER, FK_MEMBER_ID, INQUIRY_TYPE, TITLE, " +
-                        " REGISTERDAY, INQUIRY_CONTENT, REPLY_CONTENT, REPLY_REGISTERDAY, REPLY_STATUS " +
-                        " FROM TBL_INQUIRY " +
-                        " ORDER BY INQUIRY_NUMBER DESC ";
+            String sql = " SELECT inquiry_number, fk_member_id, inquiry_type, title " 
+                       + "      , to_char(registerday, 'yyyy-mm-dd') AS registerday "
+                       + "      , inquiry_content, reply_content"
+                       + "      , to_char(reply_registerday, 'yyyy-mm-dd') AS reply_registerday"
+                       + "      , reply_status "
+                       + " FROM tbl_inquiry "
+                       + " ORDER BY inquiry_number DESC ";
             
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
             
             while (rs.next()) {
                 InquiryDTO inquiry = new InquiryDTO();
-                inquiry.setInquiryNumber(rs.getInt("INQUIRY_NUMBER"));
-                inquiry.setMemberID(rs.getString("FK_MEMBER_ID"));
-                inquiry.setInquiryType(rs.getString("INQUIRY_TYPE"));
-                inquiry.setTitle(rs.getString("TITLE"));
+                inquiry.setInquiryNumber(rs.getInt("inquiry_number"));
+                inquiry.setMemberid(rs.getString("fk_member_id"));
+                inquiry.setInquiryType(rs.getString("inquiry_type"));
+                inquiry.setTitle(rs.getString("title"));
                 
-                Timestamp registerday = rs.getTimestamp("REGISTERDAY");
-                if (registerday != null) {
-                    inquiry.setRegisterday(registerday.toLocalDateTime());
-                }
+                inquiry.setRegisterday(rs.getString("registerday"));
                 
-                inquiry.setInquiryContent(rs.getString("INQUIRY_CONTENT"));
-                inquiry.setReplyContent(rs.getString("REPLY_CONTENT"));
+                inquiry.setInquiryContent(rs.getString("inquiry_content"));
+                inquiry.setReplyContent(rs.getString("reply_content"));
                 
-                Timestamp replyRegisterday = rs.getTimestamp("REPLY_REGISTERDAY");
-                if (replyRegisterday != null) {
-                    inquiry.setReplyRegisterday(replyRegisterday.toLocalDateTime());
-                }
+                inquiry.setReplyRegisterday(rs.getString("reply_registerday"));
                 
-                inquiry.setReplyStatus(rs.getInt("REPLY_STATUS"));
+                inquiry.setReplyStatus(rs.getInt("reply_status"));
                 
                 inquiryList.add(inquiry);
             }
@@ -126,6 +126,7 @@ public class InquiryDAO_imple implements InquiryDAO {
         return inquiryList;
     }
     
+    
     // 3. 특정 회원의 문의 목록 조회
     @Override
     public List<InquiryDTO> selectInquiriesByMember(String memberID) throws SQLException {
@@ -134,11 +135,14 @@ public class InquiryDAO_imple implements InquiryDAO {
         try {
             conn = ds.getConnection();
             
-            String sql = " SELECT INQUIRY_NUMBER, FK_MEMBER_ID, INQUIRY_TYPE, TITLE, " +
-                        " REGISTERDAY, INQUIRY_CONTENT, REPLY_CONTENT, REPLY_REGISTERDAY, REPLY_STATUS " +
-                        " FROM TBL_INQUIRY " +
-                        " WHERE FK_MEMBER_ID = ? " +
-                        " ORDER BY INQUIRY_NUMBER DESC ";
+            String sql = " SELECT inquiry_number, fk_member_id, inquiry_type, title "
+            		       + "      , to_char(registerday, 'yyyy-mm-dd') AS registerday "
+                       + "      , inquiry_content, reply_content"
+                       + "      , to_char(reply_registerday, 'yyyy-mm-dd') AS reply_registerday "
+                       + "      , REPLY_STATUS "
+                       + " FROM tbl_inquiry "
+                       + " WHERE fk_member_id = ? "
+                       + " ORDER BY inquiry_number DESC ";
             
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, memberID);
@@ -146,25 +150,19 @@ public class InquiryDAO_imple implements InquiryDAO {
             
             while (rs.next()) {
                 InquiryDTO inquiry = new InquiryDTO();
-                inquiry.setInquiryNumber(rs.getInt("INQUIRY_NUMBER"));
-                inquiry.setMemberID(rs.getString("FK_MEMBER_ID"));
-                inquiry.setInquiryType(rs.getString("INQUIRY_TYPE"));
-                inquiry.setTitle(rs.getString("TITLE"));
+                inquiry.setInquiryNumber(rs.getInt("inquiry_number"));
+                inquiry.setMemberid(rs.getString("fk_member_id"));
+                inquiry.setInquiryType(rs.getString("inquiry_type"));
+                inquiry.setTitle(rs.getString("title"));
                 
-                Timestamp registerday = rs.getTimestamp("REGISTERDAY");
-                if (registerday != null) {
-                    inquiry.setRegisterday(registerday.toLocalDateTime());
-                }
+                inquiry.setRegisterday(rs.getString("registerday"));
                 
-                inquiry.setInquiryContent(rs.getString("INQUIRY_CONTENT"));
-                inquiry.setReplyContent(rs.getString("REPLY_CONTENT"));
+                inquiry.setInquiryContent(rs.getString("inquiry_content"));
+                inquiry.setReplyContent(rs.getString("reply_content"));
                 
-                Timestamp replyRegisterday = rs.getTimestamp("REPLY_REGISTERDAY");
-                if (replyRegisterday != null) {
-                    inquiry.setReplyRegisterday(replyRegisterday.toLocalDateTime());
-                }
+                inquiry.setReplyRegisterday(rs.getString("reply_registerday"));
                 
-                inquiry.setReplyStatus(rs.getInt("REPLY_STATUS"));
+                inquiry.setReplyStatus(rs.getInt("reply_status"));
                 
                 inquiryList.add(inquiry);
             }
@@ -184,10 +182,13 @@ public class InquiryDAO_imple implements InquiryDAO {
         try {
             conn = ds.getConnection();
             
-            String sql = " SELECT INQUIRY_NUMBER, FK_MEMBER_ID, INQUIRY_TYPE, TITLE, " +
-                        " REGISTERDAY, INQUIRY_CONTENT, REPLY_CONTENT, REPLY_REGISTERDAY, REPLY_STATUS " +
-                        " FROM TBL_INQUIRY " +
-                        " WHERE INQUIRY_NUMBER = ? ";
+            String sql = " SELECT inquiry_number, fk_member_id, inquiry_type, title "
+                       + "       , to_char(registerday, 'yyyy-mm-dd') AS registerday "
+                       + "       , inquiry_content, reply_content "
+                       + "       , to_char(reply_registerday, 'yyyy-mm-dd') AS reply_registerday "
+                       + "       , reply_status "
+                       + " FROM tbl_inquiry " 
+                       + " WHERE inquiry_number = ? ";
             
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, inquiryNumber);
@@ -196,23 +197,16 @@ public class InquiryDAO_imple implements InquiryDAO {
             if (rs.next()) {
                 inquiry = new InquiryDTO();
                 inquiry.setInquiryNumber(rs.getInt("INQUIRY_NUMBER"));
-                inquiry.setMemberID(rs.getString("FK_MEMBER_ID"));
+                inquiry.setMemberid(rs.getString("FK_MEMBER_ID"));
                 inquiry.setInquiryType(rs.getString("INQUIRY_TYPE"));
                 inquiry.setTitle(rs.getString("TITLE"));
-                
-                Timestamp registerday = rs.getTimestamp("REGISTERDAY");
-                if (registerday != null) {
-                    inquiry.setRegisterday(registerday.toLocalDateTime());
-                }
+                inquiry.setRegisterday(rs.getString("REGISTERDAY"));
                 
                 inquiry.setInquiryContent(rs.getString("INQUIRY_CONTENT"));
                 inquiry.setReplyContent(rs.getString("REPLY_CONTENT"));
                 
-                Timestamp replyRegisterday = rs.getTimestamp("REPLY_REGISTERDAY");
-                if (replyRegisterday != null) {
-                    inquiry.setReplyRegisterday(replyRegisterday.toLocalDateTime());
-                }
-                
+                inquiry.setReplyRegisterday(rs.getString("REPLY_REGISTERDAY"));
+              
                 inquiry.setReplyStatus(rs.getInt("REPLY_STATUS"));
             }
             
@@ -240,7 +234,7 @@ public class InquiryDAO_imple implements InquiryDAO {
             pstmt.setString(2, inquiry.getTitle());
             pstmt.setString(3, inquiry.getInquiryContent());
             pstmt.setInt(4, inquiry.getInquiryNumber());
-            pstmt.setString(5, inquiry.getMemberID());
+            pstmt.setString(5, inquiry.getMemberid());
             
             result = pstmt.executeUpdate();
             
@@ -275,19 +269,19 @@ public class InquiryDAO_imple implements InquiryDAO {
     
     // 7. 관리자 답변 등록/수정 (답변 등록 시 자동으로 상태를 2-답변완료로 변경)
     @Override
-    public int updateReply(Map<String, Object> replyMap) throws SQLException {
+    public int updateReply(Map<String, String> paraMap) throws SQLException {
         int result = 0;
         
         try {
             conn = ds.getConnection();
             
-            String sql = " UPDATE TBL_INQUIRY " +
-                        " SET REPLY_CONTENT = ?, REPLY_REGISTERDAY = SYSDATE, REPLY_STATUS = 2 " +
-                        " WHERE INQUIRY_NUMBER = ? ";
+            String sql = " UPDATE TBL_INQUIRY "
+                       + " SET REPLY_CONTENT = ?, REPLY_REGISTERDAY = SYSDATE, REPLY_STATUS = 2 "
+                       + " WHERE INQUIRY_NUMBER = ? ";
             
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, (String) replyMap.get("replyContent"));
-            pstmt.setInt(2, (Integer) replyMap.get("inquiryNumber"));
+            pstmt.setString(1, paraMap.get("replyContent"));
+            pstmt.setInt(2, Integer.parseInt(paraMap.get("inquiryNumber")));
             
             result = pstmt.executeUpdate();
             
@@ -296,7 +290,8 @@ public class InquiryDAO_imple implements InquiryDAO {
         }
         
         return result;
-    }
+    }// end of public int updateReply(Map<String, String> paraMap) throws SQLException -------
+    
     
     // 8. 답변 상태 변경 (관리자용)
     @Override
@@ -320,4 +315,159 @@ public class InquiryDAO_imple implements InquiryDAO {
         
         return result;
     }
+
+    
+    // 문의 총 개수
+	@Override
+	public int getTotalCount(Map<String, String> paraMap) throws SQLException {
+		
+		int totalCount = 0;
+
+		String isAdmin = paraMap.get("isAdmin");      // "true" or "false"
+	    String memberid = paraMap.get("memberid");    // 일반회원일 때만 사용
+	    String inquiryType = paraMap.get("inquiryType"); // "" 또는 null 이면 전체
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " SELECT count(*) "
+	        		       + " FROM tbl_inquiry "
+	        		       + " WHERE 1=1 ";
+	        
+	        // 일반회원이면 내 문의만
+	        if (!"true".equals(isAdmin)) {
+	            sql += " AND fk_member_id = ? ";
+	        }
+
+	        // 유형 필터
+	        if (inquiryType != null && !inquiryType.trim().isEmpty()) {
+	        	sql += " AND INQUIRY_TYPE = ? ";
+	        }
+	        
+	        pstmt = conn.prepareStatement(sql);
+	        
+	        if (!"true".equals(isAdmin)) {
+	        		pstmt.setString(1, memberid);
+	        		
+	        		if(inquiryType != null && !inquiryType.isEmpty()) {
+	        			pstmt.setString(2, inquiryType);
+	        		}
+	        		
+	        }
+	        else {
+	        	
+		        	if(inquiryType != null && !inquiryType.isEmpty()) {
+	        			pstmt.setString(2, inquiryType);
+	        		}
+	        	
+	        }
+	        
+	        rs = pstmt.executeQuery();
+	        
+	        rs.next();
+	        totalCount = rs.getInt(1);
+	        
+		} finally {
+			close();
+		}		
+		
+		return totalCount;
+	
+	}// end of public int getTotalCount(Map<String, String> paraMap) throws SQLException -------
+
+	
+	// 문의 페이징 리스트
+	@Override
+	public List<InquiryDTO> selectInquiriesPaging(Map<String, String> paraMap) throws SQLException {
+		
+		List<InquiryDTO> list = new ArrayList<>();
+
+	    String isAdmin = paraMap.get("isAdmin"); // 관리자 여부     
+	    String memberid = paraMap.get("memberid");    
+	    String inquiryType = paraMap.get("inquiryType");
+
+	    int startRno = Integer.parseInt(paraMap.get("startRno"));
+	    int endRno = Integer.parseInt(paraMap.get("endRno"));
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " SELECT inquiry_number, fk_member_id, inquiry_type, title "
+	        		       + "      , to_char(registerday, 'yyyy-mm-dd') AS registerday "
+	        		       + "      , inquiry_content, reply_content "
+	        		       + "      , to_char(reply_registerday, 'yyyy-mm-dd') AS reply_registerday, reply_status "
+	        		       + " FROM ( "
+	        		       + " SELECT ROW_NUMBER() OVER(ORDER BY Inquiry_number DESC) AS rno "
+	        		       + "      , inquiry_number, fk_member_id, inquiry_type, title, registerday "
+	        		       + "      , inquiry_content, reply_content, reply_registerday, reply_status "
+	        		       + " FROM tbl_inquiry "
+	        		       + " WHERE 1=1 ";
+	        
+	        if (!"true".equals(isAdmin)) {
+	        		sql += " AND fk_member_id = ? ";
+	        }
+	        if (inquiryType != null && !inquiryType.isEmpty()) {
+	        		sql += " AND inquiry_type = ? ";
+	        }
+
+	        sql += " ) "
+	        		 + " WHERE rno BETWEEN ? AND ? ";
+	         
+	        pstmt = conn.prepareStatement(sql);
+
+	        if (!"true".equals(isAdmin)) {
+	        	
+	            pstmt.setString(1, memberid);
+	            
+	            if (inquiryType != null && !inquiryType.isEmpty()) {
+		            pstmt.setString(2, inquiryType);
+		        }
+	            
+	            pstmt.setInt(3, startRno);
+		        pstmt.setInt(4, endRno);
+	            
+	        }
+	        else {
+	        	
+	        	 	if (inquiryType != null && !inquiryType.isEmpty()) {
+		            pstmt.setString(1, inquiryType);
+		        }
+	            
+	            pstmt.setInt(2, startRno);
+		        pstmt.setInt(3, endRno);
+	        	
+	        }
+
+	       
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            InquiryDTO dto = new InquiryDTO();
+
+	            dto.setInquiryNumber(rs.getInt("inquiry_number"));
+	            dto.setMemberid(rs.getString("fk_member_id"));
+	            dto.setInquiryType(rs.getString("inquiry_type"));
+	            dto.setTitle(rs.getString("title"));
+	            dto.setRegisterday(rs.getString("registerday"));	            
+	            dto.setInquiryContent(rs.getString("inquiry_content"));
+	            dto.setReplyContent(rs.getString("reply_content"));
+	            dto.setReplyRegisterday(rs.getString("reply_registerday"));	  
+	            dto.setReplyStatus(rs.getInt("reply_status"));
+
+	            list.add(dto);
+	        }
+
+	    } finally {
+	        close();
+	    }
+		
+		return list;
+	
+	}// end of public List<InquiryDTO> selectInquiriesPaging(Map<String, String> paraMap) throws SQLException -------
+
+
+
+
+
+
 }

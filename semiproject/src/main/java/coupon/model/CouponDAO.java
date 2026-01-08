@@ -14,6 +14,7 @@ public interface CouponDAO {
 
 	// 쿠폰 리스트를 보여주는 메서드
 	List<CouponDTO> selectCouponList() throws SQLException;
+	public List<Map<String, Object>> selectCouponList(String userid) throws SQLException;
 	
 	// 쿠폰 총 페이지수
 	int getTotalPageCoupon(Map<String,String> paraMap) throws SQLException;
@@ -45,12 +46,16 @@ public interface CouponDAO {
 	// 쿠폰 사용안함 → 사용함 처리
 	int enableCoupon(int couponCategoryNo) throws SQLException;
 	
-	
+	// 쿠폰의 총개수 알아오기
+	int getTotalCouponCount(Map<String, String> paraMap) throws SQLException;
 	
 	public static class IssueResult {
 	    public int issuedCount;
 	    public int skippedCount;   // 미사용+미만료 있어서 스킵
 	    public int invalidCount;   // 빈값 등 걸러진 경우
 	}
+
+
+	
 	
 }

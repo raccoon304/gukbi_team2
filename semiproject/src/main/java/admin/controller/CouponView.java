@@ -18,7 +18,7 @@ public class CouponView extends AbstractController {
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		CouponDAO cpDao = new CouponDAO_imple();
+		CouponDAO cpdao = new CouponDAO_imple();
 		
 		// 관리자(admin) 로 로그인 했을때만 접속 가능하도록 한다
 		
@@ -62,7 +62,7 @@ public class CouponView extends AbstractController {
 	        paraMap.put("type", (filterType == null ? "" : filterType));
 	        paraMap.put("sort", (filterSort == null ? "" : filterSort));
 	        
-	        int totalPage = cpDao.getTotalPageCoupon(paraMap);
+	        int totalPage = cpdao.getTotalPageCoupon(paraMap);
 	        if(totalPage == 0) totalPage = 1;
 	        
 	        // 장난 방지
@@ -116,13 +116,16 @@ public class CouponView extends AbstractController {
 	        pageBar += "<li class='page-item'><a class='page-link' href='"+url+"&currentShowPageNo="+totalPage+"'>[마지막]</a></li>";
 
 	        // === 쿠폰 리스트(페이징) 조회 ===
-	        List<CouponDTO> couponList = cpDao.selectCouponPaging(paraMap);
+	        List<CouponDTO> couponList = cpdao.selectCouponPaging(paraMap);
 
+	        // 뷰단에서 페이징 처리시 보여주는 순번 공식에서 사용하기 위해 필터가 있는 또는 필터가 없는 쿠폰의 총개수 알아오기
+	        int totalCouponCount = cpdao.getTotalCouponCount(paraMap);
+	        
 	        request.setAttribute("couponList", couponList);
 	        request.setAttribute("pageBar", pageBar);
 	        request.setAttribute("sizePerPage", sizePerPage);
 	        request.setAttribute("currentShowPageNo", currentShowPageNo);
-
+	        request.setAttribute("totalCouponCount", totalCouponCount);
 
 	        super.setRedirect(false);
 	        super.setViewPage("/WEB-INF/admin/coupons/coupons.jsp");

@@ -1,7 +1,5 @@
 package inquiry.controller;
 
-import java.sql.SQLException;
-
 import org.json.JSONObject;
 
 import common.controller.AbstractController;
@@ -10,81 +8,103 @@ import inquiry.model.InquiryDAO;
 import inquiry.model.InquiryDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 
 public class InquiryDetail extends AbstractController {
 
-    private boolean isAdmin(String memberID) {
-        return memberID != null && "admin".equalsIgnoreCase(memberID);
-    }
+	 private InquiryDAO idao = new InquiryDAO_imple();
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         String method = request.getMethod();
 
-        // AJAX는 POST로만 받는다고 가정
         if (!"POST".equalsIgnoreCase(method)) {
-            request.setAttribute("json", new JSONObject()
-                    .put("success", false)
-                    .put("message", "잘못된 요청입니다.")
-                    .toString());
+            JSONObject json = new JSONObject();
+            json.put("success", false);
+            json.put("message", "잘못된 요청입니다.");
+
+            request.setAttribute("json", json.toString());
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/jsonview.jsp");
+            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
             return;
         }
 
-        String memberID = (String) request.getSession().getAttribute("memberID");
-        boolean admin = isAdmin(memberID);
-
-        JSONObject jsonObj = new JSONObject();
+        JSONObject json = new JSONObject();
 
         try {
-            String strInquiryNumber = request.getParameter("inquiryNumber");
-            if (strInquiryNumber == null) {
-                jsonObj.put("success", false);
-                jsonObj.put("message", "잘못된 요청입니다.");
-            } else {
-                int inquiryNumber = Integer.parseInt(strInquiryNumber);
+            // ===== 로그인/관리자 판별  =====
+            HttpSession session = request.getSession(false);
+            MemberDTO loginUser = (session == null) ? null : (MemberDTO) session.getAttribute("loginUser");
 
-                InquiryDAO dao = new InquiryDAO_imple();
-                InquiryDTO inquiry = dao.selectInquiryDetail(inquiryNumber);
+            boolean isLoggedIn = (loginUser != null);
+            boolean isAdmin = isLoggedIn && "admin".equals(loginUser.getMemberid());
 
-                if (inquiry == null) {
-                    jsonObj.put("success", false);
-                    jsonObj.put("message", "문의를 찾을 수 없습니다.");
-                } else {
-                    jsonObj.put("success", true);
+            // ===== inquiryNumber 검증 =====
+            String inquiryNumberStr = request.getParameter("inquiryNumber");
+            int inquiryNumber = 0;
 
-                    jsonObj.put("inquiryNumber", inquiry.getInquiryNumber());
-                    jsonObj.put("memberID", inquiry.getMemberID());
-                    jsonObj.put("inquiryType", inquiry.getInquiryType());
-                    jsonObj.put("title", inquiry.getTitle());
+            try {
+                inquiryNumber = Integer.parseInt(inquiryNumberStr);
+                if (inquiryNumber <= 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                json.put("success", false);
+                json.put("message", "문의번호가 올바르지 않습니다.");
 
-                    // LocalDateTime -> toString() 형태(2025-12-31T00:00:00)로 내려감
-                    jsonObj.put("registerday", inquiry.getRegisterday() != null ? inquiry.getRegisterday().toString() : "");
-
-                    jsonObj.put("inquiryContent", inquiry.getInquiryContent());
-                    jsonObj.put("replyContent", inquiry.getReplyContent());
-                    jsonObj.put("replyRegisterday", inquiry.getReplyRegisterday() != null ? inquiry.getReplyRegisterday().toString() : "");
-                    jsonObj.put("replyStatus", inquiry.getReplyStatus());
-                    jsonObj.put("replyStatusString", inquiry.getReplyStatusString());
-
-                    // ★ 관리자 여부/답변 가능 여부 내려주기
-                    jsonObj.put("isAdmin", admin);
-                    jsonObj.put("canReply", admin);
-                }
+                request.setAttribute("json", json.toString());
+                super.setRedirect(false);
+                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+                return;
             }
-        } catch (NumberFormatException e) {
-            jsonObj.put("success", false);
-            jsonObj.put("message", "inquiryNumber 형식이 올바르지 않습니다.");
-        } catch (SQLException e) {
+
+            // ===== 상세 조회 =====
+            InquiryDTO inquiry = idao.selectInquiryDetail(inquiryNumber);
+
+            if (inquiry == null) {
+                json.put("success", false);
+                json.put("message", "문의를 찾을 수 없습니다.");
+
+                request.setAttribute("json", json.toString());
+                super.setRedirect(false);
+                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+                return;
+            }
+
+            // ===== 작성자 여부 =====
+            boolean isOwner = isLoggedIn && loginUser.getMemberid().equals(inquiry.getMemberid());
+
+            // ===== 데이터 =====
+            json.put("success", true);
+            json.put("inquiryNumber", inquiry.getInquiryNumber());
+
+            
+            json.put("memberid", inquiry.getMemberid()); // 작성자
+
+            json.put("inquiryType", inquiry.getInquiryType());
+            json.put("title", inquiry.getTitle());
+            json.put("registerday", inquiry.getRegisterday() != null ? inquiry.getRegisterday().toString() : "");
+            json.put("inquiryContent", inquiry.getInquiryContent());
+
+            json.put("replyContent", inquiry.getReplyContent());
+            json.put("replyRegisterday", inquiry.getReplyRegisterday() != null ? inquiry.getReplyRegisterday().toString() : "");
+            json.put("replyStatus", inquiry.getReplyStatus());
+            json.put("replyStatusString", inquiry.getReplyStatusString());
+
+            // ===== 권한 =====
+            json.put("isAdmin", isAdmin);
+            json.put("canReply", isAdmin);          // 관리자만 답변
+            json.put("canEdit", isOwner);           // 작성자만 수정
+            json.put("canDelete", isOwner || isAdmin); // 정책: 작성자 또는 관리자 삭제
+
+        } catch (Exception e) {
             e.printStackTrace();
-            jsonObj.put("success", false);
-            jsonObj.put("message", "데이터베이스 오류가 발생했습니다.");
+            json.put("success", false);
+            json.put("message", "문의 상세 조회 중 오류가 발생했습니다.");
         }
 
-        request.setAttribute("json", jsonObj.toString());
+        request.setAttribute("json", json.toString());
         super.setRedirect(false);
-        super.setViewPage("/WEB-INF/jsonview.jsp");
+        super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
     }
 }

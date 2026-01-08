@@ -41,6 +41,9 @@ public class MemberLogin extends AbstractController {
 	    paraMap.put("loginId", loginId);
 	    paraMap.put("loginPw", loginPw);
 	      
+	    //System.out.println(loginId);
+	    //System.out.println(loginPw);
+	    
 		/*
 		 * System.out.println("loginId param = " + request.getParameter("loginId"));
 		 * System.out.println("loginPw param = " + request.getParameter("loginPw"));
@@ -52,12 +55,17 @@ public class MemberLogin extends AbstractController {
 	    
 	    MemberDTO loginUser = mbDao.login(paraMap); // 로그인 한 회원정보 가져오기
 	    
-	    response.setContentType("application/json; charset=UTF-8");
+	    //System.out.println("로그인 유저 => " + loginUser.getMemberid());
+		//System.out.println(loginUser.getPassword());
+	    
+		response.setContentType("application/json; charset=UTF-8");
 	    
 	    if(loginUser != null) {
 	    	HttpSession session = request.getSession();
 			session.setAttribute("loginUser", loginUser);   	
 	    	
+			
+			
 			String json = "{\"success\":true, \"redirect\":\"" + request.getContextPath() + "/index.hp\"}";
 			response.getWriter().write(json);
 	    } else {
