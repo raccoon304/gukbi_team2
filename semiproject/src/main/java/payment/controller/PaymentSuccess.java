@@ -39,7 +39,7 @@ public class PaymentSuccess extends AbstractController {
 		
 		// 로그인 체크
 		HttpSession session = request.getSession();
-		MemberDTO loginuser = (MemberDTO) session.getAttribute("loginuser");
+		MemberDTO loginuser = (MemberDTO) session.getAttribute("loginUser");
 		
 		if (loginuser == null) {
 		    request.setAttribute("message", "로그인 정보 없음");
