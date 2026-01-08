@@ -49,7 +49,7 @@ for (CartDTO cart : cartList) {
         </tr>
 
         <c:forEach var="item" items="${orderList}">
-            <tr>
+            <tr> 
                 <td>
                     <div class="product-cell d-flex align-items-center">
                         <div class="product-img mr-3"></div>
