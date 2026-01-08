@@ -165,6 +165,8 @@ $(document).ready(function () {
 
         if (confirm('상품을 구매하시겠습니까?\n'+'수량: '+quantity+'개\n'+'총 금액: '+totalPrice.toLocaleString()+'원')) {
             alert('상품 구매 페이지로 이동합니다.');
+			location.href = 
+			window.location.href = '/semiproject/pay/payMent.hp';
         }
     });//end of $('#purchaseBtn').click(function()-----
 
