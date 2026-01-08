@@ -10,4 +10,6 @@ public interface DeliveryDAO {
 	// 배송지 목록 가져오기 
 	List<DeliveryDTO> selectDeliveryList(String memberid) throws SQLException;
 
+	int deleteDelivery(String memberid) throws SQLException;
+
 }
