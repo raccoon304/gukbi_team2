@@ -59,8 +59,46 @@ public class PaymentSuccess extends AbstractController {
             setViewPage("/WEB-INF/msg.jsp");
             return;
         }
+        CartDAO cdao = new CartDAO_imple();
+        OrderDAO odao = new OrderDAO_imple();
 
-        
+        // (1) 주문 생성 → orderId 받기
+        OrderDTO order = new OrderDTO();
+        order.setMemberId(loginuser.getMemberid());
+        order.setTotalAmount(totalAmount);
+        order.setDiscountAmount(discountAmount);
+        order.setDeliveryAddress(deliveryAddress);
+        order.setOrderStatus("PAID"); 
+
+        int orderId = odao.insertOrder(order);
+
+        // (2) 주문 상세 생성 (장바구니 기준)
+        @SuppressWarnings("unchecked")
+        List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("cartList");
+
+        for (CartDTO cart : cartList) {
+            odao.insertOrderDetail(orderId, cart);
+        }
+
+     // (3) 장바구니 정리
+        // CartDTO → cart_id 추출
+        List<Integer> cartIdList = cartList.stream()
+                                           .map(CartDTO::getCartId)
+                                           .toList();
+
+        // 결제에 사용된 cart_id만 삭제
+        int deletedCount = cdao.deleteCartByCartIds(cartIdList);
+
+        /* =========================
+           4,5. 결제 완료 화면용 데이터 조회
+           (Map 기반 – 안전빵)
+        ========================= */
+        Map<String, Object> orderHeader = odao.selectOrderHeader(orderId);
+        List<Map<String, Object>> orderItems =
+                odao.selectOrderDetailForPayment(orderId);
+
+        request.setAttribute("order", orderHeader);
+        request.setAttribute("orderItems", orderItems);
 
         
         //  여기서 DB 처리 / 결제 검증

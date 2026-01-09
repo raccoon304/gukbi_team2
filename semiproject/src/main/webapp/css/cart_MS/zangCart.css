@@ -93,6 +93,13 @@ h4 {
     border-bottom: 1px solid #eee;
 }
 
+.product-brand {
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+    white-space: nowrap;
+}
+
 /* 상품 정보 (이미지 및 세부 정보) */
 .product-info {
     display: flex;

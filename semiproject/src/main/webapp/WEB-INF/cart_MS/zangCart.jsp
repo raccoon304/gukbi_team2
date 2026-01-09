@@ -56,6 +56,7 @@
                 <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
                 <th>이미지</th>
                 <th>상품명</th>
+                <th>브랜드명</th>
                 <th>가격</th>
                 <th>수량</th>
                 <th>합계</th>
@@ -85,11 +86,16 @@
 	    <!-- 상품명 -->
 	    <td class="product-info">
 	        <div class="product-name">
-	            ${cart.product_name}
+	           ${cart.product_name}
 	        </div>
-	    </td>
-	
-	    <!-- 가격 -->
+			    </td>
+			    
+		<!-- 브랜드명 -->
+		<td class="product-brand">
+		    ${cart.brand_name}
+		</td>
+		
+		<!-- 가격 -->
 	    <td class="price">
 	        <span class="unit-price">
 	         <fmt:formatNumber value="${cart.unit_price}" pattern="#,###"/>

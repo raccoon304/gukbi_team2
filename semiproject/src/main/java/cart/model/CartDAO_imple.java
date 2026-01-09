@@ -55,7 +55,8 @@ public class CartDAO_imple implements CartDAO {
             }
         }
     }
-    
+  
+    /*
     // 이미 있으면 수량만 추가
     @Override
     public int updateQuantity(String memberId, int optionId, int quantity) throws SQLException {
@@ -103,7 +104,7 @@ public class CartDAO_imple implements CartDAO {
 
         return n;
     }
-
+*/
 
     @Override
     public List<Map<String, Object>> selectCartList(String memberId) throws SQLException {
@@ -115,6 +116,7 @@ public class CartDAO_imple implements CartDAO {
         	  + "    c.cart_id, "
         	  + "    c.quantity, "
         	  + "    p.product_name, "
+        	  + "    p.brand_name, "
         	  + "    p.price AS base_price, "          // 상품 기본가
         	  + "    o.plus_price, "                    // 옵션 추가금
         	  + "    (p.price + o.plus_price) AS unit_price, " // 단가
@@ -144,6 +146,7 @@ public class CartDAO_imple implements CartDAO {
                     map.put("unit_price", rs.getInt("unit_price"));  // 추가
                     map.put("image_path", rs.getString("image_path"));
                     map.put("total_price", rs.getInt("total_price"));
+                    map.put("brand_name", rs.getString("brand_name"));
                     list.add(map);
                 }
             }
@@ -228,6 +231,7 @@ public class CartDAO_imple implements CartDAO {
 	    	    " SELECT " +
 	    	    "   c.cart_id, " +
 	    	    "   c.quantity, " +
+	    	    "   p.brand_name, " + // 브랜드명 추가
 	    	    "   p.product_name, " +
 	    	    "   p.image_path, " +
 	    	    "   (p.price + o.plus_price) AS unit_price, " +
@@ -252,6 +256,7 @@ public class CartDAO_imple implements CartDAO {
 	        	    map.put("image_path", rs.getString("image_path"));
 	        	    map.put("unit_price", rs.getInt("unit_price"));
 	        	    map.put("total_price", rs.getInt("total_price"));
+	        	    map.put("brand_name", rs.getString("brand_name"));
 	        	}
 	        }
 	    }
@@ -268,7 +273,7 @@ public class CartDAO_imple implements CartDAO {
 		        " SELECT "
 		        + "    c.cart_id, "
 		        + "    c.quantity, "
-		        + "    p.product_name, "
+		        + "    p.product_name, "	       
 		        + "    (p.price + o.plus_price) AS unit_price, "
 		        + "    p.image_path, "
 		        + "    (p.price + o.plus_price) * c.quantity AS total_price "
@@ -293,13 +298,27 @@ public class CartDAO_imple implements CartDAO {
 		                dto.setPrice(rs.getInt("price"));
 		                dto.setProductName(rs.getString("product_name"));
 		                dto.setImagePath(rs.getString("image_path"));
-
+		                
+		                
 		                list.add(dto);
 		            }
 		        }
 		    }
 		    return list;
 	}
+
+	@Override
+	public Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+
+	
+
+	
+
 
 	
 }

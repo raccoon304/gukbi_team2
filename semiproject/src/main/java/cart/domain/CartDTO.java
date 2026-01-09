@@ -16,6 +16,16 @@ private int price;
 // 상품에서 가져온 것
 private String productName;
 private String imagePath;
+private String brand_name;
+
+
+public String getBrand_name() {
+	return brand_name;
+}
+
+public void setBrand_name(String brand_name) {
+	this.brand_name = brand_name;
+}
 
 public int getCartId() {
 	

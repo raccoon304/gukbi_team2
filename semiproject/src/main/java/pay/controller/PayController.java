@@ -40,23 +40,23 @@ public class PayController extends AbstractController {
         String cartIdsParam = request.getParameter("cartIds");
         String couponIdParam = request.getParameter("couponId");
 
-        if (cartIdsParam == null || cartIdsParam.trim().isEmpty()) {
+        if (cartIdsParam == null || cartIdsParam.isBlank()) {
             response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
-                "<script>alert('선택된 상품이 없습니다.');history.back();</script>"
+                "<script>alert('잘못된 접근입니다.');history.back();</script>"
             );
             return;
         }
 
-        /* ================= 선택된 장바구니 조회 ================= */
-        String[] cartIdArray = cartIdsParam.split(",");
+        /* ================= 장바구니 상품 조회 ================= */
         List<Map<String, Object>> orderList = new ArrayList<>();
+        String[] cartIdArray = cartIdsParam.split(",");
 
         for (String cartIdStr : cartIdArray) {
             try {
                 int cartId = Integer.parseInt(cartIdStr.trim());
                 Map<String, Object> item =
-                        cartDao.selectCartById(cartId, loginUser.getMemberid());
+                    cartDao.selectCartById(cartId, loginUser.getMemberid());
 
                 if (item != null) {
                     orderList.add(item);
@@ -78,12 +78,11 @@ public class PayController extends AbstractController {
             totalPrice += (Integer) item.get("total_price");
         }
 
-        /* ================= 쿠폰 목록 + 할인 ================= */
+        /* ================= 쿠폰 ================= */
         int discountPrice = 0;
-        List<Map<String, Object>> couponList = new ArrayList<>();
-
         CouponDAO cdao = new CouponDAO_imple();
-        couponList = cdao.selectCouponList(loginUser.getMemberid());
+        List<Map<String, Object>> couponList =
+            cdao.selectCouponList(loginUser.getMemberid());
 
         if (couponIdParam != null && !couponIdParam.isBlank()) {
             try {
@@ -94,17 +93,13 @@ public class PayController extends AbstractController {
                     CouponIssueDTO issue = (CouponIssueDTO) row.get("issue");
 
                     if (issue.getCouponId() == couponId && issue.getUsedYn() == 0) {
-                        if (coupon.getDiscountType() == 0) {
-                            discountPrice = coupon.getDiscountValue();
-                        } else {
-                            discountPrice = totalPrice * coupon.getDiscountValue() / 100;
-                        }
+                        discountPrice = (coupon.getDiscountType() == 0)
+                            ? coupon.getDiscountValue()
+                            : totalPrice * coupon.getDiscountValue() / 100;
                         break;
                     }
                 }
-            } catch (Exception e) {
-                discountPrice = 0;
-            }
+            } catch (Exception ignore) {}
         }
 
         if (discountPrice < 0) discountPrice = 0;
