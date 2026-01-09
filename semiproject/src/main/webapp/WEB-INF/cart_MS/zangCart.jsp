@@ -66,7 +66,7 @@
 
 <c:forEach var="cart" items="${cartList}">
     <tr data-cartid="${cart.cart_id}"
-    data-price="${cart.price}">
+    data-unit-price="${cart.unit_price}">
     <!-- data-quantity="${cart.quantity}">  -->
 
 	    <!-- 선택 -->
@@ -78,7 +78,7 @@
 	
 	    <!-- 이미지 -->
 	    <td>
-	        <img src="<%= ctxPath %>/images/${cart.image_path}"
+	        <img src="<%= ctxPath %>/image/product_TH/${cart.image_path}"
 	             class="product-image">
 	    </td>
 	
@@ -92,7 +92,7 @@
 	    <!-- 가격 -->
 	    <td class="price">
 	        <span class="unit-price">
-	         <fmt:formatNumber value="${cart.price}" pattern="#,###"/>
+	         <fmt:formatNumber value="${cart.unit_price}" pattern="#,###"/>
 	         </span>원
 	    </td>
 	
@@ -132,25 +132,17 @@
 		    <!-- ================= 요약 영역 ================= -->
 		    <div class="summary-section">
 		
-		        <div class="summary-box">
-		            <div class="summary-item">
-		                <span>전체 상품 금액</span>
-		                <span id="totalProductPrice">0원</span>
-		            </div>
-		
-		            <div class="summary-item">
-		                <span>-총 할인 금액</span>
-		                <span id="totalDiscount">0원</span>
-		            </div>  		
+		        <div class="summary-box">	            
+		 		
 		            <div class="summary-item total">
 		                <span>총 주문금액</span>
 		                <span id="finalTotal">0원</span>
 		            </div>
 		
 		            <button class="checkout-btn btn-info">구매하기</button>
-		            <button type="button" id="btnDeleteSelected" class="btn btn-danger my-3">선택삭제</button>
+		            <button type="button" id="btnDeleteSelected" class="btn btn-danger my-3">삭제</button>
 		        </div>
-			   </div>
+			</div>
 			 </div>
 	</c:if>
     

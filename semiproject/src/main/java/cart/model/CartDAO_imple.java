@@ -110,20 +110,23 @@ public class CartDAO_imple implements CartDAO {
         List<Map<String, Object>> list = new ArrayList<>();
 
         // (product, product_option 등
-        String sql =
-            " select c.cart_id, "
-            + "       c.quantity, "
-            + "       p.product_name, "
-            + "       o.price, "
-            + "       p.image_path, "
-            + "       (o.price * c.quantity) as total_price "
-            + " from tbl_cart c "
-            + " left join tbl_product_option o "
-            + "  on c.fk_option_id = o.option_id "
-            + " left join tbl_product p "
-            + "  on o.fk_product_code = p.product_code "
-            + " where c.fk_member_id = ? "
-            + " order by c.added_date desc ";
+        String sql =       		
+        	    " SELECT "
+        	  + "    c.cart_id, "
+        	  + "    c.quantity, "
+        	  + "    p.product_name, "
+        	  + "    p.price AS base_price, "          // 상품 기본가
+        	  + "    o.plus_price, "                    // 옵션 추가금
+        	  + "    (p.price + o.plus_price) AS unit_price, " // 단가
+        	  + "    p.image_path, "
+        	  + "    (p.price + o.plus_price) * c.quantity AS total_price "
+        	  + " FROM tbl_cart c "
+        	  + " LEFT JOIN tbl_product_option o "
+        	  + "    ON c.fk_option_id = o.option_id "
+        	  + " LEFT JOIN tbl_product p "
+        	  + "    ON o.fk_product_code = p.product_code "
+        	  + " WHERE c.fk_member_id = ? "
+        	  + " ORDER BY c.added_date DESC ";
 
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -136,7 +139,9 @@ public class CartDAO_imple implements CartDAO {
                     map.put("cart_id", rs.getInt("cart_id"));
                     map.put("quantity", rs.getInt("quantity"));
                     map.put("product_name", rs.getString("product_name"));
-                    map.put("price", rs.getInt("price"));
+                    map.put("price", rs.getInt("base_price"));       // 
+                    map.put("plus_price", rs.getInt("plus_price")); // 추가
+                    map.put("unit_price", rs.getInt("unit_price"));  // 추가
                     map.put("image_path", rs.getString("image_path"));
                     map.put("total_price", rs.getInt("total_price"));
                     list.add(map);
@@ -171,7 +176,7 @@ public class CartDAO_imple implements CartDAO {
         return n; // 👉 1이면 성공, 0이면 실패
     }
    
-    /*
+    
 	// 행에 해당되는 칸 대상으로만 선택 삭제
 	@Override
 	public int deleteCart(int cartId, String memberId) throws SQLException {
@@ -188,13 +193,13 @@ public class CartDAO_imple implements CartDAO {
 	        pstmt.setInt(1, cartId);
 	        pstmt.setString(2, memberId);
 
-	        n = pstmt.executeUpdate();
+	        n = pstmt.executeUpdate(); 
 	    }
 		return n;
 	}
-     */
+     
     
-    
+    /*
 	// 선택한 내용을 대상으로 전체 삭제
 	@Override
 	public int deleteAll(String memberId) throws SQLException {
@@ -213,19 +218,25 @@ public class CartDAO_imple implements CartDAO {
 	    }
 		return n;
 	}
+	*/
 
 	@Override
 	public Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException {
 	    Map<String, Object> map = new HashMap<>();
 	    
-	    String sql = 
-	        " SELECT c.cart_id, " +
-	        "        c.quantity, " +
-	        "        o.price, " +
-	        "        (o.price * c.quantity) as total_price " +
-	        " FROM tbl_cart c " +
-	        " JOIN tbl_product_option o ON c.fk_option_id = o.option_id " +
-	        " WHERE c.cart_id = ? AND c.fk_member_id = ? ";
+	    String sql =
+	    	    " SELECT " +
+	    	    "   c.cart_id, " +
+	    	    "   c.quantity, " +
+	    	    "   p.product_name, " +
+	    	    "   p.image_path, " +
+	    	    "   (p.price + o.plus_price) AS unit_price, " +
+	    	    "   (p.price + o.plus_price) * c.quantity AS total_price " +
+	    	    " FROM tbl_cart c " +
+	    	    " JOIN tbl_product_option o ON c.fk_option_id = o.option_id " +
+	    	    " JOIN tbl_product p ON o.fk_product_code = p.product_code " +
+	    	    " WHERE c.cart_id = ? " +
+	    	    " AND c.fk_member_id = ? ";
 	    
 	    try (Connection conn = ds.getConnection();
 	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -234,12 +245,14 @@ public class CartDAO_imple implements CartDAO {
 	        pstmt.setString(2, memberId);
 	        
 	        try (ResultSet rs = pstmt.executeQuery()) {
-	            if (rs.next()) {
-	                map.put("cart_id", rs.getInt("cart_id"));
-	                map.put("quantity", rs.getInt("quantity"));
-	                map.put("price", rs.getInt("price"));
-	                map.put("total_price", rs.getInt("total_price"));
-	            }
+	        	if (rs.next()) {
+	        	    map.put("cart_id", rs.getInt("cart_id"));
+	        	    map.put("quantity", rs.getInt("quantity"));
+	        	    map.put("product_name", rs.getString("product_name"));
+	        	    map.put("image_path", rs.getString("image_path"));
+	        	    map.put("unit_price", rs.getInt("unit_price"));
+	        	    map.put("total_price", rs.getInt("total_price"));
+	        	}
 	        }
 	    }
 	    
@@ -252,16 +265,20 @@ public class CartDAO_imple implements CartDAO {
 		 List<CartDTO> list = new ArrayList<>();
 
 		    String sql =
-		        " select c.cart_id, " +
-		        "        c.quantity, " +
-		        "        o.price, " +
-		        "        p.product_name, " +
-		        "        p.image_path " +
-		        " from tbl_cart c " +
-		        " join tbl_product_option o on c.fk_option_id = o.option_id " +
-		        " join tbl_product p on o.fk_product_code = p.product_code " +
-		        " where c.fk_member_id = ? " +
-		        " order by c.added_date desc ";
+		        " SELECT "
+		        + "    c.cart_id, "
+		        + "    c.quantity, "
+		        + "    p.product_name, "
+		        + "    (p.price + o.plus_price) AS unit_price, "
+		        + "    p.image_path, "
+		        + "    (p.price + o.plus_price) * c.quantity AS total_price "
+		        + " From tbl_cart c "
+		        + " JOIN tbl_product_option o "
+		        + "    ON c.fk_option_id = o.option_id "
+		        + " JOIN tbl_product p "
+		        + "    ON o.fk_product_code = p.product_code "
+		        + " WHERE c.fk_member_id = ? "
+		        + " ORDER BY c.added_date DESC ";
 
 		    try (Connection conn = ds.getConnection();
 		         PreparedStatement pstmt = conn.prepareStatement(sql)) {

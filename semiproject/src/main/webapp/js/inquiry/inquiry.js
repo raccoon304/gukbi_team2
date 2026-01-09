@@ -1,7 +1,7 @@
-// ====== 전역 변수 (JSP에서 내려줌) ======
-// const ctxPath
-// const isLoggedIn
-// const currentUser
+// ====== 전역 변수 ======
+ //const ctxPath = null;
+ //const isLoggedIn = null;
+
 
 let editingInquiryId = null;
 
@@ -48,7 +48,9 @@ function loadInquiryDetail(inquiryNumber) {
                 content: json.inquiryContent,
                 status: statusText,
                 date: (json.registerday || "").split("T")[0],
-                author: json.memberID,
+                author: json.memberid,
+				canEdit: !!json.canEdit, 
+				canDelete: !!json.canDelete,  
                 adminReply: json.replyContent || null,
                 replyRegisterday: json.replyRegisterday,
 				
@@ -70,9 +72,10 @@ function loadInquiryDetail(inquiryNumber) {
 // 2) 상세 렌더링
 // ================================
 function renderInquiryDetail(inquiry) {
-    const canEdit = isLoggedIn && currentUser === inquiry.author;
+    const canEdit = !!inquiry.canEdit;
+    const canDelete = !!inquiry.canDelete; 
 
-    // ★ 관리자 답변 입력창 (관리자만 보이도록)
+    // 관리자 답변 입력창 (관리자만 보이도록)
     const adminReplyFormHtml = inquiry.canReply ? `
         <div class="message-box admin-message mt-3">
             <div class="d-flex justify-content-between mb-2">
@@ -97,10 +100,10 @@ function renderInquiryDetail(inquiry) {
                     <span id="detailStatusBadge" class="badge ${getStatusBadgeClass(inquiry.status)}">${escapeHtml(inquiry.status)}</span>
                 </div>
 
-                ${canEdit ? `
+                ${(canEdit || canDelete) ? `
                 <div>
-                    <button class="btn btn-sm btn-outline-primary mr-1" onclick="editInquiry(${inquiry.id})">수정</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteInquiry(${inquiry.id})">삭제</button>
+                    ${canEdit ? `<button class="btn btn-sm btn-outline-primary mr-1" onclick="editInquiry(${inquiry.id})">수정</button>` : ``}
+                    ${canDelete ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteInquiry(${inquiry.id})">삭제</button>` : ``}
                 </div>
                 ` : ``}
             </div>
@@ -113,7 +116,6 @@ function renderInquiryDetail(inquiry) {
                 <p class="mb-0">${escapeHtml(inquiry.content).replace(/\n/g, "<br>")}</p>
             </div>
 
-            <!-- ★ 문의 내용 바로 아래 관리자 답변 입력창 -->
             ${adminReplyFormHtml}
 
             ${inquiry.adminReply ? `
@@ -157,7 +159,7 @@ window.editInquiry = function (inquiryNumber) {
                 return;
             }
 
-            if (!(currentUser === json.memberID)) {
+            if (!json.canEdit) {
                 alert("본인이 작성한 문의만 수정할 수 있습니다.");
                 return;
             }
@@ -302,6 +304,9 @@ function escapeHtml(str) {
 }
 
 window.saveAdminReply = function (inquiryNumber) {
+	
+//	if (!inquiry.canReply) return;
+	
     if (!isLoggedIn) {
         alert("로그인이 필요합니다.");
         return;
@@ -332,14 +337,15 @@ window.saveAdminReply = function (inquiryNumber) {
 			if (json && json.success) {
 			    alert(json.message || "관리자 답변이 저장되었습니다.");
 
-			    // ★ 답변 완료 상태로 변경
-			    updateReplyStatus(inquiryNumber, 2);
+				  applyReplyStatusUI(inquiryNumber, 2);
+				  moveInquiryItemToTop(inquiryNumber);
 
 			    // 상세 새로고침
 			    loadInquiryDetail(inquiryNumber);
 			} else {
                 alert((json && json.message) ? json.message : "답변 저장에 실패했습니다.");
             }
+			console.log("inquiryReply 응답:", json);
         },
         error: function () {
             alert("답변 저장 중 오류가 발생했습니다.");
@@ -348,33 +354,6 @@ window.saveAdminReply = function (inquiryNumber) {
 };
 
 
-function updateReplyStatus(inquiryNumber, replyStatus) {
-    $.ajax({
-        url: ctxPath + "/inquiry/inquiryReplyStatusUpdate.hp",
-        type: "POST",
-        dataType: "json",
-        data: {
-            inquiryNumber: inquiryNumber,
-            replyStatus: replyStatus
-        },
-        success: function (json) {
-            if (json && json.success) {
-                // ★ 즉시 상태 뱃지 업데이트
-                applyReplyStatusUI(inquiryNumber, replyStatus);
-				
-				// ★ 최신응답우선: 답변완료로 바뀐 순간 맨 위로 이동
-                if (Number(replyStatus) === 2) {
-                    moveInquiryItemToTop(inquiryNumber);
-                }
-            } else {
-                console.warn("replyStatus 업데이트 실패");
-            }
-        },
-        error: function () {
-            console.warn("replyStatus 업데이트 중 오류");
-        }
-    });
-}
 
 
 function getStatusInfoByReplyStatus(replyStatus) {

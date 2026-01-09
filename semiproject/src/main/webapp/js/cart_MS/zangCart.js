@@ -1,11 +1,6 @@
 $(document).ready(function () {
 
-  /* ================= 쿠폰 정보 ================= */
-  const coupon = {
-    type: 0,    // 0: 정액, 1: 정률
-    value: 10000
-  };
-
+ 
   /* ================= 전체 선택 ================= */
   window.toggleSelectAll = function (allChk) {
     $(".item-checkbox").prop("checked", allChk.checked);
@@ -52,30 +47,23 @@ $(document).ready(function () {
   window.updateTotal = function () {
     let total = 0;
 
-    $(".item-checkbox:checked").each(function () {
-      const $row = $(this).closest("tr");
-	  const unitPrice = Number($row.data("price"));
-	  const qty = Number($row.find(".quantity-input").val());
-	  total += unitPrice * qty;
-    });
+ 
+	  $(".item-checkbox:checked").each(function () {
+	      const $row = $(this).closest("tr");
 
-    let discount = 0;
+	      const unitPrice = Number($row.data("unit-price")) || 0; // 
+	      const qty = Number($row.find(".quantity-input").val()) || 0;
 
-    if (coupon.type === 0) {
-      discount = coupon.value;
-    } else if (coupon.type === 1) {
-      discount = Math.floor(total * coupon.value / 100);
-    }
-
-    if (discount > total) discount = total;
-
-    const finalTotal = total - discount;
+	      total += unitPrice * qty;
+	   });
 
     $("#totalProductPrice").text(total.toLocaleString() + "원");
-    $("#totalDiscount").text(discount.toLocaleString() + "원");
-    $("#finalTotal").text(finalTotal.toLocaleString() + "원");
+    $("#totalDiscount").text("0원");
+    $("#finalTotal").text(total.toLocaleString() + "원");
   };
 
+ 
+	
   /* ================= 수량 + / - ================= */
   window.changeQty = function (cartId, diff) {
     const $row = $(`tr[data-cartid='${cartId}']`);
@@ -87,8 +75,8 @@ $(document).ready(function () {
       alert("수량은 1개 이상이어야 합니다.");
       return;
     }
-    if (qty > 10) {
-      alert("최대 구매 수량은 10개입니다.");
+    if (qty > 50) {
+      alert("최대 구매 수량은 50개입니다.");
       return;
     }
 
@@ -103,7 +91,7 @@ $(document).ready(function () {
     .on("input", function () {
       let val = $(this).val().replace(/[^0-9]/g, "");
       if (val === "") val = 1;
-      val = Math.min(10, Math.max(1, Number(val)));
+      val = Math.min(50, Math.max(1, Number(val)));
       $(this).val(val);
     })
     .on("blur", function () {
@@ -117,9 +105,9 @@ $(document).ready(function () {
 
   /* ================= 행 합계 ================= */
   function updateRowTotal($row) {
-    const price = Number($row.data("price"));
-    const qty = Number($row.find(".quantity-input").val());
-    $row.find(".row-total").text((price * qty).toLocaleString());
+    const unitPrice = Number($row.data("unit-price")) || 0;    
+    const qty = Number($row.find(".quantity-input").val()) || 0;
+    $row.find(".row-total").text((unitPrice * qty).toLocaleString());
   }
 
   /* ================= 서버 전송 ================= */

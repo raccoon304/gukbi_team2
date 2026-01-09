@@ -1,45 +1,92 @@
-// 수량, 가격, 총합을 연산하는 곳
-function updateTotal() {
-  let total = 0;
+$(function () {
 
-  document.querySelectorAll("tr[data-cartid]").forEach(row => {
-    const price = Number(row.dataset.price);
-    const qty = Number(row.querySelector(".quantity-input").value);
+  let couponApplied = false;
 
-    const lineTotal = price * qty;
+  // =========================
+  // 쿠폰 적용 버튼
+  // =========================
+  $("#applyCouponBtn").on("click", function () {
 
-    row.querySelector(".row-total").innerText =
-      lineTotal.toLocaleString() + "원";
+    const selectedOption = $("#couponSelect option:selected");
 
-    total += lineTotal;
+    if ($("#couponSelect").prop("selectedIndex") === 0) {
+      alert("쿠폰을 선택해주세요.");
+      return;
+    }
+
+    const discount = Number(selectedOption.data("discount")) || 0;
+    const totalPrice = Number($("#totalPrice").val()) || 0;
+
+    if (discount <= 0) {
+      alert("적용할 수 없는 쿠폰입니다.");
+      return;
+    }
+
+    let finalPrice = totalPrice - discount;
+    if (finalPrice < 0) finalPrice = 0;
+
+    // 화면 반영
+    $("#discountAmount").text("- " + discount.toLocaleString() + " 원");
+    $("#finalAmount").text(finalPrice.toLocaleString() + " 원");
+
+    // hidden 값 세팅
+    $("#couponDiscount").val(discount);
+    $("#finalPrice").val(finalPrice);
+    $("#couponId").val(selectedOption.val());
+
+    couponApplied = true;
   });
 
-  const discount = 0; // 나중에 쿠폰 붙일 자리
+  // =========================
+  // 결제 버튼
+  // =========================
+  $("#coinPayBtn").on("click", function () {
 
-  document.querySelector("#totalProductPrice").innerText =
-    total.toLocaleString() + "원";
+    if (!couponApplied && $("#couponSelect").val()) {
+      alert("쿠폰 적용 버튼을 눌러주세요.");
+      return;
+    }
 
-  document.querySelector("#totalDiscount").innerText =
-    discount.toLocaleString() + "원";
+    const address = $("#address").val();
+    const detailAddress = $("#detailAddress").val();
+    const finalPrice = Number($("#finalPrice").val());
 
-  document.querySelector("#finalTotal").innerText =
-    (total - discount).toLocaleString() + "원";
-}
+    if (!address) {
+      alert("주소를 입력하세요.");
+      return;
+    }
 
-// 최종 결제 팝업창을 여는 코드
-function openPaymentPopup(ctxPath, userid) {
+    if (!detailAddress) {
+      alert("상세주소를 입력하세요.");
+      return;
+    }
 
-    const popupWidth  = 500;
-    const popupHeight = 700;
-
-    const left = (window.screen.width / 2) - (popupWidth / 2);
-    const top  = (window.screen.height / 2) - (popupHeight / 2);
-
-    const url = ctxPath + "/payment/coinPaymentPopup.hp?userid=" + encodeURIComponent(userid);
+    if (!finalPrice || finalPrice <= 0) {
+      alert("결제 금액 오류");
+      return;
+    }
 
     window.open(
-        url,
-        "inicisPopup",
-        `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=no,scrollbars=yes`
+      ctxpath + "/payment/coinPaymentPopup.hp?finalPrice=" + finalPrice,
+      "paymentPopup",
+      "width=1000,height=700,scrollbars=yes"
     );
-}
+  });
+
+  // =========================
+  // 주소 검색 (다음 API)
+  // =========================
+  $("#addressSearchBtn").on("click", function () {
+
+    new daum.Postcode({
+      oncomplete: function (data) {
+        const addr = data.roadAddress || data.jibunAddress;
+        $("#address").val(addr);
+        $("#zipcode").val(data.zonecode);
+        $("#detailAddress").focus();
+      }
+    }).open();
+
+  });
+
+});

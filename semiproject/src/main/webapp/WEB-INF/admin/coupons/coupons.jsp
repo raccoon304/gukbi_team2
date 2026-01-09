@@ -95,6 +95,7 @@
                                 <table class="table table-hover" id="couponTable">
                                     <thead>
                                         <tr>
+                                        	   <th>NO</th>
                                             <th>쿠폰번호</th>
                                             <th>쿠폰명</th>
                                             <th>할인타입</th>
@@ -104,8 +105,11 @@
                                         </tr>
                                     </thead>
                                     <tbody id="couponTableBody">
-                                    	<c:forEach var="coupon" items="${couponList}">
+                                    	<c:forEach var="coupon" items="${couponList}" varStatus="status">
 										    <tr class="coupon-row" data-coupon-no="${coupon.couponCategoryNo}" data-coupon-name="${coupon.couponName}" data-usable="${coupon.usable}" style="cursor:pointer;">
+										      <fmt:parseNumber var="currentShowPageNo" value="${requestScope.currentShowPageNo}"/>
+										      <fmt:parseNumber var="sizePerPage" value="${requestScope.sizePerPage}"/>
+										      <td>${(requestScope.totalCouponCount)-(currentShowPageNo-1)*sizePerPage-(status.index)}</td>
 										      <td>${coupon.couponCategoryNo}</td>
 										      <td>${coupon.couponName}</td>
 										      <td>

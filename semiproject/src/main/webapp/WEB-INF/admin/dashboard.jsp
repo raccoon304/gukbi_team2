@@ -59,7 +59,7 @@
                                         <i class="fas fa-shopping-cart text-primary"></i>
                                     </div>
                                     <h3 class="mb-1">${todayOrderCount} 건</h3>
-                                    <small class="text-white">오늘 주문수</small>
+                                    <small class="text-white">&nbsp;</small>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +134,7 @@
 									                <strong>${r.productName}</strong>
 									                <%-- <small class="text-muted ml-2">${r.brandName}</small> --%>
 														<c:if test="${r.detailCnt > 1}">
-									                    · <span class="text-danger">외 ${r.detailCnt - 1}건</span>
+									                     <span class="text-black">외 ${r.detailCnt - 1}건</span>
 									                  	</c:if>
 									
 									                <div class="small text-muted">
@@ -150,8 +150,8 @@
 									              </div>
 									
 									              <div class="text-right">
-									              	<div class="small text-muted">
-									              		${r.quantity}개
+									              	<div class="small text-bold">
+									              		&nbsp;
 									              	</div>
 									                <div class="font-weight-bold">
 									                  <fmt:formatNumber value="${r.payAmount}" pattern="#,###"/>원

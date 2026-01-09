@@ -37,7 +37,7 @@ public class MemberDAO_imple implements MemberDAO {
 		    ds = (DataSource)envContext.lookup("SemiProject");
 		    
 		    // SecretMyKey.KEY 은 우리가 만든 암호화/복호화 키이다.
-		    aes = new AES256(SecretMyKey.KEY);
+		    aes = new AES256(SecretMyKey.KEY);	    
 		    
 		} catch (NamingException e) {
 			e.printStackTrace();
@@ -62,14 +62,17 @@ public class MemberDAO_imple implements MemberDAO {
 	// 회원가입 메서드 
 	@Override
 	public int registerMember(MemberDTO mbrDto, DeliveryDTO devDto) throws SQLException {
-		int result = 0;
+
+	    int result = 0;
+
 	    try {
 	        conn = ds.getConnection();
 	        conn.setAutoCommit(false);
 
-	        // 1) 회원 insert
+	        // 회원 insert
 	        String sql1 = " INSERT INTO tbl_member(userseq, member_id, name, password, mobile_phone, email, birth_date, gender) "
-	        		+ " VALUES(SEQ_TBL_MEMBER_USERSEQ.nextval, ?, ?, ?, ?, ?, ?, ?) ";
+	                    + " VALUES(SEQ_TBL_MEMBER_USERSEQ.nextval, ?, ?, ?, ?, ?, ?, ?) ";
+
 	        pstmt = conn.prepareStatement(sql1);
 	        pstmt.setString(1, mbrDto.getMemberid());
 	        pstmt.setString(2, mbrDto.getName());
@@ -78,21 +81,26 @@ public class MemberDAO_imple implements MemberDAO {
 	        pstmt.setString(5, aes.encrypt(mbrDto.getEmail()));
 	        pstmt.setString(6, mbrDto.getBirthday());
 	        pstmt.setInt(7, mbrDto.getGender());
-	        result = pstmt.executeUpdate();
-	        pstmt.close();
 
-	        // 2) 배송지 insert (기본배송지 1건)
-	        String sql2 = "INSERT INTO tbl_delivery(DELIVERY_ADDRESS_ID, FK_MEMBER_ID, RECIPIENT_NAME, RECIPIENT_PHONE,"
-	                    + " address, ADDRESS_DETAIL , IS_DEFAULT, POSTAL_CODE) "
-	                    + "VALUES(SEQ_TBL_DELIVERY_DELIVERY_ADDRESS_ID.nextval, ?, ?, ?, ?, ?, ?, ?)";
-	        pstmt = conn.prepareStatement(sql2);
+	        result = pstmt.executeUpdate();
+	        pstmt.close();   // sql1 pstmt 닫기
+
+	        // 배송지 insert 
+	        String sql2 = " INSERT INTO tbl_delivery(DELIVERY_ADDRESS_ID, FK_MEMBER_ID, ADDRESS_NAME, RECIPIENT_NAME, RECIPIENT_PHONE, " 
+	                    + " ADDRESS, ADDRESS_DETAIL, IS_DEFAULT, POSTAL_CODE) " 
+	                    + " VALUES(SEQ_TBL_DELIVERY_DELIVERY_ADDRESS_ID.nextval, ?, ?, ?, ?, ?, ?, ?, ?) ";
+
+	        pstmt = conn.prepareStatement(sql2); 
+
 	        pstmt.setString(1, devDto.getMemberId());
-	        pstmt.setString(2, devDto.getRecipientName());
-	        pstmt.setString(3, aes.encrypt(devDto.getRecipientPhone())); // 암호화 대상이면
-	        pstmt.setString(4, devDto.getAddress());
-	        pstmt.setString(5, devDto.getAddressDetail());
-	        pstmt.setInt(6, devDto.getIsDefault());
-	        pstmt.setString(7, devDto.getPostalCode());
+	        pstmt.setString(2, devDto.getAddressName());
+	        pstmt.setString(3, devDto.getRecipientName());
+	        pstmt.setString(4, aes.encrypt(devDto.getRecipientPhone()));
+	        pstmt.setString(5, devDto.getAddress());
+	        pstmt.setString(6, devDto.getAddressDetail());
+	        pstmt.setInt(7, devDto.getIsDefault());
+	        pstmt.setString(8, devDto.getPostalCode());
+
 	        result += pstmt.executeUpdate();
 
 	        conn.commit();
@@ -102,9 +110,10 @@ public class MemberDAO_imple implements MemberDAO {
 	        if (conn != null) conn.rollback();
 	        throw new SQLException(e);
 	    } finally {
-	        close(); 
+	        close();
 	    }
 	}
+
 
 	
 	// ID 중복검사
@@ -235,7 +244,8 @@ public class MemberDAO_imple implements MemberDAO {
 	    return memberDto;
 	}
 
-	// 회원 정보 수정 
+	
+	//회원 정보 수정
 	@Override
 	public int updateMember(Map<String, String> paraMap) throws SQLException {
 
@@ -244,27 +254,38 @@ public class MemberDAO_imple implements MemberDAO {
 	    try {
 	        conn = ds.getConnection();
 
+	        String password = paraMap.get("password");
+	        boolean changePw = (password != null && !password.trim().isEmpty());
+
 	        String sql = " update tbl_member "
 	                   + " set NAME = ?, EMAIL = ?, MOBILE_PHONE = ? "
+	                   + (changePw ? ", PASSWORD = ? " : "")
 	                   + " where MEMBER_ID = ? ";
 
 	        pstmt = conn.prepareStatement(sql);
+
 	        pstmt.setString(1, paraMap.get("name"));
-	        
+
 	        String email = paraMap.get("email");
 	        pstmt.setString(2, aes.encrypt(email));
-	        
-	        String mobile = paraMap.get("mobile");  
+
+	        String mobile = paraMap.get("mobile");
 	        pstmt.setString(3, aes.encrypt(mobile));
-	        
-	        pstmt.setString(4, paraMap.get("memberid")); 
+
+	        int idx = 4;
+
+	        if (changePw) {
+	            pstmt.setString(idx++, Sha256.encrypt(password));
+	        }
+
+	        pstmt.setString(idx, paraMap.get("memberid"));
 
 	        n = pstmt.executeUpdate();
 
 	    } catch (UnsupportedEncodingException | GeneralSecurityException e) {
-			e.printStackTrace();
-		} finally {
-	        close(); 
+	        e.printStackTrace();
+	    } finally {
+	        close();
 	    }
 
 	    return n;

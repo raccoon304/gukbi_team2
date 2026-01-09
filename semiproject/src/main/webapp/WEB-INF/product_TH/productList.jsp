@@ -99,7 +99,8 @@
 					<div class="card-body">
 						<h5 class="card-title">${product.productName}</h5>
 						<p class="card-text">${product.brandName}</p>
-						<p class="card-text">256GB</p>
+						<p class="card-text">Black&nbsp;/&nbsp;White&nbsp;/&nbsp;red&nbsp;/&nbsp;blue</p>
+						<p class="card-text">256GB&nbsp;/&nbsp;512GB</p>
 						<p class="card-text">
 							<fmt:formatNumber value="${product.price}" pattern="###,###"/>&nbsp;원
 						</p>

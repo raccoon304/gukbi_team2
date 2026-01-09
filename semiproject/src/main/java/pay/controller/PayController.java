@@ -7,6 +7,10 @@ import java.util.Map;
 import cart.model.CartDAO;
 import cart.model.CartDAO_imple;
 import common.controller.AbstractController;
+import coupon.domain.CouponDTO;
+import coupon.domain.CouponIssueDTO;
+import coupon.model.CouponDAO;
+import coupon.model.CouponDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -22,92 +26,100 @@ public class PayController extends AbstractController {
         HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-        if(loginUser == null) {
-            super.setRedirect(true);
-            super.setViewPage(request.getContextPath() + "/login/login.jsp");
+        /* ================= 로그인 체크 ================= */
+        if (loginUser == null) {
+            response.setContentType("text/html; charset=UTF-8");
+            response.getWriter().println(
+                "<script>alert('로그인 후 이용 가능합니다.');"
+              + "location.href='" + request.getContextPath() + "/index.jsp';</script>"
+            );
             return;
         }
 
-String cartIdsParam = request.getParameter("cartIds");
-        
+        /* ================= 파라미터 ================= */
+        String cartIdsParam = request.getParameter("cartIds");
+        String couponIdParam = request.getParameter("couponId");
+
         if (cartIdsParam == null || cartIdsParam.trim().isEmpty()) {
             response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
-                "<script>" +
-                "alert('선택된 상품이 없습니다.');" +
-                "history.back();" +
-                "</script>"
+                "<script>alert('선택된 상품이 없습니다.');history.back();</script>"
             );
             return;
         }
 
-        // 1. 선택된 cartId만 조회
+        /* ================= 선택된 장바구니 조회 ================= */
         String[] cartIdArray = cartIdsParam.split(",");
         List<Map<String, Object>> orderList = new ArrayList<>();
-        
+
         for (String cartIdStr : cartIdArray) {
             try {
                 int cartId = Integer.parseInt(cartIdStr.trim());
-                
-                Map<String, Object> item = cartDao.selectCartById(cartId, loginUser.getMemberid());
+                Map<String, Object> item =
+                        cartDao.selectCartById(cartId, loginUser.getMemberid());
+
                 if (item != null) {
                     orderList.add(item);
                 }
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
+            } catch (NumberFormatException ignore) {}
         }
-        
-        // 선택된 상품이 없으면 돌려보냄
+
         if (orderList.isEmpty()) {
             response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
-                "<script>" +
-                "alert('유효한 상품이 없습니다.');" +
-                "history.back();" +
-                "</script>"
+                "<script>alert('유효한 상품이 없습니다.');history.back();</script>"
             );
             return;
         }
-        
-        // 2. 총 상품금액 + 계산식 생성
+
+        /* ================= 총 상품금액 ================= */
         int totalPrice = 0;
-        StringBuilder calcExpr = new StringBuilder();
+        for (Map<String, Object> item : orderList) {
+            totalPrice += (Integer) item.get("total_price");
+        }
 
-        for (int i = 0; i < orderList.size(); i++) {
-        	Map<String, Object> item = orderList.get(i);
+        /* ================= 쿠폰 목록 + 할인 ================= */
+        int discountPrice = 0;
+        List<Map<String, Object>> couponList = new ArrayList<>();
 
-        	int price = (Integer) item.get("price");         // ⭐ Map에서 꺼내기
-            int quantity = (Integer) item.get("quantity");   // ⭐ Map에서 꺼내기
-            int lineTotal = price * quantity;
-            totalPrice += lineTotal;
+        CouponDAO cdao = new CouponDAO_imple();
+        couponList = cdao.selectCouponList(loginUser.getMemberid());
 
-            // 계산식: 가격 × 수량
-            calcExpr.append(price)
-            .append(" × ")
-            .append(quantity);
+        if (couponIdParam != null && !couponIdParam.isBlank()) {
+            try {
+                int couponId = Integer.parseInt(couponIdParam);
 
-            if (i < orderList.size() - 1) {
-                calcExpr.append(" + ");
+                for (Map<String, Object> row : couponList) {
+                    CouponDTO coupon = (CouponDTO) row.get("coupon");
+                    CouponIssueDTO issue = (CouponIssueDTO) row.get("issue");
+
+                    if (issue.getCouponId() == couponId && issue.getUsedYn() == 0) {
+                        if (coupon.getDiscountType() == 0) {
+                            discountPrice = coupon.getDiscountValue();
+                        } else {
+                            discountPrice = totalPrice * coupon.getDiscountValue() / 100;
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                discountPrice = 0;
             }
         }
 
-        // 3. 할인
-        int discountPrice = 0;
+        if (discountPrice < 0) discountPrice = 0;
+        if (discountPrice > totalPrice) discountPrice = totalPrice;
 
-        // 4. 최종 금액
+        /* ================= 최종 금액 ================= */
         int finalPrice = totalPrice - discountPrice;
 
-        // 5. JSP 전달
+        /* ================= JSP 전달 ================= */
         request.setAttribute("orderList", orderList);
+        request.setAttribute("couponList", couponList);
         request.setAttribute("totalPrice", totalPrice);
         request.setAttribute("discountPrice", discountPrice);
         request.setAttribute("finalPrice", finalPrice);
-        request.setAttribute("calcExpr", calcExpr.toString());
-
-        request.setAttribute("memberName", loginUser.getName());
-        request.setAttribute("mobilePhone", loginUser.getMobile());
-        request.setAttribute("address", "기본 배송지");
+        request.setAttribute("loginUser", loginUser);
 
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");

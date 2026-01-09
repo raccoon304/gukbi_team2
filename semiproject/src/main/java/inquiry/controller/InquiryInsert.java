@@ -10,66 +10,91 @@ import inquiry.model.InquiryDAO;
 import inquiry.model.InquiryDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 
 public class InquiryInsert extends AbstractController {
 
-    @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	 private InquiryDAO idao = new InquiryDAO_imple();
 
-        String method = request.getMethod();
+	    @Override
+	    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        if ("POST".equalsIgnoreCase(method)) {
+	        String method = request.getMethod();
 
-            // 세션에서 회원 ID 가져오기
-            String memberID = (String) request.getSession().getAttribute("memberID");
+	        // POST만 허용
+	        if (!"POST".equalsIgnoreCase(method)) {
+	            JSONObject json = new JSONObject();
+	            json.put("success", false);
+	            json.put("message", "잘못된 요청입니다.");
 
-            JSONObject jsonObj = new JSONObject();
+	            request.setAttribute("json", json.toString());
+	            super.setRedirect(false);
+	            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+	            return;
+	        }
 
-            if (memberID == null) {
-                jsonObj.put("success", false);
-                jsonObj.put("needLogin", true);
-                jsonObj.put("message", "로그인이 필요합니다.");
-            }
-            else {
-                String inquiryType = request.getParameter("inquiryType");
-                String title = request.getParameter("title");
-                String inquiryContent = request.getParameter("inquiryContent");
+	        JSONObject json = new JSONObject();
 
-                InquiryDTO inquiry = new InquiryDTO();
-                inquiry.setMemberID(memberID);
-                inquiry.setInquiryType(inquiryType);
-                inquiry.setTitle(title);
-                inquiry.setInquiryContent(inquiryContent);
+	        try {
+	            // ===== 로그인 확인 =====
+	            HttpSession session = request.getSession(false);
+	            MemberDTO loginUser = (session == null) ? null : (MemberDTO) session.getAttribute("loginUser");
 
-                InquiryDAO dao = new InquiryDAO_imple();
+	            if (loginUser == null) {
+	                json.put("success", false);
+	                json.put("needLogin", true);
+	                json.put("message", "로그인이 필요합니다.");
 
-                try {
-                    int result = dao.insertInquiry(inquiry);
+	                request.setAttribute("json", json.toString());
+	                super.setRedirect(false);
+	                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+	                return;
+	            }
 
-                    if (result == 1) {
-                        jsonObj.put("success", true);
-                        jsonObj.put("message", "문의가 등록되었습니다.");
-                    } else {
-                        jsonObj.put("success", false);
-                        jsonObj.put("message", "문의 등록에 실패했습니다.");
-                    }
+	            // ===== 입력값 =====
+	            String inquiryType = request.getParameter("inquiryType");
+	            String title = request.getParameter("title");
+	            String inquiryContent = request.getParameter("inquiryContent");
 
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    jsonObj.put("success", false);
-                    jsonObj.put("message", "데이터베이스 오류가 발생했습니다.");
-                }
-            }
+	            if (inquiryType == null || inquiryType.trim().isEmpty()
+	             || title == null || title.trim().isEmpty()
+	             || inquiryContent == null || inquiryContent.trim().isEmpty()) {
 
-            request.setAttribute("json", jsonObj.toString());
+	                json.put("success", false);
+	                json.put("message", "모든 항목을 입력해주세요.");
 
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/jsonview.jsp");
-            return;
-        }
+	                request.setAttribute("json", json.toString());
+	                super.setRedirect(false);
+	                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+	                return;
+	            }
 
-        // POST가 아니면(직접 URL 접근 등) 목록으로 보내기
-        super.setRedirect(true);
-        super.setViewPage(request.getContextPath() + "/inquiry/inquiryList.hp");
-    }
+	            // ===== 등록 =====
+	            InquiryDTO dto = new InquiryDTO();
+	            dto.setMemberid(loginUser.getMemberid());
+	            dto.setInquiryType(inquiryType.trim());
+	            dto.setTitle(title.trim());
+	            dto.setInquiryContent(inquiryContent.trim());
+
+	            int n = idao.insertInquiry(dto);
+
+	            if (n == 1) {
+	                json.put("success", true);
+	                json.put("message", "문의가 등록되었습니다.");
+	            } else {
+	                json.put("success", false);
+	                json.put("message", "문의 등록에 실패했습니다.");
+	            }
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            json.put("success", false);
+	            json.put("message", "문의 등록 중 오류가 발생했습니다.");
+	        }
+
+	        request.setAttribute("json", json.toString());
+	        super.setRedirect(false);
+	        super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+	    }
 }
