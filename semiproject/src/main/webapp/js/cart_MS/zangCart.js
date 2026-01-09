@@ -47,19 +47,23 @@ $(document).ready(function () {
   window.updateTotal = function () {
     let total = 0;
 
-    $(".item-checkbox:checked").each(function () {
-      const $row = $(this).closest("tr");
-	  const unitPrice = Number($row.data("price"));
-	  const qty = Number($row.find(".quantity-input").val());
-	  total += unitPrice * qty;
-    });
-
  
-	$("#totalProductPrice").text(total.toLocaleString() + "원");
-	$("#totalDiscount").text("0원");
-	$("#finalTotal").text(total.toLocaleString() + "원");
+	  $(".item-checkbox:checked").each(function () {
+	      const $row = $(this).closest("tr");
+
+	      const unitPrice = Number($row.data("unit-price")) || 0; // 
+	      const qty = Number($row.find(".quantity-input").val()) || 0;
+
+	      total += unitPrice * qty;
+	   });
+
+    $("#totalProductPrice").text(total.toLocaleString() + "원");
+    $("#totalDiscount").text("0원");
+    $("#finalTotal").text(total.toLocaleString() + "원");
   };
 
+ 
+	
   /* ================= 수량 + / - ================= */
   window.changeQty = function (cartId, diff) {
     const $row = $(`tr[data-cartid='${cartId}']`);
@@ -101,9 +105,9 @@ $(document).ready(function () {
 
   /* ================= 행 합계 ================= */
   function updateRowTotal($row) {
-    const price = Number($row.data("price"));
-    const qty = Number($row.find(".quantity-input").val());
-    $row.find(".row-total").text((price * qty).toLocaleString());
+    const unitPrice = Number($row.data("unit-price")) || 0;    
+    const qty = Number($row.find(".quantity-input").val()) || 0;
+    $row.find(".row-total").text((unitPrice * qty).toLocaleString());
   }
 
   /* ================= 서버 전송 ================= */

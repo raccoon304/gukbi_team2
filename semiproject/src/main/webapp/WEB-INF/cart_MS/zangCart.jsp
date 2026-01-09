@@ -66,7 +66,7 @@
 
 <c:forEach var="cart" items="${cartList}">
     <tr data-cartid="${cart.cart_id}"
-    data-price="${cart.price}">
+    data-unit-price="${cart.unit_price}">
     <!-- data-quantity="${cart.quantity}">  -->
 
 	    <!-- 선택 -->
@@ -92,7 +92,7 @@
 	    <!-- 가격 -->
 	    <td class="price">
 	        <span class="unit-price">
-	         <fmt:formatNumber value="${cart.price}" pattern="#,###"/>
+	         <fmt:formatNumber value="${cart.unit_price}" pattern="#,###"/>
 	         </span>원
 	    </td>
 	
