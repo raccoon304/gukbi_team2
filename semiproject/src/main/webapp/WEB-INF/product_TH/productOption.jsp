@@ -152,7 +152,7 @@
 
 <script>
 	//java단에서 받아온 데이터를 JS 파일로 넘겨주기
-    var pageData = {
+    const pageData = {
         isLoggedIn: "${loginUser.name}" !== "", //사용자가 로그인을 했는지 true/false 값
         loginUserId: "${loginUser.memberid}",  //장바구니에 보낼 회원아이디
         productCode: "${proOptionDto.fkProductCode}", //상품코드

@@ -1,4 +1,4 @@
-package myPage.controller;
+package delivery.controller;
 
 import java.util.List;
 
@@ -30,7 +30,8 @@ public class Delivery extends AbstractController {
   		}
 
   		String memberid = loginUser.getMemberid();
-
+  		
+  		
   		// 배송지 목록 조회
   		List<DeliveryDTO> deliveryList = dDao.selectDeliveryList(memberid);
 
@@ -39,5 +40,10 @@ public class Delivery extends AbstractController {
 
   		super.setRedirect(false);
   		super.setViewPage("/WEB-INF/myPage_YD/delivery.jsp"); 
+  		
+  		
+  		
   	}
+	
+	
 }

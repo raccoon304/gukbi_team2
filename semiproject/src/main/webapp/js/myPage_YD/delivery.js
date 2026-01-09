@@ -56,7 +56,8 @@ addressDetail:		상세주소 입력 input
   }
 
   function getCheckedIds() {
-    const checked = document.querySelectorAll('.addr-check:checked');
+    // disabled(기본배송지) 제외하고 체크된 것만 가져오기
+    const checked = document.querySelectorAll('.addr-check:not(:disabled):checked');
     return Array.from(checked).map(ch => ch.value);
   }
 
@@ -80,11 +81,27 @@ addressDetail:		상세주소 입력 input
     const checkAll = document.querySelector('#checkAll');
     if (checkAll) {
       checkAll.addEventListener('change', function () {
-        document.querySelectorAll('.addr-check').forEach(function (ch) {
+        // 기본배송지(disabled) 체크박스는 전체선택에서 제외
+        document.querySelectorAll('.addr-check:not(:disabled)').forEach(function (ch) {
           ch.checked = checkAll.checked;
         });
       });
     }
+
+    // 개별 체크 변경 시 전체선택 상태 동기화(기본배송지 제외)
+    document.querySelectorAll('.addr-check').forEach(function (ch) {
+      ch.addEventListener('change', function () {
+        const total = document.querySelectorAll('.addr-check:not(:disabled)').length;
+        const checked = document.querySelectorAll('.addr-check:not(:disabled):checked').length;
+
+        if (total === 0) {
+          if (checkAll) checkAll.checked = false;
+          return;
+        }
+
+        if (checkAll) checkAll.checked = (total === checked);
+      });
+    });
 
     // 선택 삭제
     const btnDeleteSelected = document.querySelector('#btnDeleteSelected');
@@ -141,4 +158,6 @@ addressDetail:		상세주소 입력 input
       });
     }
   });
+
+  
 })();
