@@ -29,14 +29,13 @@ $(function () {
     $("#discountAmount").text("- " + discount.toLocaleString() + " 원");
     $("#finalAmount").text(finalPrice.toLocaleString() + " 원");
 
-    // hidden 값 세팅 (서버로 보낼 값)
+    // hidden 값 세팅
     $("#couponDiscount").val(discount);
     $("#finalPrice").val(finalPrice);
     $("#couponId").val(selectedOption.val());
 
     couponApplied = true;
   });
-
 
   // =========================
   // 결제 버튼
@@ -48,28 +47,31 @@ $(function () {
       return;
     }
 
-    // 주소 체크 (최소 방어)
-    if (!$("#address").val() || !$("#detailAddress").val()) {
-      alert("배송 주소를 입력해주세요.");
+    const address = $("#address").val();
+    const detailAddress = $("#detailAddress").val();
+    const finalPrice = Number($("#finalPrice").val());
+
+    if (!address) {
+      alert("주소를 입력하세요.");
       return;
     }
 
-    // 실제 결제 요청
-    const form = $("<form>", {
-      method: "post",
-      action: ctxpath + "/payment/paymentSuccess.hp"
-    });
+    if (!detailAddress) {
+      alert("상세주소를 입력하세요.");
+      return;
+    }
 
-    form.append($("<input>", { type: "hidden", name: "couponId", value: $("#couponId").val() }));
-    form.append($("<input>", { type: "hidden", name: "discountPrice", value: $("#couponDiscount").val() }));
-    form.append($("<input>", { type: "hidden", name: "finalPrice", value: $("#finalPrice").val() }));
-    form.append($("<input>", { type: "hidden", name: "address", value: $("#address").val() }));
-    form.append($("<input>", { type: "hidden", name: "detailAddress", value: $("#detailAddress").val() }));
+    if (!finalPrice || finalPrice <= 0) {
+      alert("결제 금액 오류");
+      return;
+    }
 
-    $("body").append(form);
-    form.submit();
+    window.open(
+      ctxpath + "/payment/coinPaymentPopup.hp?finalPrice=" + finalPrice,
+      "paymentPopup",
+      "width=1000,height=700,scrollbars=yes"
+    );
   });
-
 
   // =========================
   // 주소 검색 (다음 API)
@@ -78,9 +80,7 @@ $(function () {
 
     new daum.Postcode({
       oncomplete: function (data) {
-
         const addr = data.roadAddress || data.jibunAddress;
-
         $("#address").val(addr);
         $("#zipcode").val(data.zonecode);
         $("#detailAddress").focus();
