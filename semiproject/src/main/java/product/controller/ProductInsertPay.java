@@ -34,15 +34,17 @@ public class ProductInsertPay extends AbstractController {
 			paraMap.put("productOptionId", productOptionId);
 			paraMap.put("quantity", quantity);
 			
-			//fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
-			int result = proDao.insertProductCart(paraMap);
+			//넘길데이터: 옵션아이디, 기본금액, 추가금액, 주문수량
+			//int result = proDao.insertProductPay(paraMap);
 			
+			message = "상품 구매 페이지로 이동합니다.";
+			loc = request.getContextPath() + "/pay/payMent.hp";
+			/*
 			if(result == 1) {
-				message = "상품 구매 페이지로 이동합니다.";
-				loc = request.getContextPath() + "/pay/payMent.hp";
 			} else {
 				System.out.println("Insert문 SQL에 오류가 발생했습니다.");
 			}
+			*/
 			
 		} else {
 			//GET방식으로 들어온 경우
