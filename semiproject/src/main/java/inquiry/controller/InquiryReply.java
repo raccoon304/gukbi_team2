@@ -6,6 +6,7 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import common.controller.AbstractController;
+import inquiry.domain.InquiryDTO;
 import inquiry.model.InquiryDAO;
 import inquiry.model.InquiryDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,7 @@ public class InquiryReply extends AbstractController {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     	
-        String method = request.getMethod();
+    	String method = request.getMethod();
 
         if (!"POST".equalsIgnoreCase(method)) {
             request.setAttribute("json", new JSONObject()
@@ -36,8 +37,8 @@ public class InquiryReply extends AbstractController {
         JSONObject json = new JSONObject();
 
         try {
-            HttpSession session = request.getSession(false);
-            MemberDTO loginUser = (session == null) ? null : (MemberDTO) session.getAttribute("loginUser");
+        		HttpSession session = request.getSession();
+		    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
             if (loginUser == null) {
                 json.put("needLogin", true);
@@ -50,7 +51,7 @@ public class InquiryReply extends AbstractController {
                 return;
             }
 
-            if (!"admin".equals(loginUser.getMemberid())) {
+            if (!"admin".equalsIgnoreCase(loginUser.getMemberid())) {
                 json.put("needAdmin", true);
                 json.put("success", false);
                 json.put("message", "관리자만 답변할 수 있습니다.");
@@ -61,19 +62,13 @@ public class InquiryReply extends AbstractController {
                 return;
             }
 
-            
             String inquiryNumberStr = request.getParameter("inquiryNumber");
             String replyContent = request.getParameter("replyContent");
 
-            int inquiryNumber = 0;
-            
+            int inquiryNumber;
             try {
                 inquiryNumber = Integer.parseInt(inquiryNumberStr);
-                
-                if (inquiryNumber <= 0) {
-                		throw new NumberFormatException();
-                }
-                
+                if (inquiryNumber <= 0) throw new NumberFormatException();
             } catch (NumberFormatException e) {
                 json.put("success", false);
                 json.put("message", "문의번호가 올바르지 않습니다.");
@@ -84,7 +79,6 @@ public class InquiryReply extends AbstractController {
                 return;
             }
 
-            
             if (replyContent == null || replyContent.trim().isEmpty()) {
                 json.put("success", false);
                 json.put("message", "답변 내용을 입력하세요.");
@@ -94,24 +88,34 @@ public class InquiryReply extends AbstractController {
                 super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
                 return;
             }
-            
-            Map<String,String> paraMap = new HashMap<>();
+
+            // 글 삭제 여부 확인
+            InquiryDTO origin = idao.selectInquiryDetail(inquiryNumber);
+            if (origin == null) {
+                json.put("success", false);
+                json.put("message", "삭제되었거나 존재하지 않는 문의입니다.");
+
+                request.setAttribute("json", json.toString());
+                super.setRedirect(false);
+                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+                return;
+            }
+
+            Map<String, String> paraMap = new HashMap<>();
             paraMap.put("inquiryNumber", String.valueOf(inquiryNumber));
             paraMap.put("replyContent", replyContent.trim());
 
-            
             int n = idao.updateReply(paraMap);
 
-            if(n==1) {
-	            	json.put("success", true);
-	            	json.put("message", "관리자 답변이 저장되었습니다.");
-	            	json.put("replyStatus", 2);
+            if (n == 1) {
+                json.put("success", true);
+                json.put("message", "관리자 답변이 저장되었습니다.");
+                json.put("replyStatus", 2);
+            } else {
+                
+                json.put("success", false);
+                json.put("message", "답변 저장에 실패했습니다.");
             }
-            else {
-	            	json.put("success", false);
-	            	json.put("message", "해당 문의가 존재하지 않습니다.");
-            }
-            
 
         } catch (Exception e) {
             e.printStackTrace();

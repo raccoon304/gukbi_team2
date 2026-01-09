@@ -11,10 +11,10 @@ public interface InquiryDAO {
     int insertInquiry(InquiryDTO inquiry) throws SQLException;
     
     // 문의 목록 조회 (전체)
-    List<InquiryDTO> selectAllInquiries() throws SQLException;
+    // List<InquiryDTO> selectAllInquiries() throws SQLException;
     
     // 특정 회원의 문의 목록 조회
-    List<InquiryDTO> selectInquiriesByMember(String memberID) throws SQLException;
+    // List<InquiryDTO> selectInquiriesByMember(String memberID) throws SQLException;
     
     // 문의 상세 조회
     InquiryDTO selectInquiryDetail(int inquiryNumber) throws SQLException;
@@ -23,7 +23,7 @@ public interface InquiryDAO {
     int updateInquiry(InquiryDTO inquiry) throws SQLException;
     
     // 문의 삭제
-    int deleteInquiry(int inquiryNumber) throws SQLException;
+    int softDeleteInquiry(int inquiryNumber, String deletedBy, boolean isAdmin, String ownerMemberId) throws SQLException;
     
     // 관리자 답변 등록/수정
     int updateReply(Map<String, String> paraMap) throws SQLException;

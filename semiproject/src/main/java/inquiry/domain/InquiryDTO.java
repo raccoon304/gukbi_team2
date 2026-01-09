@@ -1,7 +1,5 @@
 package inquiry.domain;
 
-import java.time.LocalDateTime;
-
 public class InquiryDTO {
     private int inquiryNumber;
     private String memberid;          // DB: FK_MEMBER_ID
@@ -12,6 +10,10 @@ public class InquiryDTO {
     private String replyContent;
     private String replyRegisterday;
     private int replyStatus;          // 0:보류, 1:접수, 2:답변완료
+    private int isSecret;     // 0:공개, 1:삭제
+    private int deletedYn;    // 0:정상, 1:삭제
+    private String deletedAt;
+    private String deletedBy;
     
     // Getter & Setter
     public int getInquiryNumber() {
@@ -86,7 +88,39 @@ public class InquiryDTO {
         this.replyStatus = replyStatus;
     }
     
-    // 답변 상태를 문자열로 반환하는 헬퍼 메소드
+    public int getIsSecret() {
+		return isSecret;
+	}
+
+	public void setIsSecret(int isSecret) {
+		this.isSecret = isSecret;
+	}
+
+	public int getDeletedYn() {
+		return deletedYn;
+	}
+
+	public void setDeletedYn(int deletedYn) {
+		this.deletedYn = deletedYn;
+	}
+
+	public String getDeletedAt() {
+		return deletedAt;
+	}
+
+	public void setDeletedAt(String deletedAt) {
+		this.deletedAt = deletedAt;
+	}
+
+	public String getDeletedBy() {
+		return deletedBy;
+	}
+
+	public void setDeletedBy(String deletedBy) {
+		this.deletedBy = deletedBy;
+	}
+
+	// 답변 상태를 문자열로 반환하는 헬퍼 메소드
     public String getReplyStatusString() {
         switch(this.replyStatus) {
             case 0: return "보류";

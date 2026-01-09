@@ -151,7 +151,7 @@
             background: white;
         }
         .page-header {
-            margin-bottom: 24px;
+            margin-bottom: 0px;
         }
         .page-title {
             font-size: 24px;
@@ -180,6 +180,22 @@
                 max-width: 100%;
             }
         }
+        
+        
+        .top-header{
+		  position: fixed;
+		  top: 0;
+		  left: 250px;                 /* 사이드바 폭 */
+		  width: calc(100% - 250px);   /* 나머지 폭 */
+		  background: #fff;
+		  padding: 16px 32px;
+		  z-index: 1000;
+		  border-bottom: 1px solid #eee;
+		}
+		.main-content{
+		  padding-top: 70px;  /* 헤더 높이만큼 밀기(조절) */
+		}
+        
     </style>
 </head>
 <body>
@@ -187,167 +203,172 @@
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         
         <div class="main-content">
+        		<jsp:include page="/WEB-INF/admin/admin_header.jsp" />
         		
-            <!-- Page Header -->
-            <div class="page-header">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h1 class="page-title">회계</h1>
-                        <p class="page-subtitle">기간별, 상품별 판매수량 및 매출을 확인할 수 있습니다</p>
-                    </div>
-                    
-                    <div class="accounting-controls">
-	                    <select class="period-select" id="periodSelect">
-						  <optgroup label="일">
-						    <option value="TODAY">오늘</option>
-						    <option value="YESTERDAY">어제</option>
-						    <option value="LAST_7" selected>최근 7일</option>
-						    <option value="LAST_30">최근 30일</option>
-						  </optgroup>
-						
-						  <optgroup label="월/분기/연">
-						    <option value="MTD">이번 달(MTD)</option>
-						    <option value="LAST_MONTH">지난 달</option>
-						    <option value="QTD">이번 분기(QTD)</option>
-						    <option value="LAST_QUARTER">지난 분기</option>
-						    <option value="YTD">올해(YTD)</option>
-						    <option value="LAST_YEAR">작년</option>
-						  </optgroup>
-						
-						  <optgroup label="직접 선택">
-						    <option value="CUSTOM">사용자 지정</option>
-						  </optgroup>
-						</select>
-						
-						<!-- 사용자 지정 날짜 영역 -->
-						<div id="customRange" class="mt-2" style="display:none;">
-						  <input type="text" id="startDate" class="period-select" style="width:140px;" placeholder="시작일">
-						  <span class="mx-1">~</span>
-						  <input type="text" id="endDate" class="period-select" style="width:140px;" placeholder="종료일">
-						  <button type="button" id="applyCustom" class="btn btn-sm btn-primary ml-2">적용</button>
-						
-						  <div class="text-muted mt-1" style="font-size:12px;">
-						    * 종료일 포함(예: 01-01~01-05는 5일까지)
-						  </div>
+        		<div class="content-wrapper">
+	            <!-- Page Header -->
+	            <div class="page-header">
+	                <div class="d-flex justify-content-between align-items-start">
+	                		 <div class="mb-4">
+	                        <h2 class="mb-2">회계</h2>
+	                        <p class="text-muted">기간별, 상품별 판매수량 및 매출을 확인할 수 있습니다</p>
+	                    </div>
+	                    
+	                    
+	                    <div class="accounting-controls">
+		                    <select class="period-select" id="periodSelect">
+							  <optgroup label="일">
+							    <option value="TODAY">오늘</option>
+							    <option value="YESTERDAY">어제</option>
+							    <option value="LAST_7" selected>최근 7일</option>
+							    <option value="LAST_30">최근 30일</option>
+							  </optgroup>
+							
+							  <optgroup label="월/분기/연">
+							    <option value="MTD">이번 달(MTD)</option>
+							    <option value="LAST_MONTH">지난 달</option>
+							    <option value="QTD">이번 분기(QTD)</option>
+							    <option value="LAST_QUARTER">지난 분기</option>
+							    <option value="YTD">올해(YTD)</option>
+							    <option value="LAST_YEAR">작년</option>
+							  </optgroup>
+							
+							  <optgroup label="직접 선택">
+							    <option value="CUSTOM">사용자 지정</option>
+							  </optgroup>
+							</select>
+							
+							<!-- 사용자 지정 날짜 영역 -->
+							<div id="customRange" class="mt-2" style="display:none;">
+							  <input type="text" id="startDate" class="period-select" style="width:140px;" placeholder="시작일">
+							  <span class="mx-1">~</span>
+							  <input type="text" id="endDate" class="period-select" style="width:140px;" placeholder="종료일">
+							  <button type="button" id="applyCustom" class="btn btn-sm btn-primary ml-2">적용</button>
+							
+							  <div class="text-muted mt-1" style="font-size:12px;">
+							    * 종료일 포함(예: 01-01~01-05는 5일까지)
+							  </div>
+							</div>
+							
+							<!-- 선택된 실제 기간 표시 -->
+							<div id="rangeLabel" class="text-muted mt-2" style="font-size:13px;"></div>
 						</div>
-						
-						<!-- 선택된 실제 기간 표시 -->
-						<div id="rangeLabel" class="text-muted mt-2" style="font-size:13px;"></div>
-					</div>
-                </div>
-            </div>
-            
-            <!-- Statistics Cards -->
-            <div class="row">
-                <div class="col-md-2-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="icon blue">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="label">
-                            <!-- <i class="fas fa-box"></i> -->
-                            주문건수
-                        </div>
-                        <div class="value" id="totalOrders"></div>
-                    </div>
-                </div>
-                <div class="col-md-2-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="icon purple">
-                            <i class="fas fa-cube"></i>
-                        </div>
-                        <div class="label">
-                            <!-- <i class="fas fa-box-open"></i> -->
-                            판매수량
-                        </div>
-                        <div class="value" id="totalSales"></div>
-                    </div>
-                </div>
-                <div class="col-md-2-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="icon green">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="label">
-                            <!-- <i class="fas fa-won-sign"></i> -->
-                            할인 적용 전 매출액
-                        </div>
-                        <div class="value" id="totalRevenue"></div>
-                    </div>
-                </div>
-                <div class="col-md-2-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="icon orange">
-                            <i class="fas fa-tag"></i>
-                        </div>
-                        <div class="label">
-                            <!-- <i class="fas fa-percent"></i> -->
-                            할인액
-                        </div>
-                        <div class="value" id="totalDiscount"></div>
-                    </div>
-                </div>
-                <div class="col-md-2-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="icon indigo">
-                            <i class="fas fa-credit-card"></i>
-                        </div>
-                        <div class="label">
-                            <!-- <i class="fas fa-receipt"></i> -->
-                            최종결제액
-                        </div>
-                        <div class="value" id="finalPayment"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Daily Statistics -->
-            <div class="section-card">
-                <h2 class="section-title">기간별 집계</h2>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">기준일</th>
-                                <th style="width: 25%;" class="text-right">주문건수</th>
-                                <th style="width: 25%;" class="text-right">판매수량</th>
-                                <th style="width: 25%;" class="text-right">할인 전 판매금액</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dailyStatsBody">
-                            <!-- Populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Product Statistics -->
-            <div class="section-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="section-title mb-0">상품별 집계</h2>
-                    <select class="sort-select" id="productSort">
-                        <option value="revenue">판매금액순</option>
-                        <option value="quantity">판매수량순</option>
-                        <option value="name">상품명순</option>
-                    </select>
-                </div>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 15%;">상품번호</th>
-                                <th style="width: 30%;">상품명</th>
-                                <th style="width: 20%;">브랜드</th>
-                                <th style="width: 17.5%;" class="text-right">판매수량</th>
-                                <th style="width: 17.5%;" class="text-right">할인 전 판매금액</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productStatsBody">
-                            <!-- Populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+	                </div>
+	            </div>
+	            
+	            
+	            <!-- Statistics Cards -->
+	            <div class="row">
+	                <div class="col-md-2-4 col-sm-6">
+	                    <div class="stat-card">
+	                        <div class="icon blue">
+	                            <i class="fas fa-shopping-cart"></i>
+	                        </div>
+	                        <div class="label">
+	                            <!-- <i class="fas fa-box"></i> -->
+	                            주문건수
+	                        </div>
+	                        <div class="value" id="totalOrders"></div>
+	                    </div>
+	                </div>
+	                <div class="col-md-2-4 col-sm-6">
+	                    <div class="stat-card">
+	                        <div class="icon purple">
+	                            <i class="fas fa-cube"></i>
+	                        </div>
+	                        <div class="label">
+	                            <!-- <i class="fas fa-box-open"></i> -->
+	                            판매수량
+	                        </div>
+	                        <div class="value" id="totalSales"></div>
+	                    </div>
+	                </div>
+	                <div class="col-md-2-4 col-sm-6">
+	                    <div class="stat-card">
+	                        <div class="icon green">
+	                            <i class="fas fa-dollar-sign"></i>
+	                        </div>
+	                        <div class="label">
+	                            <!-- <i class="fas fa-won-sign"></i> -->
+	                            할인 적용 전 매출액
+	                        </div>
+	                        <div class="value" id="totalRevenue"></div>
+	                    </div>
+	                </div>
+	                <div class="col-md-2-4 col-sm-6">
+	                    <div class="stat-card">
+	                        <div class="icon orange">
+	                            <i class="fas fa-tag"></i>
+	                        </div>
+	                        <div class="label">
+	                            <!-- <i class="fas fa-percent"></i> -->
+	                            할인액
+	                        </div>
+	                        <div class="value" id="totalDiscount"></div>
+	                    </div>
+	                </div>
+	                <div class="col-md-2-4 col-sm-6">
+	                    <div class="stat-card">
+	                        <div class="icon indigo">
+	                            <i class="fas fa-credit-card"></i>
+	                        </div>
+	                        <div class="label">
+	                            <!-- <i class="fas fa-receipt"></i> -->
+	                            최종결제액
+	                        </div>
+	                        <div class="value" id="finalPayment"></div>
+	                    </div>
+	                </div>
+	            </div>
+	            
+	            <!-- Daily Statistics -->
+	            <div class="section-card">
+	                <h2 class="section-title">기간별 집계</h2>
+	                <div class="table-wrapper">
+	                    <table class="table">
+	                        <thead>
+	                            <tr>
+	                                <th style="width: 25%;">기준일</th>
+	                                <th style="width: 25%;" class="text-right">주문건수</th>
+	                                <th style="width: 25%;" class="text-right">판매수량</th>
+	                                <th style="width: 25%;" class="text-right">할인 전 판매금액</th>
+	                            </tr>
+	                        </thead>
+	                        <tbody id="dailyStatsBody">
+	                            <!-- Populated by JavaScript -->
+	                        </tbody>
+	                    </table>
+	                </div>
+	            </div>
+	            
+	            <!-- Product Statistics -->
+	            <div class="section-card">
+	                <div class="d-flex justify-content-between align-items-center mb-3">
+	                    <h2 class="section-title mb-0">상품별 집계</h2>
+	                    <select class="sort-select" id="productSort">
+	                        <option value="revenue">판매금액순</option>
+	                        <option value="quantity">판매수량순</option>
+	                        <option value="name">상품명순</option>
+	                    </select>
+	                </div>
+	                <div class="table-wrapper">
+	                    <table class="table">
+	                        <thead>
+	                            <tr>
+	                                <th style="width: 15%;">상품번호</th>
+	                                <th style="width: 30%;">상품명</th>
+	                                <th style="width: 20%;">브랜드</th>
+	                                <th style="width: 17.5%;" class="text-right">판매수량</th>
+	                                <th style="width: 17.5%;" class="text-right">할인 전 판매금액</th>
+	                            </tr>
+	                        </thead>
+	                        <tbody id="productStatsBody">
+	                            <!-- Populated by JavaScript -->
+	                        </tbody>
+	                    </table>
+	                </div>
+	            </div>
+	        </div>
         </div>
     </div>
 

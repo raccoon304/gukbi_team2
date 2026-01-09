@@ -338,10 +338,10 @@ public class AdminDAO_imple implements AdminDAO {
 	          + "      , to_char(m.created_at, 'yyyy-mm-dd') AS created_at "
 	          + "      , m.mobile_phone "
 	          + "      , m.idle, m.status "
-	          + "      , d.postal_code, d.address, d.address_detail, d.address_extra "
+	          + "      , d.postal_code, d.address, d.address_detail "
 	          + " FROM tbl_member m "
 	          + " LEFT JOIN ( "
-	          + "     SELECT fk_member_id, postal_code, address, address_detail, address_extra "
+	          + "     SELECT fk_member_id, postal_code, address, address_detail "
 	          + "     FROM ( "
 	          + "         SELECT d.* "
 	          + "              , row_number() over( "
@@ -383,14 +383,14 @@ public class AdminDAO_imple implements AdminDAO {
 	            String postal = rs.getString("postal_code");
 	            String addr1  = rs.getString("address");
 	            String addr2  = rs.getString("address_detail");
-	            String addr3  = rs.getString("address_extra");
+	           
 
 	            String fullAddr = "";
 	            if (addr1 != null) {
 	                fullAddr = (postal != null ? "(" + postal + ") " : "")
 	                         + addr1
-	                         + (addr2 != null ? " " + addr2 : "")
-	                         + (addr3 != null ? " " + addr3 : "");
+	                         + (addr2 != null ? " " + addr2 : "");
+	                      
 	            }
 	            map.put("full_address", fullAddr);
 	        }

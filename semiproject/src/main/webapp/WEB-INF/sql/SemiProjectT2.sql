@@ -306,6 +306,27 @@ CHECK (REPLY_STATUS IN (0,1,2));
 ALTER TABLE TBL_INQUIRY
 MODIFY (REPLY_STATUS DEFAULT 1);
 
+
+-- deleted_yn, deleted_at, deleted_by, is_secret 컬럼 추가
+ALTER TABLE tbl_inquiry ADD (
+  deleted_yn NUMBER(1) DEFAULT 0 NOT NULL,
+  deleted_at DATE,
+  deleted_by VARCHAR2(40),
+  is_secret  NUMBER(1) DEFAULT 0 NOT NULL
+);
+
+-- deleted_yn, is_secret 컬럼 체크제약 추가
+ALTER TABLE tbl_inquiry ADD CONSTRAINT ck_tbl_inquiry_deleted_yn CHECK (deleted_yn IN (0,1));
+ALTER TABLE tbl_inquiry ADD CONSTRAINT ck_tbl_inquiry_is_secret  CHECK (is_secret  IN (0,1));
+
+commit;
+
+select *
+from tbl_inquiry;
+
+
+
+
 select * from tab;
 select * from tbl_member;
 select * from tbl_delivery;
@@ -1367,3 +1388,5 @@ VALUES
 
 COMMIT;
 
+select *
+from TBL_DELIVERY
