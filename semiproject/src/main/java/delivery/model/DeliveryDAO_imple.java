@@ -18,6 +18,7 @@ import javax.sql.DataSource;
 import delivery.domain.DeliveryDTO;
 import util.security.AES256;
 import util.security.SecretMyKey;
+import util.security.Sha256;
 
 public class DeliveryDAO_imple implements DeliveryDAO {
 
@@ -209,4 +210,86 @@ public class DeliveryDAO_imple implements DeliveryDAO {
 
         return hasDefault;
     }
+
+    // 배송지 추가일 경우 
+	@Override
+	public int insertDelivery(Map<String, String> paraMap) throws SQLException {
+				
+	    int result = 0;
+
+	    try {
+	        conn = ds.getConnection();
+	        conn.setAutoCommit(false);
+
+	        String sql2 = " INSERT INTO tbl_delivery(DELIVERY_ADDRESS_ID, FK_MEMBER_ID, ADDRESS_NAME, RECIPIENT_NAME, RECIPIENT_PHONE, " 
+	                    + " 	ADDRESS, ADDRESS_DETAIL, IS_DEFAULT, POSTAL_CODE) " 
+	                    + " VALUES(SEQ_TBL_DELIVERY_DELIVERY_ADDRESS_ID.nextval, ?, ?, ?, ?, ?, ?, ?, ?) ";
+
+	        pstmt = conn.prepareStatement(sql2); 
+
+	        pstmt.setString(1, paraMap.get("memberId"));
+	        pstmt.setString(2, paraMap.get("addressName"));
+	        pstmt.setString(3, paraMap.get("recipientName"));
+	        
+	        String recipientPhone = aes.encrypt(paraMap.get("recipientPhone"));
+	        pstmt.setString(4, recipientPhone);
+	        
+	        pstmt.setString(5, paraMap.get("address"));
+	        pstmt.setString(6, paraMap.get("addressDetail"));
+	        pstmt.setInt(7, 0);
+	        pstmt.setString(8, paraMap.get("postalCode"));
+
+	        result += pstmt.executeUpdate();
+
+	        conn.commit();
+	        return result;
+
+	    } catch (Exception e) {
+	        if (conn != null) conn.rollback();
+	        throw new SQLException(e);
+	    } finally {
+	        close();
+	    }
+	}
+
+	@Override
+	public int updateDelivery(Map<String, String> paraMap) throws SQLException {
+		int n = 0;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = " update tbl_delivery "
+                       + "    set address_name   = ? "
+                       + "      , recipient_name = ? "
+                       + "      , postal_code    = ? "
+                       + "      , recipient_phone= ? "
+                       + "      , address        = ? "
+                       + "      , address_detail = ? "
+                       + "  where delivery_address_id = ? and fk_member_id = ? ";
+
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, paraMap.get("addressName"));
+            pstmt.setString(2, paraMap.get("recipientName"));
+            pstmt.setString(3, paraMap.get("postalCode"));
+
+            String recipientPhone = aes.encrypt(paraMap.get("recipientPhone"));
+            pstmt.setString(4, recipientPhone);
+
+            pstmt.setString(5, paraMap.get("address"));
+            pstmt.setString(6, paraMap.get("addressDetail"));
+
+            pstmt.setInt(7, Integer.parseInt(paraMap.get("deliveryAddressId")));
+            pstmt.setString(8, paraMap.get("memberId"));
+
+            n = pstmt.executeUpdate();
+
+        } catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		} finally {
+            close();
+        }
+        return n;
+	}
 }
