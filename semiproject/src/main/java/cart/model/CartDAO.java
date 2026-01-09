@@ -35,13 +35,11 @@ public interface CartDAO {
 	// 특정 회원(memberId)의 장바구니에서, 특정 행(cartId) 하나의 정보를 조회
 	Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException;
 	
-	
-	
 	// 결제 페이지 전용 (DTO)
 	List<CartDTO> selectCartListForPay(String memberId) throws SQLException;
 
 	//
-	Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity);
+	Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
 	
 
 }

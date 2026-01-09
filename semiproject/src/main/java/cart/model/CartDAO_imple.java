@@ -308,17 +308,45 @@ public class CartDAO_imple implements CartDAO {
 	}
 
 	@Override
-	public Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, Object> selectDirectProduct(
+	        String productCode, int optionId, int quantity) throws SQLException {
+
+	    Map<String, Object> map = new HashMap<>();
+
+	    String sql =
+	        " SELECT "
+	      + "   p.product_name, "
+	      + "   p.image_path, "
+	      + "   (p.price + o.plus_price) AS unit_price, "
+	      + "   ? AS quantity, "
+	      + "   (p.price + o.plus_price) * ? AS total_price "
+	      + " FROM tbl_product p "
+	      + " JOIN tbl_product_option o "
+	      + "   ON p.product_code = o.fk_product_code "
+	      + " WHERE p.product_code = ? "
+	      + " AND o.option_id = ? ";
+
+	    try (Connection conn = ds.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setInt(1, quantity);
+	        pstmt.setInt(2, quantity);
+	        pstmt.setString(3, productCode);
+	        pstmt.setInt(4, optionId);
+
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            if (rs.next()) {
+	                map.put("product_name", rs.getString("product_name"));
+	                map.put("image_path", rs.getString("image_path"));
+	                map.put("unit_price", rs.getInt("unit_price"));
+	                map.put("quantity", rs.getInt("quantity"));
+	                map.put("total_price", rs.getInt("total_price"));
+	            }
+	        }
+	    }
+
+	    return map.isEmpty() ? null : map;
 	}
-
 	
-
-	
-
-	
-
-
 	
 }

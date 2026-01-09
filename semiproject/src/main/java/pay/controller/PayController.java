@@ -40,30 +40,53 @@ public class PayController extends AbstractController {
         String cartIdsParam = request.getParameter("cartIds");
         String couponIdParam = request.getParameter("couponId");
 
-        if (cartIdsParam == null || cartIdsParam.isBlank()) {
-            response.setContentType("text/html; charset=UTF-8");
-            response.getWriter().println(
-                "<script>alert('잘못된 접근입니다.');history.back();</script>"
-            );
-            return;
-        }
-
-        /* ================= 장바구니 상품 조회 ================= */
         List<Map<String, Object>> orderList = new ArrayList<>();
-        String[] cartIdArray = cartIdsParam.split(",");
 
-        for (String cartIdStr : cartIdArray) {
-            try {
-                int cartId = Integer.parseInt(cartIdStr.trim());
-                Map<String, Object> item =
-                    cartDao.selectCartById(cartId, loginUser.getMemberid());
+        /* ================= 결제 대상 조회 ================= */
+        if (cartIdsParam != null && !cartIdsParam.isBlank()) {
+            // ✅ 기존 장바구니 결제 (그대로 유지)
 
-                if (item != null) {
-                    orderList.add(item);
-                }
-            } catch (NumberFormatException ignore) {}
+            String[] cartIdArray = cartIdsParam.split(",");
+
+            for (String cartIdStr : cartIdArray) {
+                try {
+                    int cartId = Integer.parseInt(cartIdStr.trim());
+                    Map<String, Object> item =
+                        cartDao.selectCartById(cartId, loginUser.getMemberid());
+
+                    if (item != null) {
+                        orderList.add(item);
+                    }
+                } catch (NumberFormatException ignore) {}
+            }
+
+        } else {
+            // ✅ 상품상세 → 바로구매 (추가된 부분)
+
+            String productCode = request.getParameter("productCode");
+            String optionIdStr = request.getParameter("optionId");
+            String quantityStr = request.getParameter("quantity");
+
+            if (productCode == null || optionIdStr == null || quantityStr == null) {
+                response.setContentType("text/html; charset=UTF-8");
+                response.getWriter().println(
+                    "<script>alert('잘못된 접근입니다.');history.back();</script>"
+                );
+                return;
+            }
+
+            int optionId = Integer.parseInt(optionIdStr);
+            int quantity = Integer.parseInt(quantityStr);
+
+            Map<String, Object> item =
+                cartDao.selectDirectProduct(productCode, optionId, quantity);
+
+            if (item != null) {
+                orderList.add(item);
+            }
         }
 
+        /* ================= 공통 검증 ================= */
         if (orderList.isEmpty()) {
             response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
@@ -71,7 +94,8 @@ public class PayController extends AbstractController {
             );
             return;
         }
-
+        
+        
         /* ================= 총 상품금액 ================= */
         int totalPrice = 0;
         for (Map<String, Object> item : orderList) {
