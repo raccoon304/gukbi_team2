@@ -10,8 +10,8 @@
 <!-- 사용자 CSS -->
 <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/productOption.css">
 
-<!-- 사용자 JS -->
-<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/productOption.js"></script>
+<!-- 사용자 JS 맨 아래단에 추가했음!! -->
+
 
 
 
@@ -20,7 +20,6 @@
     <div class="product-container mt-4">
         <div class="product-header">
             <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
-            <h5>유저이름: ${loginUser.name}</h5>
         </div>
 		
 
@@ -58,8 +57,11 @@
                                 <div class="spec-label">저장용량</div>
                                 <%-- <div class="spec-value">${proDetilDto.storageSize}</div> --%>
                                 <select class="sort-select form-control" id="sortSelectStorageSize">
-				                    <option value="price_high">256GB</option>
-				                    <option value="price_low">512GB</option>
+				                    <option value="256GB">256GB</option>
+				                    <option value="512GB">
+				                    	512GB&nbsp;&nbsp;+&nbsp;&nbsp;
+				                    	<fmt:formatNumber value="${plusPrice}" pattern="###,###"/>
+				                    </option>
 				                </select>
                             </div>
                             
@@ -91,6 +93,7 @@
                                     <button class="quantity-btn" id="decreaseBtn">
                                         <i class="fas fa-minus"></i>
                                     </button>
+                                    <!-- 스크립트 단에서 수량 증가/감소된 값이 올라옴! -->
                                     <input type="number" class="quantity-input" id="quantity" value="1" min="1" max="48" readonly>
                                     <button class="quantity-btn" id="increaseBtn">
                                         <i class="fas fa-plus"></i>
@@ -101,7 +104,6 @@
                             <div class="total-price-section">
                                 <span class="total-label">총 상품 금액</span>
                                 <span class="total-price" id="totalPrice">
-                                		<%-- <fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>&nbsp;원 --%>
                                 		<fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>&nbsp;원
                                 </span>
                             </div>
@@ -139,161 +141,32 @@
                     <h4 class="mb-4"><i class="fas fa-info-circle mr-2"></i>상품 설명</h4>
                     <div class="product-description">
                     	<p>${proDto.productDesc}</p>
-                        <!-- <p><strong>최신 A18 Pro 칩 탑재</strong></p>
-                        <p>혁신적인 성능과 전력 효율성을 자랑하는 A18 Pro 칩으로 모든 작업이 빠르고 부드럽습니다.</p>
-                        
-                        <p class="mt-4"><strong>ProMotion 디스플레이</strong></p>
-                        <p>120Hz 주사율의 Super Retina XDR 디스플레이로 생생하고 선명한 화면을 경험하세요.</p>
-                        
-                        <p class="mt-4"><strong>프로급 카메라 시스템</strong></p>
-                        <p>48MP 메인 카메라와 향상된 야간 모드로 어떤 환경에서도 완벽한 사진을 촬영할 수 있습니다.</p>
-                        
-                        <p class="mt-4"><strong>오래가는 배터리</strong></p>
-                        <p>하루 종일 사용 가능한 배터리 성능과 빠른 충전을 지원합니다.</p>
-                        
-                        <p class="mt-4"><strong>티타늄 디자인</strong></p>
-                        <p>견고하면서도 가벼운 티타늄 소재로 프리미엄 디자인을 완성했습니다.</p> -->
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>
 
 
-<script type="text/javascript">
-$(document).ready(function() {
-    // 로그인 상태 변수
-    var isLoggedIn = false;
-    
-    if("${loginUser.name}" != ""){
-	    //alert("${loginUser.name}");
-	    var isLoggedIn = true;
-    }
-    
-    var unitPrice = Number("${proOptionDto.totalPrice}");
-    var maxStock = ${proOptionDto.stockQty};
-
-    // 페이지 로드 시 로그인 상태 확인
-    updateLoginStatus();
-
-    // 로그인 상태 업데이트
-    function updateLoginStatus() {
-        if (isLoggedIn) {
-            $('#loginBtn').hide();
-            $('#logoutBtn').show();
-            $('#userInfo').show();
-            $('#loginRequiredMsg').hide();
-            $('#quantitySection').removeClass('disabled-section');
-        } else {
-            $('#loginBtn').show();
-            $('#logoutBtn').hide();
-            $('#userInfo').hide();
-            $('#loginRequiredMsg').show();
-            $('#quantitySection').addClass('disabled-section');
-        }
-    }
-
-    // 수량 증가
-    $('#increaseBtn').click(function() {
-        if (!isLoggedIn) return;
-        
-        var currentQty = parseInt($('#quantity').val());
-        if (currentQty < maxStock) {
-            $('#quantity').val(currentQty + 1);
-            updateTotalPrice();
-        } else {
-            alert('최대 재고 수량입니다.');
-        }
-    });
-
-    // 수량 감소
-    $('#decreaseBtn').click(function() {
-        if (!isLoggedIn) return;
-        
-        var currentQty = parseInt($('#quantity').val());
-        if (currentQty > 1) {
-            $('#quantity').val(currentQty - 1);
-            updateTotalPrice();
-        }
-    });
-
-    // 총 가격 업데이트
-    function updateTotalPrice() {
-        var quantity = parseInt($('#quantity').val());
-        var total = unitPrice * quantity;
-        $('#totalPrice').text(total.toLocaleString() + '원');
-    }
-
-    // 장바구니 버튼
-    $('#cartBtn').click(function() {
-        if (!isLoggedIn) {
-            alert('로그인이 필요합니다.');
-            $('#loginModal').modal('show');
-            return;
-        }
-
-        var quantity = $('#quantity').val();
-        var total = unitPrice * quantity;
-        
-        if (confirm(quantity + '개의 상품을 장바구니에 담으시겠습니까?\n총 금액: ' + total.toLocaleString() + '원')) {
-            alert('장바구니에 상품이 추가되었습니다!');
-            console.log({
-                product: '아이폰 16 Pro Max',
-                quantity: quantity,
-                unitPrice: unitPrice,
-                totalPrice: total
-            });
-        }
-    });
-
-    // 구매하기 버튼
-    $('#purchaseBtn').click(function() {
-        if (!isLoggedIn) {
-            alert('로그인이 필요합니다.');
-            $('#loginModal').modal('show');
-            return;
-        }
-
-        var quantity = $('#quantity').val();
-        var total = unitPrice * quantity;
-        
-        if (confirm('상품을 구매하시겠습니까?\n\n수량: ' + quantity + '개\n총 금액: ' + total.toLocaleString() + '원')) {
-            alert('구매가 완료되었습니다!\n주문 내역은 마이페이지에서 확인하실 수 있습니다.');
-            console.log({
-                action: '구매하기',
-                product: '아이폰 16 Pro Max',
-                quantity: quantity,
-                unitPrice: unitPrice,
-                totalPrice: total,
-                timestamp: new Date()
-            });
-        }
-    });
-
-    // 리뷰 보기 버튼
-    $('#reviewBtn').click(function() {
-        // 실제로는 리뷰 페이지로 이동
-        if (confirm('상품 리뷰 페이지로 이동하시겠습니까?')) {
-            // window.location.href = 'review.html?productId=1';
-            alert('리뷰 페이지로 이동합니다.\n(실제로는 review.html?productId=1 으로 이동)');
-            console.log('리뷰 페이지 이동: review.html?productId=1');
-        }
-    });
-
-    // 수량 직접 입력 방지 (readonly 해제 시)
-    $('#quantity').on('input', function() {
-        var val = parseInt($(this).val());
-        if (val < 1) $(this).val(1);
-        if (val > maxStock) $(this).val(maxStock);
-        updateTotalPrice();
-    });
-
-    // 초기 가격 표시
-    updateTotalPrice();
-});
-
+<script>
+	//java단에서 받아온 데이터를 JS 파일로 넘겨주기
+    const pageData = {
+        isLoggedIn: "${loginUser.name}" !== "", //사용자가 로그인을 했는지 true/false 값
+        loginUserId: "${loginUser.memberid}",  //장바구니에 보낼 회원아이디
+        productCode: "${proOptionDto.fkProductCode}", //상품코드
+        productOptionId: Number("${proOptionDto.optionId}"), //옵션아이디
+        unitPrice: Number("${proDto.price}"), // 기본금액(상품 초기 설정가격)
+        plusPrice: Number("${plusPrice}"),  //512GB에 따른 추가금액
+        maxStock: Number("${proOptionDto.stockQty}") // 재고 수량(수량을 증가할 때 재고수량은 넘길 수 없음)
+    };
 </script>
+
+<!-- 사용자 정의 JS -->
+<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/productOption.js"></script>
+
+
 
 <!-- 푸터부분 가져오기 -->
 <jsp:include page="../footer.jsp"/>

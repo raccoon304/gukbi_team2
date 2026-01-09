@@ -26,19 +26,108 @@ body {
   border-radius: 8px;
 }
 
+/* 공통 행 */
 .info-row {
   display: flex;
   align-items: center;
   margin-bottom: 14px;
 }
 
+/* 라벨 */
 .info-label {
   width: 120px;
-  font-weight: bold;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
+/* 값 */
 .info-value {
-  color: #333;
+  padding: 8px 12px;
+  background: #f1f3f5;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #222;
+}
+
+/* =========================
+   이름 / 전화번호 반반
+========================= */
+.two-col {
+  display: flex;
+  gap: 16px;
+}
+
+.two-col .half {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.two-col .info-label {
+  width: 90px;
+}
+
+/* =========================
+   주소 영역
+========================= */
+.address-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.address-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#address,
+#detailAddress {
+  height: 40px;
+}
+
+#address {
+  flex: 1 1 auto;
+  min-width: 0;           /* flex에서 input이 넘칠 때 깨지는 현상 방지 */
+}
+
+/* 상세주소 */
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.detail-row .info-label {
+  width: 120px;
+}
+
+/* 검색 버튼은 오른쪽 고정 */
+#addressSearchBtn {
+  flex-shrink: 0;
+  width: 80px;
+  white-space: nowrap;
+  height: 40px;
+}
+
+/* =========================
+   우편번호 / 배송지 선택
+========================= */
+#zipcode {
+  width: 100%;
+  height: 40px;
+  background: #eef1f4;
+}
+
+#selectAddressBtn {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #444;
+  background: #fff;
+  font-weight: 500;
 }
 
 /* =========================
@@ -64,7 +153,6 @@ body {
   border-radius: 8px;
 }
 
-/* 상품 목록 헤더 */
 .product-header-row {
   display: flex;
   align-items: center;
@@ -75,7 +163,6 @@ body {
   color: #555;
 }
 
-/* 상품 행 */
 .product-row {
   display: flex;
   align-items: center;
@@ -87,14 +174,12 @@ body {
   border-bottom: none;
 }
 
-/* 컬럼 */
 .col-image {
   width: 120px;
 }
 
 .product-image {
   width: 100px;
-  height: auto;
   border-radius: 6px;
 }
 
@@ -114,7 +199,6 @@ body {
   font-weight: bold;
 }
 
-/* 하단 합계 */
 .product-total-row {
   display: flex;
   justify-content: space-between;
@@ -126,14 +210,12 @@ body {
 }
 
 /* =========================
-   오른쪽 : 결제 요약 
+   오른쪽 : 결제 요약
 ========================= */
 .payment-right {
   width: 360px;
-  position: static;  
 }
 
-/* 금액 요약 박스 */
 .price-summary {
   background: #fff;
   padding: 24px;
@@ -141,14 +223,6 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   margin-bottom: 16px;
 }
-
-/* 쿠폰 적용 금액 */
-#applyCouponBtn {
-	border: 2px solid #fff;
-	background : #eee;
-	display : hidden;
-}
-
 
 .price-row {
   display: flex;
@@ -163,7 +237,9 @@ body {
   padding-top: 14px;
 }
 
-/* 결제 버튼 */
+/* =========================
+   버튼
+========================= */
 .confirm-btn {
   width: 100%;
   padding: 18px;
@@ -180,13 +256,12 @@ body {
   background: #5b51c7;
 }
 
-/* 주소 검색 버튼 크기 조정 */
-.btn-outline-secondary {
-  padding: 6px 12px;   
-  font-size: 13px;
-  height: 38px;        
+#applyCouponBtn {
+  border: none;
+  background: #eee;
 }
 
-#address {
-  width: calc(100% - 70px); /* 검색 버튼 공간 확보 */
+#addressSearchBtn {
+  min-width: 60px;        
+  white-space: nowrap; 
 }

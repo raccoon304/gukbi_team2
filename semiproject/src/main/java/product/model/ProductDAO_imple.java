@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -13,7 +14,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import product.domain.ProductDTO;
-import product.domain.ProductListDTO;
 import product.domain.ProductOptionDTO;
 
 public class ProductDAO_imple implements ProductDAO {
@@ -69,35 +69,6 @@ public class ProductDAO_imple implements ProductDAO {
 		return productList;
 	}//end of public List<ProductDTO> selectProduct() throws SQLException-----
 
-
-	//제품에 대한 옵션 리스트로 전부 검색하기(select)
-	/*
-	@Override
-	public List<ProductOptionDTO> selectProductOption() throws SQLException {
-		List<ProductOptionDTO> proOptionList = new ArrayList<>();
-		try {
-			conn = ds.getConnection();
-			String sql = " SELECT option_id,fk_product_code,color,storage_size,price,stock_qty "
-						+" FROM tbl_product_option ";
-			pstmt = conn.prepareStatement(sql);
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				ProductOptionDTO proDetailDto = new ProductOptionDTO();
-				proDetailDto.setOptionId(rs.getInt("option_id"));
-				proDetailDto.setFkProductCode(rs.getString("fk_product_code"));
-				proDetailDto.setColor(rs.getString("color"));
-				proDetailDto.setStorageSize(rs.getString("storage_size"));
-				proDetailDto.setPrice(rs.getInt("price"));
-				proDetailDto.setStockQty(rs.getInt("stock_qty"));
-				//proDetailDto.setImagePath(rs.getString("image_path"));
-
-				proOptionList.add(proDetailDto);
-			}
-		} finally {close();}
-		return proOptionList;
-	}//end of public List<ProductDTO> selectProductOption() throws SQLException-----
-	*/
-
 	
 	
 	//받아온 상품코드(상품테이블)의 값을 이용해 제품정보 가져오기(제품명,브랜드,제품설명,제품이미지)
@@ -108,7 +79,7 @@ public class ProductDAO_imple implements ProductDAO {
 		
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT product_code, product_name, brand_name, product_desc, sale_status, image_path "
+			String sql = " SELECT product_code, product_name, brand_name, product_desc, sale_status, image_path, price "
 						+" FROM tbl_product "
 						+" WHERE product_code = ? ";
 			
@@ -122,6 +93,7 @@ public class ProductDAO_imple implements ProductDAO {
 				proDto.setProductDesc(rs.getString("product_desc"));
 				proDto.setSaleStatus(rs.getString("sale_status"));
 				proDto.setImagePath(rs.getString("image_path"));
+				proDto.setPrice(rs.getInt("price"));
 			}
 		} finally {
 			close();
@@ -140,7 +112,7 @@ public class ProductDAO_imple implements ProductDAO {
 		try {
 			conn = ds.getConnection();
 			String sql = " SELECT P.product_code, option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, "
-						+"	       (price + plus_price) as total_price "
+						+"	       (price + plus_price) as total_price, plus_price "
 						+" FROM tbl_product_option O "
 						+" JOIN tbl_product P "
 						+" ON O.fk_product_code = P.product_code "
@@ -157,47 +129,13 @@ public class ProductDAO_imple implements ProductDAO {
 				proDetilDto.setStorageSize(rs.getString("storage_size"));
 				proDetilDto.setStockQty(rs.getInt("stock_qty"));
 				proDetilDto.setTotalPrice(rs.getInt("total_price"));
+				proDetilDto.setPlusPrice(rs.getInt("plus_price"));
 			}
 		} finally {
 			close();
 		}
 		return proDetilDto;
 	}//end of public ProductDetailDTO selectOne(String test) throws SQLException-----
-
-
-	
-	
-	//가져온 상품코드로 이에 맞는 옵션값들 리스트로 가져오기
-	/*
-	@Override
-	public List<ProductOptionDTO> selectProductOption(String productCode) throws SQLException {
-		List<ProductOptionDTO> proOptionList = new ArrayList<ProductOptionDTO>();
-		try {
-			conn = ds.getConnection();
-			String sql = " SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty "
-						+" FROM tbl_product_option O "
-						+" JOIN tbl_product P "
-						+" ON P.product_code = O.fk_product_code "
-						+" WHERE P.product_code = ? ";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, productCode);
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				ProductOptionDTO proDetailDto = new ProductOptionDTO();
-				proDetailDto.setOptionId(rs.getInt("option_id"));
-				proDetailDto.setColor(rs.getString("color"));
-				proDetailDto.setStorageSize(rs.getString("storage_size"));
-				proDetailDto.setPrice(rs.getInt("price"));
-				proDetailDto.setStockQty(rs.getInt("stock_qty"));
-				proOptionList.add(proDetailDto);
-			}
-		} finally {close();}
-		return proOptionList;
-	}//end of public List<ProductDetailDTO> selectProductOption(String productCode) throws SQLException
-	*/
-	
-
 
 	
 	
@@ -228,7 +166,89 @@ public class ProductDAO_imple implements ProductDAO {
 	}//end of public List<ProductListDTO> productCardList() throws SQLException-----
 
 
+	
+	//제품코드에 따른 추가금을 가져오기(512GB만 추가금이 있으므로 그것만 가져오기
+	@Override
+	public int selectOptionPlusPrice(String productCode) throws SQLException {
+		int plusPrice = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT distinct fk_product_code, plus_price "
+						+" FROM tbl_product_option "
+						+" WHERE storage_size = '512GB' AND fk_product_code = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productCode);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				plusPrice = rs.getInt("plus_price");
+			}
+			
+		} finally {close();}
+		return plusPrice;
+	}//end of public int selectOptionPlusPrice(String productCode) throws SQLException-----
 
+	
+	//장바구니 테이블의 상품에 대해 있는지 없는지 확인하기
+	@Override
+	public boolean isCartProduct(Map<String, String> paraMap) throws SQLException {
+		boolean isCartProduct = false;
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT * from tbl_cart "
+						+" WHERE fk_member_id = ? AND fk_option_id = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("loginUserId"));
+			pstmt.setString(2, paraMap.get("productOptionId"));
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				isCartProduct = true;
+			}
+		} finally {close();}
+		return isCartProduct;
+	}//end of public boolean isCartProduct(Map<String, String> paraMap) throws SQLException-----
+
+	
+	//장바구니 테이블에 값 삽입하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
+	@Override
+	public int insertProductCart(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " insert into tbl_cart(cart_id, fk_member_id, fk_option_id, quantity) "
+						+" values(seq_tbl_cart_cart_id.nextval, ?, ?, ?) ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("loginUserId"));
+			pstmt.setString(2, paraMap.get("productOptionId"));
+			pstmt.setString(3, paraMap.get("quantity"));
+			
+			result = pstmt.executeUpdate();
+		} finally {close();}
+		
+		return result;
+	}//end of public CartDTO insertProductCart(Map<String, String> paraMap) throws SQLException-----
+
+	
+	
+	//장바구니 테이블에 재고량 업데이트하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
+	@Override
+	public int updateProductCart(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " UPDATE tbl_cart SET quantity = quantity + ? "
+						+" WHERE fk_member_id = ? AND fk_option_id = ? ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("quantity"));
+			pstmt.setString(2, paraMap.get("loginUserId"));
+			pstmt.setString(3, paraMap.get("productOptionId"));
+
+			result = pstmt.executeUpdate();
+		} finally {close();}
+		
+		return result;
+	}//end of public void updateProductCart(Map<String, String> paraMap) throws SQLException-----
 	
 	
 	
