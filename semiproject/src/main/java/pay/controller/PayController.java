@@ -44,7 +44,7 @@ public class PayController extends AbstractController {
 
         /* ================= 결제 대상 조회 ================= */
         if (cartIdsParam != null && !cartIdsParam.isBlank()) {
-            // ✅ 기존 장바구니 결제 (그대로 유지)
+            //  기존 장바구니 결제 (그대로 유지)
 
             String[] cartIdArray = cartIdsParam.split(",");
 
