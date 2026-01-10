@@ -19,6 +19,10 @@
 <body>
 <jsp:include page="/WEB-INF/header.jsp" />
 
+<form action="<%= ctxPath %>/payment/paymentSuccess.hp"
+      method="post"
+      id="payForm">
+
 <div class="container payment-container">
 
   <!-- ================= 상단 : 받는분 정보 ================= -->
@@ -175,11 +179,11 @@
 
         <div class="price-row">
           <button type = "button" id="applyCouponBtn">쿠폰 적용금액</button>
-           <span id="discountAmount">- 0 원</span>
+           <span id="discountAmountText">- 0 원</span>
         </div>
-		<input type="hidden" id="couponDiscount" value="0" />
-		<input type="hidden" id="totalPrice" value="${totalPrice}" />	
-		<input type="hidden" id="finalPrice" value="${totalPrice}" />
+		<input type="hidden" name="couponDiscount" id="couponDiscount" value="0">
+		<input type="hidden" name="totalPrice" id="totalPrice" value="${totalPrice}">
+		<input type="hidden" name="finalPrice" id="finalPrice" value="${totalPrice}">
 		<input type="hidden" id="couponId" name="couponId" />
 		
         <div class="price-row total">
@@ -190,9 +194,9 @@
         </div>
       </div>
 		
-		<button class="confirm-btn" id="coinPayBtn">
-		 결제하기
-		</button>
+		<button type="button" class="confirm-btn" id="coinPayBtn">
+	  결제하기
+	</button>
 
     </div>
     <!-- ===== 오른쪽 끝 ===== -->
@@ -201,6 +205,14 @@
   <!-- ================= 본문 끝 ================= -->
 
 </div>
+
+<!-- 서버로 보낼 실제 결제 데이터 -->
+<input type="hidden" name="totalAmount" id="totalAmount" value="${totalPrice}">
+<input type="hidden" name="discountAmount" id="discountAmount" value="0">
+<input type="hidden" name="deliveryAddress" id="deliveryAddress">
+
+</form>
+
 
 
 

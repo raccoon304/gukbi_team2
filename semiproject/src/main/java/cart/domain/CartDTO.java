@@ -19,95 +19,97 @@ private String imagePath;
 private String brand_name;
 
 
-public String getBrand_name() {
-	return brand_name;
-}
 
-public void setBrand_name(String brand_name) {
-	this.brand_name = brand_name;
-}
-
-public int getCartId() {
+	public String getBrand_name() {
+		return brand_name;
+	}
 	
-return cartId;
-}
-
-public void setCartId(int cartId) {
+	public void setBrand_name(String brand_name) {
+		this.brand_name = brand_name;
+	}
 	
-	this.cartId = cartId;
-}
-
-public String getMemberId() {
+	public int getCartId() {
+		
+	return cartId;
+	}
 	
-	return memberId;
-}
-
-public void setMemberId(String memberId) {
+	public void setCartId(int cartId) {
+		
+		this.cartId = cartId;
+	}
 	
-	this.memberId = memberId;
-}
-
-public int getOptionId() {
+	public String getMemberId() {
+		
+		return memberId;
+	}
 	
-	return optionId;
-}
-
-public void setOptionId(int optionId) {
+	public void setMemberId(String memberId) {
+		
+		this.memberId = memberId;
+	}
 	
-	this.optionId = optionId;
-}
-
-public LocalDateTime getAddedDate() {
+	public int getOptionId() {
+		
+		return optionId;
+	}
 	
-	return addedDate;
-}
-
-public void setAddedDate(LocalDateTime addedDate) {
+	public void setOptionId(int optionId) {
+		
+		this.optionId = optionId;
+	}
 	
-	this.addedDate = addedDate;
-}
-
-public int getQuantity() {
+	public LocalDateTime getAddedDate() {
+		
+		return addedDate;
+	}
 	
-	return quantity;
-}
-
-public void setQuantity(int quantity) {
+	public void setAddedDate(LocalDateTime addedDate) {
+		
+		this.addedDate = addedDate;
+	}
 	
-	this.quantity = quantity;
-}
-
-// 상품 상세에서 가져온것
-public int getPrice() {
+	public int getQuantity() {
+		
+		return quantity;
+	}
 	
-	return price;
-}
+	public void setQuantity(int quantity) {
+		
+		this.quantity = quantity;
+	}
+	
+	// 상품 상세에서 가져온것
+	public int getPrice() {
+		
+		return price;
+	}
+	
+	public void setPrice(int price) {
+		this.price = price;
+	}
+	
+	// 상품에서 가져온 것
+	public String getProductName() {
+		return productName;
+	}
+	
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+	
+	public String getImagePath() {
+		return imagePath;
+	}
+	
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+	
+	// 총액은 별도 메서드
+	public int getTotalPrice() {
+	    return price * quantity;
+	}
 
-public void setPrice(int price) {
-	this.price = price;
-}
-
-// 상품에서 가져온 것
-public String getProductName() {
-	return productName;
-}
-
-public void setProductName(String productName) {
-	this.productName = productName;
-}
-
-public String getImagePath() {
-	return imagePath;
-}
-
-public void setImagePath(String imagePath) {
-	this.imagePath = imagePath;
-}
-
-// 총액은 별도 메서드
-public int getTotalPrice() {
-    return price * quantity;
-}
 
 }
 

@@ -23,7 +23,7 @@ public interface CartDAO {
     List<Map<String, Object>> selectCartList(String memberId) throws SQLException;
 
     
-    // 선택 삭제
+    // 장바구니 내에서 선택 삭제
     int deleteCart(int cartId, String memberId) throws SQLException;
         
     // 장바구니 내부에서 수량 변경
@@ -40,6 +40,10 @@ public interface CartDAO {
 	
 	// 상품상세 페이지에서 바로구매를 눌렀을때 결제페이지 내역을 볼 수 있게 해주는 기능
 	Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
+
+	// 결제에 사용된 cart_id만 삭제
+	int deleteSuccessCartId(List<Integer> cartIdList) throws SQLException;
+
 	
 
 }
