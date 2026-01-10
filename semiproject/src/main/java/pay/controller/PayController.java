@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cart.domain.CartDTO;
 import cart.model.CartDAO;
 import cart.model.CartDAO_imple;
 import common.controller.AbstractController;
@@ -18,6 +19,24 @@ import member.domain.MemberDTO;
 
 public class PayController extends AbstractController {
 
+	// Map에서 int 안전 추출
+	private int getInt(Map<String, Object> map, String key) {
+	    Object v = map.get(key);
+	    if (v == null) return 0;
+	    if (v instanceof Number) return ((Number) v).intValue();
+	    try {
+	        return Integer.parseInt(String.valueOf(v));
+	    } catch (Exception e) {
+	        return 0;
+	    }
+	}
+
+	// Map에서 String 안전 추출
+	private String getStr(Map<String, Object> map, String key) {
+	    Object v = map.get(key);
+	    return (v == null) ? "" : String.valueOf(v);
+	}
+	
     private CartDAO cartDao = new CartDAO_imple();
 
     @Override
@@ -41,7 +60,8 @@ public class PayController extends AbstractController {
         String couponIdParam = request.getParameter("couponId");
 
         List<Map<String, Object>> orderList = new ArrayList<>();
-
+        List<CartDTO> cartList = new ArrayList<>();
+        
         /* ================= 결제 대상 조회 ================= */
         if (cartIdsParam != null && !cartIdsParam.isBlank()) {
             //  기존 장바구니 결제 (그대로 유지)
@@ -51,12 +71,24 @@ public class PayController extends AbstractController {
             for (String cartIdStr : cartIdArray) {
                 try {
                     int cartId = Integer.parseInt(cartIdStr.trim());
+                    
                     Map<String, Object> item =
                         cartDao.selectCartById(cartId, loginUser.getMemberid());
 
-                    if (item != null) {
+                     if (item == null) continue;
+                    	
                         orderList.add(item);
-                    }
+                        
+                        CartDTO cart = new CartDTO();
+                        cart.setCartId(cartId);
+                        cart.setOptionId(getInt(item, "option_id"));
+                        cart.setQuantity(getInt(item, "quantity"));
+                        cart.setPrice(getInt(item, "unit_price"));
+                        cart.setProductName(getStr(item, "product_name"));
+                        cart.setBrand_name(getStr(item, "brand_name"));
+
+                        cartList.add(cart);
+                    
                 } catch (NumberFormatException ignore) {}
             }
 
@@ -75,14 +107,37 @@ public class PayController extends AbstractController {
                 return;
             }
 
-            int optionId = Integer.parseInt(optionIdStr);
-            int quantity = Integer.parseInt(quantityStr);
+            int optionId;
+            int quantity;
 
+            try {
+                optionId = Integer.parseInt(optionIdStr);
+                quantity = Integer.parseInt(quantityStr);
+            } catch (NumberFormatException e) {
+                response.getWriter().println("""
+                    <script>
+                        alert('잘못된 수량 또는 옵션입니다.');
+                        history.back();
+                    </script>
+                """);
+                return;
+            }
+            
             Map<String, Object> item =
                 cartDao.selectDirectProduct(productCode, optionId, quantity);
 
             if (item != null) {
                 orderList.add(item);
+                
+                CartDTO cart = new CartDTO();
+                cart.setCartId(0); // 바로구매는 cart_id 없음
+                cart.setOptionId(optionId);
+                cart.setQuantity(quantity);
+                cart.setPrice(getInt(item, "unit_price"));
+                cart.setProductName(getStr(item, "product_name"));
+                cart.setBrand_name(getStr(item, "brand_name"));
+
+                cartList.add(cart);
             }
         }
 
@@ -99,7 +154,7 @@ public class PayController extends AbstractController {
         /* ================= 총 상품금액 ================= */
         int totalPrice = 0;
         for (Map<String, Object> item : orderList) {
-            totalPrice += (Integer) item.get("total_price");
+        	 totalPrice += getInt(item, "total_price");
         }
 
         /* ================= 쿠폰 ================= */
@@ -133,6 +188,9 @@ public class PayController extends AbstractController {
         int finalPrice = totalPrice - discountPrice;
 
         /* ================= JSP 전달 ================= */
+        session.setAttribute("cartList", cartList);
+        
+        
         request.setAttribute("orderList", orderList);
         request.setAttribute("couponList", couponList);
         request.setAttribute("totalPrice", totalPrice);
@@ -142,5 +200,8 @@ public class PayController extends AbstractController {
 
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");
+        
+        
     }
 }
+

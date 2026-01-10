@@ -283,8 +283,12 @@ public class CartDAO_imple implements CartDAO {
 	    	    " SELECT " +
 	    	    "   c.cart_id, " +
 	    	    "   c.quantity, " + 
+	    	    "   c.fk_option_id AS option_id, " +
 	    	    "   p.product_name, " +
+	    	    "	o.option_id,	" +
+	    	    "   o.plus_price,   " +
 	    	    "   p.image_path, " +
+	    	    "   p.brand_name,  " +
 	    	    "   (p.price + o.plus_price) AS unit_price, " +
 	    	    "   (p.price + o.plus_price) * c.quantity AS total_price " +
 	    	    " FROM tbl_cart c " +
@@ -307,6 +311,8 @@ public class CartDAO_imple implements CartDAO {
 	        	    map.put("image_path", rs.getString("image_path"));
 	        	    map.put("unit_price", rs.getInt("unit_price"));
 	        	    map.put("total_price", rs.getInt("total_price"));
+	        	    map.put("brand_name", rs.getString("brand_name"));
+	        	    map.put("option_id", rs.getInt("option_id"));
 	        	}
 	        }
 	    }

@@ -179,11 +179,11 @@
 
         <div class="price-row">
           <button type = "button" id="applyCouponBtn">쿠폰 적용금액</button>
-           <span id="discountAmountText">- 0 원</span>
+           <span id="discountAmount">- 0 원</span>
         </div>
 		<input type="hidden" name="couponDiscount" id="couponDiscount" value="0">
-		<input type="hidden" name="totalPrice" id="totalPrice" value="${totalPrice}">
-		<input type="hidden" name="finalPrice" id="finalPrice" value="${totalPrice}">
+		<input type="hidden" id="totalPrice" value="${totalPrice}" />	
+		<input type="hidden" id="finalPrice" value="${totalPrice}" />
 		<input type="hidden" id="couponId" name="couponId" />
 		
         <div class="price-row total">
@@ -194,9 +194,9 @@
         </div>
       </div>
 		
-		<button type="button" class="confirm-btn" id="coinPayBtn">
-	  결제하기
-	</button>
+		<button class="confirm-btn" id="coinPayBtn">
+		 결제하기
+		</button>
 
     </div>
     <!-- ===== 오른쪽 끝 ===== -->
@@ -206,14 +206,11 @@
 
 </div>
 
-<!-- 서버로 보낼 실제 결제 데이터 -->
 <input type="hidden" name="totalAmount" id="totalAmount" value="${totalPrice}">
-<input type="hidden" name="discountAmount" id="discountAmount" value="0">
-<input type="hidden" name="deliveryAddress" id="deliveryAddress">
+<input type="hidden" name="discountAmount" id="discountAmountHidden" value="0">
+<input type="hidden" name="deliveryAddress" id="deliveryAddress" value="">
 
 </form>
-
-
 
 
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>

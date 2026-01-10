@@ -20,7 +20,7 @@ $(function () {
     IMP.init("imp11367665");
 
     const userid = "${userid}";
-    const finalPrice = ${finalPrice};
+    const finalPrice = Number("${finalPrice}") || 0;
 
     if (!finalPrice || finalPrice <= 0) {
         alert("결제 금액 오류");
@@ -39,28 +39,26 @@ $(function () {
         buyer_name: userid
     }, function (rsp) {
     	
-    	 if (rsp.success) {
+    	if (rsp.success) {
 
-             // 
-             const form = opener.document.createElement("form");
-             form.method = "POST";
-             form.action = "<%= request.getContextPath() %>/payment/paymentSuccess.hp";
+    	    const payForm = opener.document.getElementById("payForm");
 
-             const impUid = opener.document.createElement("input");
-             impUid.type = "hidden";
-             impUid.name = "imp_uid";
-             impUid.value = rsp.imp_uid;
+    	    // 결제 검증용 값만 추가
+    	    const impUid = opener.document.createElement("input");
+    	    impUid.type = "hidden";
+    	    impUid.name = "imp_uid";
+    	    impUid.value = rsp.imp_uid;
 
-             const merchantUidInput = opener.document.createElement("input");
-             merchantUidInput.type = "hidden";
-             merchantUidInput.name = "merchant_uid";
-             merchantUidInput.value = rsp.merchant_uid;
+    	    const merchantUidInput = opener.document.createElement("input");
+    	    merchantUidInput.type = "hidden";
+    	    merchantUidInput.name = "merchant_uid";
+    	    merchantUidInput.value = rsp.merchant_uid;
 
-             form.appendChild(impUid);
-             form.appendChild(merchantUidInput);
+    	    payForm.appendChild(impUid);
+    	    payForm.appendChild(merchantUidInput);
 
-             opener.document.body.appendChild(form);
-             form.submit();
+    	    // 기존 payForm submit (모든 주문 데이터 포함)
+    	    payForm.submit();
 
              window.close();
 

@@ -36,44 +36,51 @@ public class OrderDAO_imple implements OrderDAO {
 		}
 	    
 	// 주문 생성 → orderId 받기  
-	@Override
-	public int insertOrder(OrderDTO order) throws SQLException {
-		int orderId = 0;
+	  @Override
+	  public int insertOrder(OrderDTO order) throws SQLException {
+	      int orderId = 0;
 
-        String sql =
-            " Insert into tbl_order "
-          + " (order_id, fk_member_id, total_amount, discount_amount, delivery_address, order_status, order_date) "
-          + " Values (seq_order.nextval, ?, ?, ?, ?, ?, sysdate) ";
+	      String seqSql = "SELECT SEQ_TBL_ORDERS_ORDER_ID.nextval FROM dual";
+	      String insertSql =
+	          " INSERT INTO tbl_orders "
+	        + " (order_id, fk_member_id, total_amount, discount_amount, delivery_address, order_status, order_date) "
+	        + " VALUES (?, ?, ?, ?, ?, ?, sysdate) ";
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+	      Connection conn = null;
+	      PreparedStatement pstmt = null;
+	      PreparedStatement seqPstmt = null;
+	      ResultSet rs = null;
 
-        try {
-            conn = ds.getConnection();
-            pstmt = conn.prepareStatement(sql, new String[] { "order_id" });
+	      try {
+	          conn = ds.getConnection();
 
-            pstmt.setString(1, order.getMemberId());
-            pstmt.setInt(2, order.getTotalAmount());
-            pstmt.setInt(3, order.getDiscountAmount());
-            pstmt.setString(4, order.getDeliveryAddress());
-            pstmt.setString(5, order.getOrderStatus());
+	          // 1️⃣ 시퀀스 먼저 받기
+	          seqPstmt = conn.prepareStatement(seqSql);
+	          rs = seqPstmt.executeQuery();
+	          if (rs.next()) {
+	              orderId = rs.getInt(1);
+	          }
 
-            pstmt.executeUpdate();
+	          // 2️⃣ 받은 orderId로 insert
+	          pstmt = conn.prepareStatement(insertSql);
+	          pstmt.setInt(1, orderId);
+	          pstmt.setString(2, order.getMemberId());
+	          pstmt.setInt(3, order.getTotalAmount());
+	          pstmt.setInt(4, order.getDiscountAmount());
+	          pstmt.setString(5, order.getDeliveryAddress());
+	          pstmt.setString(6, order.getOrderStatus());
 
-            rs = pstmt.getGeneratedKeys();
-            if (rs.next()) {
-                orderId = rs.getInt(1);
-            }
+	          pstmt.executeUpdate();
 
-        } finally {
-            if (rs != null) rs.close();
-            if (pstmt != null) pstmt.close();
-            if (conn != null) conn.close();
-        }
+	      } finally {
+	          if (rs != null) rs.close();
+	          if (seqPstmt != null) seqPstmt.close();
+	          if (pstmt != null) pstmt.close();
+	          if (conn != null) conn.close();
+	      }
 
-        return orderId;
-    }
+	      return orderId;
+	  }
 
 	// 주문 상세 생성 (장바구니 기준)
 	@Override
@@ -82,8 +89,21 @@ public class OrderDAO_imple implements OrderDAO {
 
 		String sql =
 			    " INSERT INTO tbl_order_detail "
-			  + " (order_detail_id, fk_order_id, fk_option_id, quantity, unit_price, is_review_written, product_name, brand_name) "
-			  + " VALUES (seq_order_detail.nextval, ?, ?, ?, ?, 0, ?, ?) ";
+			    + " ( "
+			    + "  order_detail_id, "
+			    + "  fk_order_id, "
+			    + "  fk_option_id, "
+			    + "  quantity, "
+			    + "  unit_price, "
+			    + "  is_review_written, "
+			    + "  product_name, "
+			    + "  brand_name "
+			    + " ) "
+			    + " VALUES "
+			    + " ( "
+			    + "  SEQ_TBL_ORDER_DETAIL_ORDER_DETAIL_ID.nextval, "
+			    + "  ?, ?, ?, ?, 0, ?, ? "
+			    + " ) ";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -118,7 +138,7 @@ public class OrderDAO_imple implements OrderDAO {
 	        String sql =
 	            " SELECT order_id, order_date, total_amount, discount_amount, "
 	          + "        delivery_address, order_status "
-	          + " FROM tbl_order "
+	          + " FROM tbl_orders "
 	          + " WHERE order_id = ? ";
 
 	        Connection conn = null;

@@ -112,9 +112,8 @@ public class PaymentSuccess extends AbstractController {
         // order.setMerchantUid(merchantUid);
 
         int orderId = odao.insertOrder(order);
-
-      
-       //    6. 주문 상세 생성 (장바구니 기준)       
+ 
+       // 6. 주문 상세 생성 (장바구니 기준)       
         @SuppressWarnings("unchecked")
         List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("cartList");
 
@@ -130,6 +129,7 @@ public class PaymentSuccess extends AbstractController {
 
         for (CartDTO cart : cartList) {
             totalInserted += odao.insertOrderDetail(orderId, cart);
+            
         }
 
         if (totalInserted != cartList.size()) {
