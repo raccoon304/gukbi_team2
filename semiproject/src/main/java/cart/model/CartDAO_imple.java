@@ -106,17 +106,17 @@ public class CartDAO_imple implements CartDAO {
     }
 */
 
+    // 장바구니 페이지 내역 조회
     @Override
     public List<Map<String, Object>> selectCartList(String memberId) throws SQLException {
         List<Map<String, Object>> list = new ArrayList<>();
 
-        // (product, product_option 등
         String sql =       		
         	    " SELECT "
         	  + "    c.cart_id, "
         	  + "    c.quantity, "
         	  + "    p.product_name, "
-        	  + "    p.brand_name, "
+        	  + "    p.brand_name, " // 브랜드명 추가
         	  + "    p.price AS base_price, "          // 상품 기본가
         	  + "    o.plus_price, "                    // 옵션 추가금
         	  + "    (p.price + o.plus_price) AS unit_price, " // 단가
@@ -176,7 +176,7 @@ public class CartDAO_imple implements CartDAO {
         
         }
         
-        return n; // 👉 1이면 성공, 0이면 실패
+        return n; // 1이면 성공, 0이면 실패
     }
    
     
@@ -223,6 +223,7 @@ public class CartDAO_imple implements CartDAO {
 	}
 	*/
 
+	// 장바구니에서 결제페이지로 넘어가는 쿼리 (부분 결제 가능하게 하는 기능)
 	@Override
 	public Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException {
 	    Map<String, Object> map = new HashMap<>();
@@ -230,8 +231,7 @@ public class CartDAO_imple implements CartDAO {
 	    String sql =
 	    	    " SELECT " +
 	    	    "   c.cart_id, " +
-	    	    "   c.quantity, " +
-	    	    "   p.brand_name, " + // 브랜드명 추가
+	    	    "   c.quantity, " + 
 	    	    "   p.product_name, " +
 	    	    "   p.image_path, " +
 	    	    "   (p.price + o.plus_price) AS unit_price, " +
@@ -256,7 +256,6 @@ public class CartDAO_imple implements CartDAO {
 	        	    map.put("image_path", rs.getString("image_path"));
 	        	    map.put("unit_price", rs.getInt("unit_price"));
 	        	    map.put("total_price", rs.getInt("total_price"));
-	        	    map.put("brand_name", rs.getString("brand_name"));
 	        	}
 	        }
 	    }
@@ -264,6 +263,8 @@ public class CartDAO_imple implements CartDAO {
 	    return map.isEmpty() ? null : map;
 	}
 
+	/*
+	// 전체 결제가 가능하게 하는 기능
 	@Override
 	public List<CartDTO> selectCartListForPay(String memberId) throws SQLException {
 		
@@ -306,7 +307,9 @@ public class CartDAO_imple implements CartDAO {
 		    }
 		    return list;
 	}
-
+*/
+	
+	// 상품상세에서 구매하기를 눌렀을때 떠야 될것
 	@Override
 	public Map<String, Object> selectDirectProduct(
 	        String productCode, int optionId, int quantity) throws SQLException {

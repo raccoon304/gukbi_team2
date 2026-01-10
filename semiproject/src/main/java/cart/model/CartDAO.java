@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import cart.domain.CartDTO;
-
 public interface CartDAO {
 
 	// 이미 장바구니에 있는지 확인
@@ -35,10 +33,12 @@ public interface CartDAO {
 	// 특정 회원(memberId)의 장바구니에서, 특정 행(cartId) 하나의 정보를 조회
 	Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException;
 	
+	/*
 	// 결제 페이지 전용 (DTO)
 	List<CartDTO> selectCartListForPay(String memberId) throws SQLException;
-
-	//
+	 */
+	
+	// 상품상세 페이지에서 바로구매를 눌렀을때 결제페이지 내역을 볼 수 있게 해주는 기능
 	Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
 	
 
