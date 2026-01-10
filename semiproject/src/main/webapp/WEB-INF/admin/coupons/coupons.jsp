@@ -90,7 +90,18 @@
 							    <option value="valueDesc" ${param.sort == 'valueDesc' ? 'selected' : ''}>할인값 큰순</option>
 							    <option value="valueAsc"  ${param.sort == 'valueAsc' ? 'selected' : ''}>할인값 작은순</option>
 							  </select>
+							  
+							  <input type="hidden" name="onlyUsable" id="onlyUsableVal"
+								     value="${empty param.onlyUsable ? '1' : param.onlyUsable}" />
+								
+								<div class="form-check ml-4">
+								  <input class="form-check-input" type="checkbox" id="onlyUsableChk"
+								         ${empty param.onlyUsable || param.onlyUsable == '1' ? 'checked' : ''} />
+								  <label class="form-check-label" for="onlyUsableChk">사용중만 보기</label>
+								</div>
+							  
 							</form>
+							
                             <div class="table-responsive">
                                 <table class="table table-hover" id="couponTable">
                                     <thead>
@@ -262,7 +273,15 @@
                     
                     <p class="mb-3">선택된 회원: <span id="selectedCount">0</span>명</p>
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover" id="memberSelectTbl">
+                        		<colgroup>
+						      <col style="width: 48px;">   <%-- 체크박스 --%>
+						      <col style="width: 160px;">  <%-- 아이디 --%>
+						      <col style="width: 120px;">  <%-- 이름 --%>
+						      <col style="width: 110px;">  <%-- 주문건수 --%>
+						      <col style="width: 160px;">  <%-- 총 구매액 --%>
+						      <col style="width: 120px;">  <%-- 가입일 --%>
+						    </colgroup>
                             <thead>
                                 <tr>
                                     <th>
@@ -270,8 +289,15 @@
                                     </th>
                                     <th>아이디</th>
                                     <th>이름</th>
-                                    <th>주문건수</th>
-                                    <th>총 구매액</th>
+                                    <th class="member-sort-th">
+									  <a href="#" class="member-sort" data-sort="order_cnt">주문건수</a>
+									  <span class="member-sort-indicator"></span>
+									</th>
+									
+									<th class="member-sort-th">
+									  <a href="#" class="member-sort" data-sort="real_pay_sum">총 구매액</a>
+									  <span class="member-sort-indicator"></span>
+									</th>
                                     <th>가입일</th>
                                 </tr>
                             </thead>

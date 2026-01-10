@@ -8,9 +8,6 @@
   String ctxPath = request.getContextPath();
 %>
 
-
-  
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -33,6 +30,8 @@
 
 
 <script>
+const ctxPath = "<%=ctxPath%>";
+
   $(function(){
 	  
 	  $(document).on("change", "#onlyUnanswered", function () {
@@ -274,13 +273,15 @@
             </div>
 
 			<div class="form-group">
-			  <div class="custom-control custom-checkbox">
-			    <input type="checkbox" class="custom-control-input" id="isSecret" value="1">
-			    <label class="custom-control-label" for="isSecret">
-			      <i class="fa-solid fa-lock mr-1"></i> 비밀글
-			    </label>
+			  <div class="d-flex align-items-center flex-wrap">	
+				  <div class="custom-control custom-checkbox mr-3">
+				    <input type="checkbox" class="custom-control-input" id="isSecret" value="1">
+				    <label class="custom-control-label" for="isSecret">
+				      <i class="fa-solid fa-lock mr-1"></i> 비밀글
+				    </label>
+				  </div>
+				  <small class="text-muted mt-1">비밀글은 작성자와 관리자만 조회할 수 있습니다.</small>
 			  </div>
-			  <small class="text-muted d-block mt-1">비밀글은 작성자와 관리자만 조회할 수 있어요.</small>
 			</div>
 
             <div class="form-group">

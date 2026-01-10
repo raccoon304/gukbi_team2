@@ -39,6 +39,7 @@ public class InquiryList extends AbstractController {
         String sizePerPage = "5";
         int sizePerPageInt = 5;
 
+/*
         // 로그인 안 한 경우 -> 로그인 유도 메시지
         if (loginUser == null) {
             
@@ -53,7 +54,8 @@ public class InquiryList extends AbstractController {
 			
             return;
         }
-
+*/
+        
         // 미답변 필터
         String onlyUnanswered = request.getParameter("onlyUnanswered"); // "Y" 또는 null
         

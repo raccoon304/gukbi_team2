@@ -78,7 +78,10 @@ function loadInquiryDetail(inquiryNumber) {
 
       renderInquiryDetail(inquiry);
     },
-    error: function () {
+    error: function (xhr, status, err) {
+		console.log("detail error status:", status);      // parsererror / error / timeout ...
+		  console.log("http status:", xhr.status);          // 200 / 302 / 500 ...
+		  console.log("responseText:", xhr.responseText); 
       alert("문의 상세를 불러오지 못했습니다.");
     }
   });
@@ -390,6 +393,20 @@ window.saveAdminReply = function (inquiryNumber) {
 
       if (json && json.success) {
         alert(json.message || "관리자 답변이 저장되었습니다.");
+		
+		// 목록 뱃지 즉시 변경
+		 const $item = $(`.inquiry-item[data-id="${inquiryNumber}"]`);
+		 $item.find(".status-badge")
+		      .removeClass("badge-secondary badge-info badge-success")
+		      .addClass("badge-success")
+		      .text("답변완료");
+
+		 // 상세 뱃지 즉시 변경
+		 $("#detailStatusBadge")
+		      .removeClass("badge-secondary badge-info badge-success")
+		      .addClass("badge-success")
+		      .text("답변완료");
+		
 		closeAdminReplyEditor();
         loadInquiryDetail(inquiryNumber);
       } else {

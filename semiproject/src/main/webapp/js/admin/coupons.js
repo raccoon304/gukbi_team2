@@ -6,7 +6,23 @@ $(document).ready(function() {
 	let selectedSet = new Set();                 // (전체선택 모드 아닐 때) 선택된 회원들
 	let deselectedSet = new Set();               // (전체선택 모드일 때) 예외로 해제한 회원들
 	let totalCount = 0;
+	let memberSortKey = "";   // "order_cnt"  "real_pay_sum"  ""
+	let memberSortDir = "";   // "desc"  ""
 
+	
+	// 회원 선택 창에서 졍럴
+	function renderMemberSortIndicator() {
+	  
+	  $(".member-sort-indicator").text("");
+
+	  // desc일 때만 ▼ 표시
+	  if (memberSortDir === "desc" && memberSortKey) {
+	    $(".member-sort[data-sort='" + memberSortKey + "']")
+	      .closest("th")
+	      .find(".member-sort-indicator")
+	      .text("▼");
+	  }
+	}
 
 	// 쿠폰 발급 받을 회원 리스트
 	function loadCouponMemberSelect(pageNo) {
@@ -22,7 +38,9 @@ $(document).ready(function() {
 	        sizePerPage: $("#pageSize").val(),
 	        currentShowPageNo: pageNo,
 	        searchType: searchType,
-	        searchWord: searchWord
+	        searchWord: searchWord,
+			sortKey: memberSortKey,
+			sortDir: memberSortDir
 	      },
 	      success: function (html) {
 	        const tmp = $("<div>").html(html);
@@ -36,6 +54,8 @@ $(document).ready(function() {
 
 	        // 복원/전체선택 반영
 	        applySelectionStateToCurrentPage();
+			
+			renderMemberSortIndicator();
 	      },
 	      error: function () {
 	        $("#memberSelectTableBody").html("<tr><td colspan='6' class='text-center text-danger py-4'>회원 목록 조회 실패</td></tr>");
@@ -44,6 +64,26 @@ $(document).ready(function() {
 	    });
 	}
 	
+	
+	// 회원 선택 모달에서 헤더 클릭시 정렬
+	$(document).on("click", ".member-sort", function (e) {
+	  e.preventDefault();
+
+	  const key = $(this).data("sort"); // "order_cnt" or "real_pay_sum"
+
+	  if (memberSortKey === key && memberSortDir === "desc") {
+	    // desc -> 정렬안함
+	    memberSortKey = "";
+	    memberSortDir = "";
+	  } else {
+	    // 정렬안함(or 다른키) -> desc
+	    memberSortKey = key;
+	    memberSortDir = "desc";
+	  }
+
+	  renderMemberSortIndicator();
+	  loadCouponMemberSelect(1);
+	});
 	
 	
 	// 모달 페이지바 클릭 시 해당 페이지 로드
@@ -158,7 +198,7 @@ $(document).ready(function() {
 	  applyDiscountValueConstraints();
 	});
 
-	// 쿠폰 생성 모달 열릴 때도 초기 적용(기본값 percentage)
+	// 쿠폰 생성 모달 열릴 때 초기 적용(기본값 percentage)
 	$("#createCouponModal").on("shown.bs.modal", function () {
 	  applyDiscountValueConstraints();
 	});
@@ -214,12 +254,22 @@ $(document).ready(function() {
 	});
 	
 	
-	
-	// 쿠폰 리스트에서 필터 바뀌면 submit
-	$(document).on("change", "#filterType, #filterSort", function () {
+	// 쿠폰 목록 사용함만 보기
+	$(document).on("change", "#onlyUsableChk", function () {
+	  $("#onlyUsableVal").val(this.checked ? "1" : "0");
 	  $("#couponFilterFrm").submit();
 	});
 	
+	function syncOnlyUsableHidden() {
+	  $("#onlyUsableVal").val($("#onlyUsableChk").is(":checked") ? "1" : "0");
+	}
+
+	
+	// 쿠폰 목록 필터 자동 적용
+	$(document).on("change", "#filterType, #filterSort", function () {
+		syncOnlyUsableHidden();
+	  $("#couponFilterFrm").submit();
+	});
 	
 
     // 쿠폰 전송 버튼 클릭
@@ -264,6 +314,8 @@ $(document).ready(function() {
 	  selectedSet.clear();
 	  deselectedSet.clear();
 	  totalCount = 0;
+	  memberSortKey = "";
+	  memberSortDir = "";
 
 	  // hidden 값 정리
 	  $("#hiddenAllSelected").val("0");
@@ -279,8 +331,6 @@ $(document).ready(function() {
 	});
 	
 	
-	
-
 	
     // 개별 체크
     $(document).on('change', '.member-checkbox', function() {
