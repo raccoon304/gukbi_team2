@@ -63,7 +63,8 @@ public class MemberRegister extends AbstractController {
 			devDto.setAddress(address);
 			devDto.setAddressDetail(addressDetail);
 			devDto.setPostalCode(postalCode);
-
+			devDto.setAddressName("기본배송지");
+			
 			// ==== 회원가입이 성공되어지면 회원가입 성공 이라는 alert를 띄우고 시작페이지로 이동 ==== //
 			String message = ""; 
 			String loc = ""; 

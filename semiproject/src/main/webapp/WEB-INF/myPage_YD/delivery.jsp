@@ -110,7 +110,7 @@
 			                	<div class="list-group-item addr-card mb-3 ${addr.isDefault == 1 ? 'default' : ''}">
 			                  		<div class="d-flex align-items-start">
 			                    		<div class="mr-3 pt-1">
-			                      			<input type="checkbox" class="addr-check" value="${addr.deliveryAddressId}" />
+			                      			<input type="checkbox" class="addr-check" name="deliveryAddressId" value="${addr.deliveryAddressId}" ${addr.isDefault == 1 ? "disabled" : ""} />
 			                    		</div>
 			                    		<div class="flex-grow-1">
 			                      			<div class="d-flex justify-content-between align-items-start">

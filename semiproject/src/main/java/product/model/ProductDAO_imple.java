@@ -188,6 +188,25 @@ public class ProductDAO_imple implements ProductDAO {
 		return plusPrice;
 	}//end of public int selectOptionPlusPrice(String productCode) throws SQLException-----
 
+	
+	//장바구니 테이블의 상품에 대해 있는지 없는지 확인하기
+	@Override
+	public boolean isCartProduct(Map<String, String> paraMap) throws SQLException {
+		boolean isCartProduct = false;
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT * from tbl_cart "
+						+" WHERE fk_member_id = ? AND fk_option_id = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("loginUserId"));
+			pstmt.setString(2, paraMap.get("productOptionId"));
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				isCartProduct = true;
+			}
+		} finally {close();}
+		return isCartProduct;
+	}//end of public boolean isCartProduct(Map<String, String> paraMap) throws SQLException-----
 
 	
 	//장바구니 테이블에 값 삽입하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
@@ -208,6 +227,28 @@ public class ProductDAO_imple implements ProductDAO {
 		
 		return result;
 	}//end of public CartDTO insertProductCart(Map<String, String> paraMap) throws SQLException-----
+
+	
+	
+	//장바구니 테이블에 재고량 업데이트하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
+	@Override
+	public int updateProductCart(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " UPDATE tbl_cart SET quantity = quantity + ? "
+						+" WHERE fk_member_id = ? AND fk_option_id = ? ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("quantity"));
+			pstmt.setString(2, paraMap.get("loginUserId"));
+			pstmt.setString(3, paraMap.get("productOptionId"));
+
+			result = pstmt.executeUpdate();
+		} finally {close();}
+		
+		return result;
+	}//end of public void updateProductCart(Map<String, String> paraMap) throws SQLException-----
 	
 	
 	

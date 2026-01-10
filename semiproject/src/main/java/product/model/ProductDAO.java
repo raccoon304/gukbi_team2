@@ -22,7 +22,16 @@ public interface ProductDAO {
 
 	//제품코드에 따른 추가금을 가져오기(512GB만 추가금이 있으므로 그것만 가져오기
 	int selectOptionPlusPrice(String productCode) throws SQLException;
+	
+	//장바구니 테이블의 상품에 대해 있는지 없는지 확인하기
+	boolean isCartProduct(Map<String, String> paraMap) throws SQLException;
 
 	//장바구니에 값 삽입하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
 	int insertProductCart(Map<String, String> paraMap) throws SQLException;
+
+	//장바구니에 값 업데이트하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
+	int updateProductCart(Map<String, String> paraMap) throws SQLException;
+
+	//구매하기에 값 삽입하기 
+	//int insertProductPay(Map<String, String> paraMap);
 }
