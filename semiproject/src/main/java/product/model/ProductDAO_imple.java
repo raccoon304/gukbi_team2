@@ -249,6 +249,51 @@ public class ProductDAO_imple implements ProductDAO {
 		
 		return result;
 	}//end of public void updateProductCart(Map<String, String> paraMap) throws SQLException-----
+
+
+	
+	//상품코드 중복 확인하기
+	@Override
+	public boolean ckProductCode(String productCode) throws SQLException {
+		boolean isProductCode = false;
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT product_code "
+						+" FROM tbl_product "
+						+" WHERE product_code = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productCode);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				isProductCode = true;
+			}
+			
+		} finally {close();}
+		return isProductCode;
+	}//end of public boolean ckProductCode(String productCode) throws SQLException-----
+
+
+	
+	//상품명 중복 확인하기
+	@Override
+	public boolean ckProductName(String productName) throws SQLException {
+		boolean isProductName = false;
+		
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT product_name "
+						+" FROM tbl_product "
+						+" WHERE REPLACE(UPPER(product_name) , ' ', '') = REPLACE(UPPER(?), ' ', '') ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productName);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				isProductName = true;
+			}
+		} finally {close();}
+		return isProductName;
+	}//end of public boolean ckProductName(String productName) throws SQLException-----
 	
 	
 	

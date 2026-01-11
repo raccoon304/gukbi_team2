@@ -89,6 +89,14 @@
                     </a>
                 </li>
                 
+                <!------------ 임시 상품등록 페이지 ------------>
+                <li class="nav-item">
+                    <a class="nav-link" href="<%=ctxPath%>/product/productRegister.hp">
+                        <i class="fa-solid fa-headset"></i> 상품등록(임시)
+                    </a>
+                </li>
+                <!------------ 임시 상품등록 페이지 ------------>
+                
                 
                 <!-- 관리자페이지는 admin으로 로그인했을 경우에만 접근이 가능하도록 조건문 사용 -->
                 <c:if test="${not empty sessionScope.loginUser and sessionScope.loginUser.memberid == 'admin'}">

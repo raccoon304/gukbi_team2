@@ -1,0 +1,463 @@
+@charset "UTF-8";
+
+
+/* =====================================================
+   [전체 레이아웃 컨테이너]
+   - 상품 등록 페이지 전체를 감싸는 최상위 컨테이너
+   - 중앙 정렬 + 카드 형태 UI 구성
+===================================================== */
+.registration-container {
+    max-width: 1200px;                 /* 최대 너비 제한 */
+    margin: 5% auto;                    /* 가운데 정렬 */
+    background: white;                 /* 배경색 */
+    border-radius: 12px;               /* 모서리 둥글게 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 카드형 그림자 */
+    overflow: hidden;                  /* 내부 요소 넘침 방지 */
+}
+
+
+/* =====================================================
+   [페이지 상단 헤더 영역]
+   - 페이지 제목 및 설명 표시
+   - 그라데이션 배경으로 시각적 강조
+===================================================== */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;                      /* 텍스트 색상 */
+    padding: 30px;                     /* 내부 여백 */
+    text-align: center;                /* 가운데 정렬 */
+}
+
+/* 페이지 제목 */
+.page-header h2 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* 페이지 설명 문구 */
+.page-header p {
+    margin-top: 10px;
+    opacity: 0.9;                      /* 약간 연한 색상 처리 */
+}
+
+
+/* =====================================================
+   [폼 전체 컨테이너]
+   - 입력 폼들이 들어가는 영역
+   - 여백을 충분히 주어 가독성 확보
+===================================================== */
+.form-container {
+    padding: 40px;
+}
+
+
+/* =====================================================
+   [폼 섹션 영역]
+   - 상품 기본정보 / 옵션 / 가격 등
+     각 입력 영역을 시각적으로 구분
+===================================================== */
+.form-section {
+    margin-bottom: 35px;
+    padding-bottom: 35px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+/* 마지막 섹션은 구분선 제거 */
+.form-section:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+
+/* =====================================================
+   [섹션 제목 스타일]
+   - 각 폼 영역의 제목
+   - 하단 보더로 구분 강조
+===================================================== */
+.section-title {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #667eea;
+}
+
+
+/* =====================================================
+   [토글 버튼 그룹]
+   - 체크박스를 버튼 형태로 표현
+   - 옵션(색상, 용량 등) 선택에 사용
+===================================================== */
+.toggle-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;                   /* 줄바꿈 허용 */
+}
+
+/* 개별 토글 항목 */
+.toggle-item {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* 실제 체크박스는 화면에서 숨김 */
+.toggle-item input[type="checkbox"] {
+    display: none;
+}
+
+/* 토글 버튼 UI */
+.toggle-label {
+    display: block;
+    padding: 12px 20px;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+/* 토글 버튼 호버 시 */
+.toggle-label:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+/* 선택된 토글 버튼 스타일 */
+.toggle-item input[type="checkbox"]:checked + .toggle-label {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+        
+        
+        
+/* ===============================
+   입력창 포커스 스타일
+   =============================== */
+
+/* input, select 요소에 포커스가 갔을 때 테두리와 그림자 효과 */
+.form-control:focus,
+.custom-select:focus {
+    border-color: #667eea; /* 포커스 시 테두리 색상 */
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25); /* 부드러운 포커스 그림자 */
+}
+
+/* ===============================
+   버튼 스타일
+   =============================== */
+
+/* 등록(제출) 버튼 */
+.btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* 그라데이션 */
+    border: none;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s; /* hover 애니메이션 */
+}
+
+/* 등록 버튼에 마우스를 올렸을 때 */
+.btn-submit:hover {
+    transform: translateY(-2px); /* 살짝 위로 이동 */
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 초기화 버튼 */
+.btn-reset {
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* 필수 입력 표시(*) */
+.required-mark {
+    color: #dc3545; /* 빨간색 */
+    font-weight: bold;
+}
+
+/* ===============================
+   드래그 & 드롭 영역
+   =============================== */
+
+/* 이미지 업로드 드롭존 */
+.drop-zone {
+    border: 3px dashed #dee2e6; /* 점선 테두리 */
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+/* 마우스 오버 시 */
+.drop-zone:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+/* 파일을 드래그해서 올려놨을 때 */
+.drop-zone.dragover {
+    border-color: #667eea;
+    background: #e7f3ff;
+    transform: scale(1.02); /* 살짝 확대 */
+}
+
+/* 아이콘 스타일 */
+.drop-zone i {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+/* 안내 문구 */
+.drop-zone p {
+    margin: 0;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* 보조 설명 텍스트 */
+.drop-zone small {
+    color: #adb5bd;
+}
+
+/* ===============================
+   이미지 미리보기 영역
+   =============================== */
+
+/* 이미지 미리보기 전체 영역 */
+.image-preview {
+    margin-top: 15px;
+    display: none;          /* 기본적으로 숨김 */
+    text-align: center;
+    overflow: hidden;       /* 내부 요소가 넘칠 경우 잘림 방지 */
+}
+
+/* 실제 이미지 */
+.image-preview img {
+    display: block;         /* inline 요소로 인한 여백 제거 */
+    max-width: 100%;        /* 가로 크기 초과 방지 */
+    max-height: 300px;      /* 최대 높이 제한 */
+    width: auto;
+    height: auto;
+    object-fit: contain;    /* ⭐ 이미지 잘림 방지 핵심 */
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+    margin: 0 auto;         /* 가운데 정렬 */
+}
+
+/* 이미지 하단 버튼 영역 */
+.image-preview-actions {
+    margin-top: 10px;
+}
+
+/* 이미지 삭제 버튼 */
+.btn-remove-image {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* 삭제 버튼 hover */
+.btn-remove-image:hover {
+    background: #c82333;
+}
+
+/* ===============================
+   중복 체크 결과 표시
+   =============================== */
+
+.duplicate-result {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* 사용 가능 상태 */
+.duplicate-result.available {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* 사용 불가능 상태 */
+.duplicate-result.unavailable {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ===============================
+   테두리 버튼
+   =============================== */
+
+.btn-outline-primary {
+    font-weight: 600;
+}
+
+.btn-outline-primary:hover {
+    background: #667eea;
+    color: white;
+}
+
+        
+        
+/* ===============================
+   옵션 조합 매트릭스 전체 영역
+   (예: 저장용량 × 색상 × 가격 × 재고)
+   =============================== */
+
+/* 옵션 조합을 감싸는 컨테이너 */
+.option-matrix {
+    background: #f8f9fa;     /* 연한 회색 배경 */
+    padding: 25px;           /* 내부 여백 */
+    border-radius: 12px;     /* 둥근 모서리 */
+    margin-top: 20px;        /* 위쪽 여백 */
+}
+
+/* 매트릭스 상단 제목 영역 */
+.matrix-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;            /* 글자색 흰색 */
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;      /* 가운데 정렬 */
+}
+
+/* 매트릭스 전체 테이블 역할 */
+.matrix-table {
+    width: 100%;             /* 부모 기준 전체 너비 사용 */
+}
+
+/* ===============================
+   매트릭스 한 줄 (한 옵션 조합)
+   =============================== */
+
+/*
+  한 행은 Grid 레이아웃 사용
+  - 저장용량
+  - 색상
+  - 가격 입력
+  - 재고 입력
+*/
+.matrix-row {
+    display: grid;
+
+    /* 각 컬럼의 고정 폭 설정 */
+    grid-template-columns: 150px 150px 200px 200px;
+
+    gap: 15px;               /* 컬럼 사이 간격 */
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    align-items: center;     /* 세로 가운데 정렬 */
+    border: 2px solid #e9ecef;
+}
+
+/* 마우스를 올렸을 때 강조 효과 */
+.matrix-row:hover {
+    border-color: #667eea;
+}
+
+/* ===============================
+   매트릭스 셀 (텍스트 영역)
+   =============================== */
+
+/* 기본 셀 텍스트 */
+.matrix-cell {
+    font-weight: 600;        /* 가독성을 위한 굵기 */
+}
+
+/* 저장용량 표시 (예: 256GB) */
+.matrix-cell.storage {
+    color: #667eea;          /* 파란 계열 */
+}
+
+/* 색상 이름 표시 */
+.matrix-cell.color {
+    color: #764ba2;          /* 보라 계열 */
+}
+
+/* ===============================
+   입력 필드 영역 (가격 / 재고)
+   =============================== */
+
+/* input을 감싸는 래퍼 */
+.matrix-input {
+    display: flex;
+    align-items: center;
+}
+
+/* 실제 입력창 */
+.matrix-input input {
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    padding: 8px 12px;
+    width: 100%;             /* 컬럼 너비에 맞게 확장 */
+}
+
+/* 입력창 포커스 시 */
+.matrix-input input:focus {
+    border-color: #667eea;
+    outline: none;           /* 기본 파란 테두리 제거 */
+}
+
+/* input-group-text (단위: 원, 개 등) */
+.matrix-input .input-group-text {
+    background: #667eea;
+    color: white;
+    border: none;
+}
+
+/* ===============================
+   색상 표시용 작은 네모 박스
+   =============================== */
+
+/* 공통 색상 인디케이터 */
+.color-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-right: 8px;
+    border: 1px solid #ddd;
+    vertical-align: middle;  /* 텍스트와 수직 정렬 */
+}
+
+/* 색상별 클래스 */
+.color-indicator.black { background: #000000; }
+.color-indicator.white { background: #ffffff; }
+.color-indicator.blue  { background: #0066ff; }
+.color-indicator.red   { background: #ff0000; }
+.color-indicator.green { background: #00cc00; }
+.color-indicator.gold  { background: #ffd700; }
+
+/* ===============================
+   옵션이 없을 때 표시 영역
+   =============================== */
+
+/* 옵션 조합이 없는 경우 안내 문구 */
+.matrix-empty {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+/* 안내 아이콘 */
+.matrix-empty i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.3;            /* 시선 방해 줄이기 */
+}
