@@ -14,8 +14,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import cart.domain.CartDTO;
-
 public class CartDAO_imple implements CartDAO {
     
     private DataSource ds;
@@ -140,6 +138,7 @@ public class CartDAO_imple implements CartDAO {
             + "    p.brand_name, "
             + "    p.price AS base_price, "
             + "    o.plus_price, "
+            + "	   o.color, "	
             + "    (p.price + o.plus_price) AS unit_price, "
             + "    p.image_path, "
             + "    (p.price + o.plus_price) * c.quantity AS total_price "
@@ -169,6 +168,7 @@ public class CartDAO_imple implements CartDAO {
                 map.put("image_path", rs.getString("image_path"));
                 map.put("total_price", rs.getInt("total_price"));
                 map.put("brand_name", rs.getString("brand_name"));
+                map.put("color", rs.getString("color"));
                 list.add(map);
             }
 

@@ -79,14 +79,19 @@ public class PaymentSuccess extends AbstractController {
             request.setAttribute("order", orderHeader);
             request.setAttribute("orderDetailList", orderItems);
 
+            String deliveryTypeFromSession =
+            (String) session.getAttribute("deliveryType");
+
+            request.setAttribute("deliveryType", deliveryTypeFromSession);
+            session.removeAttribute("deliveryType");
+            
             setRedirect(false);
             setViewPage("/WEB-INF/pay_MS/paymentSuccess.jsp");
             return;
         }
 
-        /* =========================
-           ★ POST 요청 처리 (최초 결제 완료)
-        ========================= */
+    
+         //  POST 요청 처리 (최초 결제 완료)
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             request.setAttribute("message", "비정상적인 접근입니다.");
             request.setAttribute("loc", "javascript:history.back()");
@@ -95,9 +100,9 @@ public class PaymentSuccess extends AbstractController {
             return;
         }
 
-        /* =========================
+        /* 
            2. 로그인 체크
-        ========================= */
+        */
         if (loginuser == null) {
             request.setAttribute("message", "로그인 정보 없음");
             request.setAttribute("loc", "javascript:history.back()");
@@ -106,9 +111,9 @@ public class PaymentSuccess extends AbstractController {
             return;
         }
 
-        /* =========================
+        /* 
            3. 결제 식별값 체크
-        ========================= */
+         */
         String impUid = request.getParameter("imp_uid");
         String merchantUid = request.getParameter("merchant_uid");
 
@@ -120,14 +125,15 @@ public class PaymentSuccess extends AbstractController {
             return;
         }
 
-        /* =========================
+        /* 
            4. 결제 금액 / 배송지 파라미터
            (방탄 처리)
-        ========================= */
+         */
         int totalAmount = parseIntSafe(request.getParameter("totalAmount"));
         int discountAmount = parseIntSafe(request.getParameter("discountAmount"));
         String deliveryAddress = request.getParameter("deliveryAddress");
-
+        String deliveryType = request.getParameter("deliveryTypeSelected");
+        
         if (totalAmount <= 0) {
             request.setAttribute("message", "결제 금액 오류");
             request.setAttribute("loc", "javascript:history.back()");
@@ -147,9 +153,9 @@ public class PaymentSuccess extends AbstractController {
         CartDAO cdao = new CartDAO_imple();
         OrderDAO odao = new OrderDAO_imple();
 
-        /* =========================
+        /* 
            5. 주문 생성 → orderId 받기
-        ========================= */
+        */
         OrderDTO order = new OrderDTO();
         order.setMemberId(loginuser.getMemberid());
         order.setTotalAmount(totalAmount);
@@ -186,20 +192,23 @@ public class PaymentSuccess extends AbstractController {
             throw new RuntimeException("주문 상세 저장 실패");
         }
 
-        /* =========================
+        /* 
            7. 장바구니 정리
            (결제에 사용된 cart_id만 삭제)
-        ========================= */
+        */
         List<Integer> cartIdList = cartList.stream()
                                            .map(CartDTO::getCartId)
                                            .toList();
 
         cdao.deleteSuccessCartId(cartIdList);
+        
+        session.removeAttribute("cartList");
 
         /* =========================
-           8. ★★★ orderId를 세션에 저장하고 GET으로 리다이렉트
+           8. orderId를 세션에 저장하고 GET으로 리다이렉트
         ========================= */
         session.setAttribute("lastOrderId", orderId);
+        session.setAttribute("deliveryType", deliveryType);
         
         // 같은 URL로 GET 리다이렉트
         setRedirect(true);

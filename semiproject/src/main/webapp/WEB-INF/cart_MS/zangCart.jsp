@@ -58,6 +58,7 @@
                 <th>상품명</th>
                 <th>브랜드명</th>
                 <th>가격</th>
+                <th>색상</th>
                 <th>수량</th>
                 <th>합계</th>
             </tr>
@@ -101,6 +102,10 @@
 	         <fmt:formatNumber value="${cart.unit_price}" pattern="#,###"/>
 	         </span>원
 	    </td>
+	
+		<td class="color">
+		  <span class="badge badge-light">${cart.color}</span>
+		</td>
 	
 	    <!-- 수량 -->
 	    <td>

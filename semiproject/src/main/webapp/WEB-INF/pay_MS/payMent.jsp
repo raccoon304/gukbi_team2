@@ -47,42 +47,70 @@
 		  </div>
 		</div>
 
-      <div class="info-row">
-        <span class="info-label">주소</span>
-        <div style="flex:1;">
-          <div style="display:flex; gap:8px;">
-            <input type="text"
-                   id="address"
-                   class="form-control"
-                   value="${address}"
-                   placeholder="주소 검색을 눌러주세요"
-                   readonly>
-            <button type="button"
-                    class="btn btn-outline-secondary"
-                    id="addressSearchBtn">
-              검색
-            </button>
-          </div>
-
-          <input type="text"
-                 id="detailAddress"
-                 class="form-control mt-2"
-                 placeholder="상세주소를 입력하세요">
-                 
-        </div>
-      </div>
+		      <div class="info-row address-row">
+		  <span class="info-label">주소</span>
+		
+		  <div class="address-fields">
+		    <div class="address-main">
+		      <input type="text"
+		             id="address"
+		             class="form-control"
+		             value="${address}"
+		             placeholder="주소 검색을 눌러주세요"
+		             readonly>
+		
+		      <button type="button"
+		              class="btn btn-outline-secondary"
+		              id="addressSearchBtn">
+		        검색
+		      </button>
+		    </div>
+		
+		    <input type="text"
+		           id="detailAddress"
+		           class="form-control"
+		           placeholder="상세주소를 입력하세요">
+		  </div>
+		</div>
       
 		<div class="info-row two-col">
 		  <div class="half">
 		    <span class="info-label">우편번호</span>
 		    <input type="text" id="zipcode" class="form-control" readonly>
 		  </div>
+		
 		  <div class="half">
-		    <button type="button" id="selectAddressBtn" class="btn btn-outline-secondary w-100">
-		      배송지선택
+		    <button type="button"
+		            id="selectAddressBtn"
+		            class="btn btn-outline-secondary w-80">
+		      정보 변경 및 배송지 추가
 		    </button>
 		  </div>
 		</div>
+		
+		<!-- 배송지 선택 -->
+		<div class="delivery-radio-group">
+		
+		  <label class="delivery-radio">
+		    <input type="checkbox" name="deliveryType" value="HOME">
+		    <span class="circle"></span>
+		    <span class="text">Home</span>
+		  </label>
+		
+		  <label class="delivery-radio">
+		    <input type="checkbox" name="deliveryType" value="OFFICE">
+		    <span class="circle"></span>
+		    <span class="text">Office</span>
+		  </label>
+		
+		  <label class="delivery-radio">
+		    <input type="checkbox" name="deliveryType" value="SCHOOL">
+		    <span class="circle"></span>
+		    <span class="text">School</span>
+		  </label>
+		
+		</div>
+		
     </div>
 
   </div>
@@ -209,6 +237,7 @@
 <input type="hidden" name="totalAmount" id="totalAmount" value="${totalPrice}">
 <input type="hidden" name="discountAmount" id="discountAmountHidden" value="0">
 <input type="hidden" name="deliveryAddress" id="deliveryAddress" value="">
+<input type="hidden" name="deliveryTypeSelected" id="deliveryTypeSelected" value="">
 
 </form>
 

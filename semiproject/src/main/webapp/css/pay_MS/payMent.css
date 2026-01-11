@@ -21,23 +21,21 @@ body {
 
 .recipient-info {
   flex: 1;
-  background: #fff;
-  padding: 24px;
-  border-radius: 8px;
+  width: 100%;
 }
 
 /* 공통 행 */
 .info-row {
   display: flex;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 /* 라벨 */
 .info-label {
-  width: 120px;
+  width: 90px;
   font-weight: 600;
-  flex-shrink: 0;
+  font-size: 14px;
 }
 
 /* 값 */
@@ -50,8 +48,7 @@ body {
 }
 
 /* =========================
-   이름 / 전화번호 반반
-========================= */
+   이름 / 전화번호 반반 */
 .two-col {
   display: flex;
   gap: 16px;
@@ -264,4 +261,79 @@ body {
 #addressSearchBtn {
   min-width: 60px;        
   white-space: nowrap; 
+}
+
+/* 받는분 정보 전체 */
+.recipient-info {
+  width: 100%;
+}
+
+/* 한 줄 공통 */
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* 라벨 */
+.info-label {
+  width: 90px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* 2컬럼 */
+.info-row.two-col {
+  gap: 20px;
+}
+
+.info-row.two-col .half {
+  flex: 1;
+}
+
+/* 우편번호 줄 */
+#zipcode { 
+  margin-left: 18px;
+}
+
+/* 주소 영역 */
+.address-row {
+  align-items: flex-start;
+}
+
+.address-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 주소 + 검색 버튼 한 줄 */
+.address-main {
+  display: flex;
+  gap: 8px;
+}
+
+.address-main input {
+  flex: 1;
+}
+
+
+/* 배송지 선택 버튼 높이 맞추기 */
+#selectAddressBtn {
+  height: 38px;
+}
+
+/* 전체 폼 input 높이 통일 */
+.form-control {
+  height: 38px;
+  font-size: 14px;
+}
+
+.delivery-radio-group{
+  display:flex;
+  gap:24px;
+  margin-top:10px;
+
+  padding-left: 114px;   
 }

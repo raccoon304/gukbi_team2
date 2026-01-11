@@ -93,6 +93,8 @@ h4 {
     border-bottom: 1px solid #eee;
 }
 
+
+
 .product-brand {
     font-size: 14px;
     color: #555;
@@ -102,9 +104,9 @@ h4 {
 
 /* 상품 정보 (이미지 및 세부 정보) */
 .product-info {
-    display: flex;
+/*    display: flex; 
     align-items: center;
-    gap: 15px;
+    gap: 15px; */
     text-align: left;
 }
 
@@ -113,15 +115,17 @@ h4 {
     flex: 1;
 }
 
+
+
 .product-name {
-    font-size: 13px;          /* 기존 14px → 13px */
-    font-weight: 500;         /* 600 → 500 */
-    line-height: 1.2;         /* 줄 간격 줄이기 */
+    font-size: 13px;          
+    font-weight: 500;         
+    line-height: 1.2;        
     margin-bottom: 4px;
 
     /* 레이아웃 보호 옵션 */
-    word-break: keep-all;     /* 한글 단어 쪼개짐 방지 */
-    white-space: normal;      /* 줄바꿈 허용 */
+    word-break: keep-all;    
+    white-space: normal;      
 }
 
 /* 수량 조절 */
@@ -155,7 +159,7 @@ h4 {
 
 .checkout-btn, .delete-selected {
     width: 100%;  /* 두 버튼의 너비를 동일하게 설정 */
-    padding: 18px;
+    padding: 15px;
     border: none;
     border-radius: 4px;
     font-size: 16px;
@@ -171,12 +175,18 @@ h4 {
 .checkout-btn {
     background-color: #4285f4;
     color: #ffffff;
+    padding: 12px 14px;
+    font-size: 14px;
+    border-radius: 6px;
 }
 
 /* 선택삭제 버튼 */
 .delete-selected {
     background-color: #e74c3c;
     color: #ffffff;
+    padding: 8px;
+    font-size: 12px;
+    border-radius: 6px;
 }
 
 
@@ -194,10 +204,14 @@ h4 {
 
 
 .summary-section .summary-box {
-    padding: 18px;
+    padding: 20px;
     border: 2px solid #333;
     border-radius: 8px;
     text-align: right;
+}
+
+.summary-section .checkout-btn {
+  margin-bottom: 8px;
 }
 
 .summary-box {
@@ -211,26 +225,49 @@ h4 {
 .summary-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
-    font-size: 15px;
+    align-items: center;
 }
 
-
+.summary-item span:first-child,
+.summary-item span:last-child {
+  white-space: nowrap;
+}
 
 .summary-item,
 .summary-item.total {
     border-top: none !important;
 }
 
+/* 색상 컬럼 정렬 */
+td.color {
+  vertical-align: middle;
+}
+
+/* badge 기본 커스터마이징 */
+td.color .badge {
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+/* badge-light 살짝 업그레이드 */
+td.color .badge-light {
+  background-color: #f1f3f5;
+  color: #343a40;
+  border: 1px solid #dee2e6;
+}
+
 .summary-section {
     width: 400px;
     margin-top: 30px;
     position: sticky;
-    top: 100px; /* 스크롤 따라오게 (선택) */
+    top: 100px; /* 스크롤 따라오게 */
 }
 
 .summary-section .summary-box {
-    padding: 28px;
+    padding: 18px 16px;
     border-radius: 12px;
     border: none;
     background: linear-gradient(180deg, #ffffff, #f9fafb);
@@ -246,8 +283,17 @@ h4 {
     color: #111;
 }
 
+/* 총 주문금액 글씨 */
+.summary-item.total span:first-child {
+  font-size: 12px;  
+  font-weight: 600;
+}
+
+/* 0원 글씨 */
 .summary-item.total span:last-child {
-    color: #e74c3c; /* 금액 강조 */
+    color: #e74c3c; 
+    font-size: 13px;   
+    font-weight: 700;
 }
 
 .summary-item {
@@ -260,6 +306,21 @@ h4 {
     width: 400px;
     margin-top: 30px;
     position: sticky;
-    top: 150px;   /* 헤더 높이만큼 띄우기 */
+    top: 150px;
     align-self: flex-start; 
 }
+
+
+/* 상품명 td만 왼쪽 정렬 */
+.cart-table td.product-col {
+    text-align: left;
+}
+
+/* 상품명 줄깨짐 보호 */
+.cart-table td.product-info .product-name {
+  white-space: normal;
+  word-break: keep-all;
+  line-height: 1.3;
+}
+
+
