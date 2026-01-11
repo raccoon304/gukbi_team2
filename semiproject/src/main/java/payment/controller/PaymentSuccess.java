@@ -31,9 +31,62 @@ public class PaymentSuccess extends AbstractController {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        HttpSession session = request.getSession();
+        MemberDTO loginuser = (MemberDTO) session.getAttribute("loginUser");
+
+         
+        //   GET 요청 처리 (리다이렉트 후)
        
-       //    1. GET / POST 판별
-        
+        if ("GET".equalsIgnoreCase(request.getMethod())) {
+            
+            if (loginuser == null) {
+                request.setAttribute("message", "로그인 정보 없음");
+                request.setAttribute("loc", request.getContextPath() + "/login/login.hp");
+                setRedirect(false);
+                setViewPage("/WEB-INF/msg.jsp");
+                return;
+            }
+
+            // 세션에서 orderId 가져오기
+            Integer orderId = (Integer) session.getAttribute("lastOrderId");
+
+            // f5를 눌렀을때 메세지 띄우고 인덱스 페이지로 이동시키기
+            if (orderId == null) {
+                request.setAttribute("message", "이미 처리된 주문입니다.");
+                request.setAttribute("loc", request.getContextPath() + "/index.hp");
+                setRedirect(false);
+                setViewPage("/WEB-INF/msg.jsp");
+                return;
+            }
+
+            // DB에서 주문 정보 조회
+            OrderDAO odao = new OrderDAO_imple();
+            Map<String, Object> orderHeader = odao.selectOrderHeader(orderId);
+            List<Map<String, Object>> orderItems = odao.selectOrderDetailForPayment(orderId);
+
+            if (orderHeader == null || orderItems == null || orderItems.isEmpty()) {
+                request.setAttribute("message", "주문 정보를 불러올 수 없습니다.");
+                request.setAttribute("loc", request.getContextPath() + "/index.hp");
+                setRedirect(false);
+                setViewPage("/WEB-INF/msg.jsp");
+                return;
+            }
+
+            // 세션에서 orderId 제거 (일회성 - F5 방지)
+            session.removeAttribute("lastOrderId");
+
+            // 화면에 데이터 전달
+            request.setAttribute("order", orderHeader);
+            request.setAttribute("orderDetailList", orderItems);
+
+            setRedirect(false);
+            setViewPage("/WEB-INF/pay_MS/paymentSuccess.jsp");
+            return;
+        }
+
+        /* =========================
+           ★ POST 요청 처리 (최초 결제 완료)
+        ========================= */
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             request.setAttribute("message", "비정상적인 접근입니다.");
             request.setAttribute("loc", "javascript:history.back()");
@@ -45,9 +98,6 @@ public class PaymentSuccess extends AbstractController {
         /* =========================
            2. 로그인 체크
         ========================= */
-        HttpSession session = request.getSession();
-        MemberDTO loginuser = (MemberDTO) session.getAttribute("loginUser");
-
         if (loginuser == null) {
             request.setAttribute("message", "로그인 정보 없음");
             request.setAttribute("loc", "javascript:history.back()");
@@ -147,20 +197,12 @@ public class PaymentSuccess extends AbstractController {
         cdao.deleteSuccessCartId(cartIdList);
 
         /* =========================
-           8. 결제 완료 화면용 데이터 조회
-           (Map 기반 – 안전빵)
+           8. ★★★ orderId를 세션에 저장하고 GET으로 리다이렉트
         ========================= */
-        Map<String, Object> orderHeader = odao.selectOrderHeader(orderId);
-        List<Map<String, Object>> orderItems =
-                odao.selectOrderDetailForPayment(orderId);
-
-        request.setAttribute("order", orderHeader);
-        request.setAttribute("orderItems", orderItems);
-
-        /* =========================
-           9. 결제 완료 페이지 이동
-        ========================= */
-        setRedirect(false);
-        setViewPage("/WEB-INF/pay_MS/paymentSuccess.jsp");
+        session.setAttribute("lastOrderId", orderId);
+        
+        // 같은 URL로 GET 리다이렉트
+        setRedirect(true);
+        setViewPage(request.getContextPath() + "/payment/paymentSuccess.hp");
     }
 }

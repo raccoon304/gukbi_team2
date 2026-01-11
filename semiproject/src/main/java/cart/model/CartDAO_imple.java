@@ -409,6 +409,7 @@ public class CartDAO_imple implements CartDAO {
 	}
 	
 
+	// 결제 완료가 되었을때 선택한 장바구니 항목에 있는 행을 지우기
 	@Override
 	public int deleteSuccessCartId(List<Integer> cartIdList) throws SQLException {
 		if (cartIdList == null || cartIdList.isEmpty()) {

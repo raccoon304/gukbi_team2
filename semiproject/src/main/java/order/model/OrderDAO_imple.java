@@ -137,6 +137,7 @@ public class OrderDAO_imple implements OrderDAO {
 
 	        String sql =
 	            " SELECT order_id, order_date, total_amount, discount_amount, "
+	          + " (total_amount - discount_amount) AS final_amount, "
 	          + "        delivery_address, order_status "
 	          + " FROM tbl_orders "
 	          + " WHERE order_id = ? ";
@@ -159,6 +160,7 @@ public class OrderDAO_imple implements OrderDAO {
 	                map.put("discount_amount", rs.getInt("discount_amount"));
 	                map.put("delivery_address", rs.getString("delivery_address"));
 	                map.put("order_status", rs.getString("order_status"));
+	                map.put("final_amount", rs.getInt("final_amount"));
 	            }
 
 	        } finally {
@@ -177,7 +179,8 @@ public class OrderDAO_imple implements OrderDAO {
 		 List<Map<String, Object>> list = new ArrayList<>();
 
 		    String sql =
-		        " SELECT product_name, brand_name, quantity, unit_price " +
+		        " SELECT product_name, brand_name, quantity, unit_price, " +
+		        "(quantity * unit_price) AS total_price  " +
 		        " FROM tbl_order_detail " +
 		        " WHERE fk_order_id = ? ";
 
@@ -198,6 +201,7 @@ public class OrderDAO_imple implements OrderDAO {
 		            map.put("brand_name", rs.getString("brand_name"));
 		            map.put("quantity", rs.getInt("quantity"));
 		            map.put("unit_price", rs.getInt("unit_price"));
+		            map.put("total_price", rs.getInt("total_price"));
 		            list.add(map);
 		        }
 
