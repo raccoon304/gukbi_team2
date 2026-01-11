@@ -290,4 +290,78 @@ public class MemberDAO_imple implements MemberDAO {
 
 	    return n;
 	}
+
+	// 이름 + 이메일 -> 아이디찾기
+	@Override
+	public String findMemberIdByNameAndEmail(String name, String email) {
+
+		String memberId = null;
+		
+		try {
+			conn = ds.getConnection();
+			
+			String sql = " select member_id "
+					   + " from tbl_member "
+					   + " where status = 0 "
+					   + "   and name = ? "
+					   + "   and email = ? ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, name);
+			pstmt.setString(2, aes.encrypt(email));  
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				memberId = rs.getString("member_id");
+			}
+			
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		
+		return memberId;
+	}
+	
+	// 이름 + 휴대폰 번호 -> 아이디찾기
+	@Override
+    public String findMemberIdByNameAndMobile(String name, String mobile) throws SQLException {
+
+        String memberId = null;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql =
+                " select member_id " +
+                " from tbl_member " +
+                " where name = ? " +
+                "   and mobile_phone = ? ";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, name);
+
+            String encMobile = aes.encrypt(mobile);
+            pstmt.setString(2, encMobile);
+
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                memberId = rs.getString("member_id");
+            }
+
+        } catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		}
+        
+        finally {
+            close();
+        }
+
+        return memberId;
+    }
 }

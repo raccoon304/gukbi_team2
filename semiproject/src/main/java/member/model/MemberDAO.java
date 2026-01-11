@@ -26,6 +26,12 @@ public interface MemberDAO {
 	// 회원 정보 수정 
 	int updateMember(Map<String, String> paraMap) throws SQLException;
 
+	// 성명 + 이메일 으로 아이디 찾기 
+	String findMemberIdByNameAndEmail(String name, String email) throws SQLException;
+
+	// 성명 + 휴대폰 으로 아이디 찾기
+	String findMemberIdByNameAndMobile(String name, String mobile) throws SQLException;
+
 
 
 }
