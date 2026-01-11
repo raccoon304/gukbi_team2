@@ -10,7 +10,7 @@ public class AccountFind extends AbstractController {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         if (!"GET".equalsIgnoreCase(request.getMethod())) {
-            // POST로 직접 때리는 경우 방지
+            // POST로 직접 들어오는 경우 방지 
             super.setRedirect(true);
             super.setViewPage(request.getContextPath() + "/member/accountFind.hp");
             return;

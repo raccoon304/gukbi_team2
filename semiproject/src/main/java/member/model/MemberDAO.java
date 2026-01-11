@@ -32,6 +32,12 @@ public interface MemberDAO {
 	// 성명 + 휴대폰 으로 아이디 찾기
 	String findMemberIdByNameAndMobile(String name, String mobile) throws SQLException;
 
+	// Email을 통한 계정 존재 유무 확인 메서드
+	boolean isUserExistsForPwdFindEmail(Map<String, String> paraMap) throws SQLException;
+
+	// 인증 완료 이후 비밀번호 변경 메일 보내고 해당 값(난수값)으로 비밀번호 업데이트 
+	int updatePasswordByUserid(String userid, String hashedPwd) throws SQLException;
+
 
 
 }

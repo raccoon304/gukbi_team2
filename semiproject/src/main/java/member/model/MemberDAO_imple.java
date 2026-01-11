@@ -364,4 +364,64 @@ public class MemberDAO_imple implements MemberDAO {
 
         return memberId;
     }
+	
+	
+	// Email을 통한 계정 존재 유무 확인 메서드
+	@Override
+	public boolean isUserExistsForPwdFindEmail(Map<String, String> paraMap) throws SQLException {
+		boolean exists = false;
+
+		try {
+			conn = ds.getConnection();
+			
+			// 체크용 일치하는 행이 있으면 1행 아니면 0행으로 나옴. 
+			String sql = " select 1 "
+					   + " from tbl_member "
+					   + " where member_id = ? "
+					   + "   and name = ? "
+					   + "   and email = ? ";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("memberid"));
+			pstmt.setString(2, paraMap.get("name"));
+
+			String emailEn = aes.encrypt(paraMap.get("email"));
+			pstmt.setString(3, emailEn);
+
+			rs = pstmt.executeQuery();
+
+			exists = rs.next();
+
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		return exists;
+	}
+
+	// 인증 완료 이후 비밀번호 변경 메일 보내고 해당 값(난수값)으로 비밀번호 업데이트 
+	@Override
+	public int updatePasswordByUserid(String userid, String hashedPwd) throws SQLException {
+
+		int n = 0;
+
+		try {
+			conn = ds.getConnection();
+
+			String sql = " update tbl_member "
+					   + " set password = ? "
+					   + " where member_id = ? ";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, hashedPwd);
+			pstmt.setString(2, userid);
+			
+			n = pstmt.executeUpdate();
+
+		} finally {
+			close();
+		}
+		return n;
+	}
 }
