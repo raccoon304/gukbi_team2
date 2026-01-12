@@ -220,26 +220,26 @@ public class PaymentSuccess extends AbstractController {
             throw e;
         }
     
-        /* =========================
+        /* =
            장바구니 정리
-        ========================= */
+        = */
         cdao.deleteSuccessCartId(
                 cartList.stream().map(CartDTO::getCartId).toList()
         );
         session.removeAttribute("cartList");
 
-        /* =========================
+        /* =
            쿠폰 사용 처리
-        ========================= */
+        = */
         if (couponId > 0) {
             if (odao.updateCouponUsed(loginuser.getMemberid(), couponId) != 1) {
                 throw new RuntimeException("쿠폰 사용 처리 실패");
             }
         }
 
-        /* =========================
+        /* =
            완료 페이지 이동
-        ========================= */
+        = */
         session.setAttribute("lastOrderId", orderId);
         setRedirect(true);
         setViewPage(request.getContextPath() + "/payment/paymentSuccess.hp");
