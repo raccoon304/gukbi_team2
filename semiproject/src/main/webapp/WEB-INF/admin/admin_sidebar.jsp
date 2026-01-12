@@ -167,7 +167,7 @@
             </a>
         </li>
         <li class="sidebar-menu-item">
-            <a class="sidebar-menu-link <%= request.getRequestURI().contains("members") ? "active" : "" %>" 
+            <a class="sidebar-menu-link <%= request.getRequestURI().contains("productRegister") ? "active" : "" %>" 
                href="<%=ctxPath%>/product/productRegister.hp">
                 <i class="fa-solid fa-cart-plus"></i>
                 <span>상품등록</span>
