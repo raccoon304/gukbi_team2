@@ -1,7 +1,6 @@
 package coupon.model;
 
 import java.io.UnsupportedEncodingException;
-import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,6 +17,8 @@ import javax.sql.DataSource;
 
 import coupon.domain.CouponDTO;
 import coupon.domain.CouponIssueDTO;
+import util.security.AES256;
+import util.security.SecretMyKey;
 
 
 public class CouponDAO_imple implements CouponDAO {
@@ -27,6 +28,7 @@ public class CouponDAO_imple implements CouponDAO {
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	
+	
 	public CouponDAO_imple() { // 기본생성자
 		Context initContext;
 		try {
@@ -34,7 +36,6 @@ public class CouponDAO_imple implements CouponDAO {
 		    Context envContext  = (Context)initContext.lookup("java:/comp/env");
 		    ds = (DataSource)envContext.lookup("SemiProject");
 		    
-		    // SecretMyKey.KEY 은 우리가 만든 암호화/복호화 키이다.
 		    
 		} catch (NamingException e) {
 			e.printStackTrace();
@@ -186,13 +187,18 @@ public class CouponDAO_imple implements CouponDAO {
 	public int getTotalPageCoupon(Map<String,String> paraMap) throws SQLException {
 		
 		int totalPage = 0;
-		String type = paraMap.get("type");
+		String type = paraMap.get("type"); // "0" or "1" or "2"
+		String onlyUsable = paraMap.get("onlyUsable"); // "1" or null
 		
 	    try {
 	        conn = ds.getConnection();
 	        String sql = " SELECT ceil(count(*)/?) "
-	        		   + " FROM tbl_coupon "
-	        		   + " WHERE 1 = 1 ";
+	        		       + " FROM tbl_coupon "
+	        		       + " WHERE 1 = 1 ";
+	        
+	        if ("1".equals(onlyUsable)) {
+	        		sql += " AND usable = 1 ";
+	        }
 	        
 	        if(type != null && !type.isBlank()) {
 	            sql += " AND discount_type = ? ";
@@ -224,56 +230,60 @@ public class CouponDAO_imple implements CouponDAO {
 
 	    int sizePerPage = Integer.parseInt(paraMap.get("sizePerPage"));
 	    int currentShowPageNo = Integer.parseInt(paraMap.get("currentShowPageNo"));
-	    String type = paraMap.get("type");
-	    String sort = paraMap.get("sort");
+	    String type = paraMap.get("type");              // "", "0", "1"
+	    String sort = paraMap.get("sort");              // "", "valueDesc", "valueAsc"
+	    String onlyUsable = paraMap.get("onlyUsable");  // "1"이면 사용중만
 
 	    int begin = (currentShowPageNo - 1) * sizePerPage + 1;
 	    int end   = begin + sizePerPage - 1;
-	    
-	    String orderBy = " COUPON_CATEGORY_NO desc ";
-	    
-	    if("valueDesc".equals(sort)) {
-	      orderBy = " discount_value DESC, coupon_category_no DESC ";
-	    } else if("valueAsc".equals(sort)) {
-	      orderBy = " discount_value ASC, coupon_category_no DESC ";
-	    }
 
+	    String orderBy = " coupon_category_no desc ";
+	    if ("valueDesc".equals(sort)) {
+	        orderBy = " discount_value desc, coupon_category_no desc ";
+	    } else if ("valueAsc".equals(sort)) {
+	        orderBy = " discount_value asc, coupon_category_no desc ";
+	    }
 
 	    try {
 	        conn = ds.getConnection();
 
-	        String sql =
-	            " SELECT coupon_category_no, coupon_name, discount_type, discount_value, usable "
-	          + " FROM ( "
-	          + "   SELECT row_number() over(order by "+orderBy+") AS rno, "
-	          + "          coupon_category_no, coupon_name, discount_type, discount_value, usable "
-	          + "   FROM tbl_coupon "
-	          + "   WHERE 1 = 1 ";
+	        String sql = " SELECT coupon_category_no, coupon_name, discount_type, discount_value, usable "
+	        		       + " FROM ( "
+	        		       + "   SELECT row_number() over(order by " + orderBy + ") AS rno, "
+	        		       + "          coupon_category_no, coupon_name, discount_type, discount_value, usable "
+	        		       + "   FROM tbl_coupon "
+	        		       + "   WHERE 1 = 1 ";
 
-	        
-	        if(type != null && !type.isBlank()) {
+	        // 사용중만 보기
+	        if ("1".equals(onlyUsable)) {
+	            sql += " AND usable = 1 ";
+	        }
+
+	        // 할인타입 필터
+	        if (type != null && !type.isBlank()) {
 	            sql += " AND discount_type = ? ";
-	          }
+	        }
 
 	        sql += " ) ";
 	        sql += " WHERE rno between ? and ? ";
-	        
+
 	        pstmt = conn.prepareStatement(sql);
+
 	        
-	        if(type != null && !type.isBlank()) {
+	        if (type != null && !type.isBlank()) {// 타입값이 있을떄
+	           
 	            pstmt.setInt(1, Integer.parseInt(type));
 	            pstmt.setInt(2, begin);
-		        pstmt.setInt(3, end);
+	            pstmt.setInt(3, end);
+	        } else {// 타입값이 없을때
+	            
+	            pstmt.setInt(1, begin);
+	            pstmt.setInt(2, end);
 	        }
-	        else {
-	        	pstmt.setInt(1, begin);
-		        pstmt.setInt(2, end);
-	        }
-	        
-	        
+
 	        rs = pstmt.executeQuery();
 
-	        while(rs.next()) {
+	        while (rs.next()) {
 	            CouponDTO dto = new CouponDTO();
 	            dto.setCouponCategoryNo(rs.getInt("COUPON_CATEGORY_NO"));
 	            dto.setCouponName(rs.getString("COUPON_NAME"));
@@ -282,6 +292,7 @@ public class CouponDAO_imple implements CouponDAO {
 	            dto.setUsable(rs.getInt("USABLE"));
 	            list.add(dto);
 	        }
+
 	    } finally {
 	        close();
 	    }
@@ -289,55 +300,53 @@ public class CouponDAO_imple implements CouponDAO {
 	    return list;
 	}
 
-
-	// 쿠폰을 발급 받은 회원 목록 조회
+	
+	// 해당 쿠폰을 발급 받은 회원 목록 조회
 	@Override
 	public List<CouponIssueDTO> selectIssuedMembersByCouponCategoryNo(int couponCategoryNo) throws SQLException {
 		
-		 List<CouponIssueDTO> list = new ArrayList<>();
+		List<CouponIssueDTO> list = new ArrayList<>();
 
-		    try {
-		        conn = ds.getConnection();
+	    try {
+	        conn = ds.getConnection();
 
-		        String sql =
-		              " select ci.fk_coupon_category_no as coupon_category_no "
-		            + "      , ci.coupon_id "
-		            + "      , ci.fk_member_id          as member_id "
-		            + "      , m.name                   as member_name "
-		            + "      , to_char(ci.issue_date,  'yyyy-mm-dd') as issue_date "
-		            + "      , to_char(ci.expire_date, 'yyyy-mm-dd') as expire_date "
-		            + "      , ci.used_yn "
-		            + " from tbl_coupon_issue ci "
-		            + " join tbl_member m "
-		            + "  on m.member_id = ci.fk_member_id "
-		            + " where ci.fk_coupon_category_no = ? "
-		            + " order by ci.coupon_id desc ";
+	        String sql = " SELECT ci.coupon_category_no, ci.coupon_id, ci.member_id "
+	        			   + "      , m.name AS member_name "
+	        			   + "      , to_char(ci.issue_date,  'yyyy-mm-dd') AS issue_date "
+	        			   + "      , to_char(ci.expire_date, 'yyyy-mm-dd') AS expire_date "
+	        			   + "      , ci.used_yn "
+	        			   + " FROM tbl_coupon_issue ci "
+	        			   + " JOIN tbl_member m "
+	        			   + "   ON m.member_id = ci.member_id "
+	        			   + " WHERE ci.coupon_category_no = ? "
+	        			   + " ORDER BY ci.coupon_id DESC ";
 
-		        pstmt = conn.prepareStatement(sql);
-		        pstmt.setInt(1, couponCategoryNo);
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setInt(1, couponCategoryNo);
 
-		        rs = pstmt.executeQuery();
+	        rs = pstmt.executeQuery();
 
-		        while (rs.next()) {
-		            CouponIssueDTO dto = new CouponIssueDTO();
-		            dto.setCouponCategoryNo(rs.getInt("coupon_category_no"));
-		            dto.setCouponId(rs.getInt("coupon_id"));
-		            dto.setMemberId(rs.getString("member_id"));
-		            dto.setMemberName(rs.getString("member_name"));
-		            dto.setIssueDate(rs.getString("issue_date"));
-		            dto.setExpireDate(rs.getString("expire_date"));
-		            dto.setUsedYn(rs.getInt("used_yn"));
+	        while (rs.next()) {
+	            CouponIssueDTO dto = new CouponIssueDTO();
+	            dto.setCouponCategoryNo(rs.getInt("coupon_category_no"));
+	            dto.setCouponId(rs.getInt("coupon_id"));
+	            dto.setMemberId(rs.getString("member_id"));
+	            dto.setMemberName(rs.getString("member_name"));
+	            dto.setIssueDate(rs.getString("issue_date"));
+	            dto.setExpireDate(rs.getString("expire_date"));
+	            dto.setUsedYn(rs.getInt("used_yn"));
 
-		            list.add(dto);
-		        }
+	            list.add(dto);
+	        }
 
-		    } finally {
-		        close();
-		    }
+	    } finally {
+	        close();
+	    }
 
-		    return list;
+	    return list;
 	}
-
+	
+	
 
 	// 회원에게 쿠폰을 전송하는 메서드
 	@Override
@@ -451,32 +460,36 @@ public class CouponDAO_imple implements CouponDAO {
 	    String searchType = paraMap.get("searchType");
 	    String searchWord = paraMap.get("searchWord");
 
+	    boolean hasSearch = searchType != null && !searchType.isBlank() &&
+	                        searchWord != null && !searchWord.isBlank();
+
 	    try {
 	        conn = ds.getConnection();
 
-	        StringBuilder sql = new StringBuilder();
-	        sql.append(" select m.member_id ");           
-	        sql.append(" from tbl_member m ");
-	        sql.append(" where m.status = 0 "); // 탈퇴회원 제외
+	        String sql = " select m.member_id "
+	                   + " from tbl_member m "
+	                   + " where m.status = 0 ";
 
-	        // 검색 조건
-	        if (searchType != null && !searchType.isBlank() && searchWord != null && !searchWord.isBlank()) {
+	       
+	        if (hasSearch) {
 	            if ("member_id".equals(searchType)) {
-	                sql.append(" and m.member_id like '%'||?||'%' ");  // 컬럼명 맞춰서 수정
+	                sql += " and m.member_id like '%'||?||'%' ";
 	            } else if ("name".equals(searchType)) {
-	                sql.append(" and m.name like '%'||?||'%' ");
+	                sql += " and m.name like '%'||?||'%' ";
 	            } else if ("email".equals(searchType)) {
-	                sql.append(" and m.email like '%'||?||'%' ");
+	                sql += " and m.email like '%'||?||'%' ";
 	            }
 	        }
 
-	        sql.append(" order by m.registerday desc ");
+	        sql += " order by m.registerday desc ";
 
-	        pstmt = conn.prepareStatement(sql.toString());
+	        pstmt = conn.prepareStatement(sql);
 
-	        int idx = 1;
-	        if (searchType != null && !searchType.isBlank() && searchWord != null && !searchWord.isBlank()) {
-	            pstmt.setString(idx++, searchWord.trim());
+	        if (hasSearch) {
+	           
+	            if ("member_id".equals(searchType) || "name".equals(searchType) || "email".equals(searchType)) {
+	                pstmt.setString(1, searchWord.trim());
+	            }
 	        }
 
 	        rs = pstmt.executeQuery();
@@ -542,11 +555,11 @@ public class CouponDAO_imple implements CouponDAO {
 	    String filter = paraMap.get("filter"); // "all" , "unused"
 	    String cond = "";
 	    if("unused".equals(filter)) {
-	      cond = " and ci.used_yn = 0 and ci.expire_date >= sysdate ";
+	      cond = " AND ci.used_yn = 0 and ci.expire_date >= sysdate ";
 	    } else if("used".equals(filter)) {
-	      cond = " and ci.used_yn = 1 ";
+	      cond = " AND ci.used_yn = 1 ";
 	    } else if("expired".equals(filter)) {
-	      cond = " and ci.used_yn = 0 and ci.expire_date < sysdate ";
+	      cond = " AND ci.used_yn = 0 and ci.expire_date < sysdate ";
 	    }
 
 	    int begin = (currentShowPageNo - 1) * sizePerPage + 1;
@@ -555,24 +568,23 @@ public class CouponDAO_imple implements CouponDAO {
 	    try {
 	        conn = ds.getConnection();
 
-	        String sql =
-	          " select coupon_category_no, coupon_id, member_id, member_name, issue_date, expire_date, used_yn " +
-	          " from ( " +
-	          "   select row_number() over(order by ci.coupon_id desc) as rno, " +
-	          "          ci.fk_coupon_category_no as coupon_category_no, " +
-	          "          ci.coupon_id, " +
-	          "          ci.fk_member_id as member_id, " +
-	          "          m.name as member_name, " +
-	          "          to_char(ci.issue_date, 'yyyy-mm-dd') as issue_date, " +
-	          "          to_char(ci.expire_date, 'yyyy-mm-dd hh24:mi:ss') as expire_date, " +
-	          "          ci.used_yn " +
-	          "   from tbl_coupon_issue ci " +
-	          "   join tbl_member m " +
-	          "     on m.member_id = ci.fk_member_id " +
-	          "   where ci.fk_coupon_category_no = ? " +
-	              cond +
-	          " ) " +
-	          " where rno between ? and ? ";
+	        String sql = " SELECT coupon_category_no, coupon_id, member_id, member_name, issue_date, expire_date, used_yn "
+	                   + " FROM ( "
+	                   + "   SELECT row_number() over(order by ci.coupon_id desc) AS rno, "
+	                   + "          ci.fk_coupon_category_no AS coupon_category_no, "
+	                   + "          ci.coupon_id, "
+	                   + "          ci.fk_member_id AS member_id, "
+	                   + "          m.name AS member_name, "
+	                   + "          to_char(ci.issue_date, 'yyyy-mm-dd') AS issue_date, "
+	                   + "          to_char(ci.expire_date, 'yyyy-mm-dd hh24:mi:ss') AS expire_date, "
+	                   + "          ci.used_yn "
+	                   + "   FROM tbl_coupon_issue ci "
+	                   + "   JOIN tbl_member m "
+	                   + "     ON m.member_id = ci.fk_member_id "
+	                   + "   WHERE ci.fk_coupon_category_no = ? "
+	                   + cond
+	                   + " ) "
+	                   + " WHERE rno between ? and ? ";
 
 	        pstmt = conn.prepareStatement(sql);
 	        pstmt.setInt(1, couponCategoryNo);
@@ -706,5 +718,49 @@ public class CouponDAO_imple implements CouponDAO {
 		return totalCouponCount;
 		
 	}// end of public int getTotalCouponCount(Map<String, String> paraMap) throws SQLException -------
+	
+	
+	
+	// 웰컴 쿠폰 회원에게 발행
+	public int issueWelcomeCoupon(String memberId) throws SQLException {
 
+	    final int welcome_coupon_category_no = 3; // 웰컴 쿠폰 번호
+	    final int expire_days = 30;               // 30일동안 사용가능
+
+	    try {
+	        conn = ds.getConnection();
+
+	        // 웰컴 쿠폰이 사용중(usable=1)인 쿠폰인지 확인
+	        String check = " SELECT usable "
+	        		       + " FROM tbl_coupon "
+	        		       + " WHERE coupon_category_no = ? ";
+	        pstmt = conn.prepareStatement(check);
+	        pstmt.setInt(1, welcome_coupon_category_no);
+	        rs = pstmt.executeQuery();
+
+	        if(!rs.next()) {
+	        		return 0;
+	        }
+	        if(rs.getInt(1) != 1) {
+	        		return 0;
+	        }
+
+	    } finally {
+	        close();
+	    }
+
+	   
+	   
+	    java.time.LocalDate expire = java.time.LocalDate.now().plusDays(expire_days);
+	    String expireDateStr = expire.toString(); // yyyy-MM-dd
+
+	    List<String> memberIdList = new java.util.ArrayList<>();
+	    memberIdList.add(memberId);
+	    return issueCouponToMembers(welcome_coupon_category_no, memberIdList, expireDateStr);
+	    
+	    
+	}
+
+	
+	
 }

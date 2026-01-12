@@ -1,6 +1,10 @@
 package inquiry.controller;
 
-import java.sql.SQLException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 
@@ -15,69 +19,74 @@ import member.domain.MemberDTO;
 
 public class InquiryInsert extends AbstractController {
 
-	 private InquiryDAO idao = new InquiryDAO_imple();
+	 private InquiryDAO dao = new InquiryDAO_imple();
 
 	    @Override
 	    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-	        String method = request.getMethod();
+	    	String method = request.getMethod();
+
+	        JSONObject json = new JSONObject();
 
 	        // POST만 허용
 	        if (!"POST".equalsIgnoreCase(method)) {
-	            JSONObject json = new JSONObject();
 	            json.put("success", false);
 	            json.put("message", "잘못된 요청입니다.");
-
 	            request.setAttribute("json", json.toString());
 	            super.setRedirect(false);
 	            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
 	            return;
 	        }
 
-	        JSONObject json = new JSONObject();
-
 	        try {
-	            // ===== 로그인 확인 =====
-	            HttpSession session = request.getSession(false);
-	            MemberDTO loginUser = (session == null) ? null : (MemberDTO) session.getAttribute("loginUser");
+	            // 로그인 체크
+		        	HttpSession session = request.getSession();
+		    	    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
 	            if (loginUser == null) {
 	                json.put("success", false);
 	                json.put("needLogin", true);
 	                json.put("message", "로그인이 필요합니다.");
-
 	                request.setAttribute("json", json.toString());
 	                super.setRedirect(false);
 	                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
 	                return;
 	            }
 
-	            // ===== 입력값 =====
+	            
 	            String inquiryType = request.getParameter("inquiryType");
 	            String title = request.getParameter("title");
 	            String inquiryContent = request.getParameter("inquiryContent");
 
+	            // isSecret: "1" 또는 "0" (없으면 0)
+	            String isSecretStr = request.getParameter("isSecret");
+	            int isSecret = 0;
+	            if ("1".equals(isSecretStr)) {
+	                isSecret = 1;
+	            }
+
+	            // 유효성
 	            if (inquiryType == null || inquiryType.trim().isEmpty()
 	             || title == null || title.trim().isEmpty()
 	             || inquiryContent == null || inquiryContent.trim().isEmpty()) {
 
 	                json.put("success", false);
 	                json.put("message", "모든 항목을 입력해주세요.");
-
 	                request.setAttribute("json", json.toString());
 	                super.setRedirect(false);
 	                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
 	                return;
 	            }
 
-	            // ===== 등록 =====
-	            InquiryDTO dto = new InquiryDTO();
-	            dto.setMemberid(loginUser.getMemberid());
-	            dto.setInquiryType(inquiryType.trim());
-	            dto.setTitle(title.trim());
-	            dto.setInquiryContent(inquiryContent.trim());
+	           
+	            InquiryDTO idto = new InquiryDTO();
+	            idto.setMemberid(loginUser.getMemberid());
+	            idto.setInquiryType(inquiryType.trim());
+	            idto.setTitle(title.trim());
+	            idto.setInquiryContent(inquiryContent.trim());
+	            idto.setIsSecret(isSecret);
 
-	            int n = idao.insertInquiry(dto);
+	            int n = dao.insertInquiry(idto);
 
 	            if (n == 1) {
 	                json.put("success", true);

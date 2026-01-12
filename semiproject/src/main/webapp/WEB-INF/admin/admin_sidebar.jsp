@@ -79,6 +79,75 @@
         width: 20px;
         text-align: center;
     }
+    
+    
+    
+/* 이 아래부터 메인페이지랑 비슷한 느낌으로 css 덮어씌움 */
+.sidebar{
+  background: #fff;
+  border-right: 1px solid #e9ecef;
+}
+
+/* 로고(메인 톤) */
+.sidebar .navbar-brand{
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 메뉴 기본 */
+.sidebar-menu-link{
+  color: #495057;                 /* 메인 nav-link 기본색 */
+  border-radius: 10px;
+  transition: all .25s;
+}
+
+/* hover: 연한 퍼플 배경 + 텍스트 컬러 */
+.sidebar-menu-link:hover{
+  background: #f0f4ff;            /* 메인 nav hover 배경 */
+  color: #667eea;                 /* 메인 포인트 */
+}
+
+/* active: hover보다 살짝 진하게 + 왼쪽 포인트 바 */
+.sidebar-menu-link.active{
+  background: rgba(102, 126, 234, 0.14);  /* #667eea 계열 연하게 */
+  color: #667eea;
+  position: relative;
+}
+
+/* active 왼쪽 포인트*/
+.sidebar-menu-link.active::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 4px;
+  background: #667eea;
+}
+
+/* 아이콘*/
+.sidebar-menu-link i{
+  color: inherit;
+  opacity: 0.95;
+}
+
+/* 메뉴 간격 */
+.sidebar-menu{
+  padding: 14px;
+}
+.sidebar-menu-item{
+  margin-bottom: 6px;
+}
+    
 </style>
 
 <div class="sidebar">
@@ -95,6 +164,13 @@
                href="<%= ctxPath %>/admin/adminpage.hp">
                 <i class="fas fa-th-large"></i>
                 <span>대시보드</span>
+            </a>
+        </li>
+        <li class="sidebar-menu-item">
+            <a class="sidebar-menu-link <%= request.getRequestURI().contains("members") ? "active" : "" %>" 
+               href="<%=ctxPath%>/product/productRegister.hp">
+                <i class="fa-solid fa-cart-plus"></i>
+                <span>상품등록</span>
             </a>
         </li>
         <li class="sidebar-menu-item">
