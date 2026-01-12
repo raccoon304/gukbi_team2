@@ -62,14 +62,17 @@ public class MemberDAO_imple implements MemberDAO {
 	// 회원가입 메서드 
 	@Override
 	public int registerMember(MemberDTO mbrDto, DeliveryDTO devDto) throws SQLException {
-		int result = 0;
+
+	    int result = 0;
+
 	    try {
 	        conn = ds.getConnection();
 	        conn.setAutoCommit(false);
 
-	        // 1) 회원 insert
+	        // 회원 insert
 	        String sql1 = " INSERT INTO tbl_member(userseq, member_id, name, password, mobile_phone, email, birth_date, gender) "
-	        		+ " VALUES(SEQ_TBL_MEMBER_USERSEQ.nextval, ?, ?, ?, ?, ?, ?, ?) ";
+	                    + " VALUES(SEQ_TBL_MEMBER_USERSEQ.nextval, ?, ?, ?, ?, ?, ?, ?) ";
+
 	        pstmt = conn.prepareStatement(sql1);
 	        pstmt.setString(1, mbrDto.getMemberid());
 	        pstmt.setString(2, mbrDto.getName());
@@ -78,21 +81,26 @@ public class MemberDAO_imple implements MemberDAO {
 	        pstmt.setString(5, aes.encrypt(mbrDto.getEmail()));
 	        pstmt.setString(6, mbrDto.getBirthday());
 	        pstmt.setInt(7, mbrDto.getGender());
-	        result = pstmt.executeUpdate();
-	        pstmt.close();
 
-	        // 2) 배송지 insert (기본배송지 1건)
-	        String sql2 = "INSERT INTO tbl_delivery(DELIVERY_ADDRESS_ID, FK_MEMBER_ID, RECIPIENT_NAME, RECIPIENT_PHONE,"
-	                    + " address, ADDRESS_DETAIL , IS_DEFAULT, POSTAL_CODE) "
-	                    + "VALUES(SEQ_TBL_DELIVERY_DELIVERY_ADDRESS_ID.nextval, ?, ?, ?, ?, ?, ?, ?)";
-	        pstmt = conn.prepareStatement(sql2);
+	        result = pstmt.executeUpdate();
+	        pstmt.close();   // sql1 pstmt 닫기
+
+	        // 배송지 insert 
+	        String sql2 = " INSERT INTO tbl_delivery(DELIVERY_ADDRESS_ID, FK_MEMBER_ID, ADDRESS_NAME, RECIPIENT_NAME, RECIPIENT_PHONE, " 
+	                    + " ADDRESS, ADDRESS_DETAIL, IS_DEFAULT, POSTAL_CODE) " 
+	                    + " VALUES(SEQ_TBL_DELIVERY_DELIVERY_ADDRESS_ID.nextval, ?, ?, ?, ?, ?, ?, ?, ?) ";
+
+	        pstmt = conn.prepareStatement(sql2); 
+
 	        pstmt.setString(1, devDto.getMemberId());
-	        pstmt.setString(2, devDto.getRecipientName());
-	        pstmt.setString(3, aes.encrypt(devDto.getRecipientPhone())); // 암호화 대상이면
-	        pstmt.setString(4, devDto.getAddress());
-	        pstmt.setString(5, devDto.getAddressDetail());
-	        pstmt.setInt(6, devDto.getIsDefault());
-	        pstmt.setString(7, devDto.getPostalCode());
+	        pstmt.setString(2, devDto.getAddressName());
+	        pstmt.setString(3, devDto.getRecipientName());
+	        pstmt.setString(4, aes.encrypt(devDto.getRecipientPhone()));
+	        pstmt.setString(5, devDto.getAddress());
+	        pstmt.setString(6, devDto.getAddressDetail());
+	        pstmt.setInt(7, devDto.getIsDefault());
+	        pstmt.setString(8, devDto.getPostalCode());
+
 	        result += pstmt.executeUpdate();
 
 	        conn.commit();
@@ -102,9 +110,10 @@ public class MemberDAO_imple implements MemberDAO {
 	        if (conn != null) conn.rollback();
 	        throw new SQLException(e);
 	    } finally {
-	        close(); 
+	        close();
 	    }
 	}
+
 
 	
 	// ID 중복검사
@@ -280,5 +289,139 @@ public class MemberDAO_imple implements MemberDAO {
 	    }
 
 	    return n;
+	}
+
+	// 이름 + 이메일 -> 아이디찾기
+	@Override
+	public String findMemberIdByNameAndEmail(String name, String email) {
+
+		String memberId = null;
+		
+		try {
+			conn = ds.getConnection();
+			
+			String sql = " select member_id "
+					   + " from tbl_member "
+					   + " where status = 0 "
+					   + "   and name = ? "
+					   + "   and email = ? ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, name);
+			pstmt.setString(2, aes.encrypt(email));  
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				memberId = rs.getString("member_id");
+			}
+			
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		
+		return memberId;
+	}
+	
+	// 이름 + 휴대폰 번호 -> 아이디찾기
+	@Override
+    public String findMemberIdByNameAndMobile(String name, String mobile) throws SQLException {
+
+        String memberId = null;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql =
+                " select member_id " +
+                " from tbl_member " +
+                " where name = ? " +
+                "   and mobile_phone = ? ";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, name);
+
+            String encMobile = aes.encrypt(mobile);
+            pstmt.setString(2, encMobile);
+
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                memberId = rs.getString("member_id");
+            }
+
+        } catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		}
+        
+        finally {
+            close();
+        }
+
+        return memberId;
+    }
+	
+	
+	// Email을 통한 계정 존재 유무 확인 메서드
+	@Override
+	public boolean isUserExistsForPwdFindEmail(Map<String, String> paraMap) throws SQLException {
+		boolean exists = false;
+
+		try {
+			conn = ds.getConnection();
+			
+			// 체크용 일치하는 행이 있으면 1행 아니면 0행으로 나옴. 
+			String sql = " select 1 "
+					   + " from tbl_member "
+					   + " where member_id = ? "
+					   + "   and name = ? "
+					   + "   and email = ? ";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("memberid"));
+			pstmt.setString(2, paraMap.get("name"));
+
+			String emailEn = aes.encrypt(paraMap.get("email"));
+			pstmt.setString(3, emailEn);
+
+			rs = pstmt.executeQuery();
+
+			exists = rs.next();
+
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		return exists;
+	}
+
+	// 인증 완료 이후 비밀번호 변경 메일 보내고 해당 값(난수값)으로 비밀번호 업데이트 
+	@Override
+	public int updatePasswordByUserid(String userid, String hashedPwd) throws SQLException {
+
+		int n = 0;
+
+		try {
+			conn = ds.getConnection();
+
+			String sql = " update tbl_member "
+					   + " set password = ? "
+					   + " where member_id = ? ";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, hashedPwd);
+			pstmt.setString(2, userid);
+			
+			n = pstmt.executeUpdate();
+
+		} finally {
+			close();
+		}
+		return n;
 	}
 }

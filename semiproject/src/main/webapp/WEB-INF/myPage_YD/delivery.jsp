@@ -110,7 +110,7 @@
 			                	<div class="list-group-item addr-card mb-3 ${addr.isDefault == 1 ? 'default' : ''}">
 			                  		<div class="d-flex align-items-start">
 			                    		<div class="mr-3 pt-1">
-			                      			<input type="checkbox" class="addr-check" value="${addr.deliveryAddressId}" />
+			                      			<input type="checkbox" class="addr-check" name="deliveryAddressId" value="${addr.deliveryAddressId}" ${addr.isDefault == 1 ? "disabled" : ""} />
 			                    		</div>
 			                    		<div class="flex-grow-1">
 			                      			<div class="d-flex justify-content-between align-items-start">
@@ -220,7 +220,7 @@
 
           <div class="form-group">
             <label class="font-weight-bold">상세주소</label>
-            <input type="text" class="form-control" name="addressDetail" id="addressDetail" />
+            <input type="text" class="form-control" name="addressDetail" id="addressDetail" required />
           </div>
 
         </div>
@@ -237,6 +237,9 @@
   </div>
 </div>
 
+
+<!-- 다음 우편번호 서비스 -->
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <!-- 배송지 관리 전용 JS -->
 <script src="${pageContext.request.contextPath}/js/myPage_YD/delivery.js"></script>
 

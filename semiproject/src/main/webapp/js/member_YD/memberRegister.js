@@ -33,7 +33,9 @@ $(function () {
 	       	 	$('#address').val(addr);
 	        	// extra항목 input이 없다면 아래 줄은 제거하거나, input을 만들어야 함
 	        	// $('#address-extra').val(extraAddr);
-	        	$('#detailed-address').focus();
+
+	        	// ✅ 실제 존재하는 id로 포커스 이동
+	        	$('#addressDetail').focus();
 	      	}
     	}).open();
   	});  
@@ -101,7 +103,7 @@ $(function () {
 	  	if (memberid === "") { 
 			alert("아이디를 입력해주세요."); 
 			$('#memberid').focus(); 
-		return; 
+			return; 
 	  	}
 		
 	  	if (name === "") { 
@@ -129,7 +131,8 @@ $(function () {
 			$('#addressDetail').focus(); 
 			return; 
 		}
-	  	if (!gender) { alert("성별을 선택해주세요."); 
+	  	if (!gender) { 
+	  		alert("성별을 선택해주세요."); 
 			$('#gender').focus(); 
 			return; 
 		}
@@ -138,7 +141,8 @@ $(function () {
 			$('#birthday').focus(); 
 			return; 
 		}
-	  	if (email === "") { alert("이메일을 입력해주세요."); 
+	  	if (email === "") { 
+	  		alert("이메일을 입력해주세요."); 
 			$('#email').focus(); 
 			return; 
 		}
@@ -162,7 +166,7 @@ $(function () {
 	  	if (!regName.test(name)) {
 	    	alert("성명은 한글 또는 영문자만 입력 가능합니다. (공백/특수문자/숫자 불가)");
 	    	$('#name').focus();
-	    return;
+	    	return;
 	  	}
 
 	  	// 전화번호 유효성 검사( 010으로 시작해서, 8자리 숫자만 가능하도록 )
@@ -185,7 +189,7 @@ $(function () {
 	  	if (!regEmail.test(email)) {
 	    	alert("이메일 형식이 올바르지 않습니다.\n예) you@example.com");
 	    	$('#email').focus();
-	    return;
+	    	return;
 	  	}
 
 	  	// 비밀번호 유효성 검사 ( 특수문자, 영 대/소문자, 숫자 포함 8자 - 15자 이내로  )
@@ -217,7 +221,8 @@ $(function () {
 			return;
 		}
 		
-
+/*
+ajax 비동기  레이스 컨디션 문제 발생.
 		// --- 휴대폰 번호 중복일 경우 처리하기 시작 ---
 		// 입력하고자 하는 이메일이 데이터베이스 테이블에 존재하는지, 존재하지 않는지 알아오기
 		if( $('#mobile').val().trim() != ""){
@@ -244,7 +249,7 @@ $(function () {
 		        }
 			});
 		}// EoP if( $('input#userid').val().trim() != ""){}
-		// --- 휴대폰 번호 중복일 경우 처리하기 끝 ---
+		
 		
 		//휴대폰 번호 중복확인 유효성 검사 
 		if(b_mobile_click){
@@ -256,7 +261,46 @@ $(function () {
 		// 위 유효성 검사에서 문제가 없다면( return 되지 않았다ㅓ면.) post 방식으로 submit 하게됨.
 	  	this.method = "post";
 	  	this.submit();
-	});
+		});
+			
+			
+		// --- 휴대폰 번호 중복일 경우 처리하기 끝 ---
+		
+*/		
+		// --- 휴대폰 번호 중복일 경우 처리하기 시작 ---
+		const frm = this; // submit할 폼 객체
+		
+		$.ajax({
+		  url: "mobileDuplicateCheck.hp",
+		  data: { "mobile": mobile },   // 위에서 trim()한 mobile 변수 사용
+		  type: "post",
+		  async: true,                  // 비동기로 대신 성공 콜백에서 submit
+		  success: function (text) {
+		    const json = JSON.parse(text);
+		
+		    if (json.isExists) {
+		      alert("휴대폰번호가 이미 사용중입니다.");
+		      $('#mobile').focus();
+		      return;
+		    }
+		    // 여기까지 오면 사용 가능함.
+		    b_mobile_click = false; 
+		
+		    // 중복검사 통과 후에만 실제 submit
+		    frm.method = "post";
+		    frm.submit();
+		  },
+		  error: function (request, status, error) {
+		    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		  }
+		});
+		return;
+		// --- 휴대폰 번호 중복일 경우 처리하기 끝 ---
+		
+	}); // ✅ submit 핸들러 여기서 끝! (이게 없어서 unreachable 뜸)
+	
+	
+	
 	
 	// =====  날짜 검증 함수 =====
 	function isValidRealDate(yyyy_mm_dd) {
@@ -275,7 +319,7 @@ $(function () {
 	  // 실제 날짜인지 체크
 	  const dt = new Date(y, mo - 1, d);
 	  return dt.getFullYear() === y && (dt.getMonth() + 1) === mo && dt.getDate() === d;
-	
+		
 	};
 	
 	
@@ -312,7 +356,6 @@ $(function () {
 		}// EoP if( $('input#userid').val().trim() != ""){}
 	});	
 	// --- 아이디 중복확인을 클릭했을 때 이벤트 처리하기 끝 ---
-	
 	
 	
 	
@@ -364,4 +407,3 @@ $(function () {
 	
 
 });
-
