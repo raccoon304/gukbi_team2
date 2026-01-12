@@ -111,8 +111,8 @@ public class ProductDAO_imple implements ProductDAO {
 		ProductOptionDTO proDetilDto = new ProductOptionDTO();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT P.product_code, option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, "
-						+"	       (price + plus_price) as total_price, plus_price "
+			String sql = " SELECT option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, "
+						+"	       brand_name, price, product_desc, (price + plus_price) as total_price, plus_price "
 						+" FROM tbl_product_option O "
 						+" JOIN tbl_product P "
 						+" ON O.fk_product_code = P.product_code "
@@ -130,6 +130,14 @@ public class ProductDAO_imple implements ProductDAO {
 				proDetilDto.setStockQty(rs.getInt("stock_qty"));
 				proDetilDto.setTotalPrice(rs.getInt("total_price"));
 				proDetilDto.setPlusPrice(rs.getInt("plus_price"));
+				
+				ProductDTO proDto = new ProductDTO();
+				proDto.setProductName(rs.getString("product_name")); //상품명
+				proDto.setPrice(rs.getInt("price"));  //상품기본가격(256GB)
+				proDto.setBrandName(rs.getString("brand_name"));
+				proDto.setProductDesc(rs.getString("product_desc"));
+
+				proDetilDto.setProDto(proDto);
 			}
 		} finally {
 			close();
@@ -252,7 +260,7 @@ public class ProductDAO_imple implements ProductDAO {
 
 
 	
-	//상품코드 중복 확인하기
+	//상품코드 중복 확인하기(상품코드가 중복된다면 그게 해당하는 옵션[용량,색상,추가금,재고량] 알아오기)
 	@Override
 	public boolean ckProductCode(String productCode) throws SQLException {
 		boolean isProductCode = false;
@@ -294,6 +302,9 @@ public class ProductDAO_imple implements ProductDAO {
 		} finally {close();}
 		return isProductName;
 	}//end of public boolean ckProductName(String productName) throws SQLException-----
+
+
+	
 	
 	
 	

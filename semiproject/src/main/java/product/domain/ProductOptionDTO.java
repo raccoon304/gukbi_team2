@@ -10,6 +10,8 @@ public class ProductOptionDTO {
 	  private int totalPrice;			//최종금액
 	  private int stockQty;				//재고량
 	  
+	  private ProductDTO proDto;	//상품명과 가격을 가져오기 위함
+	  
 	  
 	  
 	  
@@ -56,5 +58,17 @@ public class ProductOptionDTO {
 	  public void setTotalPrice(int totalPrice) {
 		  this.totalPrice = totalPrice;
 	  }
+	  
+	  
+	  public ProductDTO getProDto() {
+		  return proDto;
+	  }
+	  public void setProDto(ProductDTO proDto) {
+		  this.proDto = proDto;
+	  }
+	  
+	  
+	  
+	  
 	  
 }

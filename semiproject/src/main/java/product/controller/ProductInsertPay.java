@@ -22,46 +22,47 @@ public class ProductInsertPay extends AbstractController {
 		String message = "";
 		String loc = "";
 		
+		String productCode = "";
+		String productOptionId = "";
+		String quantity = ""; 
 		if("POST".equalsIgnoreCase(method)) {
-			String loginUserId = request.getParameter("loginUserId"); //회원아이디
-			String productOptionId = request.getParameter("productOptionId"); //옵션아이디
-			String quantity = request.getParameter("quantity"); //주문수량
+			request.getParameter("productCode"); //상품코드
+			request.getParameter("productOptionId"); //옵션아이디
+			request.getParameter("quantity"); //주문수량
 			
-			//System.out.println(loginUserId+"\n"+productOptionId+"\n"+quantity);
+			request.setAttribute("productCode", productCode);
+			request.setAttribute("productOptionId", productOptionId);
+			request.setAttribute("quantity", quantity);
 			
-			Map<String, String> paraMap = new HashMap<String, String>();
-			paraMap.put("loginUserId", loginUserId);
-			paraMap.put("productOptionId", productOptionId);
-			paraMap.put("quantity", quantity);
 			
-			//넘길데이터: 옵션아이디, 기본금액, 추가금액, 주문수량
-			//int result = proDao.insertProductPay(paraMap);
+			super.setRedirect(false);
+			super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");
 			
-			message = "상품 구매 페이지로 이동합니다.";
+			
+			message = "상품 구매 페이지로 이동하시겠습니까?"; 
 			loc = request.getContextPath() + "/pay/payMent.hp";
-			/*
-			if(result == 1) {
-			} else {
-				System.out.println("Insert문 SQL에 오류가 발생했습니다.");
-			}
-			*/
+			 
 			
 		} else {
 			//GET방식으로 들어온 경우
 			message = "올바른 접근 방식이 아닙니다.";
 			loc = "javascript:history.back()";
+			
+			super.setRedirect(true);
+			super.setViewPage(request.getContextPath()+"/index.hp");
 		}
 		
 		//proDao.selectFindProductOption();
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("message", message);
+		JSONObject jsonObj = new JSONObject(); 
+		jsonObj.put("productCode",productCode); 
+		jsonObj.put("productOptionId", productOptionId);
+		jsonObj.put("quantity", quantity); jsonObj.put("message", message);
 		jsonObj.put("loc", loc);
 		
-		String json = jsonObj.toString();
-		request.setAttribute("json", json);
-		
+		String json = jsonObj.toString(); request.setAttribute("json", json);
 		super.setRedirect(false);
 		super.setViewPage("/WEB-INF/jsonview.jsp");
+		
 
 	}//end of execute()-----
 

@@ -22,17 +22,13 @@ public class ProductInsertCart extends AbstractController {
 		String loc = "";
 		
 		if("POST".equalsIgnoreCase(method)) {
-			String loginUserId = request.getParameter("loginUserId"); //회원아이디
 			String productOptionId = request.getParameter("productOptionId"); //옵션아이디
 			String quantity = request.getParameter("quantity"); //주문수량
 			
 			//System.out.println(loginUserId+"\n"+productOptionId+"\n"+quantity);
-			
 			Map<String, String> paraMap = new HashMap<String, String>();
-			paraMap.put("loginUserId", loginUserId);
 			paraMap.put("productOptionId", productOptionId);
 			paraMap.put("quantity", quantity);
-			
 			
 			//fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
 			

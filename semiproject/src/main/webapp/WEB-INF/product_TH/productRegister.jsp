@@ -77,8 +77,8 @@
 			                </div>
 			                <select class="custom-select custom-select-lg" id="brand" name="brand" required>
 			                    <option value="">브랜드를 선택하세요</option>
-			                    <option value="애플">애플 (Apple)</option>
-			                    <option value="삼성">삼성 (Samsung)</option>
+			                    <option value="Apple">애플 (Apple)</option>
+			                    <option value="Samsung">삼성 (Samsung)</option>
 			                </select>
 			            </div>
 			
@@ -155,7 +155,9 @@
 			
 			
 			            <!-- 옵션 선택 -->
-			            <h5 class="text-primary mb-4 mt-5"><i class="fas fa-sliders-h mr-2"></i>옵션 설정</h5>
+			            <h5 class="text-primary mb-4 mt-5" id="optionSection">
+			            	<i class="fas fa-sliders-h mr-2"></i>옵션 설정
+			            </h5>
 			
 			
 			            <!-- 저장용량 선택 -->
