@@ -80,17 +80,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<%=ctxPath%>/index.hp">
+                    <a class="nav-link" href="<%=ctxPath%>/inquiry/inquiryList.hp">
                         <i class="fa-solid fa-headset"></i> 고객센터
                     </a>
                 </li>
                 
+                
                 <!------------ 임시 상품등록 페이지 ------------>
-                <li class="nav-item">
+                <%-- <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/product/productRegister.hp">
                         <i class="fa-solid fa-headset"></i> 상품등록(임시)
                     </a>
-                </li>
+                </li> --%>
                 <!------------ 임시 상품등록 페이지 ------------>
                 
                 
