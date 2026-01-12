@@ -174,7 +174,7 @@ $(document).ready(function () {
 				data:{
 					"loginUserId":loginUserId, //회원아이디
 					"productCode":productCode, //상품코드
-					"productOptionId": productOptionId, //옵션아이디
+					"optionId": productOptionId, //옵션아이디
 					"quantity":quantity //상품개수
 				},
 				type: "post",
