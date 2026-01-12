@@ -88,29 +88,6 @@
 		  </div>
 		</div>
 		
-		<!-- 배송지 선택 -->
-		<div class="delivery-radio-group">
-		
-		  <label class="delivery-radio">
-		    <input type="checkbox" name="deliveryType" value="HOME">
-		    <span class="circle"></span>
-		    <span class="text">Home</span>
-		  </label>
-		
-		  <label class="delivery-radio">
-		    <input type="checkbox" name="deliveryType" value="OFFICE">
-		    <span class="circle"></span>
-		    <span class="text">Office</span>
-		  </label>
-		
-		  <label class="delivery-radio">
-		    <input type="checkbox" name="deliveryType" value="SCHOOL">
-		    <span class="circle"></span>
-		    <span class="text">School</span>
-		  </label>
-		
-		</div>
-		
     </div>
 
   </div>
@@ -237,7 +214,7 @@
 <input type="hidden" name="totalAmount" id="totalAmount" value="${totalPrice}">
 <input type="hidden" name="discountAmount" id="discountAmountHidden" value="0">
 <input type="hidden" name="deliveryAddress" id="deliveryAddress" value="">
-<input type="hidden" name="deliveryTypeSelected" id="deliveryTypeSelected" value="">
+
 
 </form>
 

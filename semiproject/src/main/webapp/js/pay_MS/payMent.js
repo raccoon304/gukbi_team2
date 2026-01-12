@@ -35,37 +35,11 @@ $(function () {
     couponApplied = true;
   });
 
-  // 배송지 체크박스 (1개만 선택)
-  const deliveryChecks = document.querySelectorAll(
-    'input[name="deliveryType"]'
-  );
-
-  deliveryChecks.forEach(cb => {
-    cb.addEventListener("change", function () {
-      if (this.checked) {
-        deliveryChecks.forEach(other => {
-          if (other !== this) {
-            other.checked = false;
-          }
-        });
-      }
-    });
-  });
-
+ 
   // 결제 버튼
   $("#coinPayBtn").on("click", function (e) {
     e.preventDefault();
 
-    // 배송지 선택 필수
-    const checkedDelivery =
-      document.querySelector('input[name="deliveryType"]:checked');
-
-    if (!checkedDelivery) {
-      alert("배송지 체크 박스를 선택해주세요.");
-      return;
-    }
-	
-	$("#deliveryTypeSelected").val(checkedDelivery.value);
 	
     // 쿠폰 적용 확인
     if (!couponApplied && $("#couponSelect").val()) {
