@@ -180,7 +180,7 @@ public class OrderDAO_imple implements OrderDAO {
 
 		    String sql =
 		        " SELECT product_name, brand_name, quantity, unit_price, " +
-		        "(quantity * unit_price) AS total_price  " +
+		        " (quantity * unit_price) AS total_price  " +
 		        " FROM tbl_order_detail " +
 		        " WHERE fk_order_id = ? ";
 
@@ -213,4 +213,38 @@ public class OrderDAO_imple implements OrderDAO {
 
 		    return list;
 		}
+	
+		
+		// 결제 완료가 되었을때 사용한 해당 쿠폰은 더 이상 사용하지 못하게 하기
+		@Override
+		public int updateCouponUsed(String memberId, int couponId) throws SQLException {
+
+		    int result = 0;
+
+		    String sql =
+		        " update tbl_coupon_issue " +
+		        " set used_yn = 1 " +
+		        " where fk_member_id = ? " +
+		        "   and coupon_id = ? " +
+		        "   and used_yn = 0 ";
+
+		    Connection conn = null;
+		    PreparedStatement pstmt = null;
+
+		    try {
+		        conn = ds.getConnection();
+		        pstmt = conn.prepareStatement(sql);
+		        pstmt.setString(1, memberId);
+		        pstmt.setInt(2, couponId);
+
+		        result = pstmt.executeUpdate(); // 1이면 성공
+
+		    } finally {
+		        if (pstmt != null) pstmt.close();
+		        if (conn != null) conn.close();
+		    }
+
+		    return result;
+		}
+	
 }

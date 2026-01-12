@@ -23,6 +23,16 @@ public interface OrderDAO {
 	// 해당 주문에 포함된 상품 목록(상품/옵션/수량/주문시점 가격)을 조회
 	List<Map<String, Object>> selectOrderDetailForPayment(int orderId) throws SQLException;
 
+	// 결제 완료가 되었을때 사용한 해당 쿠폰은 더 이상 사용하지 못하게 하기
+	int updateCouponUsed(String memberId, int couponId) throws SQLException;
+
+	
+	
+
+	
+
+	
+
 	
 
 }

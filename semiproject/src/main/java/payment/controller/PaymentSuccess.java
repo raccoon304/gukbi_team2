@@ -17,9 +17,7 @@ import order.model.OrderDAO_imple;
 
 public class PaymentSuccess extends AbstractController {
 
-    // =========================
     // 안전한 숫자 파싱 메서드
-    // =========================
     private int parseIntSafe(String value) {
         try {
             return Integer.parseInt(value);
@@ -203,7 +201,19 @@ public class PaymentSuccess extends AbstractController {
         cdao.deleteSuccessCartId(cartIdList);
         
         session.removeAttribute("cartList");
+        
+     // 결제한 행에 대해서 사용한 쿠폰 처리
+        int couponId = parseIntSafe(request.getParameter("couponId"));
 
+        if (couponId > 0) {
+
+            int couponResult =
+                odao.updateCouponUsed(loginuser.getMemberid(), couponId);
+
+            if (couponResult != 1) {
+                throw new RuntimeException("쿠폰 사용 처리 실패");
+            }
+        }
         /* =========================
            8. orderId를 세션에 저장하고 GET으로 리다이렉트
         ========================= */
