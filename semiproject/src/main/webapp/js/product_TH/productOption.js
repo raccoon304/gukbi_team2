@@ -166,22 +166,26 @@ $(document).ready(function () {
         if (confirm('상품을 구매하시겠습니까?\n'+'수량: '+quantity+'개\n'+
 				    '총 금액: '+totalPrice.toLocaleString()+'원\n확인 버튼을 누르면 상품 구매 페이지로 이동합니다.')) {
             //alert('상품 구매 페이지로 이동합니다.');
-			//window.location.href = '/semiproject/pay/payMent.hp';
 			
-			//보내줘야 할 데이터: 옵션ID, 상품개수
+			//보내줘야 할 데이터: 옵션ID, 상품개수, 상품코드
 			$.ajax({
-				url:"productInsertPay.hp",
+				//url:"productInsertPay.hp",
+				url:"/semiproject/pay/payMent.hp",
 				data:{
 					"loginUserId":loginUserId, //회원아이디
-					"productOptionId": productOptionId, //옵션아이디
+					"productCode":productCode, //상품코드
+					"optionId": productOptionId, //옵션 아이디
 					"quantity":quantity //상품개수
 				},
 				type: "post",
-				dataType:"json",
-				success:function(json){
-					//console.log("확인용 json:" ,json);
-					alert(json.message);
-					location.href = json.loc;
+				dataType:"text",
+				success:function(){
+					console.log("확인용 잘 들어왔습니다");
+					//alert(json.message);
+					//if(confirm("상품 구매 페이지로 이동하시겠습니까?")) {
+						window.location.href = '/semiproject/pay/payMent.hp';
+						//location.href = json.loc;
+					//}
 				},
 				error:function(request, status, error){
 					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);

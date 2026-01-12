@@ -31,13 +31,11 @@ public interface ProductDAO {
 
 	//장바구니에 값 업데이트하기 fk_member_id(회원아이디), fk_option_id(옵션아이디), quantity(재고량)
 	int updateProductCart(Map<String, String> paraMap) throws SQLException;
-
+	
 	//상품코드 중복 확인하기
 	boolean ckProductCode(String productCode) throws SQLException;
 
 	//상품명 중복 확인하기
 	boolean ckProductName(String productName) throws SQLException;
 
-	//구매하기에 값 삽입하기 
-	//int insertProductPay(Map<String, String> paraMap);
 }

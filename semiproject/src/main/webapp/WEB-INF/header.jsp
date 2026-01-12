@@ -89,7 +89,7 @@
                 <!------------ 임시 상품등록 페이지 ------------>
                 <%-- <li class="nav-item">
                     <a class="nav-link" href="<%=ctxPath%>/product/productRegister.hp">
-                        <i class="fa-solid fa-headset"></i> 상품등록(임시)
+                        <i class="fa-solid fa-cart-plus"></i> 상품등록(임시)
                     </a>
                 </li> --%>
                 <!------------ 임시 상품등록 페이지 ------------>

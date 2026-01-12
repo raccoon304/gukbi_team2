@@ -128,9 +128,11 @@
                         </div>
 
                         <!-- 리뷰 보기 버튼 -->
-                        <button class="btn btn-review" id="reviewBtn">
-                            <i class="fas fa-star mr-2"></i>구매 리뷰 보기
-                        </button>
+                        <a class="btn btn-review"
+						   href="<%=ctxPath%>/review/reviewList.hp?productCode=${proOptionDto.fkProductCode}">
+						  <i class="fas fa-star mr-2"></i>구매 리뷰 보기
+						</a>
+                        
                     </div>
                 </div>
             </div>
