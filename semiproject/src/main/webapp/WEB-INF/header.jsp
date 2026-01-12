@@ -179,13 +179,20 @@
                     </div>
 
                     <!-- 아이디 / 비밀번호 찾기 -->
-               <div class="text-center mb-3">
+               <!-- <div class="text-center mb-3">
                    <a href="#" class="text-secondary small mr-2">
                        <i class="fa-solid fa-user-magnifying-glass mr-1"></i>아이디 찾기
                    </a>
                    <span class="text-muted mx-1">|</span>
                    <a href="#" class="text-secondary small ml-2">
                        <i class="fa-solid fa-key mr-1"></i>비밀번호 찾기
+                   </a>
+               </div> -->
+               
+                <!-- 아이디 / 비밀번호 찾기 -->
+               <div class="text-center mb-3">
+                   <a  href="<%=ctxPath%>/member/accountFind.hp" class="text-secondary small mr-2">
+                       <i class="fa-solid fa-user-magnifying-glass mr-1"></i>계정 찾기
                    </a>
                </div>
 
