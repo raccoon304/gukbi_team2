@@ -203,16 +203,18 @@ public class PaymentSuccess extends AbstractController {
         session.removeAttribute("cartList");
         
      // 결제한 행에 대해서 사용한 쿠폰 처리
-        int couponId = parseIntSafe(request.getParameter("couponId"));
+        Integer couponId = (Integer) session.getAttribute("usedCouponId");
 
-        if (couponId > 0) {
-
+        if (couponId != null && couponId > 0) {
             int couponResult =
                 odao.updateCouponUsed(loginuser.getMemberid(), couponId);
 
             if (couponResult != 1) {
                 throw new RuntimeException("쿠폰 사용 처리 실패");
             }
+
+            // 1회성 사용
+            session.removeAttribute("usedCouponId");
         }
         /* =========================
            8. orderId를 세션에 저장하고 GET으로 리다이렉트
