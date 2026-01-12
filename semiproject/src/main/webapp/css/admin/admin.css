@@ -38,11 +38,13 @@ body {
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
+    
 }
 
 .sidebar-header {
     padding: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
 }
 
 .sidebar .nav {
@@ -160,6 +162,7 @@ body {
     border-radius: 6px;
     font-weight: 500;
     transition: all 0.3s;
+    
 }
 
 .btn:hover {

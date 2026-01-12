@@ -193,7 +193,7 @@
 		  border-bottom: 1px solid #eee;
 		}
 		.main-content{
-		  padding-top: 70px;  /* 헤더 높이만큼 밀기(조절) */
+		  padding-top: 25px;  /* 헤더 높이만큼 밀기(조절) , 헤더 있으면 70px */
 		}
         
     </style>
@@ -203,7 +203,7 @@
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         
         <div class="main-content">
-        		<jsp:include page="/WEB-INF/admin/admin_header.jsp" />
+        		<%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
         		
         		<div class="content-wrapper">
 	            <!-- Page Header -->

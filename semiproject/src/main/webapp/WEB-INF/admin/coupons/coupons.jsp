@@ -44,7 +44,7 @@
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         
         <div class="main-content">
-            <jsp:include page="/WEB-INF/admin/admin_header.jsp" />
+            <%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
             
              <div class="content-wrapper">
                 <div class="container-fluid p-4">
@@ -53,7 +53,7 @@
                             <h2 class="mb-2">쿠폰 관리</h2>
                             <p class="text-muted">쿠폰을 생성하고 관리할 수 있습니다</p>
                         </div>
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#createCouponModal">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#createCouponModal" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                             <i class="fas fa-plus mr-2"></i>쿠폰 생성
                         </button>
                     </div>

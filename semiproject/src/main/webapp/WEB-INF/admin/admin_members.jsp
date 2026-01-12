@@ -142,7 +142,7 @@
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         
         <div class="main-content">
-            <jsp:include page="/WEB-INF/admin/admin_header.jsp" />
+            <%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
             
             <div class="content-wrapper">
                 <div class="container-fluid p-4">
