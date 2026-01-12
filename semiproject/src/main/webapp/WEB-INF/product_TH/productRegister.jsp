@@ -38,7 +38,7 @@
     <div class="wrapper">
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         <div class="main-content">
-            <jsp:include page="/WEB-INF/admin/admin_header.jsp" />
+            <%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
 
 			<div class="registration-container">
 			    <div class="page-header">

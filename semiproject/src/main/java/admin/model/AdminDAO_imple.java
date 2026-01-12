@@ -144,6 +144,7 @@ public class AdminDAO_imple implements AdminDAO {
 			String colname = paraMap.get("searchType");
 			String searchWord = paraMap.get("searchWord");
 			
+			
 			if("email".equals(colname) && !"".equals(searchWord)) {
 				// 검색대상이 email 인 경우
 				searchWord = aes.encrypt(searchWord);
@@ -213,6 +214,7 @@ public class AdminDAO_imple implements AdminDAO {
 	}
 
 
+	
 	/* >>> 뷰단(memberList.jsp)에서 "페이징 처리시 보여주는 순번 공식" 에서 사용하기 위해 
     검색이 있는 또는 검색이 없는 회원의 총개수 알아오기 시작 <<< */
 	@Override
@@ -273,6 +275,197 @@ public class AdminDAO_imple implements AdminDAO {
 		return totalMemberCount;
 	}
 
+	
+	
+	// 쿠폰을 발행해 줄 수 있는 회원 리스트(정렬기능 포함)
+	public List<MemberDTO> selectMemberPagingForCoupon(Map<String, String> paraMap) throws Exception {
+
+	    List<MemberDTO> memberList = new ArrayList<>();
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String searchType = paraMap.get("searchType");
+	        String searchWord = paraMap.get("searchWord");
+
+	        if (searchType == null) searchType = "";
+	        if (searchWord == null) searchWord = "";
+
+	        boolean hasSearch = !searchType.isBlank() && !searchWord.isBlank();
+
+	        String sortKey = paraMap.get("sortKey"); // "order_cnt" or "real_pay_sum"
+	        String sortDir = paraMap.get("sortDir"); // "desc" or ""
+	        if (sortKey == null) sortKey = "";
+	        if (sortDir == null) sortDir = "";
+
+	        int currentShowPageNo = Integer.parseInt(paraMap.get("currentShowPageNo"));
+	        int sizePerPage = Integer.parseInt(paraMap.get("sizePerPage"));
+
+
+	        boolean searchByMemberId = "member_id".equals(searchType);
+	        boolean searchByName     = "name".equals(searchType);
+	        boolean searchByEmail    = "email".equals(searchType);
+
+	        // 허용되지 않은 searchType이면 검색 안함 처리
+	        if (hasSearch && !(searchByMemberId || searchByName || searchByEmail)) {
+	            hasSearch = false;
+	        }
+
+	        // email 검색이면 암호화 후 비교
+	        if (hasSearch && searchByEmail) {
+	            searchWord = aes.encrypt(searchWord);
+	        }
+
+	     
+	        String orderBy = " m.userseq DESC ";
+
+	        if ("desc".equals(sortDir)) {
+	            if ("order_cnt".equals(sortKey)) {
+	                orderBy = " NVL(o.order_cnt, 0) DESC, m.userseq DESC ";
+	            } else if ("real_pay_sum".equals(sortKey)) {
+	                orderBy = " NVL(o.real_pay_sum, 0) DESC, m.userseq DESC ";
+	            }
+	        }
+
+	      
+	        String sql =
+	              " SELECT m.member_id, m.name, m.email, m.gender, to_char(m.created_at, 'yyyy-mm-dd') AS created_at "
+	            + " FROM tbl_member m "
+	            + " LEFT JOIN ( "
+	            + "     SELECT fk_member_id, "
+	            + "            COUNT(*) AS order_cnt, "
+	            + "            NVL(SUM(NVL(total_amount,0) - NVL(discount_amount,0)), 0) AS real_pay_sum "
+	            + "     FROM tbl_orders "
+	            + "     GROUP BY fk_member_id "
+	            + " ) o "
+	            + "   ON o.fk_member_id = m.member_id "
+	            + " WHERE m.member_id != 'admin' "
+	            + "   AND m.status = 0 ";
+
+	      
+	        if (hasSearch) {
+	            if (searchByEmail) {
+	                sql += " AND m.email = ? ";
+	            } else if (searchByMemberId) {
+	                sql += " AND m.member_id LIKE '%'|| ? ||'%' ";
+	            } else if (searchByName) {
+	                sql += " AND m.name LIKE '%'|| ? ||'%' ";
+	            }
+	        }
+
+	        // 정렬 + 페이징
+	        sql += " ORDER BY " + orderBy
+	             + " OFFSET (?-1)*? ROW "
+	             + " FETCH NEXT ? ROW ONLY ";
+
+	        pstmt = conn.prepareStatement(sql);
+
+	       
+	        if (hasSearch) {
+	            pstmt.setString(1, searchWord);
+	            pstmt.setInt(2, currentShowPageNo);
+	            pstmt.setInt(3, sizePerPage);
+	            pstmt.setInt(4, sizePerPage);
+	        } else {
+	            pstmt.setInt(1, currentShowPageNo);
+	            pstmt.setInt(2, sizePerPage);
+	            pstmt.setInt(3, sizePerPage);
+	        }
+
+	       
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            MemberDTO mbrDto = new MemberDTO();
+
+	            mbrDto.setMemberid(rs.getString("member_id"));
+	            mbrDto.setName(rs.getString("name"));
+	            mbrDto.setEmail(aes.decrypt(rs.getString("email"))); // 복호화
+	            mbrDto.setGender(rs.getInt("gender"));
+	            mbrDto.setRegisterday(rs.getString("created_at"));
+
+	            memberList.add(mbrDto);
+	        }
+
+	    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+	        e.printStackTrace();
+	    } finally {
+	        close();
+	    }
+
+	    return memberList;
+	}
+	
+	
+	
+	// 쿠폰을 발급 받을 수 있는 총 회원 수 (정렬기능포함)
+	public int getTotalCountMemberForCoupon(Map<String, String> paraMap) throws Exception {
+
+	    int totalCount = 0;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        
+	        String searchType = paraMap.get("searchType");   // member_id , name , email
+	        String searchWord = paraMap.get("searchWord");
+
+	        if (searchType == null) searchType = "";
+	        if (searchWord == null) searchWord = "";
+
+	        boolean hasSearch = !searchType.isBlank() && !searchWord.isBlank();
+     
+	        boolean searchByMemberId = "member_id".equals(searchType);
+	        boolean searchByName     = "name".equals(searchType);
+	        boolean searchByEmail    = "email".equals(searchType);
+
+	        if (hasSearch && !(searchByMemberId || searchByName || searchByEmail)) {
+	            hasSearch = false;
+	        }
+
+	        // email 검색이면 암호화 후 비교
+	        if (hasSearch && searchByEmail) {
+	            searchWord = aes.encrypt(searchWord);
+	        }
+
+	       
+	        String sql = " SELECT COUNT(*) "
+	                   + " FROM tbl_member m "
+	                   + " WHERE m.member_id != 'admin' "
+	                   + "   AND m.status = 0 ";
+
+	        if (hasSearch) {
+	            if (searchByEmail) {
+	                sql += " AND m.email = ? ";
+	            } else if (searchByMemberId) {
+	                sql += " AND m.member_id LIKE '%'|| ? ||'%' ";
+	            } else if (searchByName) {
+	                sql += " AND m.name LIKE '%'|| ? ||'%' ";
+	            }
+	        }
+
+	        pstmt = conn.prepareStatement(sql);
+	      
+	        if (hasSearch) {
+	            pstmt.setString(1, searchWord);
+	        }
+
+	        rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            totalCount = rs.getInt(1);
+	        }
+
+	    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+	        e.printStackTrace();
+	    } finally {
+	        close();
+	    }
+
+	    return totalCount;
+	}
+	
+	
+	
 
 	// 결제금액, 주문건수 구하기
 	@Override
@@ -280,33 +473,37 @@ public class AdminDAO_imple implements AdminDAO {
 		
 		Map<String, Map<String, Long>> statMap = new HashMap<>();
 
-	    if(memberIds == null || memberIds.isEmpty()) {
+	    if (memberIds == null || memberIds.isEmpty()) {
 	        return statMap;
 	    }
 
 	    try {
 	        conn = ds.getConnection();
 
-	        String placeholders = String.join(",", java.util.Collections.nCopies(memberIds.size(), "?"));
+	        StringBuilder sb = new StringBuilder();
+	        for (int i = 0; i < memberIds.size(); i++) {
+	            if (i > 0) sb.append(",");
+	            sb.append("?");
+	        }
+	        String placeholders = sb.toString();
 
-	        String sql =
-	            " SELECT fk_member_id " +
-	            "      , COUNT(*) AS order_cnt " +
-	            "      , NVL(SUM(NVL(total_amount,0) - NVL(discount_amount,0)), 0) AS real_pay_sum " +
-	            " FROM tbl_orders " +
-	            " WHERE fk_member_id IN (" + placeholders + ") " +
-	            " GROUP BY fk_member_id ";
+	        String sql = " SELECT fk_member_id "
+	        			   + "      , COUNT(*) AS order_cnt " 
+	        			   + "      , NVL(SUM(NVL(total_amount,0) - NVL(discount_amount,0)), 0) AS real_pay_sum " 
+	        			   + " FROM tbl_orders "
+	        			   + " WHERE fk_member_id IN (" + placeholders + ") " 
+	        			   + " GROUP BY fk_member_id ";
 
 	        pstmt = conn.prepareStatement(sql);
 
 	        int idx = 1;
-	        for(String id : memberIds) {
+	        for (String id : memberIds) {
 	            pstmt.setString(idx++, id);
 	        }
 
 	        rs = pstmt.executeQuery();
 
-	        while(rs.next()) {
+	        while (rs.next()) {
 	            String memberId = rs.getString("fk_member_id");
 
 	            Map<String, Long> one = new HashMap<>();
@@ -338,10 +535,10 @@ public class AdminDAO_imple implements AdminDAO {
 	          + "      , to_char(m.created_at, 'yyyy-mm-dd') AS created_at "
 	          + "      , m.mobile_phone "
 	          + "      , m.idle, m.status "
-	          + "      , d.postal_code, d.address, d.address_detail, d.address_extra "
+	          + "      , d.postal_code, d.address, d.address_detail "
 	          + " FROM tbl_member m "
 	          + " LEFT JOIN ( "
-	          + "     SELECT fk_member_id, postal_code, address, address_detail, address_extra "
+	          + "     SELECT fk_member_id, postal_code, address, address_detail "
 	          + "     FROM ( "
 	          + "         SELECT d.* "
 	          + "              , row_number() over( "
@@ -383,14 +580,14 @@ public class AdminDAO_imple implements AdminDAO {
 	            String postal = rs.getString("postal_code");
 	            String addr1  = rs.getString("address");
 	            String addr2  = rs.getString("address_detail");
-	            String addr3  = rs.getString("address_extra");
+	           
 
 	            String fullAddr = "";
 	            if (addr1 != null) {
 	                fullAddr = (postal != null ? "(" + postal + ") " : "")
 	                         + addr1
-	                         + (addr2 != null ? " " + addr2 : "")
-	                         + (addr3 != null ? " " + addr3 : "");
+	                         + (addr2 != null ? " " + addr2 : "");
+	                      
 	            }
 	            map.put("full_address", fullAddr);
 	        }

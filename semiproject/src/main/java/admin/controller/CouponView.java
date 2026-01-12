@@ -46,6 +46,11 @@ public class CouponView extends AbstractController {
 	        String currentShowPageNo = request.getParameter("currentShowPageNo");
 	        String filterType = request.getParameter("type");
 	        String filterSort = request.getParameter("sort");
+	        String onlyUsable = request.getParameter("onlyUsable"); // "1" "0"
+	        
+	        if (onlyUsable == null) {
+	        		onlyUsable = "1";
+	        }
 
 	        if(sizePerPage == null || (!"10".equals(sizePerPage) && !"5".equals(sizePerPage) && !"3".equals(sizePerPage))) {
 	            sizePerPage = "10";
@@ -61,6 +66,7 @@ public class CouponView extends AbstractController {
 	        paraMap.put("currentShowPageNo", currentShowPageNo);
 	        paraMap.put("type", (filterType == null ? "" : filterType));
 	        paraMap.put("sort", (filterSort == null ? "" : filterSort));
+	        paraMap.put("onlyUsable", onlyUsable);
 	        
 	        int totalPage = cpdao.getTotalPageCoupon(paraMap);
 	        if(totalPage == 0) totalPage = 1;
@@ -89,7 +95,8 @@ public class CouponView extends AbstractController {
 	        String url = ctxPath + "/admin/coupon.hp"
 	                   + "?sizePerPage=" + sizePerPage
 	                   + "&type=" + (filterType == null ? "" : filterType)
-	                   + "&sort=" + (filterSort == null ? "" : filterSort);
+	                   + "&sort=" + (filterSort == null ? "" : filterSort)
+	                   + "&onlyUsable=" + (onlyUsable == null ? "1" : onlyUsable);
 
 	        pageBar += "<li class='page-item'><a class='page-link' href='"+url+"&currentShowPageNo=1'>[처음]</a></li>";
 

@@ -13,7 +13,7 @@ import member.domain.MemberDTO;
 
 public class Delivery extends AbstractController {
 
-	private DeliveryDAO dDao = new DeliveryDAO_imple(); // 너희가 만든 DAO로
+	private DeliveryDAO dDao = new DeliveryDAO_imple(); 
 
 	@Override
   	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {

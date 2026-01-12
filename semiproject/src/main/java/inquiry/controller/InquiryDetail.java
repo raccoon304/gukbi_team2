@@ -13,18 +13,17 @@ import member.domain.MemberDTO;
 
 public class InquiryDetail extends AbstractController {
 
-	 private InquiryDAO idao = new InquiryDAO_imple();
+	 private InquiryDAO dao = new InquiryDAO_imple();
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+    	
         String method = request.getMethod();
 
         if (!"POST".equalsIgnoreCase(method)) {
             JSONObject json = new JSONObject();
             json.put("success", false);
             json.put("message", "잘못된 요청입니다.");
-
             request.setAttribute("json", json.toString());
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
@@ -33,75 +32,83 @@ public class InquiryDetail extends AbstractController {
 
         JSONObject json = new JSONObject();
 
-        try {
-            // ===== 로그인/관리자 판별  =====
-            HttpSession session = request.getSession(false);
-            MemberDTO loginUser = (session == null) ? null : (MemberDTO) session.getAttribute("loginUser");
+        HttpSession session = request.getSession();
+	    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-            boolean isLoggedIn = (loginUser != null);
-            boolean isAdmin = isLoggedIn && "admin".equals(loginUser.getMemberid());
-
-            // ===== inquiryNumber 검증 =====
-            String inquiryNumberStr = request.getParameter("inquiryNumber");
-            int inquiryNumber = 0;
-
-            try {
-                inquiryNumber = Integer.parseInt(inquiryNumberStr);
-                if (inquiryNumber <= 0) throw new NumberFormatException();
-            } catch (NumberFormatException e) {
-                json.put("success", false);
-                json.put("message", "문의번호가 올바르지 않습니다.");
-
-                request.setAttribute("json", json.toString());
-                super.setRedirect(false);
-                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
-                return;
-            }
-
-            // ===== 상세 조회 =====
-            InquiryDTO inquiry = idao.selectInquiryDetail(inquiryNumber);
-
-            if (inquiry == null) {
-                json.put("success", false);
-                json.put("message", "문의를 찾을 수 없습니다.");
-
-                request.setAttribute("json", json.toString());
-                super.setRedirect(false);
-                super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
-                return;
-            }
-
-            // ===== 작성자 여부 =====
-            boolean isOwner = isLoggedIn && loginUser.getMemberid().equals(inquiry.getMemberid());
-
-            // ===== 데이터 =====
-            json.put("success", true);
-            json.put("inquiryNumber", inquiry.getInquiryNumber());
-
-            
-            json.put("memberid", inquiry.getMemberid()); // 작성자
-
-            json.put("inquiryType", inquiry.getInquiryType());
-            json.put("title", inquiry.getTitle());
-            json.put("registerday", inquiry.getRegisterday() != null ? inquiry.getRegisterday().toString() : "");
-            json.put("inquiryContent", inquiry.getInquiryContent());
-
-            json.put("replyContent", inquiry.getReplyContent());
-            json.put("replyRegisterday", inquiry.getReplyRegisterday() != null ? inquiry.getReplyRegisterday().toString() : "");
-            json.put("replyStatus", inquiry.getReplyStatus());
-            json.put("replyStatusString", inquiry.getReplyStatusString());
-
-            // ===== 권한 =====
-            json.put("isAdmin", isAdmin);
-            json.put("canReply", isAdmin);          // 관리자만 답변
-            json.put("canEdit", isOwner);           // 작성자만 수정
-            json.put("canDelete", isOwner || isAdmin); // 정책: 작성자 또는 관리자 삭제
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (loginUser == null) {
             json.put("success", false);
-            json.put("message", "문의 상세 조회 중 오류가 발생했습니다.");
+            json.put("needLogin", true);
+            json.put("message", "로그인이 필요합니다.");
+            request.setAttribute("json", json.toString());
+            super.setRedirect(false);
+            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+            return;
         }
+
+        int inquiryNumber = 0;
+        try {
+            inquiryNumber = Integer.parseInt(request.getParameter("inquiryNumber"));
+            
+            if (inquiryNumber <= 0) {
+            		throw new NumberFormatException();
+            }
+            
+        } catch (Exception e) {
+            json.put("success", false);
+            json.put("message", "문의번호가 올바르지 않습니다.");
+            request.setAttribute("json", json.toString());
+            super.setRedirect(false);
+            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+            return;
+        }
+
+        InquiryDTO dto = dao.selectInquiryDetail(inquiryNumber); // 상세내역 불러오기
+
+        if (dto == null) {
+            json.put("success", false);
+            json.put("message", "해당 문의가 존재하지 않습니다.");
+            request.setAttribute("json", json.toString());
+            super.setRedirect(false);
+            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+            return;
+        }
+
+        boolean isAdmin = "admin".equalsIgnoreCase(loginUser.getMemberid());
+        boolean isOwner = loginUser.getMemberid().equals(dto.getMemberid());
+
+        // 비밀글 차단: 작성자/관리자 아니면 상세 조회 자체를 막음
+        if (dto.getIsSecret() == 1 && !(isAdmin || isOwner)) {
+            json.put("success", false);
+            json.put("secretBlocked", true);
+            json.put("message", "비밀글은 작성자만 조회 가능합니다.");
+            request.setAttribute("json", json.toString());
+            super.setRedirect(false);
+            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+            return;
+        }
+
+        // 정상 상세 반환
+        json.put("success", true);
+        json.put("inquiryNumber", dto.getInquiryNumber());
+        json.put("memberid", dto.getMemberid());
+        json.put("inquiryType", dto.getInquiryType());
+        json.put("title", dto.getTitle());
+        json.put("inquiryContent", dto.getInquiryContent());
+        json.put("registerday", dto.getRegisterday());
+        json.put("replyStatus", dto.getReplyStatus());
+        json.put("replyContent", dto.getReplyContent());
+        json.put("replyRegisterday", dto.getReplyRegisterday());
+        json.put("isSecret", dto.getIsSecret());
+
+        // 버튼 노출 권한
+        boolean canEdit = isOwner && dto.getReplyStatus() != 2; // 답변완료면 수정 불가
+        boolean canDelete = isOwner || isAdmin;
+        boolean canReply = isAdmin; // 관리자만 답변
+
+        json.put("canEdit", canEdit);
+        json.put("canDelete", canDelete);
+        json.put("canReply", canReply);
+        json.put("isAdmin", isAdmin);
 
         request.setAttribute("json", json.toString());
         super.setRedirect(false);

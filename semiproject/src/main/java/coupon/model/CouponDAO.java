@@ -6,6 +6,7 @@ import java.util.Map;
 
 import coupon.domain.CouponDTO;
 import coupon.domain.CouponIssueDTO;
+import member.domain.MemberDTO;
 
 public interface CouponDAO {
 
@@ -21,8 +22,8 @@ public interface CouponDAO {
 	
 	// 페이지별 쿠폰 리스트 가져오기
 	List<CouponDTO> selectCouponPaging(Map<String,String> paraMap) throws SQLException;
-
-	// 쿠폰을 발급 받은 회원 목록 조회
+	
+	// 해당 쿠폰을 발급 받은 회원 목록 조회
 	List<CouponIssueDTO> selectIssuedMembersByCouponCategoryNo(int couponCategoryNo) throws SQLException;
 	
 	// 회원에게 쿠폰을 전송하는 메서드
@@ -45,6 +46,9 @@ public interface CouponDAO {
 	
 	// 쿠폰 사용안함 → 사용함 처리
 	int enableCoupon(int couponCategoryNo) throws SQLException;
+	
+	// 웰컴 쿠폰 회원에게 발행
+	public int issueWelcomeCoupon(String memberId) throws SQLException;
 	
 	// 쿠폰의 총개수 알아오기
 	int getTotalCouponCount(Map<String, String> paraMap) throws SQLException;
