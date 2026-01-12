@@ -1,36 +1,36 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<% String ctxPath = request.getContextPath(); %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+<% String ctxPath = request.getContextPath(); %>
 
 <!-- Bootstrap CSS -->
 <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/bootstrap-4.6.2-dist/css/bootstrap.min.css">
 
 <!-- Font Awesome 6 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
-<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">-->
 
 <!-- 직접 만든 CSS -->
 <link href="<%=ctxPath%>/css/admin/admin.css" rel="stylesheet" />
 
 <!-- Optional JavaScript -->
 <script type="text/javascript" src="<%= ctxPath%>/js/jquery-3.7.1.min.js"></script>
-<script type="text/javascript" src="<%= ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script> 
+<script type="text/javascript" src="<%= ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" ></script>
 
-<%-- jQueryUI CSS 및 JS --%>
+<!-- jQueryUI -->
 <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.css" />
 <script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
 
 <jsp:include page="../header.jsp"/>
 
+<c:url var="backUrl" value="/product/productOption.hp">
+  <c:param name="productCode" value="${productCode}" />
+</c:url>
+
 <div class="container" style="margin-top:5%;">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0"><i class="fas fa-star mr-2"></i>구매 리뷰</h4>
-    <a class="btn btn-outline-secondary btn-sm"
-       href="<%=ctxPath%>/product/productOption.hp?productCode=${productCode}">
-      상품상세로
-    </a>
+    <h4 class="mb-0"><i class="fa-solid fa-star mr-2"></i>구매 리뷰</h4>
+    <a class="btn btn-outline-secondary btn-sm" href="${backUrl}">상품상세로</a>
   </div>
 
   <div class="mb-2 text-muted">
@@ -44,38 +44,93 @@
   </c:if>
 
   <c:forEach var="rv" items="${reviewList}">
+    <%-- 출력 필드 fallback (DTO/기존이름 둘 다 대응) --%>
+    <c:choose>
+      <c:when test="${not empty rv.memberName}">
+        <c:set var="writerName" value="${rv.memberName}" />
+      </c:when>
+      <c:otherwise>
+        <c:set var="writerName" value="${rv.name}" />
+      </c:otherwise>
+    </c:choose>
+
+    <c:choose>
+      <c:when test="${not empty rv.regDate}">
+        <c:set var="writeDay" value="${rv.regDate}" />
+      </c:when>
+      <c:otherwise>
+        <c:set var="writeDay" value="${rv.writeday}" />
+      </c:otherwise>
+    </c:choose>
+
+    <c:choose>
+      <c:when test="${not empty rv.content}">
+        <c:set var="content" value="${rv.content}" />
+      </c:when>
+      <c:otherwise>
+        <c:set var="content" value="${rv.reviewContent}" />
+      </c:otherwise>
+    </c:choose>
+
+    <c:set var="r" value="${rv.rating}" />
+
     <div class="card mb-3">
       <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <b>${rv.memberName}</b>
-            <span class="ml-2">
-              <c:forEach begin="1" end="5" var="i">
-                <c:choose>
-                  <c:when test="${i <= rv.rating}">
-                    <i class="fas fa-star"></i>
-                  </c:when>
-                  <c:otherwise>
-                    <i class="far fa-star"></i>
-                  </c:otherwise>
-                </c:choose>
-              </c:forEach>
-            </span>
+
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="d-flex align-items-center">
+
+            <%-- 썸네일(있으면) --%>
+            <c:if test="${not empty rv.thumbPath}">
+              <img src="<%=ctxPath%>${rv.thumbPath}"
+                   alt="thumb"
+                   style="width:42px;height:42px;border-radius:50%;object-fit:cover;"
+                   class="mr-2"/>
+            </c:if>
+
+            <div>
+              <div>
+                <b><c:out value="${writerName}" /></b>
+
+                <span class="ml-2">
+                  <%-- 별점: full/half/empty (rating이 4.5 같은 경우 반쪽 별) --%>
+                  <c:forEach begin="1" end="5" var="i">
+                    <c:choose>
+                      <c:when test="${i <= r}">
+                        <i class="fa-solid fa-star"></i>
+                      </c:when>
+                      <c:when test="${(i - 0.5) <= r && i > r}">
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                      </c:when>
+                      <c:otherwise>
+                        <i class="fa-regular fa-star"></i>
+                      </c:otherwise>
+                    </c:choose>
+                  </c:forEach>
+                </span>
+              </div>
+              <small class="text-muted"><c:out value="${writeDay}" /></small>
+            </div>
           </div>
-          <small class="text-muted">${rv.regDate}</small>
         </div>
 
         <hr/>
 
-        <div style="white-space:pre-wrap;">${rv.content}</div>
+        <%-- deletedYn 처리 --%>
+        <c:choose>
+          <c:when test="${rv.deletedYn == 1}">
+            <div class="text-muted">삭제된 리뷰입니다.</div>
+          </c:when>
+          <c:otherwise>
+            <div style="white-space:pre-wrap;">
+              <c:out value="${content}" />
+            </div>
+          </c:otherwise>
+        </c:choose>
+
       </div>
     </div>
   </c:forEach>
-  
-  <a class="btn btn-review"
-   href="<%=ctxPath%>/review/reviewList.hp?productCode=${proOptionDto.fkProductCode}">
-  <i class="fas fa-star mr-2"></i>구매 리뷰 보기
-</a>
 
   <div class="mt-4">
     ${pageBar}
