@@ -111,7 +111,7 @@ public class ProductDAO_imple implements ProductDAO {
 		ProductOptionDTO proDetilDto = new ProductOptionDTO();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, "
+			String sql = " SELECT option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, image_path, "
 						+"	       brand_name, price, product_desc, (price + plus_price) as total_price, plus_price "
 						+" FROM tbl_product_option O "
 						+" JOIN tbl_product P "
@@ -136,6 +136,7 @@ public class ProductDAO_imple implements ProductDAO {
 				proDto.setPrice(rs.getInt("price"));  //상품기본가격(256GB)
 				proDto.setBrandName(rs.getString("brand_name"));
 				proDto.setProductDesc(rs.getString("product_desc"));
+				proDto.setImagePath(rs.getString("image_path"));
 
 				proDetilDto.setProDto(proDto);
 			}
