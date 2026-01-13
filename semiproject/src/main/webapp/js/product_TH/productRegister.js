@@ -2,9 +2,6 @@ $(document).ready(function() {
     let uploadedFile = null;
     let isDuplicateCheckCode = false; //상품코드 중복체크
 	let isDuplicateCheckName = false; //상품명 중복체크
-    let isCodeAvailable = false; //상품코드 유효성검사
-    let isNameAvailable = false; //상품명 유효성검사
-    //const existingProductCodes = ['Ap001', 'Ap002', 'Ga001', 'Ga002', 'Ap003'];
 
     // 색상 클래스 매핑
     const colorClassMap = {
@@ -16,23 +13,58 @@ $(document).ready(function() {
         '골드': 'gold'
     };
 
+	//처음엔 입력란들 모두 비활성화해주기
+	disableImageUpload();
+
+	
+	//비활성화 함수
+	function disableImageUpload() {
+		$('#brand').val("").prop('disabled', true);; //브랜드 입력란 비활성화
+		$('#productName').val("").prop('readonly', true); //상품명 입력한 비활성화
+		$('#checkDuplicateNameBtn').prop('disabled', true); //상품명 중복체크 비활성화
+		$('#basePrice').val("").prop('readonly', true); //기본가격 비활성화
+		$("#description").val("").prop('readonly', true); //상품설명 비활성화
+	    $('#imageFile').prop('disabled', true); //파일업로드 비활성화
+	    $('#imagePath').prop('disabled', true); //이미지경로 URL 입력 비활성화
+	    $('#removeImageBtn').prop('disabled', true); //제거 버튼 비활성화
+	    //드롭존 전체 클릭/드래그 비활성화
+		$('#dropZone').css({
+	        'pointer-events': 'none',
+	        'opacity': '0.4'
+	    });
+	    //$('#imagePreview').hide();
+	}
+	
+	//활성화 함수	
+	function enableImageUpload() {
+		$('#brand').val("").prop('disabled', false);; //브랜드 입력란 활성화
+		$('#productName').val("").prop('readonly', false); //상품명 입력한 활성화
+		$('#checkDuplicateNameBtn').prop('disabled', false); //상품명 중복체크 활성화
+		$('#basePrice').val("").prop('readonly', false); //기본가격 활성화
+		$("#description").val("").prop('readonly', false); //상품설명 활성화
+	    $('#imageFile').prop('disabled', false);
+	    $('#imagePath').prop('disabled', false);
+	    $('#removeImageBtn').prop('disabled', false);
+
+	    $('#dropZone').css({
+	        'pointer-events': 'auto',
+	        'opacity': '1'
+	    });
+		//$('#imagePreview').show();
+	}
 	
 	
-    // 상품 코드 입력 시 중복 체크 초기화
+    // 상품 코드 입력 시 비활성화 항목들 활성화해주기
     $('#productCode').on('input', function(e) {
         isDuplicateCheckCode = false; //상품코드 중복체크 거짓값으로 바꾸기
-        isCodeAvailable = false; //상품코드 유효성검사 거짓값으로 바꾸기
 		isDuplicateCheckName = false; //상품명 중복체크를 거짓값으로 바꾸기
-		
-		$('#brand').val("").prop('disabled', false);; //상품코드에 해당하는 브랜드로 변경 후 비활성화
-		$('#productName').val("").prop('readonly', false); //상품코드에 해당하는 상품명 기입 후 읽기전용
-		$('#checkDuplicateNameBtn').prop('disabled', false); //상품명 중복체크 비활성화
-		$('#basePrice').val("").prop('readonly', false); //상품코드에 해당하는 기본가격 기입 후 읽기전용
-		$("#description").val("").prop('readonly', false); //상품코드에 해당하는 상품설명 기입 후 읽기전용
     });
 
     // 형식 및 중복 체크
     $('#checkDuplicateCodeBtn').click(function() {
+		//상품코드 중복버튼을 눌렀을 때 활성화 함수를 실행
+		enableImageUpload();
+		
         const productCode = $('#productCode').val().trim();
         if (!productCode) {
             alert('상품 코드를 입력해주세요.');
@@ -46,7 +78,7 @@ $(document).ready(function() {
         }
         checkDuplicateProductCode();
     });
-
+	//상품코드 중복검사 실행하기(ajax 이용)
     function checkDuplicateProductCode() { 
         $('#checkDuplicateCodeBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>확인 중...');
         setTimeout(function() {
@@ -65,6 +97,8 @@ $(document).ready(function() {
 					const brandName = json.brandName;
 					const price = json.price
 					const productDESC = json.productDESC;
+					
+					//상품코드가 중복됐다면 입력항목에 해당 값을을 넣어주고 비활성화
 					showDuplicateResult(isDuplicate, productName, price, brandName, productDESC);
 				},
 				error:function(request, status, error){
@@ -75,20 +109,31 @@ $(document).ready(function() {
             $('#checkDuplicateCodeBtn').prop('disabled', false).html('<i class="fas fa-check-circle mr-2"></i>중복 확인');
         }, 500);
     }
-	// 상품코드 유효성검사
+	// 상품코드 유효성검사 및 중복검사 이후 보여줄 메시지와 항목 자동 기입
     function showDuplicateResult(isDuplicate, productName, price, brandName, productDESC) {
         const resultDiv = $('#duplicateCheckResult');
-		isCodeAvailable = true;
 		isDuplicateCheckCode = true; //상품코드 중복체크 참값으로 바꾸기
 		
         if (isDuplicate) {
+			//중복된 상품코드일 경우
             resultDiv.html('<div class="duplicate-result unavailable"><i class="fas fa-times-circle mr-2"></i>사용 중인 상품명입니다. 옵션 등록으로 넘어가겠습니다.</div>');
 			$('#brand').val(brandName).prop('disabled', true);; //상품코드에 해당하는 브랜드로 변경 후 비활성화
 			$('#productName').val(productName).prop('readonly', true); //상품코드에 해당하는 상품명 기입 후 읽기전용
 			$('#checkDuplicateNameBtn').prop('disabled', true); //상품명 중복체크 비활성화
 			$('#basePrice').val(price).prop('readonly', true); //상품코드에 해당하는 기본가격 기입 후 읽기전용
 			$("#description").val(productDESC).prop('readonly', true); //상품코드에 해당하는 상품설명 기입 후 읽기전용
+			$('#imageFile').prop('disabled', true); //파일업로드 비활성화
+		    $('#imagePath').prop('disabled', true); //이미지경로 URL 입력 비활성화
+		    $('#removeImageBtn').prop('disabled', true); //제거 버튼 비활성화
+		    //드롭존 전체 클릭/드래그 비활성화
+			$('#dropZone').css({
+		        'pointer-events': 'none',
+		        'opacity': '0.4'
+		    });
+			
 			isDuplicateCheckName = true; //상품명 중복체크를 참값으로 바꾸기
+			
+			
 			//console.log("isDuplicateCheckName:", isDuplicateCheckName);
 			
 			// 2.2초 후 스크롤
@@ -96,10 +141,13 @@ $(document).ready(function() {
 		        $('html, body').animate({
 		            scrollTop: $('#optionSection').offset().top - 100
 		        }, 500);
-		    }, 2200);
+		    }, 1900);
 			
         } else {
+			//중복되지 않은 상품코드일 경우
             resultDiv.html('<div class="duplicate-result available"><i class="fas fa-check-circle mr-2"></i>사용 가능한 상품 코드입니다.</div>');
+			//새로운 상품코드이므로 비활성화 항목들 모두 활성화해주기
+			enableImageUpload(); 
         }
         resultDiv.fadeIn();
     }
@@ -110,8 +158,6 @@ $(document).ready(function() {
 	// 상품명 입력 시 중복 체크 초기화
 	$('#productName').on('input', function() {
 	    isDuplicateCheckName = false;
-	    isNameAvailable = false;
-		//$(e.target).parent().find("span.error").hide();
 	    $('#duplicateCheckResult2').hide();
 	});
 
@@ -162,12 +208,10 @@ $(document).ready(function() {
 		
 	    if (isDuplicate) {
 			//상품명이 중복됐을 경우
-	        isNameAvailable = false;
 	        resultDiv.html('<div class="duplicate-result unavailable"><i class="fas fa-times-circle mr-2"></i>이미 사용 중인 상품명입니다.</div>');
 			$('#productName').val("");
 	    } else {
 			//상품명이 사용 가능한 경우
-	        isNameAvailable = true;
 	        resultDiv.html('<div class="duplicate-result available"><i class="fas fa-check-circle mr-2"></i>사용 가능한 상품명입니다.</div>');
 	    }
 	    resultDiv.fadeIn();
@@ -314,28 +358,19 @@ $(document).ready(function() {
 	
     // ========== 폼 제출 ========== //
     $('#productForm').submit(function(e) {
-		console.log("isDuplicateCheckName:", isDuplicateCheckName);
+        e.preventDefault(); //일단 폼 제출을 막기
 		
-        e.preventDefault();
 		
+		//------- 유효성 검사 ------//
 		//상품코드 중복검사
         if (!isDuplicateCheckCode) {
             alert('상품 코드 중복 확인을 해주세요.');
             return;
         }
-        /*if (!isCodeAvailable) {
-            alert('사용 가능한 상품 코드를 입력해주세요.');
-            return;
-        }*/
-		//상품명 중복검사
 		if (!isDuplicateCheckName) {
             alert('상품명 중복 확인을 해주세요.');
             return;
         }
-		/*if (!isNameAvailable) {
-            alert('사용 가능한 상품명을 입력해주세요.');
-            return;
-        }*/
 		
 		//이미지 업로드 검사
 		const imagePath = $('#imagePath').val();
@@ -408,6 +443,8 @@ $(document).ready(function() {
         console.log('상품 기본 정보:', productData);
         console.log('상품 옵션 조합:', optionData);
         console.log('전체 데이터:', registrationData);
+		
+		
 
         // 성공 모달 표시
         $('#successModal').modal('show');
@@ -423,6 +460,7 @@ $(document).ready(function() {
             isCodeAvailable = false;
             uploadedFile = null;
         });
+		
     });
 	//=============== 폼 제출 끝 ===============//
 	
