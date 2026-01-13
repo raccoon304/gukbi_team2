@@ -19,5 +19,14 @@ public interface ReviewDAO {
 
     // 리뷰 리스트(페이징처리)
     List<ReviewDTO> selectReviewPaging(Map<String, String> paraMap) throws SQLException;
+    
+    // 내 구매(PAID)인지, 이미 리뷰 있는지 확인
+    boolean canWriteReview(String memberId, int orderDetailId) throws Exception; // 내 주문상세(PAID)인지
+    
+    // 리뷰 작성
+    int insertReview(int optionId, int orderDetailId, String content, double rating) throws Exception;
+    
+    // 리뷰에 이미지 insert
+    int insertReviewImage(int reviewNumber, String imagePath, int sortNo) throws Exception;
 	
 }

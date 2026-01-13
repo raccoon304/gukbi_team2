@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
 
 <!-- 직접 만든 CSS -->
-<link href="<%=ctxPath%>/css/admin/admin.css" rel="stylesheet" />
+<link href="<%=ctxPath%>/css/review/review.css" rel="stylesheet" />
 
 <!-- Optional JavaScript -->
 <script type="text/javascript" src="<%= ctxPath%>/js/jquery-3.7.1.min.js"></script>
@@ -44,7 +44,7 @@
   </c:if>
 
   <c:forEach var="rv" items="${reviewList}">
-    <%-- 출력 필드 fallback (DTO/기존이름 둘 다 대응) --%>
+    
     <c:choose>
       <c:when test="${not empty rv.memberName}">
         <c:set var="writerName" value="${rv.memberName}" />
@@ -80,7 +80,7 @@
         <div class="d-flex justify-content-between align-items-start">
           <div class="d-flex align-items-center">
 
-            <%-- 썸네일(있으면) --%>
+            <%-- 썸네일 --%>
             <c:if test="${not empty rv.thumbPath}">
               <img src="<%=ctxPath%>${rv.thumbPath}"
                    alt="thumb"
@@ -93,7 +93,7 @@
                 <b><c:out value="${writerName}" /></b>
 
                 <span class="ml-2">
-                  <%-- 별점: full/half/empty (rating이 4.5 같은 경우 반쪽 별) --%>
+                  <%-- 별점 --%>
                   <c:forEach begin="1" end="5" var="i">
                     <c:choose>
                       <c:when test="${i <= r}">
@@ -132,8 +132,12 @@
     </div>
   </c:forEach>
 
-  <div class="mt-4">
-    ${pageBar}
+  <div class="mt-4 d-flex justify-content-center">
+	  <nav aria-label="Page navigation">
+	    <ul class="pagination pagination-sm mb-0">
+	      ${pageBar}
+	    </ul>
+	  </nav>
   </div>
 </div>
 

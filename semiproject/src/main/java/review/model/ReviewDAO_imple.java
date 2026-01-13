@@ -73,7 +73,7 @@ public class ReviewDAO_imple implements ReviewDAO {
         }
 
         return totalCount;
-    }
+    }// end of public int getTotalReviewCount(Map<String, String> paraMap) throws SQLException -------
 
     
     // 총 페이지 수
@@ -90,8 +90,9 @@ public class ReviewDAO_imple implements ReviewDAO {
         if(totalPage == 0) totalPage = 1;
 
         return totalPage;
-    }
+    }// end of public int getTotalPage(Map<String, String> paraMap) throws SQLException -------
 
+    
     // 통계(총개수/평균/별점분포)
     @Override
     public Map<String, Object> getReviewStat(Map<String, String> paraMap) throws SQLException {
@@ -135,7 +136,7 @@ public class ReviewDAO_imple implements ReviewDAO {
         }
 
         return stat;
-    }
+    }// end of public Map<String, Object> getReviewStat(Map<String, String> paraMap) throws SQLException -------
 
     
     // 리뷰 리스트(페이징처리)
@@ -220,9 +221,141 @@ public class ReviewDAO_imple implements ReviewDAO {
         }
 
         return list;
+    }// end of public List<ReviewDTO> selectReviewPaging(Map<String, String> paraMap) throws SQLException -------
+	
+	
+	
+ // 내 구매(PAID)인지, 이미 리뷰 있는지 확인
+    @Override
+    public boolean canWriteReview(String memberId, int orderDetailId) throws Exception {
+        boolean ok = false;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = " SELECT CASE WHEN count(*) = 1 THEN 1 ELSE 0 END AS ok "
+            			   + " FROM tbl_order_detail od "
+            			   + " JOIN tbl_orders o ON o.order_id = od.fk_order_id "
+            			   + " WHERE od.order_detail_id = ? "
+            			   + "   AND o.fk_member_id = ? "
+            			   + "   AND o.order_status = 'PAID' "
+            			   + "   AND od.is_review_written = 0 "
+            			   + "   AND not exists (SELECT 1 FROM tbl_review r where r.fk_order_detail_id = od.order_detail_id) ";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderDetailId);
+            pstmt.setString(2, memberId);
+
+            rs = pstmt.executeQuery();
+            if(rs.next()) {
+                ok = (rs.getInt("ok") == 1);
+            }
+        } finally {
+            close();
+        }
+
+        return ok;
+    }// end of public boolean canWriteReview(String memberId, int orderDetailId) throws Exception -------
+
+    
+    // 리뷰 작성
+    @Override
+    public int insertReview(int optionId, int orderDetailId, String content, double rating) throws Exception {
+
+    	 int reviewNumber = 0;
+
+    	    try {
+    	        conn = ds.getConnection();
+    	        conn.setAutoCommit(false); // 수동커밋
+
+    	        // PK 채번하기
+    	        String sql1 = " SELECT seq_tbl_review_review_number.nextval AS review_number "
+    	        		        + " FROM dual ";
+    	        pstmt = conn.prepareStatement(sql1);
+    	        rs = pstmt.executeQuery();
+    	        
+    	        if(rs.next()) {
+    	        		reviewNumber = rs.getInt("review_number");
+    	        }
+    	        rs.close(); rs = null;
+    	        pstmt.close(); pstmt = null;
+
+    	        // 리뷰 insert
+    	        String sql2 =
+    	            " INSERT INTO tbl_review " +
+    	            " (review_number, fk_option_id, fk_order_detail_id, review_content, rating) " +
+    	            " VALUES (?, ?, ?, ?, ?) ";
+
+    	        pstmt = conn.prepareStatement(sql2);
+    	        pstmt.setInt(1, reviewNumber);
+    	        pstmt.setInt(2, optionId);
+    	        pstmt.setInt(3, orderDetailId);
+    	        pstmt.setString(4, content);
+    	        pstmt.setDouble(5, rating);
+
+    	        int n1 = pstmt.executeUpdate();
+    	        pstmt.close(); pstmt = null;
+
+    	        if(n1 != 1) {
+    	            conn.rollback();
+    	            throw new SQLException("리뷰 작성 실패");
+    	        }
+
+    	        // 주문상세 is_review_written 업데이트
+    	        String sql3 = " update tbl_order_detail "
+    	        			    + " set is_review_written = 1 "
+    	        			    + " where order_detail_id = ? "
+    	        			    + "   and is_review_written = 0 ";
+
+    	        pstmt = conn.prepareStatement(sql3);
+    	        pstmt.setInt(1, orderDetailId);
+
+    	        int n2 = pstmt.executeUpdate();
+    	        pstmt.close(); pstmt = null;
+
+    	        if(n2 != 1) {
+    	            conn.rollback();
+    	            throw new SQLException("주문상세 리뷰작성 업데이트 실패");
+    	        }
+
+    	        conn.commit(); // 커밋
+    	    } catch(Exception e) {
+    	        if(conn != null) conn.rollback(); // 실패하면 롤백
+    	        throw e;
+    	    } finally {
+    	        if(conn != null) conn.setAutoCommit(true); // 다시 오토커밋으로
+    	        close();
+    	    }
+
+    	    return reviewNumber;
+    }// end of  public int insertReview(int optionId, int orderDetailId, String content, double rating) throws Exception -------
+
+    
+    // 리뷰에 이미지 insert
+    @Override
+    public int insertReviewImage(int reviewNumber, String imagePath, int sortNo) throws Exception {
+
+        int n = 0;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = " INSERT INTO tbl_review_image "
+            			   + " (review_image_id, fk_review_number, image_path, sort_no) "
+                       + " VALUES (seq_tbl_review_image_number_id.nextval, ?, ?, ?) ";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, reviewNumber);
+            pstmt.setString(2, imagePath);
+            pstmt.setInt(3, sortNo);
+
+            n = pstmt.executeUpdate();
+        } finally {
+            close();
+        }
+
+        return n;
     }
-	
-	
-	
-	
+    
+    
 }
