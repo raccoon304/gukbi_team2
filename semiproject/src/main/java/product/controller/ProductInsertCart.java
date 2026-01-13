@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import member.domain.MemberDTO;
 import product.model.ProductDAO;
 import product.model.ProductDAO_imple;
 
@@ -24,9 +26,11 @@ public class ProductInsertCart extends AbstractController {
 		if("POST".equalsIgnoreCase(method)) {
 			String productOptionId = request.getParameter("productOptionId"); //옵션아이디
 			String quantity = request.getParameter("quantity"); //주문수량
+			String loginUserId = request.getParameter("loginUserId");
 			
 			//System.out.println(loginUserId+"\n"+productOptionId+"\n"+quantity);
 			Map<String, String> paraMap = new HashMap<String, String>();
+			paraMap.put("loginUserId", loginUserId);
 			paraMap.put("productOptionId", productOptionId);
 			paraMap.put("quantity", quantity);
 			

@@ -180,10 +180,10 @@ $(document).ready(function () {
 				type: "post",
 				dataType:"text",
 				success:function(){
-					console.log("확인용 잘 들어왔습니다");
+					//console.log("확인용 잘 들어왔습니다");
+					window.location.href = '/semiproject/pay/payMent.hp';
 					//alert(json.message);
 					//if(confirm("상품 구매 페이지로 이동하시겠습니까?")) {
-						window.location.href = '/semiproject/pay/payMent.hp';
 						//location.href = json.loc;
 					//}
 				},
