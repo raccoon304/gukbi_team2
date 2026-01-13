@@ -124,15 +124,27 @@ public class PaymentSuccess extends AbstractController {
         order.setTotalAmount(calculatedTotal);
         order.setDiscountAmount(calculatedDiscount);
         order.setDeliveryAddress(deliveryAddress);
-        order.setOrderStatus("READY");
+        
+        order.setRecipientName(loginuser.getName());
+        order.setRecipientPhone(loginuser.getMobile());
 
         int orderId = odao.insertOrder(order);
 
-        try {
+      
             for (CartDTO cart : cartList) {
 
+            	 // 재고 차감 실패 → 즉시 실패 처리
                 if (odao.decreaseStock(cart.getOptionId(), cart.getQuantity()) != 1) {
-                    throw new RuntimeException("재고 부족");
+           	
+                    odao.updateOrderStatus(orderId, "FAIL");
+                    odao.updateDeliveryStatus(orderId, 4);
+                    
+                
+                    request.setAttribute("message", "재고가 부족하여 결제가 실패했습니다.");
+                    request.setAttribute("loc", request.getContextPath() + "/payment/payMent.hp");
+                    setRedirect(false);
+                    setViewPage("/WEB-INF/msg.jsp");
+                    return;
                 }
 
                 odao.insertOrderDetail(
@@ -144,13 +156,13 @@ public class PaymentSuccess extends AbstractController {
                     cart.getBrand_name()
                 );
             }
-
+       
             odao.updateOrderStatus(orderId, "PAID");
+            odao.updateDeliveryStatus(orderId, 0); // 배송 준비
 
-        } catch (Exception e) {
-            odao.updateOrderStatus(orderId, "FAIL");
-            throw e;
-        }
+       
+    	   
+        
 
         /* ================= 장바구니 정리 ================= */
         cdao.deleteSuccessCartId(

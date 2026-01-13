@@ -16,6 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
+import order.model.OrderDAO;
+import order.model.OrderDAO_imple;
 
 public class PayController extends AbstractController {
 
@@ -159,9 +161,10 @@ public class PayController extends AbstractController {
 
         /* ================= 쿠폰 ================= */
         int discountPrice = 0;
-        CouponDAO cdao = new CouponDAO_imple();
+        OrderDAO odao = new OrderDAO_imple();
+
         List<Map<String, Object>> couponList =
-            cdao.selectCouponList(loginUser.getMemberid());
+            odao.selectAvailableCoupons(loginUser.getMemberid());
 
         if (couponIdParam != null && !couponIdParam.isBlank()) {
             try {
