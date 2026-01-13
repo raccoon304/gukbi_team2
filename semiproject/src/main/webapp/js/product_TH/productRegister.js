@@ -520,7 +520,7 @@ $(document).ready(function() {
 		// ======= AJAX로 서버에 전송 =======
 		if(isSendData){
 			//상품코드가 중복됐을 때 ajax로 보내는 값들(옵션만 보내주기)
-			//console.log(productCode);
+			console.log(productCode);
 			
 			$.ajax({
 			    url: 'productRegisterEnd.hp', // 서버 API 주소
@@ -528,7 +528,7 @@ $(document).ready(function() {
 			    contentType: 'application/json',
 			    data: {
 					"optionData": JSON.stringify(optionData),
-					"productCode": productCode	
+					"productCode": productCode
 				},
 			    success: function(json) {
 			        console.log('서버 응답:', json);
