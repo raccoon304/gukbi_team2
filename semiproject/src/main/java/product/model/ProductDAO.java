@@ -38,4 +38,15 @@ public interface ProductDAO {
 	//상품명 중복 확인하기
 	boolean ckProductName(String productName) throws SQLException;
 
+	//상품코드에 해당하는 옵션 값들 DB에 넣어주기
+	//int insertProductOption(Map<String, String> paraMap) throws SQLException;
+
+	//선택한 옵션(용량, 색상)이 중복옵션인지, 새 옵션인지 알아와서 update/insert 해주기
+	int selectInsertOrUpdateOption(Map<String, String> paraMap) throws SQLException;
+
+	//새로운 상품을 테이블에 삽입해주기
+	int insertProduct(ProductDTO proDto) throws SQLException;
+	//새로운 상품에 대한 옵션들 삽입해주기
+	int selectInsertOption(Map<String, String> paraMap) throws SQLException;
+
 }

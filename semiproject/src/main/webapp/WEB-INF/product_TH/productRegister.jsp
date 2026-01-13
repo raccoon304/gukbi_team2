@@ -190,25 +190,25 @@
 			                </div>
 			                <div class="toggle-group">
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorBlack" name="color" value="블랙">
+			                        <input type="checkbox" id="colorBlack" name="color" value="Black">
 			                        <label class="toggle-label" for="colorBlack">
 			                            <span class="color-indicator black"></span>블랙
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorWhite" name="color" value="화이트">
+			                        <input type="checkbox" id="colorWhite" name="color" value="White">
 			                        <label class="toggle-label" for="colorWhite">
 			                            <span class="color-indicator white"></span>화이트
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorBlue" name="color" value="블루">
+			                        <input type="checkbox" id="colorBlue" name="color" value="Blue">
 			                        <label class="toggle-label" for="colorBlue">
 			                            <span class="color-indicator blue"></span>블루
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorRed" name="color" value="레드">
+			                        <input type="checkbox" id="colorRed" name="color" value="Red">
 			                        <label class="toggle-label" for="colorRed">
 			                            <span class="color-indicator red"></span>레드
 			                        </label>
