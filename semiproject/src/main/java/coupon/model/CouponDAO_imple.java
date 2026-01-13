@@ -140,6 +140,7 @@ public class CouponDAO_imple implements CouponDAO {
 	                   + "      , ci.issue_date "
 	                   + "      , ci.expire_date "
 	                   + "      , ci.used_yn "
+	                   + "      , ci.coupon_id "
 	                   + " FROM tbl_coupon_issue ci "
 	                   + " JOIN tbl_coupon c "
 	                   + "   ON c.coupon_category_no = ci.fk_coupon_category_no "
@@ -156,6 +157,7 @@ public class CouponDAO_imple implements CouponDAO {
 	            CouponDTO cpDto = new CouponDTO();
 	            CouponIssueDTO cpissDto = new CouponIssueDTO();
 
+	            cpissDto.setCouponId(rs.getInt("coupon_id"));
 	            cpDto.setCouponCategoryNo(rs.getInt("coupon_category_no"));
 	            cpDto.setCouponName(rs.getString("coupon_name"));
 	            cpDto.setDiscountType(rs.getInt("discount_type"));

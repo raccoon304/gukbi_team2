@@ -187,6 +187,13 @@ public class PayController extends AbstractController {
         /* ================= 최종 금액 ================= */
         int finalPrice = totalPrice - discountPrice;
 
+        /* ================= 선택한 쿠폰 세션 저장 (PaymentSuccess용) ================= */
+        if (couponIdParam != null && !couponIdParam.isBlank()) {
+            session.setAttribute("usedCouponId", Integer.parseInt(couponIdParam));
+        } else {
+            session.removeAttribute("usedCouponId");
+        }
+        
         /* ================= JSP 전달 ================= */
         session.setAttribute("cartList", cartList);
         

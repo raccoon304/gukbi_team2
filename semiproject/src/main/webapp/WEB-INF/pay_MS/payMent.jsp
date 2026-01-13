@@ -153,8 +153,10 @@
         
 	<div class="price-row">
 			
-<select id="couponSelect" class="form-control">
+<select id="couponSelect" name="couponSelect" class="form-control">
   <option value="">쿠폰 선택</option>
+
+
 
   <c:forEach var="row" items="${couponList}">
     <c:set var="coupon" value="${row.coupon}" />
@@ -164,6 +166,8 @@
     <c:if test="${coupon.discountType == 0}">
       <option value="${issue.couponId}"
               data-discount="${coupon.discountValue}">
+              
+              
         ${coupon.couponName}
         ( <fmt:formatNumber value="${coupon.discountValue}" pattern="#,###"/>원 할인 )
       </option>
