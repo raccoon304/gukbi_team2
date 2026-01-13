@@ -8,7 +8,7 @@
 ===================================================== */
 .registration-container {
     max-width: 1200px;                 /* 최대 너비 제한 */
-    margin: 5% auto;                    /* 가운데 정렬 */
+    margin: 5% 15%;                    /* 가운데 정렬 */
     background: white;                 /* 배경색 */
     border-radius: 12px;               /* 모서리 둥글게 */
     box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 카드형 그림자 */
@@ -340,6 +340,55 @@
     width: 100%;             /* 부모 기준 전체 너비 사용 */
 }
 
+
+/* =========================
+   옵션 추가 버튼
+========================= */
+.option-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 12px 22px;
+    margin-top: 20px;
+
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    border: none;
+    border-radius: 30px;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.35);
+}
+.option-add-btn i {
+    font-size: 14px;
+}
+/* Hover 효과 */
+.option-add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.45);
+}
+/* Active (클릭 순간) */
+.option-add-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+/* 비활성화 상태 */
+.option-add-btn:disabled {
+    background: #adb5bd;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.8;
+}
+
+
+
 /* ===============================
    매트릭스 한 줄 (한 옵션 조합)
    =============================== */
@@ -355,10 +404,14 @@
     display: grid;
 
     /* 각 컬럼의 고정 폭 설정 */
-    grid-template-columns: 150px 150px 200px 200px;
-
-    gap: 15px;               /* 컬럼 사이 간격 */
-    padding: 15px;
+    grid-template-columns:
+    	minmax(120px, 1fr)
+    	minmax(120px, 1fr)
+    	minmax(160px, 1.5fr)
+    	minmax(160px, 1.5fr);
+    
+    gap: 20px;				/* 컬럼 사이 간격 */
+    padding: 20px;
     background: white;
     border-radius: 8px;
     margin-bottom: 10px;
@@ -451,7 +504,7 @@
 /* 옵션 조합이 없는 경우 안내 문구 */
 .matrix-empty {
     text-align: center;
-    padding: 40px;
+    padding: 2%;
     color: #6c757d;
 }
 

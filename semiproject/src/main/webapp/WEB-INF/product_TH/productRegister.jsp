@@ -213,18 +213,6 @@
 			                            <span class="color-indicator red"></span>레드
 			                        </label>
 			                    </div>
-			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorGreen" name="color" value="그린">
-			                        <label class="toggle-label" for="colorGreen">
-			                            <span class="color-indicator green"></span>그린
-			                        </label>
-			                    </div>
-			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorGold" name="color" value="골드">
-			                        <label class="toggle-label" for="colorGold">
-			                            <span class="color-indicator gold"></span>골드
-			                        </label>
-			                    </div>
 			                </div>
 			                <small class="form-text text-muted">판매할 색상을 선택하세요</small>
 			            </div>
@@ -235,6 +223,14 @@
 			                <div class="section-title">
 			                    <i class="fas fa-table mr-2"></i>옵션별 재고 및 추가금 설정 <span class="required-mark">*</span>
 			                </div>
+			                
+			                <div class="d-flex justify-content-center mt-3">
+							    <button type="button" id="addOptionMatrix" class="option-add-btn">
+							        <i class="fas fa-plus"></i>
+							        옵션 추가
+							    </button>
+							</div>
+							
 			                <div class="option-matrix">
 			                    <div class="matrix-header">
 			                        <h6 class="mb-0"><i class="fas fa-th mr-2"></i>저장용량 × 색상 조합</h6>
