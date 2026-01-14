@@ -24,7 +24,7 @@
         </div>
 
         <div class="list-group list-group-flush">
-          <a href="${pageContext.request.contextPath}/myPage/home.hp"
+          <a href="${pageContext.request.contextPath}/myPage/myPage.hp"
              class="list-group-item list-group-item-action active">
             <i class="fa-regular fa-user mr-2"></i> 내 정보
           </a>

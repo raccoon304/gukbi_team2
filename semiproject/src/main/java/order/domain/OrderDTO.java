@@ -1,5 +1,8 @@
 package order.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OrderDTO {
 
     private int orderId;
@@ -9,6 +12,8 @@ public class OrderDTO {
     private int discountAmount;
     private String deliveryAddress;
     private String orderStatus;
+    
+    
 	public int getOrderId() {
 		return orderId;
 	}
@@ -64,8 +69,8 @@ public class OrderDTO {
 	public void setOrderStatus(String orderStatus) {
 		this.orderStatus = orderStatus;
 	}
-    
-    
+
+
 
 }
 

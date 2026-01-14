@@ -26,6 +26,14 @@ public interface OrderDAO {
 	// 결제 완료가 되었을때 사용한 해당 쿠폰은 더 이상 사용하지 못하게 하기
 	int updateCouponUsed(String memberId, int couponId) throws SQLException;
 
+	// 로그인 한 사용자의 주문내역 가져오기 
+	List<OrderDTO> selectOrderSummaryList(String memberid) throws SQLException;
+
+	// 모달용 헤더(내 주문 검증까지)
+	Map<String, Object> selectOrderHeaderForModal(int orderId, String memberId) throws SQLException;
+
+	// 모달용 아이템(색상/용량 포함)
+	List<Map<String, Object>> selectOrderItemsForModal(int orderId) throws SQLException;
 	
 	
 

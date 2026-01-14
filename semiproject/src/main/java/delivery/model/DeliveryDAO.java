@@ -23,4 +23,7 @@ public interface DeliveryDAO {
 	// 배송지를 수정하는 메서드
 	int updateDelivery(Map<String, String> paraMap) throws SQLException;
 
+	// 기본배송지를 변경 하는 메서드 
+	int setDefaultDelivery(Map<String, String> paraMap) throws SQLException;
+
 }
