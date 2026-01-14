@@ -131,20 +131,27 @@ public class CouponDAO_imple implements CouponDAO {
 	    try {
 	        conn = ds.getConnection();
 
-	        String sql = " SELECT c.coupon_category_no "
-	                   + "      , c.coupon_name "
-	                   + "      , c.discount_type "
-	                   + "      , c.discount_value "
-	                   + "      , c.usable "
-	                   + "      , ci.fk_member_id "
-	                   + "      , ci.issue_date "
-	                   + "      , ci.expire_date "
-	                   + "      , ci.used_yn "
-	                   + " FROM tbl_coupon_issue ci "
-	                   + " JOIN tbl_coupon c "
-	                   + "   ON c.coupon_category_no = ci.fk_coupon_category_no "
-	                   + " WHERE ci.fk_member_id = ? "
-	                   + " ORDER BY ci.issue_date DESC, c.coupon_category_no DESC ";
+	        String sql = " SELECT "
+	        		+ "  c.coupon_category_no, "
+	        		+ "  c.coupon_name, "
+	        		+ "  c.discount_type, "
+	        		+ "  c.discount_value, "
+	        		+ "  c.usable, "
+	        		+ "  ci.fk_member_id, "
+	        		+ "  ci.issue_date, "
+	        		+ "  ci.expire_date, "
+	        		+ "  ci.used_yn, "
+	        		+ "  ci.coupon_id, "
+	        		+ "  CASE "
+	        		+ "    WHEN ci.used_yn = 1 THEN 'USED' "
+	        		+ "    WHEN ci.expire_date < SYSDATE THEN 'EXPIRED' "
+	        		+ "    ELSE 'AVAILABLE' "
+	        		+ "  END AS coupon_status "
+	        		+ " FROM tbl_coupon_issue ci "
+	        		+ " JOIN tbl_coupon c "
+	        		+ "  ON c.coupon_category_no = ci.fk_coupon_category_no "
+	        		+ " WHERE ci.fk_member_id = ? "
+	        		+ " ORDER BY ci.issue_date DESC, c.coupon_category_no DESC ";
 
 	        pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, userid);
@@ -156,6 +163,7 @@ public class CouponDAO_imple implements CouponDAO {
 	            CouponDTO cpDto = new CouponDTO();
 	            CouponIssueDTO cpissDto = new CouponIssueDTO();
 
+	            cpissDto.setCouponId(rs.getInt("coupon_id"));
 	            cpDto.setCouponCategoryNo(rs.getInt("coupon_category_no"));
 	            cpDto.setCouponName(rs.getString("coupon_name"));
 	            cpDto.setDiscountType(rs.getInt("discount_type"));
@@ -167,10 +175,11 @@ public class CouponDAO_imple implements CouponDAO {
 	            cpissDto.setExpireDate(rs.getString("expire_date"));
 	            cpissDto.setUsedYn(rs.getInt("used_yn"));
 
+	            
 	            Map<String, Object> row = new HashMap<>();
 	            row.put("coupon", cpDto);
 	            row.put("issue", cpissDto);
-
+	            row.put("status", rs.getString("coupon_status"));
 	            couponList.add(row);
 	        }
 

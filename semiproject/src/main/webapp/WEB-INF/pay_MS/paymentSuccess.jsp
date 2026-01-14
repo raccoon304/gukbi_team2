@@ -36,14 +36,6 @@
     <div class="info-box my-4">
         <p><b>주문번호</b> ${order.order_id}</p>
         <p><b>배송지</b> ${order.delivery_address}</p>
-        <p>
-		  <b>배송지 유형</b>
-		  <c:choose>
-		    <c:when test="${deliveryType == 'HOME'}">Home</c:when>
-		    <c:when test="${deliveryType == 'OFFICE'}">Office</c:when>
-		    <c:when test="${deliveryType == 'SCHOOL'}">School</c:when>
-		  </c:choose>
-		</p>
     </div>
 
     <!-- 주문 상품 -->

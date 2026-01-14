@@ -1,8 +1,5 @@
 package order.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class OrderDTO {
 
     private int orderId;

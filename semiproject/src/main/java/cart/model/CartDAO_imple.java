@@ -70,55 +70,6 @@ public class CartDAO_imple implements CartDAO {
         return exists;
     }
   
-    /*
-    // 이미 있으면 수량만 추가
-    @Override
-    public int updateQuantity(String memberId, int optionId, int quantity) throws SQLException {
-       
-  
-            int n = 0;
-            
-            String sql =
-                " update tbl_cart " +
-                " set quantity = quantity + ? " +
-                " where fk_member_id = ? " +
-                " and fk_option_id = ? ";
-            
-            try (Connection conn = ds.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-                   pstmt.setInt(1, quantity);
-                   pstmt.setString(2, memberId);
-                   pstmt.setInt(3, optionId);
-
-                   n = pstmt.executeUpdate();
-               }
-
-               return n;
-    }
-    
-    // 아예 비어있으면 상품 자체를 추가
-    @Override
-    public int insertCart(String memberId, int optionId, int quantity) throws SQLException {
-        int n = 0;
-
-        String sql =
-            " insert into tbl_cart (cart_id, fk_member_id, fk_option_id, quantity, added_date) " +
-            " values (seq_cart.nextval, ?, ?, ?, sysdate) ";
-
-        try (Connection conn = ds.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, memberId);
-            pstmt.setInt(2, optionId);
-            pstmt.setInt(3, quantity);
-
-            n = pstmt.executeUpdate();
-        }
-
-        return n;
-    }
-*/
 
     // 장바구니 페이지 내역 조회
     @Override
@@ -252,28 +203,7 @@ public class CartDAO_imple implements CartDAO {
  	    return deleted; // 1이면 성공, 0이면 실패
  	}
      
-    
-    /*
-	// 선택한 내용을 대상으로 전체 삭제
-	@Override
-	public int deleteAll(String memberId) throws SQLException {
-
-		int n = 0;
-		
-	    String sql =
-	        " delete from tbl_cart " +
-	        " where fk_member_id = ? ";
-
-	    try (Connection conn = ds.getConnection();
-	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-	        pstmt.setString(1, memberId);
-	        n =  pstmt.executeUpdate();
-	    }
-		return n;
-	}
-	*/
-
+ 
 	// 장바구니에서 결제페이지로 넘어가는 쿼리 (부분 결제 가능하게 하는 기능)
 	@Override
 	public Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException {
@@ -320,52 +250,7 @@ public class CartDAO_imple implements CartDAO {
 	    return map.isEmpty() ? null : map;
 	}
 
-	/*
-	// 전체 결제가 가능하게 하는 기능
-	@Override
-	public List<CartDTO> selectCartListForPay(String memberId) throws SQLException {
-		
-		 List<CartDTO> list = new ArrayList<>();
 
-		    String sql =
-		        " SELECT "
-		        + "    c.cart_id, "
-		        + "    c.quantity, "
-		        + "    p.product_name, "	       
-		        + "    (p.price + o.plus_price) AS unit_price, "
-		        + "    p.image_path, "
-		        + "    (p.price + o.plus_price) * c.quantity AS total_price "
-		        + " From tbl_cart c "
-		        + " JOIN tbl_product_option o "
-		        + "    ON c.fk_option_id = o.option_id "
-		        + " JOIN tbl_product p "
-		        + "    ON o.fk_product_code = p.product_code "
-		        + " WHERE c.fk_member_id = ? "
-		        + " ORDER BY c.added_date DESC ";
-
-		    try (Connection conn = ds.getConnection();
-		         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-		        pstmt.setString(1, memberId);
-
-		        try (ResultSet rs = pstmt.executeQuery()) {
-		            while (rs.next()) {
-		                CartDTO dto = new CartDTO();
-		                dto.setCartId(rs.getInt("cart_id"));
-		                dto.setQuantity(rs.getInt("quantity"));
-		                dto.setPrice(rs.getInt("price"));
-		                dto.setProductName(rs.getString("product_name"));
-		                dto.setImagePath(rs.getString("image_path"));
-		                
-		                
-		                list.add(dto);
-		            }
-		        }
-		    }
-		    return list;
-	}
-*/
-	
 	// 상품상세에서 구매하기를 눌렀을때 떠야 될것
 	@Override
 	public Map<String, Object> selectDirectProduct(
