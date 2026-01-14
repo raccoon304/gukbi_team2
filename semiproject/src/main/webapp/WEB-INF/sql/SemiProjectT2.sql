@@ -1425,13 +1425,3 @@ join tbl_product_option O
 on P.product_code = O.fk_product_code
 where product_code = '1000AP'
 order by storage_size;
-
-
-show user;
-
-select * from tbl_orders;
-select * from tbl_cart;
-select image_path from tbl_product;
-select * from tbl_product_option;
---where option_id = 124;
-select * from tbl_member;

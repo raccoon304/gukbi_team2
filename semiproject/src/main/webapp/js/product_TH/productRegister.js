@@ -274,7 +274,7 @@ $(document).ready(function() {
 
 	        selectedColors.each(function () {
 	            const color      = $(this).val();
-	            const colorClass = colorClassMap[color] || 'black';
+	            const colorClass = colorClassMap[color] || 'white';
 
 			   //중복 방지
 	           if (isDuplicateOption(storage, color)) {
@@ -294,7 +294,7 @@ $(document).ready(function() {
 	                        <i class="fas fa-hdd mr-2"></i>${storage}
 	                    </div>
 	                    <div class="matrix-cell color">
-	                        <span class="color-indicator ${colorClass}"></span>${color}
+							<i class="fas fa-palette mr-2"></i>${color}
 	                    </div>
 
 	                    <div class="matrix-input">
@@ -332,6 +332,7 @@ $(document).ready(function() {
 	                            </div>
 	                        </div>
 	                    </div>
+						
 	                </div>
 	            `);
 
@@ -398,7 +399,7 @@ $(document).ready(function() {
         reader.onload = function(e) {
             $('#previewImg').attr('src', e.target.result);
             $('#imagePreview').fadeIn();
-            $('#imagePath').val('(파일 업로드: ' + file.name + ')');
+            $('#imagePath').val(file.name);
         }
         reader.readAsDataURL(file);
     }
@@ -512,24 +513,26 @@ $(document).ready(function() {
         };
 
 		
-		console.log('=== 상품 등록 데이터 ===');
-        console.log('상품 기본 정보:', productData);
-        console.log('상품 옵션 조합:', optionData);
-        console.log('전체 데이터:', registrationData);
+        //console.log('상품 기본 정보:', productData);
+        //console.log('상품 옵션 조합:', optionData);
+		
 
 		// ======= AJAX로 서버에 전송 =======
 		if(isSendData){
 			//상품코드가 중복됐을 때 ajax로 보내는 값들(옵션만 보내주기)
-			//console.log(productCode);
+			console.log('=== 상품 등록 데이터 ===');
+	        console.log('전체 데이터:', registrationData);
 			
 			$.ajax({
 			    url: 'productRegisterEnd.hp', // 서버 API 주소
 			    method: 'POST',
-			    contentType: 'application/json',
-			    data: {
-					"optionData": JSON.stringify(optionData),
-					"productCode": productCode	
-				},
+			    //contentType: 'application/json',
+				dataType:"json",
+				traditional: true,
+			    data: JSON.stringify({
+					"optionData": optionData,
+					"productCode": productCode
+				}),
 			    success: function(json) {
 			        console.log('서버 응답:', json);
 			        // 성공 모달 표시
@@ -542,11 +545,6 @@ $(document).ready(function() {
 			            $('#duplicateCheckResult').hide();
 			            $('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택하면 조합이 표시됩니다</p></div>');
 			            $('#imagePreview').hide();
-						
-			            /*isDuplicateChecked = false;
-			            isCodeAvailable = false;
-			            uploadedFile = null;*/
-						
 						console.log(json.message);
 			        });
 			    },
@@ -558,8 +556,11 @@ $(document).ready(function() {
 			
 		} else {
 			//새로운 상품코드일 경우 ajax로 보내는 값들
+			console.log('=== 상품 등록 데이터 ===');
+	        console.log('전체 데이터:', registrationData);
+			
 			$.ajax({
-			    url: 'productRegisterEnd.hp', // 서버 API 주소
+			    url: 'productRegisterNewPCodeEnd.hp', // 서버 API 주소
 			    method: 'POST',
 			    contentType: 'application/json',
 			    data: JSON.stringify(registrationData),
@@ -602,6 +603,7 @@ $(document).ready(function() {
     $('button[type="reset"]').click(function() {
         $('input[type="checkbox"]').prop('checked', false);
         $('#duplicateCheckResult').hide();
+        $('#duplicateCheckResult2').hide();
         $('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택하면 조합이 표시됩니다</p></div>');
         $('#imagePreview').hide();
         isDuplicateCheckCode = false;
