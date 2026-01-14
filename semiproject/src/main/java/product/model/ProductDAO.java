@@ -49,4 +49,7 @@ public interface ProductDAO {
 	//새로운 상품에 대한 옵션들 삽입해주기
 	int selectInsertOption(Map<String, String> paraMap) throws SQLException;
 
+	//제품 코드에 따른 옵션들 모두 가져오기
+	List<ProductOptionDTO> selectAllOption(String productCode) throws SQLException;
+
 }

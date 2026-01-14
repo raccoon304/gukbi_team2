@@ -1,4 +1,4 @@
--------- ?뀒?씠釉? ?깮?꽦 --------
+-------- 테이블 생성 --------
 
 -------- MEMBER TABLE --------
 CREATE TABLE TBL_MEMBER (
@@ -21,11 +21,11 @@ CREATE TABLE TBL_MEMBER (
   CONSTRAINT UQ_TBL_MEMBER_MOBILE_PHONE UNIQUE (MOBILE_PHONE)
 );
 
--- status 而щ읆 ?뵒?뤃?듃媛? ?꽕?젙
+-- status 컬럼 디폴트값 설정
 ALTER TABLE TBL_MEMBER
   MODIFY (STATUS DEFAULT 0);
   
--- idle 而щ읆 ?뵒?뤃?듃媛? ?꽕?젙
+-- idle 컬럼 디폴트값 설정
 ALTER TABLE TBL_MEMBER
   MODIFY (IDLE DEFAULT 0);
   
@@ -34,11 +34,11 @@ create table tbl_member_backup
 as
 select * from tbl_member;
 
--- ?떆???뒪 ?깮?꽦
+-- 시퀀스 생성
 CREATE SEQUENCE SEQ_TBL_MEMBER_USERSEQ
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
--- userseq 而щ읆 異붽?
+-- userseq 컬럼 추가
 alter table tbl_member
 add userseq number;
 
@@ -48,11 +48,11 @@ where MEMBER_ID = 'eomjh';
 update tbl_member set userseq = SEQ_TBL_MEMBER_USERSEQ.nextval
 where MEMBER_ID = 'smon0376';
 
--- userseq 而щ읆 ?쑀?땲?겕?젣?빟 ?꽕?젙
+-- userseq 컬럼 유니크제약 설정
 alter table tbl_member
 add constraint UQ_TBL_MEMBER_USERSEQ unique(userseq);
 
--- userseq 而щ읆 not null ?꽕?젙
+-- userseq 컬럼 not null 설정
 alter table tbl_member
 modify userseq constraint NN_TBL_MEMBER_USERSEQ not null;
 
@@ -71,11 +71,11 @@ CREATE TABLE TBL_PRODUCT (
   CONSTRAINT PK_TBL_PRODUCT_PRODUCT_CODE PRIMARY KEY (PRODUCT_CODE)
 );
 
--- IMAGE_PATH 而щ읆 異붽?
+-- IMAGE_PATH 컬럼 추가
 ALTER TABLE TBL_PRODUCT
 ADD (IMAGE_PATH VARCHAR2(200));
 
--- IMAGE_PATH 而щ읆 NOT NULL ?젣?빟
+-- IMAGE_PATH 컬럼 NOT NULL 제약
 ALTER TABLE TBL_PRODUCT
 MODIFY (IMAGE_PATH VARCHAR2(200) NOT NULL);
 
@@ -94,7 +94,7 @@ CREATE TABLE TBL_COUPON (
   CONSTRAINT CK_TBL_COUPON_DISCOUNT_VALUE CHECK (DISCOUNT_VALUE > 0)
 );
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_COUPON_COUPON_CATEGORY_NO
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -118,11 +118,11 @@ CREATE TABLE TBL_PRODUCT_OPTION (
   CONSTRAINT UQ_TBL_PRODUCT_OPTION_FK_PRODUCT_CODE_COLOR_STORAGE_SIZE UNIQUE (FK_PRODUCT_CODE, COLOR, STORAGE_SIZE)
 );
 
--- IMAGE_PATH 而щ읆 ?궘?젣
+-- IMAGE_PATH 컬럼 삭제
 ALTER TABLE TBL_PRODUCT_OPTION
 DROP COLUMN IMAGE_PATH;
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_PRODUCT_OPTION_OPTION_ID
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE; 
@@ -165,7 +165,7 @@ CREATE TABLE TBL_DELIVERY (
   CONSTRAINT CK_TBL_DELIVERY_IS_DEFAULT CHECK (IS_DEFAULT IN (0,1))
 );
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_DELIVERY_DELIVERY_ADDRESS_ID
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -188,7 +188,7 @@ CREATE TABLE TBL_CART (
   CONSTRAINT UQ_TBL_CART_FK_MEMBER_ID_FK_OPTION_ID UNIQUE (FK_MEMBER_ID, FK_OPTION_ID)
 );
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_CART_CART_ID
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -213,7 +213,7 @@ CREATE TABLE TBL_ORDERS (
   )
 );
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_ORDERS_ORDER_ID
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -240,7 +240,7 @@ CREATE TABLE TBL_ORDER_DETAIL (
   CONSTRAINT CK_TBL_ORDER_DETAIL_IS_REVIEW_WRITTEN CHECK (IS_REVIEW_WRITTEN IN (0,1))
 );
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_ORDER_DETAIL_ORDER_DETAIL_ID
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -262,7 +262,7 @@ CREATE TABLE TBL_REVIEW (
   CONSTRAINT UQ_TBL_REVIEW_FK_ORDER_DETAIL_ID UNIQUE (FK_ORDER_DETAIL_ID)
 );
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_REVIEW_REVIEW_NUMBER
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -286,23 +286,23 @@ CREATE TABLE TBL_INQUIRY (
   CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS CHECK (REPLY_STATUS IN (0,1,2))
 );
 
--------- ?떆???뒪 ?깮?꽦 --------
+-------- 시퀀스 생성 --------
 
 CREATE SEQUENCE SEQ_TBL_INQUIRY_INQUIRY_NUMBER
 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
 
 
--- 泥댄겕?젣?빟 ?궘?젣
+-- 체크제약 삭제
 ALTER TABLE TBL_INQUIRY
 DROP CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS;
 
--- 泥댄겕?젣?빟 ?깮?꽦
+-- 체크제약 생성
 ALTER TABLE TBL_INQUIRY
 ADD CONSTRAINT CK_TBL_INQUIRY_REPLY_STATUS
 CHECK (REPLY_STATUS IN (0,1,2));
 
--- REPLY_STATUS ?뵒?뤃?듃媛? 1濡? 蹂?寃?
+-- REPLY_STATUS 디폴트값 1로 변경
 ALTER TABLE TBL_INQUIRY
 MODIFY (REPLY_STATUS DEFAULT 1);
 
@@ -337,12 +337,12 @@ delete from tbl_product;
 commit;
 
 
------- ?긽?뭹?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+------ 상품테이블 정보 출력하기
 select *
 from tbl_product
 order by product_name;
 
------- ?긽?뭹?긽?꽭?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+------ 상품상세테이블 정보 출력하기
 select * from tbl_product_option;
 
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
@@ -356,58 +356,58 @@ ORDER BY product_code;
 --delete from tbl_product where product_code = '1000AP';
 --commit;
 
--- ?븘?씠?룿17 ?뜲?씠?꽣媛?
+-- 아이폰17 데이터값
 insert into tbl_product
-values('1000AP', 'iPhone17', 'Apple', '?븘?씠?룿17?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1000AP', 'iPhone17', 'Apple', '아이폰17에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1100AP', 'iPhone17 Pro', 'Apple', '?븘?씠?룿17 Pro?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1100AP', 'iPhone17 Pro', 'Apple', '아이폰17 Pro에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1200AP', 'iPhone17 Pro Max', 'Apple', '?븘?씠?룿17 Pro Max?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1200AP', 'iPhone17 Pro Max', 'Apple', '아이폰17 Pro Max에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 
--- ?븘?씠?룿16 ?뜲?씠?꽣媛?
+-- 아이폰16 데이터값
 insert into tbl_product
-values('2000AP', 'iPhone16', 'Apple', '?븘?씠?룿16?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2000AP', 'iPhone16', 'Apple', '아이폰16에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2100AP', 'iPhone16 Pro', 'Apple', '?븘?씠?룿16 Pro?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2100AP', 'iPhone16 Pro', 'Apple', '아이폰16 Pro에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2200AP', 'iPhone16 Pro Max', 'Apple', '?븘?씠?룿16 Pro Max?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2200AP', 'iPhone16 Pro Max', 'Apple', '아이폰16 Pro Max에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
--- ?븘?씠?룿15 ?뜲?씠?꽣媛?
+-- 아이폰15 데이터값
 insert into tbl_product
-values('3000AP', 'iPhone15', 'Apple', '?븘?씠?룿15?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3000AP', 'iPhone15', 'Apple', '아이폰15에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3100AP', 'iPhone15 Pro', 'Apple', '?븘?씠?룿15 Pro?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3100AP', 'iPhone15 Pro', 'Apple', '아이폰15 Pro에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3200AP', 'iPhone15 Pro Max', 'Apple', '?븘?씠?룿15 Pro Max?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3200AP', 'iPhone15 Pro Max', 'Apple', '아이폰15 Pro Max에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
--- 媛ㅻ윮?떆?룿 ?뜲?씠?꽣媛?
+-- 갤럭시폰 데이터값
 insert into tbl_product
-values('1000GX', 'Galaxy Z Fold7', 'Galaxy', '媛ㅻ윮?떆 Z?뤃?뱶7?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1000GX', 'Galaxy Z Fold7', 'Galaxy', '갤럭시 Z폴드7에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1100GX', 'Galaxy Z Flip7', 'Galaxy', '媛ㅻ윮?떆 Z?뵆由?7?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1100GX', 'Galaxy Z Flip7', 'Galaxy', '갤럭시 Z플립7에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', '媛ㅻ윮?떆 s25 ?슱?듃?씪?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', '갤럭시 s25 울트라에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
----------------- 媛ㅻ윮?떆6, 24
+---------------- 갤럭시6, 24
 insert into tbl_product
-values('2000GX', 'Galaxy Z Fold6', 'Galaxy', '媛ㅻ윮?떆 Z?뤃?뱶6?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2000GX', 'Galaxy Z Fold6', 'Galaxy', '갤럭시 Z폴드6에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2100GX', 'Galaxy Z Flip6', 'Galaxy', '媛ㅻ윮?떆 Z?뵆由?6?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2100GX', 'Galaxy Z Flip6', 'Galaxy', '갤럭시 Z플립6에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', '媛ㅻ윮?떆 s24 ?슱?듃?씪?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', '갤럭시 s24 울트라에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
----------------- 媛ㅻ윮?떆5, 23
+---------------- 갤럭시5, 23
 insert into tbl_product
-values('3000GX', 'Galaxy Z Fold5', 'Galaxy', '媛ㅻ윮?떆 Z?뤃?뱶5?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3000GX', 'Galaxy Z Fold5', 'Galaxy', '갤럭시 Z폴드5에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3100GX', 'Galaxy Z Flip5', 'Galaxy', '媛ㅻ윮?떆 Z?뵆由?5?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3100GX', 'Galaxy Z Flip5', 'Galaxy', '갤럭시 Z플립5에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', '媛ㅻ윮?떆 s23 ?슱?듃?씪?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', '갤럭시 s23 울트라에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
 
@@ -421,8 +421,8 @@ select * from tbl_product_option;
 
 
 
----------------------------------------?븘?씠?룿 ?긽?꽭?샃?뀡 ?뜲?씠?꽣 ?궫?엯----------------------------------------------------
---?븘?씠?룿17 ?긽?꽭?젙蹂?
+---------------------------------------아이폰 상세옵션 데이터 삽입----------------------------------------------------
+--아이폰17 상세정보
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Black', '256GB', '1290000', 50);
 
@@ -450,7 +450,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Red', '512GB', '1584
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---?븘?씠?룿17 Pro ?긽?꽭?샃?뀡
+--아이폰17 Pro 상세옵션
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Black', '256GB', '1790000', 50);
 
@@ -478,7 +478,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Red', '512GB', '2090
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---?븘?씠?룿17 Pro Max ?긽?꽭?샃?뀡
+--아이폰17 Pro Max 상세옵션
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Black', '256GB', '1980000', 50);
 
@@ -506,7 +506,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Red', '512GB', '2288
 
 
 
---?븘?씠?룿16 ?긽?꽭?샃?뀡
+--아이폰16 상세옵션
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Black', '256GB', '1440000', 50);
 
@@ -533,7 +533,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Red', '512GB', '1700000', 35);
 commit;
 
---?븘?씠?룿16 Pro ?긽?꽭?젙蹂?
+--아이폰16 Pro 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Blue',  '256GB', '1700000', 35);
@@ -545,7 +545,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
--- ?븘?씠?룿16 Pro Max ?긽?꽭?젙蹂?
+-- 아이폰16 Pro Max 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Black', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'White', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Blue',  '256GB', '1980000', 35);
@@ -557,7 +557,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Red',   '512GB', '2288000', 35);
 commit;
 
---?븘?씠?룿15 ?긽?꽭?젙蹂?
+--아이폰15 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Black', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'White', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Blue',  '256GB', '1400000', 35);
@@ -569,7 +569,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Red',   '512GB', '1700000', 35);
 commit;
 
---?븘?씠?룿15 Pro ?긽?꽭?젙蹂?
+--아이폰15 Pro 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Blue',  '256GB', '1700000', 35);
@@ -581,7 +581,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
---?븘?씠?룿 15 Pro Max ?긽?꽭?젙蹂?
+--아이폰 15 Pro Max 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Black', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'White', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Blue',  '256GB', '1900000', 35);
@@ -593,19 +593,19 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Red',   '512GB', '2200000', 35);
 commit;
 
--- ?긽?뭹?긽?꽭 ?젙蹂댁? ?긽?뭹紐? 議곗씤?븯?뿬 媛숈씠 異쒕젰?븯湲?
+-- 상품상세 정보와 상품명 조인하여 같이 출력하기
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
 ON P.product_code = O.fk_product_code
 ORDER BY product_code;
 
--- ?긽?뭹?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+-- 상품테이블 정보 출력하기
 select * from tbl_product;
 commit;
 
----------------------------------------媛ㅻ윮?떆 ?긽?꽭?샃?뀡 ?뜲?씠?꽣 ?궫?엯----------------------------------------------------
--- Galaxy Z Fold7 ?긽?꽭?샃?뀡
+---------------------------------------갤럭시 상세옵션 데이터 삽입----------------------------------------------------
+-- Galaxy Z Fold7 상세옵션
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Black','256GB', '2379000', 50);
 insert into tbl_product_option 
@@ -627,7 +627,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Red','512GB', '2537000', 50);
 
 
--- Galaxy Z Flip7 ?긽?꽭?샃?뀡
+-- Galaxy Z Flip7 상세옵션
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Black','256GB','1485000','35');
 insert into tbl_product_option 
@@ -649,7 +649,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Red','512GB','1643400','35');
 
 
--- Galaxy S25 Ultra ?긽?꽭?샃?뀡
+-- Galaxy S25 Ultra 상세옵션
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Black','256GB','1698400','35');
 insert into tbl_product_option 
@@ -670,7 +670,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','256GB','1698400'
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','512GB','1856800','35');
 
--- 媛ㅻ윮?떆 z?뤃?뱶6 ?긽?꽭?젙蹂?
+-- 갤럭시 z폴드6 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Black','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','White','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','256GB','2229000',35);
@@ -681,7 +681,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','512GB','2469000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Red','512GB','2469000',35);
 
--- 媛ㅻ윮?떆 z?뵆由?6 ?긽?꽭?젙蹂?
+-- 갤럭시 z플립6 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Black','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','White','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','256GB','1485000',35);
@@ -692,7 +692,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','512GB','1643000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Red','512GB','1643000',35);
 
--- 媛ㅻ윮?떆 s24 ?슱?듃?씪 ?긽?꽭?젙蹂?
+-- 갤럭시 s24 울트라 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Black','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','White','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','256GB','1698400',35);
@@ -703,7 +703,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','512GB','1841400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Red','512GB','1841400',35);
 
--- 媛ㅻ윮?떆 ?뤃?뱶5 ?긽?꽭?젙蹂?
+-- 갤럭시 폴드5 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Black','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','White','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','256GB','2097700',35);
@@ -714,7 +714,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','512GB','2336400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Red','512GB','2336400',35);
 
--- 媛ㅻ윮?떆 ?뵆由?5 ?긽?꽭?젙蹂?
+-- 갤럭시 플립5 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Black','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','White','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','256GB','1399200',35);
@@ -725,7 +725,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','512GB','1522400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Red','512GB','1522400',35);
 
--- 媛ㅻ윮?떆 s23 ?슱?듃?씪 ?긽?꽭?젙蹂?
+-- 갤럭시 s23 울트라 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Black','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','White','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','256GB','1599400',35);
@@ -736,7 +736,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','512GB','1720400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Red','512GB','1720400',35);
 
--- ?긽?뭹?긽?꽭 ?젙蹂댁? ?긽?뭹紐? 議곗씤?븯?뿬 媛숈씠 異쒕젰?븯湲?
+-- 상품상세 정보와 상품명 조인하여 같이 출력하기
 SELECT P.product_code, P.brand_name, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
@@ -747,12 +747,12 @@ ORDER BY product_code;
 commit;
 
 
--- ?긽?뭹?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+-- 상품테이블 정보 출력하기
 select * from tbl_product;
 commit;
 
 
---?긽?뭹?뿉 ???븳 ?젙蹂댁? 媛?寃⑹씠 ?젣?씪 ?궙?? ?샃?뀡?쓽 ?젙蹂대?? 議곗씤?븯?뿬 異쒕젰
+--상품에 대한 정보와 가격이 제일 낮은 옵션의 정보를 조인하여 출력
 SELECT
     p.product_code,
     p.product_name,
@@ -762,7 +762,7 @@ SELECT
 FROM tbl_product p
 JOIN tbl_product_option o
   ON p.product_code = o.fk_product_code
-WHERE p.sale_status = '?뙋留ㅼ쨷'
+WHERE p.sale_status = '판매중'
 GROUP BY
     p.product_code,
     p.product_name,
@@ -787,12 +787,12 @@ delete from tbl_product;
 commit;
 
 
------- ?긽?뭹?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+------ 상품테이블 정보 출력하기
 select *
 from tbl_product
 order by product_name;
 
------- ?긽?뭹?긽?꽭?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+------ 상품상세테이블 정보 출력하기
 select * from tbl_product_option;
 
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
@@ -806,58 +806,58 @@ ORDER BY product_code;
 --delete from tbl_product where product_code = '1000AP';
 --commit;
 
--- ?븘?씠?룿17 ?뜲?씠?꽣媛?
+-- 아이폰17 데이터값
 insert into tbl_product
-values('1000AP', 'iPhone17', 'Apple', '?븘?씠?룿17?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1000AP', 'iPhone17', 'Apple', '아이폰17에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1100AP', 'iPhone17 Pro', 'Apple', '?븘?씠?룿17 Pro?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1100AP', 'iPhone17 Pro', 'Apple', '아이폰17 Pro에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1200AP', 'iPhone17 Pro Max', 'Apple', '?븘?씠?룿17 Pro Max?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1200AP', 'iPhone17 Pro Max', 'Apple', '아이폰17 Pro Max에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 
--- ?븘?씠?룿16 ?뜲?씠?꽣媛?
+-- 아이폰16 데이터값
 insert into tbl_product
-values('2000AP', 'iPhone16', 'Apple', '?븘?씠?룿16?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2000AP', 'iPhone16', 'Apple', '아이폰16에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2100AP', 'iPhone16 Pro', 'Apple', '?븘?씠?룿16 Pro?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2100AP', 'iPhone16 Pro', 'Apple', '아이폰16 Pro에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2200AP', 'iPhone16 Pro Max', 'Apple', '?븘?씠?룿16 Pro Max?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2200AP', 'iPhone16 Pro Max', 'Apple', '아이폰16 Pro Max에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
--- ?븘?씠?룿15 ?뜲?씠?꽣媛?
+-- 아이폰15 데이터값
 insert into tbl_product
-values('3000AP', 'iPhone15', 'Apple', '?븘?씠?룿15?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3000AP', 'iPhone15', 'Apple', '아이폰15에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3100AP', 'iPhone15 Pro', 'Apple', '?븘?씠?룿15 Pro?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3100AP', 'iPhone15 Pro', 'Apple', '아이폰15 Pro에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3200AP', 'iPhone15 Pro Max', 'Apple', '?븘?씠?룿15 Pro Max?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3200AP', 'iPhone15 Pro Max', 'Apple', '아이폰15 Pro Max에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
--- 媛ㅻ윮?떆?룿 ?뜲?씠?꽣媛?
+-- 갤럭시폰 데이터값
 insert into tbl_product
-values('1000GX', 'Galaxy Z Fold7', 'Galaxy', '媛ㅻ윮?떆 Z?뤃?뱶7?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1000GX', 'Galaxy Z Fold7', 'Galaxy', '갤럭시 Z폴드7에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1100GX', 'Galaxy Z Flip7', 'Galaxy', '媛ㅻ윮?떆 Z?뵆由?7?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1100GX', 'Galaxy Z Flip7', 'Galaxy', '갤럭시 Z플립7에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', '媛ㅻ윮?떆 s25 ?슱?듃?씪?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('1200GX', 'Galaxy S25 Ultra', 'Galaxy', '갤럭시 s25 울트라에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
----------------- 媛ㅻ윮?떆6, 24
+---------------- 갤럭시6, 24
 insert into tbl_product
-values('2000GX', 'Galaxy Z Fold6', 'Galaxy', '媛ㅻ윮?떆 Z?뤃?뱶6?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2000GX', 'Galaxy Z Fold6', 'Galaxy', '갤럭시 Z폴드6에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2100GX', 'Galaxy Z Flip6', 'Galaxy', '媛ㅻ윮?떆 Z?뵆由?6?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2100GX', 'Galaxy Z Flip6', 'Galaxy', '갤럭시 Z플립6에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', '媛ㅻ윮?떆 s24 ?슱?듃?씪?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('2200GX', 'Galaxy S24 Ultra', 'Galaxy', '갤럭시 s24 울트라에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
----------------- 媛ㅻ윮?떆5, 23
+---------------- 갤럭시5, 23
 insert into tbl_product
-values('3000GX', 'Galaxy Z Fold5', 'Galaxy', '媛ㅻ윮?떆 Z?뤃?뱶5?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3000GX', 'Galaxy Z Fold5', 'Galaxy', '갤럭시 Z폴드5에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3100GX', 'Galaxy Z Flip5', 'Galaxy', '媛ㅻ윮?떆 Z?뵆由?5?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3100GX', 'Galaxy Z Flip5', 'Galaxy', '갤럭시 Z플립5에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 insert into tbl_product
-values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', '媛ㅻ윮?떆 s23 ?슱?듃?씪?뿉 ???븳 ?꽕紐낆엯?땲?떎. ?엫?떆 ?꽕紐낆엯?땲?떎. ?굹以묒뿉 update濡? 諛붽씀?꽭?슂.', '?뙋留ㅼ쨷', 'test.jpg');
+values('3200GX', 'Galaxy S23 Ultra', 'Galaxy', '갤럭시 s23 울트라에 대한 설명입니다. 임시 설명입니다. 나중에 update로 바꾸세요.', '판매중', 'test.jpg');
 commit;
 
 
@@ -871,8 +871,8 @@ select * from tbl_product_option;
 
 
 
----------------------------------------?븘?씠?룿 ?긽?꽭?샃?뀡 ?뜲?씠?꽣 ?궫?엯----------------------------------------------------
---?븘?씠?룿17 ?긽?꽭?젙蹂?
+---------------------------------------아이폰 상세옵션 데이터 삽입----------------------------------------------------
+--아이폰17 상세정보
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Black', '256GB', '1290000', 50);
 
@@ -900,7 +900,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1000AP', 'Red', '512GB', '1584
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---?븘?씠?룿17 Pro ?긽?꽭?샃?뀡
+--아이폰17 Pro 상세옵션
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Black', '256GB', '1790000', 50);
 
@@ -928,7 +928,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1100AP', 'Red', '512GB', '2090
 commit;
 -------------------------------------------------------------------------------------------------------------------
 
---?븘?씠?룿17 Pro Max ?긽?꽭?샃?뀡
+--아이폰17 Pro Max 상세옵션
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Black', '256GB', '1980000', 50);
 
@@ -956,7 +956,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '1200AP', 'Red', '512GB', '2288
 
 
 
---?븘?씠?룿16 ?긽?꽭?샃?뀡
+--아이폰16 상세옵션
 insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Black', '256GB', '1440000', 50);
 
@@ -983,7 +983,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2000AP', 'Red', '512GB', '1700000', 35);
 commit;
 
---?븘?씠?룿16 Pro ?긽?꽭?젙蹂?
+--아이폰16 Pro 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Blue',  '256GB', '1700000', 35);
@@ -995,7 +995,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
--- ?븘?씠?룿16 Pro Max ?긽?꽭?젙蹂?
+-- 아이폰16 Pro Max 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Black', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'White', '256GB', '1980000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Blue',  '256GB', '1980000', 35);
@@ -1007,7 +1007,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '2200AP', 'Red',   '512GB', '2288000', 35);
 commit;
 
---?븘?씠?룿15 ?긽?꽭?젙蹂?
+--아이폰15 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Black', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'White', '256GB', '1400000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Blue',  '256GB', '1400000', 35);
@@ -1019,7 +1019,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3000AP', 'Red',   '512GB', '1700000', 35);
 commit;
 
---?븘?씠?룿15 Pro ?긽?꽭?젙蹂?
+--아이폰15 Pro 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Black', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'White', '256GB', '1700000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Blue',  '256GB', '1700000', 35);
@@ -1031,7 +1031,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3100AP', 'Red',   '512GB', '2000000', 35);
 commit;
 
---?븘?씠?룿 15 Pro Max ?긽?꽭?젙蹂?
+--아이폰 15 Pro Max 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Black', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'White', '256GB', '1900000', 35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Blue',  '256GB', '1900000', 35);
@@ -1043,19 +1043,19 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval, '3200AP', 'Red',   '512GB', '2200000', 35);
 commit;
 
--- ?긽?뭹?긽?꽭 ?젙蹂댁? ?긽?뭹紐? 議곗씤?븯?뿬 媛숈씠 異쒕젰?븯湲?
+-- 상품상세 정보와 상품명 조인하여 같이 출력하기
 SELECT P.product_code, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
 ON P.product_code = O.fk_product_code
 ORDER BY product_code;
 
--- ?긽?뭹?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+-- 상품테이블 정보 출력하기
 select * from tbl_product;
 commit;
 
----------------------------------------媛ㅻ윮?떆 ?긽?꽭?샃?뀡 ?뜲?씠?꽣 ?궫?엯----------------------------------------------------
--- Galaxy Z Fold7 ?긽?꽭?샃?뀡
+---------------------------------------갤럭시 상세옵션 데이터 삽입----------------------------------------------------
+-- Galaxy Z Fold7 상세옵션
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Black','256GB', '2379000', 50);
 insert into tbl_product_option 
@@ -1077,7 +1077,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1000GX','Red','512GB', '2537000', 50);
 
 
--- Galaxy Z Flip7 ?긽?꽭?샃?뀡
+-- Galaxy Z Flip7 상세옵션
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Black','256GB','1485000','35');
 insert into tbl_product_option 
@@ -1099,7 +1099,7 @@ insert into tbl_product_option
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1100GX','Red','512GB','1643400','35');
 
 
--- Galaxy S25 Ultra ?긽?꽭?샃?뀡
+-- Galaxy S25 Ultra 상세옵션
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Black','256GB','1698400','35');
 insert into tbl_product_option 
@@ -1120,7 +1120,7 @@ values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','256GB','1698400'
 insert into tbl_product_option 
 values(SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'1200GX','Red','512GB','1856800','35');
 
--- 媛ㅻ윮?떆 z?뤃?뱶6 ?긽?꽭?젙蹂?
+-- 갤럭시 z폴드6 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Black','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','White','256GB','2229000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','256GB','2229000',35);
@@ -1131,7 +1131,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Blue','512GB','2469000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2000GX','Red','512GB','2469000',35);
 
--- 媛ㅻ윮?떆 z?뵆由?6 ?긽?꽭?젙蹂?
+-- 갤럭시 z플립6 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Black','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','White','256GB','1485000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','256GB','1485000',35);
@@ -1142,7 +1142,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Blue','512GB','1643000',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2100GX','Red','512GB','1643000',35);
 
--- 媛ㅻ윮?떆 s24 ?슱?듃?씪 ?긽?꽭?젙蹂?
+-- 갤럭시 s24 울트라 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Black','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','White','256GB','1698400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','256GB','1698400',35);
@@ -1153,7 +1153,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Blue','512GB','1841400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'2200GX','Red','512GB','1841400',35);
 
--- 媛ㅻ윮?떆 ?뤃?뱶5 ?긽?꽭?젙蹂?
+-- 갤럭시 폴드5 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Black','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','White','256GB','2097700',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','256GB','2097700',35);
@@ -1164,7 +1164,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Blue','512GB','2336400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3000GX','Red','512GB','2336400',35);
 
--- 媛ㅻ윮?떆 ?뵆由?5 ?긽?꽭?젙蹂?
+-- 갤럭시 플립5 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Black','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','White','256GB','1399200',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','256GB','1399200',35);
@@ -1175,7 +1175,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Blue','512GB','1522400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3100GX','Red','512GB','1522400',35);
 
--- 媛ㅻ윮?떆 s23 ?슱?듃?씪 ?긽?꽭?젙蹂?
+-- 갤럭시 s23 울트라 상세정보
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Black','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','White','256GB','1599400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','256GB','1599400',35);
@@ -1186,7 +1186,7 @@ insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Blue','512GB','1720400',35);
 insert into tbl_product_option values (SEQ_TBL_PRODUCT_OPTION_OPTION_ID.nextval,'3200GX','Red','512GB','1720400',35);
 
--- ?긽?뭹?긽?꽭 ?젙蹂댁? ?긽?뭹紐? 議곗씤?븯?뿬 媛숈씠 異쒕젰?븯湲?
+-- 상품상세 정보와 상품명 조인하여 같이 출력하기
 SELECT P.product_code, P.brand_name, option_id, P.product_name, color, storage_size, price, stock_qty
 FROM tbl_product_option O
 JOIN tbl_product P
@@ -1197,12 +1197,12 @@ ORDER BY product_code;
 commit;
 
 
--- ?긽?뭹?뀒?씠釉? ?젙蹂? 異쒕젰?븯湲?
+-- 상품테이블 정보 출력하기
 select * from tbl_product;
 commit;
 
 
---?긽?뭹?뿉 ???븳 ?젙蹂댁? 媛?寃⑹씠 ?젣?씪 ?궙?? ?샃?뀡?쓽 ?젙蹂대?? 議곗씤?븯?뿬 異쒕젰
+--상품에 대한 정보와 가격이 제일 낮은 옵션의 정보를 조인하여 출력
 SELECT
     p.product_code,
     p.product_name,
@@ -1212,7 +1212,7 @@ SELECT
 FROM tbl_product p
 JOIN tbl_product_option o
   ON p.product_code = o.fk_product_code
-WHERE p.sale_status = '?뙋留ㅼ쨷'
+WHERE p.sale_status = '판매중'
 GROUP BY
     p.product_code,
     p.product_name,
@@ -1234,7 +1234,7 @@ select * from tbl_cart;
 
 
 
--- ?긽?뭹?샃?뀡?뀒?씠釉붿쓽 ?젣?빟議곌굔?뱾 ?솗?씤?븯湲?
+-- 상품옵션테이블의 제약조건들 확인하기
 SELECT constraint_name,
        constraint_type,
        table_name,
@@ -1242,14 +1242,14 @@ SELECT constraint_name,
 FROM user_constraints
 WHERE table_name = 'TBL_PRODUCT_OPTION';
 
--- ?긽?뭹?샃?뀡?뀒?씠釉붿쓽 媛?寃? 泥댄겕議곌굔 ?궘?젣
+-- 상품옵션테이블의 가격 체크조건 삭제
 ALTER TABLE tbl_product_option DROP CONSTRAINT CK_TBL_PRODUCT_OPTION_PRICE;
 
--- ?긽?뭹?샃?뀡?뀒?씠釉붿쓽 pric 而щ읆 ?궘?젣
+-- 상품옵션테이블의 pric 컬럼 삭제
 ALTER TABLE tbl_product_option
 DROP COLUMN price;
 
--- ?긽?뭹?샃?뀡?뀒?씠釉붿뿉 plus_price 而щ읆 異붽?(?젣?빟議곌굔 0怨? 媛숆굅?굹 ?겮)
+-- 상품옵션테이블에 plus_price 컬럼 추가(제약조건 0과 같거나 큼)
 ALTER TABLE tbl_product_option
 ADD plus_price NUMBER DEFAULT 0
     CONSTRAINT ck_tbl_product_option_plus_price CHECK (plus_price >= 0);
@@ -1257,7 +1257,7 @@ ADD plus_price NUMBER DEFAULT 0
 select * from tbl_product_option;
 
 
--- ?긽?뭹?뀒?씠釉붿쓽 ?젣?빟議곌굔?뱾 ?솗?씤?븯湲?
+-- 상품테이블의 제약조건들 확인하기
 SELECT constraint_name,
        constraint_type,
        table_name,
@@ -1265,7 +1265,7 @@ SELECT constraint_name,
 FROM user_constraints
 WHERE table_name = 'TBL_PRODUCT';
 
--- ?긽?뭹?뀒?씠釉붿뿉 price 而щ읆 異붽?(?젣?빟議곌굔 0蹂대떎 而ㅼ빞 ?븿)
+-- 상품테이블에 price 컬럼 추가(제약조건 0보다 커야 함)
 ALTER TABLE tbl_product
 ADD price NUMBER
     CONSTRAINT ck_tbl_product_price CHECK (price > 0);
@@ -1275,7 +1275,7 @@ from tbl_product
 where brand_name = 'Samsung'
 order by product_code;
 
--- ?긽?뭹?뀒?씠釉붿쓽 媛?寃⑹뺄?읇?뿉 媛? ?뾽?뜲?씠?듃?븯湲?
+-- 상품테이블의 가격컬럽에 값 업데이트하기
 update tbl_product set price = 2200000
 where product_code = '3000GX';
 
@@ -1283,7 +1283,7 @@ commit;
 
 
 
--- ?긽?뭹?긽?꽭 ?젙蹂댁? ?긽?뭹紐? 議곗씤?븯?뿬 媛숈씠 異쒕젰?븯湲?
+-- 상품상세 정보와 상품명 조인하여 같이 출력하기
 SELECT P.product_code, option_id, P.product_name,storage_size, price, plus_price
 FROM tbl_product_option O
 JOIN tbl_product P
@@ -1291,17 +1291,17 @@ ON P.product_code = O.fk_product_code
 WHERE brand_name = 'Samsung' and storage_size = '512GB'
 ORDER BY product_code, storage_size desc;
 
--- ?긽?뭹?샃?뀡?뀒?씠釉붿쓽 異붽?湲덉븸 而щ읆?뿉 媛? ?뾽?뜲?씠?듃?븯湲?
+-- 상품옵션테이블의 추가금액 컬럼에 값 업데이트하기
 update tbl_product_option set plus_price = 150000
 where fk_product_code = '2100GX' and storage_size = '512GB';
 
 commit;
 
 
---(?긽?뭹肄붾뱶,?긽?뭹紐?,釉뚮옖?뱶紐?,?씠誘몄?寃쎈줈,媛?寃?)
+--(상품코드,상품명,브랜드명,이미지경로,가격)
 select product_code, product_name, brand_name, image_path, price, sale_status
 from tbl_product
-where sale_status='?뙋留ㅼ쨷';
+where sale_status='판매중';
 
 
 select * from tbl_product_option;
@@ -1337,8 +1337,8 @@ DELETE FROM tbl_member
 WHERE member_id = 'anth';
 
 
--- ?닔?젙?뻽?뒿?땲?떎...
--- ?닔?젙?뻽?뒿?땲?떎...
+-- 수정했습니다...
+-- 수정했습니다...
 
 select * from tbl_cart;
 select * from tbl_product;
@@ -1379,7 +1379,7 @@ show user;
 select * from tbl_orders;
 select * from tbl_order_detail;
 
--- ?옱怨좊웾?쓣 ?꽔?뼱二쇨린 ?쐞?븳 SQL 援щЦ
+-- 재고량을 넣어주기 위한 SQL 구문
 select stock_qty
 from tbl_product_option
 where storage_size='256GB' and color='Black' and fk_product_code='1000AP';
@@ -1425,32 +1425,3 @@ join tbl_product_option O
 on P.product_code = O.fk_product_code
 where product_code = '1000AP'
 order by storage_size;
-
-
-select * from tbl_product;
-select * from tbl_product_option
-where fk_product_code = '1000AP';
---order by option_id desc;
-
-insert into tbl_product_option(option_id, fk_product_code, color, storage_size, stock_qty, plus_price)
-values(seq_product_option_id.nextval, '3200GX', 'newC', '1T', 10, 600000);
-rollback;
-commit;
-
-update tbl_product_option set stock_qty = stock_qty + 20
-where color = 'Red' AND storage_size = '256GB' AND fk_product_code = '1000AP';
-
-select color, storage_size, fk_product_code, stock_qty
-from tbl_product_option
-where color = 'Red' AND storage_size = '256GB' AND fk_product_code = '1000AP';
-
-
-commit;
-
-select * from tbl_product
-where product_code = '2345AE';
-select * from tbl_product_option
-where fk_product_code = '2345AE';
-
-insert into tbl_product(product_code, product_name, brand_name, product_desc, sale_status, image_path, price)
-values('');

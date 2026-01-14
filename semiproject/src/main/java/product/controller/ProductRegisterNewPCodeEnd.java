@@ -56,7 +56,7 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
         //새로운 상품을 테이블에 삽입해주기
         int n = proDao.insertProduct(proDto);
         if(n == 0) {
-        		System.out.println("DB 오류입니다!!");
+    		System.out.println("DB 오류입니다!!");
         }
         
 
@@ -78,8 +78,8 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
             //새로운 상품에 대해 옵션들 추가해주기
             result = proDao.selectInsertOption(paraMap);
             if(result == 0) {
-            		System.out.println("DB 오류!");
-            		break;
+        		System.out.println("DB 오류!");
+        		break;
             }
         }//end of for()-----
 

@@ -431,6 +431,35 @@ public class ProductDAO_imple implements ProductDAO {
 	}//end of public int selectInsertOption(Map<String, String> paraMap) throws SQLException-----
 
 
+	//제품 코드에 따른 옵션들 모두 가져오기
+	@Override
+	public List<ProductOptionDTO> selectAllOption(String productCode) throws SQLException {
+		List<ProductOptionDTO> proOptionList = new ArrayList<ProductOptionDTO>();
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT fk_product_code, color, storage_size, plus_price, stock_qty "
+						+" FROM tbl_product_option "
+						+" WHERE fk_product_code = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productCode);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				ProductOptionDTO proOptionDto = new ProductOptionDTO();
+				proOptionDto.setColor(rs.getString("color"));
+				proOptionDto.setStorageSize(rs.getString("storage_size"));
+				proOptionDto.setPlusPrice(rs.getInt("plus_price"));
+				proOptionDto.setStockQty(rs.getInt("stock_qty"));
+				
+				proOptionList.add(proOptionDto);
+			}//end of while()-----
+			
+		}
+		finally {close();}
+		return proOptionList;
+	}//end of public List<ProductOptionDTO> selectAllOption(String productCode) throws SQLException-----
+
+
 	
 	
 	

@@ -172,11 +172,11 @@
 			                    </div>
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="storage512" name="storage" value="512GB" data-price="300000">
-			                        <label class="toggle-label" for="storage512">512GB<br><small>(+300,000원)</small></label>
+			                        <label class="toggle-label" for="storage512">512GB<br><small>(추가금 기입)</small></label>
 			                    </div>
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="storage1TB" name="storage" value="1TB" data-price="600000">
-			                        <label class="toggle-label" for="storage1TB">1TB<br><small>(+600,000원)</small></label>
+			                        <label class="toggle-label" for="storage1TB">1TB<br><small>(추가금 기입)</small></label>
 			                    </div>
 			                </div>
 			                <small class="form-text text-muted">판매할 저장용량을 선택하세요</small>
@@ -222,6 +222,7 @@
 			            <div class="form-section">
 			                <div class="section-title">
 			                    <i class="fas fa-table mr-2"></i>옵션별 재고 및 추가금 설정 <span class="required-mark">*</span>
+			                    <small class="form-text text-muted">이미 존재하는 옵션일 경우 재고량만 증가합니다.</small>
 			                </div>
 			                
 			                <div class="d-flex justify-content-center mt-3">
