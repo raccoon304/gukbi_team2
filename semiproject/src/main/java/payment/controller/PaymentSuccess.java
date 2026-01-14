@@ -73,42 +73,39 @@ public class PaymentSuccess extends AbstractController {
             throw new RuntimeException("주문 상품 없음");
         }
 
-        /* ================= 서버 기준 총액 ================= */
-        int calculatedTotal = 0;
-        for (CartDTO cart : cartList) {
-            calculatedTotal += cart.getPrice() * cart.getQuantity();
-        }
+        /* ================= 여기부터 수정 ================= */
 
-        /* ================= 쿠폰 IssueId 확보 ( 핵심 수정) ================= */
-        int couponIssueId = parseIntSafe(request.getParameter("couponId")); ;
+        // 1. 폼에서 전달받은 쿠폰 정보
+        String couponIdParam = request.getParameter("couponId");
+        String discountAmountParam = request.getParameter("discountAmount"); // 또는 discountAmountHidden
 
-        if (couponIssueId > 0) {
-            session.setAttribute("usedCouponIssueId", couponIssueId);
-        } else {
-            Integer saved = (Integer) session.getAttribute("usedCouponIssueId");
-            couponIssueId = (saved == null) ? 0 : saved;
-        }
+        int couponIssueId = 0;
+        int discountAmount = 0;
 
-        int calculatedDiscount = 0;
+        if (couponIdParam != null && !couponIdParam.isBlank()) {
+            try {
+                couponIssueId = Integer.parseInt(couponIdParam);
+                
+                // 쿠폰 유효성 검증
+                if (couponIssueId > 0) {
+                    Map<String, Object> couponInfo =
+                        odao.selectCouponInfo(loginuser.getMemberid(), couponIssueId);
 
-        if (couponIssueId > 0) {
-            Map<String, Object> couponInfo =
-                    odao.selectCouponInfo(loginuser.getMemberid(), couponIssueId);
-
-            if (couponInfo == null) {
-                throw new RuntimeException("유효하지 않은 쿠폰");
+                    if (couponInfo == null) {
+                        throw new RuntimeException("유효하지 않은 쿠폰");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                couponIssueId = 0;
             }
+        }
 
-            int discountType = (int) couponInfo.get("discountType");
-            int discountValue = (int) couponInfo.get("discountValue");
-
-            calculatedDiscount =
-                (discountType == 0)
-                    ? discountValue
-                    : calculatedTotal * discountValue / 100;
-
-            if (calculatedDiscount > calculatedTotal) {
-                calculatedDiscount = calculatedTotal;
+        // 할인 금액 파싱
+        if (discountAmountParam != null && !discountAmountParam.isBlank()) {
+            try {
+                discountAmount = Integer.parseInt(discountAmountParam);
+            } catch (NumberFormatException e) {
+                discountAmount = 0;
             }
         }
 
@@ -118,33 +115,29 @@ public class PaymentSuccess extends AbstractController {
             throw new RuntimeException("배송지 없음");
         }
 
-        /* ================= 주문 생성 ================= */
-        OrderDTO order = new OrderDTO();
-        order.setMemberId(loginuser.getMemberid());
-        order.setTotalAmount(calculatedTotal);
-        order.setDiscountAmount(calculatedDiscount);
-        order.setDeliveryAddress(deliveryAddress);
-        
-        order.setRecipientName(loginuser.getName());
-        order.setRecipientPhone(loginuser.getMobile());
+        Integer orderId = (Integer) session.getAttribute("readyOrderId");
 
-        int orderId = odao.insertOrder(order);
+        if (orderId == null) {
+            request.setAttribute("message", "유효하지 않은 결제 요청입니다.");
+            request.setAttribute("loc", request.getContextPath() + "/index.hp");
+            setViewPage("/WEB-INF/msg.jsp");
+            return;
+        }
 
-      
+        try {
+
+            // 2. 주문 정보 업데이트 (할인액, 배송지)
+           int n = odao.updateOrderDiscountAndAddress(orderId, discountAmount, deliveryAddress);
+
             for (CartDTO cart : cartList) {
 
-            	 // 재고 차감 실패 → 즉시 실패 처리
+            	if (n == 0) {
+                    throw new Exception("주문 정보 업데이트 실패");
+                }
+
+                // 재고 차감 실패 → 즉시 실패
                 if (odao.decreaseStock(cart.getOptionId(), cart.getQuantity()) != 1) {
-           	
-                    odao.updateOrderStatus(orderId, "FAIL");
-                    odao.updateDeliveryStatus(orderId, 4);
-                    
-                
-                    request.setAttribute("message", "재고가 부족하여 결제가 실패했습니다.");
-                    request.setAttribute("loc", request.getContextPath() + "/payment/payMent.hp");
-                    setRedirect(false);
-                    setViewPage("/WEB-INF/msg.jsp");
-                    return;
+                    throw new Exception("재고 부족");
                 }
 
                 odao.insertOrderDetail(
@@ -156,27 +149,36 @@ public class PaymentSuccess extends AbstractController {
                     cart.getBrand_name()
                 );
             }
-       
+
+            // 성공
             odao.updateOrderStatus(orderId, "PAID");
-            odao.updateDeliveryStatus(orderId, 0); // 배송 준비
+            odao.updateDeliveryStatus(orderId, 0);
+            
+            // 성공했을 때만 부수 로직
+            if (couponIssueId > 0) {
+                odao.updateCouponUsed(loginuser.getMemberid(), couponIssueId);
+            }
 
-       
-    	   
-        
+            cdao.deleteSuccessCartId(
+                cartList.stream()
+                        .map(CartDTO::getCartId)
+                        .filter(id -> id > 0)
+                        .toList()
+            );
 
-        /* ================= 장바구니 정리 ================= */
-        cdao.deleteSuccessCartId(
-            cartList.stream()
-                    .map(CartDTO::getCartId)
-                    .filter(id -> id > 0)
-                    .toList()
-        );
-        session.removeAttribute("cartList");
+            session.removeAttribute("cartList");
+            session.removeAttribute("readyOrderId");  // 추가: 사용한 orderId 제거
 
-        /* ================= 쿠폰 사용 처리 ================= */
-        if (couponIssueId > 0) {
-            odao.updateCouponUsed(loginuser.getMemberid(), couponIssueId);
-            session.removeAttribute("usedCouponIssueId");
+        } catch (Exception e) {
+
+            // 실패 → DB 반영
+            odao.updateOrderStatus(orderId, "FAIL");
+            odao.updateDeliveryStatus(orderId, 4);
+
+            request.setAttribute("message", "결제 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+            request.setAttribute("loc", request.getContextPath() + "/payment/payMent.hp");
+            setViewPage("/WEB-INF/msg.jsp");
+            return;
         }
 
         /* ================= 완료 페이지 ================= */
