@@ -1,4 +1,4 @@
-package member.controller;
+package auth.controller;
 
 import java.util.HashMap;
 import java.util.Map;

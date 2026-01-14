@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import cart.domain.CartDTO;
 import order.domain.OrderDTO;
 
+import java.net.Inet4Address;
 //JDBC
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,22 +20,41 @@ import java.sql.SQLException;
 //컬렉션 구현체
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class OrderDAO_imple implements OrderDAO {
 
 	
-	  private DataSource ds;
+	private DataSource ds;//(context.xml내) javax.sql.DataSource아파치톰캣이 제공하는 DBCP(DB Connection Pool)이다.
+	private Connection conn;
+	private PreparedStatement pstmt;
+	private ResultSet rs;
 
-	  public OrderDAO_imple() {
-		    try {
-		        Context initContext = new InitialContext();
-		        Context envContext = (Context) initContext.lookup("java:/comp/env");
-		        ds = (DataSource) envContext.lookup("SemiProject");
-		    } catch (Exception e) {
-		        e.printStackTrace();
-		    }
+	public OrderDAO_imple() {
+		try {
+			Context initContext = new InitialContext();
+	        Context envContext = (Context) initContext.lookup("java:/comp/env");
+	        ds = (DataSource) envContext.lookup("SemiProject");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	// 사용한 자원을 반납하는 close() 메소드 생성하기
+	private void close() {
+		try {
+			if(rs    != null) {rs.close();     rs=null;}
+			if(pstmt != null) {pstmt.close(); pstmt=null;}
+			if(conn  != null) {conn.close();  conn=null;}
+		} catch(SQLException e) {
+			e.printStackTrace();
 		}
-	    
+	}// end of private void close()---------------
+	
+	
+	
+	
+	
 	// 주문 생성 → orderId 받기  
 	  @Override
 	  public int insertOrder(OrderDTO order) throws SQLException {
@@ -138,7 +158,7 @@ public class OrderDAO_imple implements OrderDAO {
 	        String sql =
 	            " SELECT order_id, order_date, total_amount, discount_amount, "
 	          + " (total_amount - discount_amount) AS final_amount, "
-	          + "        delivery_address, order_status "
+	          + "        delivery_address, order_status, RECIPIENT_NAME, RECIPIENT_PHONE, DELIVERY_STATUS"
 	          + " FROM tbl_orders "
 	          + " WHERE order_id = ? ";
 
@@ -152,7 +172,9 @@ public class OrderDAO_imple implements OrderDAO {
 	            pstmt.setInt(1, orderId);
 
 	            rs = pstmt.executeQuery();
-
+	            
+	
+	            
 	            if (rs.next()) {
 	                map.put("order_id", rs.getInt("order_id"));
 	                map.put("order_date", rs.getString("order_date"));
@@ -161,6 +183,10 @@ public class OrderDAO_imple implements OrderDAO {
 	                map.put("delivery_address", rs.getString("delivery_address"));
 	                map.put("order_status", rs.getString("order_status"));
 	                map.put("final_amount", rs.getInt("final_amount"));
+	                map.put("recipient_name", rs.getString("RECIPIENT_NAME"));
+	                map.put("recipient_phone", rs.getString("RECIPIENT_PHONE"));
+	                map.put("delivery_status", rs.getString("DELIVERY_STATUS"));
+	                
 	            }
 
 	        } finally {
@@ -215,36 +241,183 @@ public class OrderDAO_imple implements OrderDAO {
 		}
 	
 		
-		// 결제 완료가 되었을때 사용한 해당 쿠폰은 더 이상 사용하지 못하게 하기
-		@Override
-		public int updateCouponUsed(String memberId, int couponId) throws SQLException {
+	// 결제 완료가 되었을때 사용한 해당 쿠폰은 더 이상 사용하지 못하게 하기
+	@Override
+	public int updateCouponUsed(String memberId, int couponId) throws SQLException {
 
-		    int result = 0;
+	    int result = 0;
 
-		    String sql =
-		        " update tbl_coupon_issue " +
-		        " set used_yn = 1 " +
-		        " where fk_member_id = ? " +
-		        "   and coupon_id = ? " +
-		        "   and used_yn = 0 ";
+	    String sql =
+	        " update tbl_coupon_issue " +
+	        " set used_yn = 1 " +
+	        " where fk_member_id = ? " +
+	        "   and coupon_id = ? " +
+	        "   and used_yn = 0 ";
 
-		    Connection conn = null;
-		    PreparedStatement pstmt = null;
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
 
-		    try {
-		        conn = ds.getConnection();
-		        pstmt = conn.prepareStatement(sql);
-		        pstmt.setString(1, memberId);
-		        pstmt.setInt(2, couponId);
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberId);
+	        pstmt.setInt(2, couponId);
 
-		        result = pstmt.executeUpdate(); // 1이면 성공
+	        result = pstmt.executeUpdate(); // 1이면 성공
 
-		    } finally {
-		        if (pstmt != null) pstmt.close();
-		        if (conn != null) conn.close();
-		    }
+	    } finally {
+	        if (pstmt != null) pstmt.close();
+	        if (conn != null) conn.close();
+	    }
 
-		    return result;
-		}
+	    return result;
+	}
+
+	@Override
+	public List<OrderDTO> selectOrderSummaryList(String memberid) throws SQLException {
+
+	    List<OrderDTO> list = new ArrayList<>();
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql =
+	              " SELECT ORDER_ID, "
+	            + "        FK_MEMBER_ID, "
+	            + "        TO_CHAR(ORDER_DATE, 'YY/MM/DD') AS ORDER_DATE, "
+	            + "        TOTAL_AMOUNT, DISCOUNT_AMOUNT, ORDER_STATUS, DELIVERY_ADDRESS, RECIPIENT_NAME, RECIPIENT_PHONE, DELIVERY_STATUS"
+	            + "  FROM TBL_ORDERS "           
+	            + "  WHERE FK_MEMBER_ID = ? "
+	            + "  ORDER BY ORDER_DATE DESC, ORDER_ID DESC ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberid);
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            OrderDTO dto = new OrderDTO();
+
+	            dto.setOrderId(rs.getInt("ORDER_ID"));
+	            dto.setMemberId(rs.getString("FK_MEMBER_ID"));
+	            dto.setOrderDate(rs.getString("ORDER_DATE"));          // String
+	            dto.setTotalAmount(rs.getInt("TOTAL_AMOUNT"));
+	            dto.setDiscountAmount(rs.getInt("DISCOUNT_AMOUNT"));
+	            dto.setOrderStatus(rs.getString("ORDER_STATUS"));
+	            dto.setDeliveryAddress(rs.getString("DELIVERY_ADDRESS"));
+	            dto.setRecipientName(rs.getString("RECIPIENT_NAME"));
+	            dto.setRecipientPhone(rs.getString("RECIPIENT_PHONE"));
+	            dto.setDeliveryStatus(rs.getInt("DELIVERY_STATUS"));
+	            
+	            
+	            list.add(dto);
+	        }
+
+	    } finally {
+	        close();
+	    }
+
+	    return list;
+	}
 	
+	@Override
+	public Map<String, Object> selectOrderHeaderForModal(int orderId, String memberId) throws SQLException {
+
+	    Map<String, Object> map = new HashMap<>();
+
+	    String sql =
+	        " SELECT order_id, "
+	      + "        TO_CHAR(order_date, 'YYYY-MM-DD HH24:MI') AS order_date, "
+	      + "        total_amount, discount_amount, "
+	      + "        (total_amount - discount_amount) AS final_amount, "
+	      + "        delivery_address, order_status "
+	      + "   FROM tbl_orders "
+	      + "  WHERE order_id = ? "
+	      + "    AND fk_member_id = ? ";
+
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setInt(1, orderId);
+	        pstmt.setString(2, memberId);
+
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            map.put("order_id", rs.getInt("order_id"));
+	            map.put("order_date", rs.getString("order_date"));
+	            map.put("total_amount", rs.getInt("total_amount"));
+	            map.put("discount_amount", rs.getInt("discount_amount"));
+	            map.put("final_amount", rs.getInt("final_amount"));
+	            map.put("delivery_address", rs.getString("delivery_address"));
+	            map.put("order_status", rs.getString("order_status"));
+	        }
+
+	    } finally {
+	        if (rs != null) rs.close();
+	        if (pstmt != null) pstmt.close();
+	        if (conn != null) conn.close();
+	    }
+
+	    return map;
+	}
+
+	
+	@Override
+	public List<Map<String, Object>> selectOrderItemsForModal(int orderId) throws SQLException {
+
+	    List<Map<String, Object>> list = new ArrayList<>();
+
+	    String sql =
+	        " SELECT od.product_name, od.brand_name, od.quantity, od.unit_price, "
+	      + "        (od.quantity * od.unit_price) AS total_price, "
+	      + "        NVL(po.color,'') AS color, "
+	      + "        NVL(po.storage_size,'') AS storage "
+	      + "   FROM tbl_order_detail od "
+	      + "   LEFT JOIN tbl_product_option po "
+	      + "          ON od.fk_option_id = po.option_id "
+	      + "  WHERE od.fk_order_id = ? "
+	      + "  ORDER BY od.order_detail_id ASC ";
+
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setInt(1, orderId);
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            Map<String, Object> m = new HashMap<>();
+	            m.put("product_name", rs.getString("product_name"));
+	            m.put("brand_name", rs.getString("brand_name"));
+	            m.put("quantity", rs.getInt("quantity"));
+	            m.put("unit_price", rs.getInt("unit_price"));
+	            m.put("total_price", rs.getInt("total_price"));
+	            m.put("color", rs.getString("color"));
+	            m.put("storage", rs.getString("storage"));
+	            
+	            list.add(m);
+	        }
+
+	    } finally {
+	        if (rs != null) rs.close();
+	        if (pstmt != null) pstmt.close();
+	        if (conn != null) conn.close();
+	    }
+
+	    return list;
+	}
+
+		
+		
 }
+		
+	

@@ -1,4 +1,4 @@
-package member.controller;
+package auth.controller;
 
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
