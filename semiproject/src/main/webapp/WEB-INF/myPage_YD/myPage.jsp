@@ -8,6 +8,16 @@
 <!-- myPage 전용 CSS (선택) -->
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member_YD/myPage.css" />
 
+<script type="text/javascript">
+  function goWithdraw() {
+    if (confirm("정말로 회원 탈퇴하시겠습니까?\n탈퇴 후에는 계정 이용이 제한됩니다.")) {
+      document.getElementById("memberWithdrawForm").submit();
+      
+      console.log("goWithdraw called"); // ✅ 찍히는지
+    }
+  }
+</script>
+
 <div class="container my-5">
   <div class="row">
 
@@ -86,7 +96,25 @@
 			        onclick="document.getElementById('memberEditForm').submit();">
 			  	<i class="fa-regular fa-pen-to-square mr-1"></i> 정보 수정하기
 			</button>
+			
+			<!-- 회원탈퇴 전용 form -->
+			<form id="memberWithdrawForm"
+			      method="post"
+			      action="${pageContext.request.contextPath}/member/memberWithdraw.hp"
+			      style="display:none;">
+			</form>
+			
+			<button type="button"
+			        class="btn btn-outline-danger"
+			        onclick="goWithdraw();">
+			  <i class="fa-solid fa-user-slash mr-1"></i> 회원 탈퇴하기
+			</button>
+			
             </div>
+            
+            
+            
+            
 
             <!-- 계정정보 표시 -->
             <div class="col-md-6 mb-4">

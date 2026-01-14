@@ -424,4 +424,27 @@ public class MemberDAO_imple implements MemberDAO {
 		}
 		return n;
 	}
+
+	@Override
+	public int updateMemberStatusWithdraw(String memberId) throws SQLException {
+		int n = 0;
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " update tbl_member "
+	                   + " set status = 1 "
+	                   + " where member_id = ? "
+	                   + " and status = 0 ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberId);
+
+	        n = pstmt.executeUpdate();
+
+	    } finally {
+	        close();
+	    }
+
+	    return n;
+	}
 }

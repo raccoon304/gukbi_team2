@@ -38,6 +38,9 @@ public interface MemberDAO {
 	// 인증 완료 이후 비밀번호 변경 메일 보내고 해당 값(난수값)으로 비밀번호 업데이트 
 	int updatePasswordByUserid(String userid, String hashedPwd) throws SQLException;
 
+	// 회원 탈퇴 메서드
+	int updateMemberStatusWithdraw(String memberId) throws SQLException;
+
 
 
 }
