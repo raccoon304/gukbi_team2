@@ -102,12 +102,14 @@ public class PwdFind extends AbstractController {
             HttpSession session = request.getSession();
             session.setAttribute("certication_code", certication_code);
 
+            
+            //  5분 유효시간(만료시각 ms) 저장
+            session.setAttribute("pwdfind_cert_expire", System.currentTimeMillis() + (5 * 60 * 1000));
+
+            
             // 인증 성공 후(VerifyCertification) 비번재설정/임시비번 발송 등에 사용할 값들
             session.setAttribute("pwdfind_email", email);
             session.setAttribute("pwdfind_memberid", memberid);
-
-            // !!!!!! 만료 시간 관리인데, 개발 예정임 
-            // session.setAttribute("pwdfind_cert_time", System.currentTimeMillis());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -141,7 +143,6 @@ public class PwdFind extends AbstractController {
     private void applyCompatFlags(HttpServletRequest request, boolean isUserExists, boolean sendMailSuccess, String pwd_status) {
         request.setAttribute("pwd_status", pwd_status);
 
-        // 기존에 쓰던 값(호환)
         request.setAttribute("pwd_isUserExists", isUserExists);
         request.setAttribute("pwd_sendMailSuccess", sendMailSuccess);
     }
