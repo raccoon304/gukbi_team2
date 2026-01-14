@@ -3,6 +3,7 @@
 <%String ctxPath=request.getContextPath();%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!-- 헤더부분 가져오기 -->
 <jsp:include page="../header.jsp"/>
@@ -53,28 +54,48 @@
                                 <div class="spec-label">모델명</div>
                                 <div class="spec-value">${proDto.productName}</div>
                             </div>
+                            
+                            
+                            <c:set var="storageSet" value="" />
                             <div class="spec-item">
                                 <div class="spec-label">저장용량</div>
-                                <%-- <div class="spec-value">${proDetilDto.storageSize}</div> --%>
                                 <select class="sort-select form-control" id="sortSelectStorageSize">
-				                    <option value="256GB">256GB</option>
+                                	<option value="">용량 선택</option>
+								    <c:forEach var="opt" items="${proOptionList}">
+								        <c:if test="${not fn:contains(storageSet, opt.storageSize)}">
+								            <option value="${opt.storageSize}">${opt.storageSize}</option>
+								            <c:set var="storageSet" value="${storageSet}${opt.storageSize}," />
+								        </c:if>
+								    </c:forEach>
+				                    <%-- <option value="256GB">256GB</option>
 				                    <option value="512GB">
 				                    	512GB&nbsp;&nbsp;+&nbsp;&nbsp;
 				                    	<fmt:formatNumber value="${plusPrice}" pattern="###,###"/>
-				                    </option>
+				                    </option> --%>
+				                    
 				                </select>
                             </div>
                             
+                            
+                            <c:set var="colorSet" value=""/>
                             <div class="spec-item">
                                 <div class="spec-label">색상</div>
-                                <%-- <div class="spec-value">${proDetilDto.color}</div> --%>
                                 <select class="sort-select form-control" id="sortSelectColor">
-				                    <option value="Black">Black</option>
+                                	<option value="">색상 선택</option>
+								    <c:forEach var="opt" items="${proOptionList}">
+								        <c:if test="${not fn:contains(colorSet, opt.color)}">
+								            <option value="${opt.color}">${opt.color}</option>
+								            <c:set var="colorSet" value="${colorSet}${opt.color}," />
+								        </c:if>
+								    </c:forEach>
+				                    <!-- <option value="Black">Black</option>
 				                    <option value="White">White</option>
 				                    <option value="Blue">Blue</option>
-				                    <option value="Red">Red</option>
+				                    <option value="Red">Red</option> -->
 				                </select>
                             </div>
+                            
+                            
                             <div class="spec-item">
                                 <div class="spec-label">재고상태</div>
                                 <div class="spec-value">
@@ -83,7 +104,7 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        
 
                         <!-- 수량 조절 및 가격 -->
                         <div class="quantity-section" id="quantitySection">
@@ -154,7 +175,7 @@
 
 <script>
 	//java단에서 받아온 데이터를 JS 파일로 넘겨주기
-    const pageData = {
+/*     const pageData = {
         isLoggedIn: "${loginUser.name}" !== "", //사용자가 로그인을 했는지 true/false 값
         loginUserId: "${loginUser.memberid}",  //장바구니에 보낼 회원아이디
         productCode: "${proOptionDto.fkProductCode}", //상품코드
@@ -163,6 +184,38 @@
         plusPrice: Number("${plusPrice}"),  //512GB에 따른 추가금액
         maxStock: Number("${proOptionDto.stockQty}") // 재고 수량(수량을 증가할 때 재고수량은 넘길 수 없음)
     };
+ 	//옵션에 따라 바뀌는 값들
+    let productOptionId = pageData.productOptionId;
+    let plusPrice = pageData.plusPrice;
+    let maxStock = pageData.maxStock; */
+	
+    const pageData = { 
+    	isLoggedIn: "${loginUser.name}" !== "", 		//사용자가 로그인을 했는지 true/false 값
+        loginUserId: "${loginUser.memberid}",  			//장바구니에 보낼 회원아이디
+        productCode: "${proOptionDto.fkProductCode}",	//상품코드 
+        unitPrice: Number("${proDto.price}")			// 기본금액(상품 초기 설정가격)
+   	};
+
+   	// 옵션에 따라 바뀌는 값들은 let
+   	let productOptionId = Number("${proOptionDto.optionId}"); //옵션아이디
+   	let plusPrice = Number("${plusPrice}");  //512GB에 따른 추가금액
+   	let maxStock = Number("${proOptionDto.stockQty}"); // 재고 수량(수량을 증가할 때 재고수량은 넘길 수 없음)
+    
+    const optionList = [
+        <c:forEach var="opt" items="${proOptionList}" varStatus="st">
+        {
+            color: "${opt.color}",
+            storage: "${opt.storageSize}",
+            stock: ${opt.stockQty},
+            plusPrice: ${opt.plusPrice}
+        }${!st.last ? ',' : ''}
+        </c:forEach>
+    ];
+   	
+   	
+
+    const basePrice = ${proDto.price};
+	
 </script>
 
 <!-- 사용자 정의 JS -->

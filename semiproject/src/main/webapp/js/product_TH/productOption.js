@@ -1,15 +1,31 @@
 
 $(document).ready(function () {
-    /* =======================
-       🔹 전역 상태 변수
-    ======================= */
-    const { isLoggedIn, loginUserId, productCode, productOptionId, unitPrice, plusPrice, maxStock } = pageData;
-	
-    let quantity = parseInt($('#quantity').val()) || 1; //기본 수량
-    let totalPrice = 0;  //총 금액
-    let selectStorageSize = "256GB";  //선택한 용량 => 기본값으로 ""를 하지 않고 256GB로 설정
-						//이유는 옵션을 선택하지 않고 그대로 장바구니/구매하기를 들어갈 경우 "" 값으로 들어가기 때문
-    let selectedColor = "";  //선택한 색깔
+	/* =======================
+	   🔹 전역 상태 변수
+	======================= */
+
+	// 🔹 pageData에서 "변하지 않는 값"만 구조분해
+	const { 
+	    isLoggedIn, 
+	    loginUserId, 
+	    productCode, 
+	    unitPrice 
+	} = pageData;
+
+	// 🔹 옵션에 따라 바뀌는 상태값은 let
+	let productOptionId = pageData.productOptionId;
+	let plusPrice = pageData.plusPrice;
+	let maxStock = pageData.maxStock;
+
+	// 🔹 수량/가격 관련
+	let quantity = parseInt($('#quantity').val(), 10) || 1;
+	let totalPrice = 0;
+
+	// 🔹 옵션 선택 상태
+	let selectStorageSize = "256GB";   // 초기 표시용
+	let selectedColor = "";
+
+	// 🔹 기본 가격 캐싱
 	const l_unitPrice = Number(unitPrice);
 
     /* =======================
@@ -40,17 +56,10 @@ $(document).ready(function () {
     }
 
 	//최종금액을 계산해주기
-    function updateTotalPrice() {
-		if(selectStorageSize == '512GB'){
-			totalPrice = (l_unitPrice + plusPrice) * quantity;
-	        $('#totalPrice').text(totalPrice.toLocaleString() + ' 원');
-		}
-		else if(selectStorageSize == '256GB'){
-			totalPrice = l_unitPrice * quantity;
-	        $('#totalPrice').text(totalPrice.toLocaleString() + ' 원');
-		}
-		
-    }//end of function updateTotalPrice()-----
+	function updateTotalPrice() {
+	    totalPrice = (l_unitPrice + plusPrice) * quantity;
+	    $('#totalPrice').text(totalPrice.toLocaleString() + ' 원');
+	}//end of function updateTotalPrice()-----
 
 	
 	// 수량 입력값을 검증·보정하고, 총 금액을 다시 계산
@@ -100,18 +109,62 @@ $(document).ready(function () {
     /* =======================
        🔹 옵션 선택
     ======================= */
-    $('#sortSelectStorageSize').change(function () {
-        selectStorageSize = $(this).val();
-		//console.log(selectStorageSize);
-		updateTotalPrice();
-    });
+	//용량선택
+	$('#sortSelectStorageSize').change(function () {
+	    selectStorageSize = $(this).val();
+	    applySelectedOption();
+	});
+	//색상선택
+	$('#sortSelectColor').change(function () {
+	    selectedColor = $(this).val();
+	    applySelectedOption();
+	});
+	
+	
+	function applySelectedOption() {
+	    const color = $('#sortSelectColor').val();
+	    const storage = $('#sortSelectStorageSize').val();
 
-    $('#sortSelectColor').change(function () {
-        selectedColor = $(this).val();
-		//console.log(selectedColor);
-		updateTotalPrice();
-    });
+	    if (!color || !storage) {
+	        plusPrice = 0;
+	        updateTotalPrice();
+	        return;
+	    }
 
+	    const selected = optionList.find(opt =>
+	        opt.color === color && opt.storage === storage
+	    );
+
+	    if (!selected) return;
+
+	    // 옵션 반영
+	    plusPrice = Number(selected.plusPrice);
+	    maxStock = Number(selected.stock);
+	    
+	    // 수량 보정
+	    if (quantity > maxStock) {
+	        quantity = maxStock;
+	        $('#quantity').val(quantity);
+	    }
+
+	    // 재고 표시
+	    $('.badge-stock')
+	        .removeClass('badge-danger badge-success')
+	        .addClass(maxStock > 0 ? 'badge-success' : 'badge-danger')
+	        .html(
+	            maxStock > 0
+	                ? `<i class="fas fa-check mr-1"></i>재고 있음 (${maxStock})`
+	                : `<i class="fas fa-times mr-1"></i>품절`
+	        );
+
+	    updateTotalPrice();
+	}//end of function applySelectedOption()-----
+
+	
+	
+	
+	
+	
 	
     /* =======================
        🔹 장바구니
@@ -138,8 +191,6 @@ $(document).ready(function () {
 				type: "post",
 				dataType:"json",
 				success:function(json){
-					//console.log("확인용 json:" ,json);
-					//alert(json.message);
 					if(confirm(json.message)) {
 						location.href = json.loc;
 					} 
@@ -180,12 +231,7 @@ $(document).ready(function () {
 				type: "post",
 				dataType:"text",
 				success:function(){
-					//console.log("확인용 잘 들어왔습니다");
 					window.location.href = '/semiproject/pay/payMent.hp';
-					//alert(json.message);
-					//if(confirm("상품 구매 페이지로 이동하시겠습니까?")) {
-						//location.href = json.loc;
-					//}
 				},
 				error:function(request, status, error){
 					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
