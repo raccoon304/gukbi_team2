@@ -128,21 +128,29 @@ function login() {
     	type: 'post',
     	dataType: 'json',
     	data: { loginId, loginPw },
-    	success: function (json) {
-	      	if (json.success) {
-	        	$('#loginModal').modal('hide');
-	
-	        	// 성공 시 인덱스 페이지로 이동.
-	        	// location.reload();
-	        	location.href = json.redirect || (ctxPath + '/index.hp');
-	      	} else {
-	        $('#loginError').show().text(json.message || '로그인에 실패했습니다.');
-	      	}
-    	},
+		success: function (json) {
+
+		    // 휴면인 경우 모달 닫고 휴면해제 페이지로 이동
+		    if (json.dormant === true && json.redirect) {
+		        $('#loginModal').modal('hide');
+		        location.href = json.redirect;
+		        return;
+		    }
+
+		    // 정상 로그인
+		    if (json.success === true) {
+		        $('#loginModal').modal('hide');
+		        location.href = json.redirect || (ctxPath + '/index.hp');
+		        return;
+		    }
+
+		    // 로그인 실패인 경우.
+		    $('#loginError').show().text(json.message || '로그인에 실패했습니다.');
+		},
 		error: function (xhr, status, err) {
 		  console.log("statusCode:", xhr.status);
 		  console.log("status:", status, "err:", err);
-		  console.log("responseText:", xhr.responseText); // 여기 보면 HTML인지 에러메시지인지 나옴
+		  console.log("responseText:", xhr.responseText);
 		  $('#loginError').show().text('로그인에 오류가 발생하였습니다.');
 		}
   	});

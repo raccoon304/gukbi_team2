@@ -167,6 +167,7 @@ public class MemberDAO_imple implements MemberDAO {
 		return isExists;
 	}
 
+	// 휴대폰 중복 검사
 	@Override
 	public boolean mobileDuplicateCheck(String mobile) throws SQLException {
 		boolean isExists = false;
@@ -205,7 +206,8 @@ public class MemberDAO_imple implements MemberDAO {
 	        String sql =
 	              " SELECT "
 	            + " 	USERSEQ, MEMBER_ID, NAME, MOBILE_PHONE, EMAIL, BIRTH_DATE, GENDER, STATUS, IDLE, "
-	            + " 	TO_CHAR(CREATED_AT, 'YYYYMMDD') AS CREATED_AT "
+	            + " 	TO_CHAR(CREATED_AT, 'YYYYMMDD') AS CREATED_AT, "
+	            + "	    LAST_LOGIN_YMD "
 	            + " FROM TBL_MEMBER "
 	            + " WHERE STATUS = 0 "
 	            + "   AND MEMBER_ID = ? "
@@ -232,6 +234,8 @@ public class MemberDAO_imple implements MemberDAO {
 	            memberDto.setStatus(rs.getInt("STATUS"));
 	            memberDto.setIdle(rs.getInt("IDLE"));
 	            memberDto.setRegisterday(rs.getString("CREATED_AT"));
+	            memberDto.setLastLogin(rs.getString("LAST_LOGIN_YMD"));
+	         
 	        }
 
 	    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
@@ -242,6 +246,115 @@ public class MemberDAO_imple implements MemberDAO {
 	    }
 
 	    return memberDto;
+	}
+	
+	// 휴면 대상인지 확인(마지막 로그인 시점에서 3개월이 지났는지)
+	@Override
+	public boolean isDormantTarget(String memberId) throws SQLException {
+	    boolean isTarget = false;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " select 1 "
+	                   + " from tbl_member "
+	                   + " where member_id = ? "
+	                   + "   and status = 0 "
+	                   + "   and idle = 0 "
+	                   + "   and to_date(last_login_ymd, 'YYYYMMDD') <= add_months(trunc(sysdate), -3) ";
+	        				// 로그인 대상의 마지막 로그인 시점에서 3개월 되는시점을 확인해서 타겟인지 넘겨줌.
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberId);
+
+	        rs = pstmt.executeQuery();
+	        isTarget = rs.next();
+
+	    } finally {
+	        close();
+	    }
+
+	    return isTarget;
+	}
+	
+	// 휴면 전환 메서드 ( isDormantTarget 메서드에 의해 휴면 타겟인 경우 idle 값을 업데이트 해줌 )
+	@Override
+	public int updateMemberIdle(String memberId) throws SQLException {
+	    int n = 0;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " update tbl_member "
+	                   + " set idle = 1 "
+	                   + " where member_id = ? "
+	                   + "   and status = 0 "
+	                   + "   and idle = 0 ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberId);
+
+	        n = pstmt.executeUpdate();
+
+	    } finally {
+	        close();
+	    }
+
+	    return n;
+	}
+	
+	
+	//정상 로그인시 마지막 접속일 업데이트 
+	@Override
+	public int updateLastLoginYmd(String memberId) throws SQLException {
+	    int n = 0;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " update tbl_member "
+	                   + " set last_login_ymd = to_char(sysdate, 'YYYYMMDD') "
+	                   + " where member_id = ? "
+	                   + "   and status = 0 "
+	                   + "   and idle = 0 ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberId);
+
+	        n = pstmt.executeUpdate();
+
+	    } finally {
+	        close();
+	    }
+
+	    return n;
+	}
+	
+	//휴면 해제용 메서드 
+	@Override
+	public int unlockDormant(String memberId) throws SQLException {
+	    int n = 0;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " update tbl_member "
+	                   + " set idle = 0, "
+	                   + "     last_login_ymd = to_char(sysdate, 'YYYYMMDD') "
+	                   + " where member_id = ? "
+	                   + "   and status = 0 "
+	                   + "   and idle = 1 ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberId);
+
+	        n = pstmt.executeUpdate();
+
+	    } finally {
+	        close();
+	    }
+
+	    return n;
 	}
 
 	
@@ -425,6 +538,7 @@ public class MemberDAO_imple implements MemberDAO {
 		return n;
 	}
 
+	// 회원 삭제 메서드. status 값을 1(탈퇴)로 변경시킴. 
 	@Override
 	public int updateMemberStatusWithdraw(String memberId) throws SQLException {
 		int n = 0;
