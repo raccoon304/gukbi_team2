@@ -61,9 +61,10 @@ public class OrderDetailFragment extends AbstractController {
             return;
         }
 
-        // ✅ 기존 메서드 재사용 (수정/교체 없음)
+        //  기존 메서드 재사용 (수정/교체 없음)
         Map<String, Object> header = odao.selectOrderHeader(orderId);
         List<Map<String, Object>> items = odao.selectOrderDetailForPayment(orderId);
+        List<Map<String, Object>> product = odao.selectOrderItemsForModal(orderId);
         
         System.out.println("header keys => " + header.keySet());
         System.out.println("header map => " + header);
@@ -77,7 +78,8 @@ public class OrderDetailFragment extends AbstractController {
 
         request.setAttribute("orderHeader", header);
         request.setAttribute("items", items);
-
+        request.setAttribute("product", product);
+        
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/myPage_YD/orderDetailFragment.jsp");
     }

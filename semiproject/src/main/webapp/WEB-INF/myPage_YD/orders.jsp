@@ -174,7 +174,7 @@
 	        	<div class="card-body">
 
 	          		<div class="mb-4">
-	            		<div class="order-title">Order History</div>
+	            		<div class="order-title">주문 내역 확인</div>
 	          		</div>
 
 	          		<!-- 주문 없을 때 -->
@@ -190,20 +190,17 @@
 	                			<!-- 상단 -->
 	                			<div class="d-flex justify-content-between align-items-start">
 	                  				<div>
-	                    				<div class="font-weight-bold"> Order #<c:out value="${order.orderId}" /> </div>
-	                    				<div class="order-subtitle">Placed on <c:out value="${order.orderDate}" /></div>
+	                    				<div class="font-weight-bold"> 주문 번호 :  <c:out value="${order.orderId}" /> 번 </div>
+	                    				<div class="order-subtitle">주문일 <c:out value="${order.orderDate}" /></div>
 	                  				</div>
 
 	                				<div>
 	                    				<c:choose>
-										    <c:when test="${order.orderStatus eq 'READY'}">
-										        <span class="badge-soft-secondary">준비중</span>
+										    <c:when test="${order.orderStatus eq 'PAID'}">
+										        <span class="badge-soft-secondary">결재 완료</span>
 										    </c:when>
-										    <c:when test="${order.orderStatus eq 'SHIPPING'}">
-										        <span class="badge-soft-primary">배송중</span>
-										    </c:when>
-										    <c:when test="${order.orderStatus eq 'DONE'}">
-										        <span class="badge-soft-success">완료</span>
+										    <c:when test="${order.orderStatus eq 'FAIL'}">
+										        <span class="badge-soft-primary">결재 실패</span>
 										    </c:when>
 										    <c:otherwise>
 										        <span class="badge-soft-secondary"><c:out value="${order.orderStatus}" /></span>
@@ -214,16 +211,16 @@
 
 				                <!-- 하단 -->
 				                <div class="d-flex justify-content-between align-items-center mt-4">
-			                  		<div class="total-text"> Total:
+			                  		<div class="total-text"> 총 금액:
 				                    	<span class="total-price">
-				                      		$<fmt:formatNumber value="${order.totalAmount}" type="number" minFractionDigits="2" maxFractionDigits="2" />
+				                      		<fmt:formatNumber value="${order.totalAmount}" type="number" minFractionDigits="0" maxFractionDigits="0" /> 원
 			                    		</span>
 				                  	</div>
 
 									<button type="button"
                                             class="btn btn-link p-0 view-details js-open-order-modal"
                                             data-orderid="${order.orderId}">
-				                    	View Details
+				                    	주문 내역 상세 보기
 				                  	</button>
 				                </div>
 
@@ -241,7 +238,7 @@
 <div id="ydOrderModalBackdrop" class="yd-modal-backdrop" aria-hidden="true">
     <div class="yd-modal" role="dialog" aria-modal="true" aria-labelledby="ydModalTitle">
         <div class="yd-modal-header">
-            <h3 class="yd-modal-title" id="ydModalTitle">Order Details</h3>
+            <h3 class="yd-modal-title" id="ydModalTitle">주문 내역 상세</h3>
             <button type="button" class="yd-modal-close js-close-order-modal" aria-label="Close">&times;</button>
         </div>
 

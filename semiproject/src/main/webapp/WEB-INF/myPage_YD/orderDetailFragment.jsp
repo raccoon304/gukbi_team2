@@ -17,7 +17,7 @@
   </c:if>
 
   <c:if test="${not empty orderHeader}">
-    <c:set var="status" value="${orderHeader['orderStatus']}" />
+    <c:set var="status" value="${orderHeader['delivery_status']}" />
 
     <!-- Order Summary -->
     <div class="mb-4">
@@ -25,35 +25,38 @@
       <div class="yd-box">
         <div class="yd-kv">
           <div class="k">주문 번호</div>
-          <div class="v"><c:out value="${orderHeader['orderId']}" /></div>
+          <div class="v"><c:out value="${orderHeader['order_id']}" /></div>
 
           <div class="k">주문 일시</div>
-          <div class="v"><c:out value="${orderHeader['orderDate']}" /></div>
+          <div class="v"><c:out value="${orderHeader['order_date']}" /></div>
 
           <div class="k">총 금액</div>
           <div class="v">
-            $<fmt:formatNumber value="${orderHeader['totalAmount'] + 0}" type="number" minFractionDigits="2" maxFractionDigits="2" />
+            <fmt:formatNumber value="${orderHeader['total_amount']}" pattern="#,###" /> 원
           </div>
 
           <div class="k">할인가격</div>
           <div class="v">
-            $<fmt:formatNumber value="${orderHeader['discountAmount'] + 0}" type="number" minFractionDigits="2" maxFractionDigits="2" />
+            <fmt:formatNumber value="${orderHeader['discount_amount']}" pattern="#,###" /> 원
           </div>
 
           <div class="k">결제 금액</div>
           <div class="v">
-            $<fmt:formatNumber value="${orderHeader['finalAmount'] + 0}" type="number" minFractionDigits="2" maxFractionDigits="2" />
+            <fmt:formatNumber value="${orderHeader['final_amount']}" pattern="#,###" /> 원
           </div>
 
-          <div class="k">배송상태</div>
+          <div class="k">주문상태</div>
           <div class="v">
             <c:choose>
-              <c:when test="${status eq 'READY' or status eq 'PAID'}">준비중</c:when>
-              <c:when test="${status eq 'SHIPPING'}">배송중</c:when>
-              <c:when test="${status eq 'DONE'}">완료</c:when>
+              <c:when test="${status eq '0'}">배송준비중</c:when>
+              <c:when test="${status eq '1'}">배송중</c:when>
+              <c:when test="${status eq '2'}">배송 완료</c:when>
+              <c:when test="${status eq '4'}">배송 취소</c:when>
+              
               <c:otherwise><c:out value="${status}" /></c:otherwise>
             </c:choose>
           </div>
+
         </div>
       </div>
     </div>
@@ -63,25 +66,62 @@
       <div class="yd-section-title">상품 정보</div>
       <div class="yd-box" id="mItemsWrap">
 
-        <c:if test="${empty items}">
-          <div class="text-muted">상품 정보가 없습니다.</div>
-        </c:if>
+        <!-- product 리스트가 있으면 product 기준(색상/용량 포함) -->
+        <c:if test="${empty product}">
+          <c:if test="${empty items}">
+            <div class="text-muted">상품 정보가 없습니다.</div>
+          </c:if>
 
-        <c:forEach var="it" items="${items}">
-          <div class="yd-item">
-            <div>
-              <div class="yd-item-name"><c:out value="${it['product_name']}" /></div>
-              <div class="yd-item-opt">
-                브랜드: <c:out value="${it['brand_name']}" /><br/>
-                색상: - / 용량: -<br/>
-                수량: <c:out value="${it['quantity']}" />
+          <!-- fallback: items만 있는 경우 -->
+          <c:forEach var="it" items="${items}">
+            <div class="yd-item">
+              <div>
+                <div class="yd-item-name"><c:out value="${it['product_name']}" /></div>
+                <div class="yd-item-opt">
+                  브랜드: <c:out value="${it['brand_name']}" /><br/>
+                  색상: - / 용량: -<br/>
+                  수량: <c:out value="${it['quantity']}" />
+                </div>
+              </div>
+              <div class="yd-item-price">
+                <fmt:formatNumber value="${it['unit_price']}" pattern="#,###" /> 원
               </div>
             </div>
-            <div class="yd-item-price">
-              $<fmt:formatNumber value="${it['unit_price'] + 0}" type="number" minFractionDigits="2" maxFractionDigits="2" />
+          </c:forEach>
+        </c:if>
+
+        <!-- product 리스트가 있으면(권장) -->
+        <c:if test="${not empty product}">
+          <c:forEach var="p" items="${product}">
+            <div class="yd-item">
+              <div>
+                <div class="yd-item-name"><c:out value="${p['product_name']}" /></div>
+                <div class="yd-item-opt">
+                  브랜드: <c:out value="${p['brand_name']}" /><br/>
+
+                  색상:
+                  <c:choose>
+                    <c:when test="${empty p['color']}">-</c:when>
+                    <c:otherwise><c:out value="${p['color']}" /></c:otherwise>
+                  </c:choose>
+
+                  / 용량:
+                  <c:choose>
+                    <c:when test="${empty p['storage']}">-</c:when>
+                    <c:otherwise><c:out value="${p['storage']}" /></c:otherwise>
+                  </c:choose>
+                  <br/>
+
+                  수량: <c:out value="${p['quantity']}" />
+                </div>
+              </div>
+
+              <div class="yd-item-price">
+                <fmt:formatNumber value="${p['unit_price']}" pattern="#,###" /> 원
+              </div>
             </div>
-          </div>
-        </c:forEach>
+          </c:forEach>
+        </c:if>
 
       </div>
     </div>
@@ -91,11 +131,11 @@
       <div class="yd-section-title">배송 정보</div>
       <div class="yd-box">
         <div class="yd-kv">
-          <div class="k">수령인</div><div class="v">-</div>
-          <div class="k">휴대폰</div><div class="v">-</div>
+          <div class="k">수령인</div><div class="v"><c:out value="${orderHeader['recipient_name']}" /></div>
+          <div class="k">휴대폰</div><div class="v"><c:out value="${orderHeader['recipient_phone']}" /></div>
 
           <div class="k">주소</div>
-          <div class="v"><c:out value="${orderHeader['deliveryAddress']}" /></div>
+          <div class="v"><c:out value="${orderHeader['delivery_address']}" /></div>
 
           <div class="k">택배 번호</div>
           <div class="v">
@@ -106,6 +146,7 @@
           </div>
         </div>
       </div>
+  
     </div>
 
   </c:if>

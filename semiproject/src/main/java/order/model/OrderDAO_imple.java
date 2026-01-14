@@ -158,7 +158,7 @@ public class OrderDAO_imple implements OrderDAO {
 	        String sql =
 	            " SELECT order_id, order_date, total_amount, discount_amount, "
 	          + " (total_amount - discount_amount) AS final_amount, "
-	          + "        delivery_address, order_status "
+	          + "        delivery_address, order_status, RECIPIENT_NAME, RECIPIENT_PHONE, DELIVERY_STATUS"
 	          + " FROM tbl_orders "
 	          + " WHERE order_id = ? ";
 
@@ -176,13 +176,17 @@ public class OrderDAO_imple implements OrderDAO {
 	
 	            
 	            if (rs.next()) {
-	                map.put("orderId", rs.getInt("order_id"));
-	                map.put("orderDate", rs.getString("order_date"));
-	                map.put("totalAmount", rs.getInt("total_amount"));
-	                map.put("discountAmount", rs.getInt("discount_amount"));
-	                map.put("deliveryAddress", rs.getString("delivery_address"));
-	                map.put("orderStatus", rs.getString("order_status"));
-	                map.put("finalAmount", rs.getInt("final_amount"));
+	                map.put("order_id", rs.getInt("order_id"));
+	                map.put("order_date", rs.getString("order_date"));
+	                map.put("total_amount", rs.getInt("total_amount"));
+	                map.put("discount_amount", rs.getInt("discount_amount"));
+	                map.put("delivery_address", rs.getString("delivery_address"));
+	                map.put("order_status", rs.getString("order_status"));
+	                map.put("final_amount", rs.getInt("final_amount"));
+	                map.put("recipient_name", rs.getString("RECIPIENT_NAME"));
+	                map.put("recipient_phone", rs.getString("RECIPIENT_PHONE"));
+	                map.put("delivery_status", rs.getString("DELIVERY_STATUS"));
+	                
 	            }
 
 	        } finally {
@@ -281,11 +285,8 @@ public class OrderDAO_imple implements OrderDAO {
 	              " SELECT ORDER_ID, "
 	            + "        FK_MEMBER_ID, "
 	            + "        TO_CHAR(ORDER_DATE, 'YY/MM/DD') AS ORDER_DATE, "
-	            + "        TOTAL_AMOUNT, "
-	            + "        DISCOUNT_AMOUNT, "
-	            + "        ORDER_STATUS, "
-	            + "        DELIVERY_ADDRESS "
-	            + "   FROM TBL_ORDERS "           
+	            + "        TOTAL_AMOUNT, DISCOUNT_AMOUNT, ORDER_STATUS, DELIVERY_ADDRESS, RECIPIENT_NAME, RECIPIENT_PHONE, DELIVERY_STATUS"
+	            + "  FROM TBL_ORDERS "           
 	            + "  WHERE FK_MEMBER_ID = ? "
 	            + "  ORDER BY ORDER_DATE DESC, ORDER_ID DESC ";
 
@@ -304,7 +305,11 @@ public class OrderDAO_imple implements OrderDAO {
 	            dto.setDiscountAmount(rs.getInt("DISCOUNT_AMOUNT"));
 	            dto.setOrderStatus(rs.getString("ORDER_STATUS"));
 	            dto.setDeliveryAddress(rs.getString("DELIVERY_ADDRESS"));
-
+	            dto.setRecipientName(rs.getString("RECIPIENT_NAME"));
+	            dto.setRecipientPhone(rs.getString("RECIPIENT_PHONE"));
+	            dto.setDeliveryStatus(rs.getInt("DELIVERY_STATUS"));
+	            
+	            
 	            list.add(dto);
 	        }
 
@@ -371,7 +376,7 @@ public class OrderDAO_imple implements OrderDAO {
 	        " SELECT od.product_name, od.brand_name, od.quantity, od.unit_price, "
 	      + "        (od.quantity * od.unit_price) AS total_price, "
 	      + "        NVL(po.color,'') AS color, "
-	      + "        NVL(po.storage,'') AS storage "
+	      + "        NVL(po.storage_size,'') AS storage "
 	      + "   FROM tbl_order_detail od "
 	      + "   LEFT JOIN tbl_product_option po "
 	      + "          ON od.fk_option_id = po.option_id "
@@ -398,6 +403,7 @@ public class OrderDAO_imple implements OrderDAO {
 	            m.put("total_price", rs.getInt("total_price"));
 	            m.put("color", rs.getString("color"));
 	            m.put("storage", rs.getString("storage"));
+	            
 	            list.add(m);
 	        }
 

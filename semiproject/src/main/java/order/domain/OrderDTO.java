@@ -13,6 +13,9 @@ public class OrderDTO {
     private String deliveryAddress;
     private String orderStatus;
     
+    private String recipientName;
+    private String recipientPhone;
+    private int deliveryStatus;
     
 	public int getOrderId() {
 		return orderId;
@@ -68,6 +71,30 @@ public class OrderDTO {
 	
 	public void setOrderStatus(String orderStatus) {
 		this.orderStatus = orderStatus;
+	}
+
+	public String getRecipientName() {
+		return recipientName;
+	}
+
+	public void setRecipientName(String recipientName) {
+		this.recipientName = recipientName;
+	}
+
+	public String getRecipientPhone() {
+		return recipientPhone;
+	}
+
+	public void setRecipientPhone(String recipientPhone) {
+		this.recipientPhone = recipientPhone;
+	}
+
+	public int getDeliveryStatus() {
+		return deliveryStatus;
+	}
+
+	public void setDeliveryStatus(int deliveryStatus) {
+		this.deliveryStatus = deliveryStatus;
 	}
 
 
