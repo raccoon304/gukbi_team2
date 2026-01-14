@@ -1,10 +1,15 @@
 package review.domain;
 
+import member.domain.MemberDTO;
+import product.domain.ProductDTO;
+import product.domain.ProductOptionDTO;
+
 public class ReviewDTO {
 
 	 private int reviewNumber; // 리뷰번호
 	 private int optionId; 
 	 private int orderDetailId;
+	 private String reviewTitle;
 	 private String reviewContent; // 내용
 	 private String writeday; 
 	 private double rating; // 평점
@@ -12,9 +17,12 @@ public class ReviewDTO {
 	 private String deletedAt;
 	 private String deletedBy;
 	 
-	 private String memberId;
-     private String name;
      private String thumbPath; // 대표이미지  
+     
+     private ProductDTO pdto = new ProductDTO();
+     private ProductOptionDTO podto = new ProductOptionDTO();
+     private MemberDTO mdto = new MemberDTO();
+     
 	 
 	 public int getReviewNumber() {
 		 return reviewNumber;
@@ -70,23 +78,36 @@ public class ReviewDTO {
 	 public void setDeletedBy(String deletedBy) {
 		 this.deletedBy = deletedBy;
 	 }
-	 public String getMemberId() {
-		 return memberId;
-	 }
-	 public void setMemberId(String memberId) {
-		 this.memberId = memberId;
-	 }
-	 public String getName() {
-		 return name;
-	 }
-	 public void setName(String name) {
-		 this.name = name;
-	 }
+
 	 public String getThumbPath() {
 		 return thumbPath;
 	 }
 	 public void setThumbPath(String thumbPath) {
 		 this.thumbPath = thumbPath;
+	 }
+	 public String getReviewTitle() {
+		 return reviewTitle;
+	 }
+	 public void setReviewTitle(String reviewTitle) {
+		 this.reviewTitle = reviewTitle;
+	 }
+	 public ProductDTO getPdto() {
+		 return pdto;
+	 }
+	 public void setPdto(ProductDTO pdto) {
+		 this.pdto = pdto;
+	 }
+	 public ProductOptionDTO getPodto() {
+		 return podto;
+	 }
+	 public void setPodto(ProductOptionDTO podto) {
+		 this.podto = podto;
+	 }
+	 public MemberDTO getMdto() {
+		 return mdto;
+	 }
+	 public void setMdto(MemberDTO mdto) {
+		 this.mdto = mdto;
 	 }
 	
 	 

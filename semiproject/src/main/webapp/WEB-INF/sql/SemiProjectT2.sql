@@ -263,7 +263,6 @@ CREATE TABLE TBL_REVIEW (
   REFERENCES TBL_PRODUCT_OPTION (OPTION_ID),
   CONSTRAINT FK_TBL_REVIEW_FK_ORDER_DETAIL_ID FOREIGN KEY (FK_ORDER_DETAIL_ID)
   REFERENCES TBL_ORDER_DETAIL (ORDER_DETAIL_ID),
-  CONSTRAINT UQ_TBL_REVIEW_FK_ORDER_DETAIL_ID UNIQUE (FK_ORDER_DETAIL_ID),
   CONSTRAINT CK_TBL_REVIEW_RATING CHECK (RATING BETWEEN 0.5 AND 5.0 AND (RATING*2 = TRUNC(RATING*2))),
   CONSTRAINT CK_TBL_REVIEW_DELETED_YN CHECK (DELETED_YN IN (0,1));
 );
@@ -292,6 +291,22 @@ CHECK (
 ALTER TABLE TBL_REVIEW
 ADD CONSTRAINT CK_TBL_REVIEW_DELETED_YN
 CHECK (DELETED_YN IN (0,1));
+
+
+-- review_title 컬럼 추가
+ALTER TABLE TBL_REVIEW
+ADD (review_title VARCHAR2(100));
+
+-- review_title 컬럼 NOT NULL 제약
+ALTER TABLE TBL_REVIEW
+MODIFY (review_title VARCHAR2(100) NOT NULL);
+
+-- 유니크 제약 추가함
+
+CREATE UNIQUE INDEX UQ_TBL_REVIEW_FK_ORDER_DETAIL_ID
+ON TBL_REVIEW ( CASE WHEN deleted_yn = 0 THEN fk_order_detail_id END );
+
+
 
 
 -------- INQUIRY TABLE --------
@@ -2625,13 +2640,59 @@ SELECT * FROM TBL_ORDER_DETAIL
 update tbl_orders set total_amount = 4950000
 where order_id = 1001;
 
+
+
+
 commit;
 
 select * from tbl_review;
+select * from tbl_review_image;
+
+delete from tbl_review
+where review_number = 2;
+
+delete from tbl_review_image
+where fk_review_number = 2;
+
+update tbl_order_detail set is_review_written = 0
+where order_detail_id = 1000;
+
+commit;
+
+
+select * from tbl_orders;
+select * from tbl_order_detail;
+select * from tbl_product;
+select * from tbl_product_option;
+select * from tbl_review;
+select * from tbl_member;
+
+insert into tbl_orders(1002, dog, sysdate, 4950000, 50000, 'PAID', '서울 송파구 법원로 128 101호', 임시수령인, 010-0000-0000, 0);
+insert into tbl_order_detail(1003, 149, 1002, 1, 2400000, 0, 'Galaxy Z Fold7', 'Samsung');
+insert into tbl_order_detail(1004, 196, 1002, 1, 1700000, 0, 'iPhone15 Pro', 'Apple');
+
+insert into tbl_review(1,196,1000,'번창하세요',sysdate,5,0,null,null,'잘쓰고 있어요');
+
+desc tbl_orders;
+
+select review_number, fk_order_detail_id, deleted_yn
+from tbl_review
+where fk_order_detail_id = 1000
+order by review_number desc;
+
+
+SELECT constraint_name
+     , constraint_type
+FROM user_constraints
+WHERE table_name = 'TBL_REVIEW'
+  AND constraint_type IN ('U','P');
+  
+  SELECT index_name, column_name, column_position
+FROM user_ind_columns
+WHERE table_name = 'TBL_REVIEW'
+ORDER BY index_name, column_position;
 
 
 
-
-
-
-
+CREATE UNIQUE INDEX UQ_TBL_REVIEW_FK_ORDER_DETAIL_ID
+ON TBL_REVIEW ( CASE WHEN deleted_yn = 0 THEN fk_order_detail_id END );

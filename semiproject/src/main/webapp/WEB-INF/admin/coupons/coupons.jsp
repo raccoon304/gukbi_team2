@@ -106,7 +106,7 @@
                                 <table class="table table-hover" id="couponTable">
                                     <thead>
                                         <tr>
-                                        	   <th>NO</th>
+                                        	   <th>No</th>
                                             <th>쿠폰번호</th>
                                             <th>쿠폰명</th>
                                             <th>할인타입</th>
