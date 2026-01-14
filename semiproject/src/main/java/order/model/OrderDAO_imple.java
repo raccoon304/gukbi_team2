@@ -4,10 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import java.net.Inet4Address;
-
-import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +50,7 @@ public class OrderDAO_imple implements OrderDAO {
                  "     delivery_status = 4 " +
                  " WHERE order_status = 'READY' " +
                  "   AND fk_member_id = ? " +
-                 "   AND order_date < (SYSDATE - INTERVAL '3' second) ";
+                 "   AND order_date < (SYSDATE - INTERVAL '3' minute) ";
 
           try {
               conn = ds.getConnection();
@@ -450,6 +446,7 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
 
+    // 배송지 번호를 업데이트
     @Override
     public int updateOrderDiscountAndAddress(int orderId, int discountAmount, String deliveryAddress) 
             throws SQLException {
@@ -644,5 +641,37 @@ public class OrderDAO_imple implements OrderDAO {
 
 		    return list;
 		}
+
+	// PG 결제 실패 발생 시 주문 상태를 FAIL로 업데이트 (READY 상태만)
+	@Override
+	public int updateOrderStatusIfReady(Integer orderId, String status) throws SQLException {
+		
+		Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    int result = 0;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql =
+	            " UPDATE tbl_orders " +
+	            " SET order_status = ? " +
+	            " WHERE order_id = ? " +
+	            "   AND order_status = 'READY' ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, status);   // "FAIL"
+	        pstmt.setInt(2, orderId);
+
+	        result = pstmt.executeUpdate(); 
+	    }
+	    finally {
+	        if (pstmt != null) try { pstmt.close(); } catch (SQLException e) {}
+	        if (conn != null)  try { conn.close(); }  catch (SQLException e) {}
+	    }
+
+	    return result;
 	}
+}
+
     
