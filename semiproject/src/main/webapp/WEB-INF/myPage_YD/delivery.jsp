@@ -7,10 +7,17 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member_YD/myPage.css" />
 
 <style>
-	.addr-card { border: 1px solid #e9ecef; border-radius: .5rem; }
-	.addr-card.default { border-color: #007bff; }
-	.addr-badge { font-size: 12px; }
-	.addr-actions .btn { padding: .25rem .5rem; }
+	.addr-card { border: 4px solid #e9ecef; border-radius: .5rem; }
+ 	.addr-card.default { border-color: #007bff; }
+ 	.addr-badge { font-size: 12px; }
+ 	.addr-actions .btn { padding: .25rem .5rem; }
+ 	.list-group-item.addr-card { 
+   		border-top-width: 4px !important;
+ 	}
+ 	.list-group-item.addr-card + .list-group-item.addr-card {
+   		border-top-width: 4px !important;
+ 	}
+	.list-group-item.addr-card { margin-bottom: 1rem !important; }
 </style>
 
 <!-- JS에서 ctxPath 쓸 수 있게 -->
@@ -68,7 +75,7 @@
         			</div>
 
           			<div class="alert alert-light border mb-4">
-            			<small class="text-muted">기본 배송지는 1개만 설정 가능하며, 주문 시 기본 배송지가 우선 선택됨.</small>
+            			<small class="text-muted">기본 배송지는 1개만 설정 가능하며, 주문 시 기본 배송지가 우선 선택됩니다.</small>
           			</div>
 
           			<c:if test="${empty deliveryList}">
@@ -100,7 +107,7 @@
 						<!-- 삭제 폼 -->
 			            <form id="deleteForm" method="post" action="${pageContext.request.contextPath}/myPage/deliveryDelete.hp"></form>
 			
-			            <!-- 기본 설정 폼 -->
+			            <!-- 기본배송지 설정 폼 -->
 			            <form id="defaultForm" method="post" action="${pageContext.request.contextPath}/myPage/deliverySetDefault.hp">
 			            	<input type="hidden" name="deliveryAddressId" id="defaultDeliveryId" />
 			            </form>

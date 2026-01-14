@@ -56,7 +56,12 @@
         const PWD_POSTED   = "${requestScope.pwd_posted}";
         const PWD_FIND_TYPE= "${requestScope.pwdFindType}";
         const PWD_STATUS   = "${requestScope.pwd_status}";
+        
+     	// 비번찾기 인증 만료시각(ms)
+          window.PWD_EXPIRE_AT_MS = Number("${sessionScope.pwdfind_cert_expire}");
+
     </script>
+
 </head>
 
 <body class="bg-gray-50 min-h-screen">
@@ -281,6 +286,9 @@
 	                            				인증코드가 <b>${requestScope.pwd_email}</b> 로 발송되었습니다.<br>
 	                            				아래에 인증코드를 입력해주세요.
 	                        				</div>
+	                        				<div class="mt-2 text-sm text-gray-700">
+											  인증번호 유효시간: <span id="pwdExpireTimer" class="font-weight-bold">--:--</span>
+											</div>
 											<div class="mt-3">
 	                            				<input type="text" id="pwd_input_confirmCode"
 	                                   				class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3"
@@ -333,6 +341,6 @@
     </div>
 </div>
 
-<script type="text/javascript" src="<%=ctxPath%>/js/member_YD/accountFind.js"></script>
+<script type="text/javascript" src="<%=ctxPath%>/js/member_YD/accountFind.js?v=<%=System.currentTimeMillis()%>"></script>
 </body>
 </html>

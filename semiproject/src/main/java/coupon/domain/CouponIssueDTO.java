@@ -50,7 +50,7 @@ public class CouponIssueDTO {
 		return usedYn;
 	}
 	public void setUsedYn(int usedYn) {
-		usedYn = usedYn;
+		this.usedYn = usedYn;
 	}
 	public String getMemberName() {
 		return memberName;

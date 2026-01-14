@@ -18,8 +18,6 @@ private String productName;
 private String imagePath;
 private String brand_name;
 
-
-
 	public String getBrand_name() {
 		return brand_name;
 	}
@@ -110,6 +108,14 @@ private String brand_name;
 	    return price * quantity;
 	}
 
-
+	public int getCart_id() {
+	    return cartId;
+	    
+	    
+	}
+	
+	public int getUnit_price() {
+	    return price;
+	}
 }
 
