@@ -16,57 +16,55 @@ public class DormantSendCode extends AbstractController {
 
         response.setContentType("application/json; charset=UTF-8");
 
-        // POST만 허용
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             response.getWriter().write("{\"success\":false, \"message\":\"비정상적인 접근입니다.\"}");
+            response.getWriter().flush();
             return;
         }
 
         HttpSession session = request.getSession();
 
-        // 휴면해제 대상(로그인 시 MemberLogin에서 세션에 저장해둔 값)
         String dormantMemberId = (String) session.getAttribute("dormantMemberId");
         MemberDTO dormantLoginUser = (MemberDTO) session.getAttribute("dormantLoginUser");
 
         if (dormantMemberId == null || dormantLoginUser == null) {
             response.getWriter().write("{\"success\":false, \"message\":\"휴면 인증 대상이 아닙니다. 다시 로그인 해주세요.\"}");
+            response.getWriter().flush();
             return;
         }
 
         String email = dormantLoginUser.getEmail();
         if (email == null || email.trim().isEmpty()) {
             response.getWriter().write("{\"success\":false, \"message\":\"등록된 이메일 정보가 없습니다.\"}");
+            response.getWriter().flush();
             return;
         }
         email = email.trim();
 
-        // 인증코드 생성(비밀번호찾기와 동일하게 영문소문자 5 + 숫자 5)
         String certCode = makeCertificationCode();
 
-        boolean sendMailSuccess = false;
         try {
             GoogleMail mail = new GoogleMail();
-            // 기존 메일 전송 메서드 재활용
             mail.send_certification_code(email, certCode);
-            sendMailSuccess = true;
 
-            // 세션에 저장(휴면 전용 키 사용)
+            long expireAt = System.currentTimeMillis() + (5 * 60 * 1000);
+
             session.setAttribute("dormant_cert_code", certCode);
-            session.setAttribute("dormant_cert_expire", System.currentTimeMillis() + (5 * 60 * 1000)); // 5분
+            session.setAttribute("dormant_cert_expire", expireAt);
+
+            // ✅ expireAt을 JSON에 포함해서 내려줌
+            response.getWriter().write("{\"success\":true, \"expireAt\":" + expireAt + "}");
+            response.getWriter().flush();
+            return;
 
         } catch (Exception e) {
             e.printStackTrace();
-            sendMailSuccess = false;
-        }
-
-        if (sendMailSuccess) {
-            response.getWriter().write("{\"success\":true}");
-        } else {
             response.getWriter().write("{\"success\":false, \"message\":\"인증번호 발송에 실패했습니다.\"}");
+            response.getWriter().flush();
+            return;
         }
     }
 
-    // 비밀번호찾기와 동일한 규격으로 진행 문소문자 5 + 숫자 5
     private String makeCertificationCode() {
         SecureRandom rnd = new SecureRandom();
         StringBuilder sb = new StringBuilder();

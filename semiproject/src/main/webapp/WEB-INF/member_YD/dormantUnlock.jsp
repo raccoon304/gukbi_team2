@@ -4,29 +4,6 @@
 <jsp:include page="/WEB-INF/header.jsp" />
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member_YD/myPage.css" />
 
-<script>
-// 인증번호 발송 버튼이후 사용자에서 alert 로 상태를 확인시켜줌 
-function sendDormantCode() {
-  fetch("${pageContext.request.contextPath}/member/dormantSendCode.hp", {
-    method: "POST",
-    headers: {"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8"},
-    body: ""
-  })
-  .then(res => res.json())
-  .then(json => {
-    if(json.success) {
-      alert("인증번호를 이메일로 발송했습니다.");
-    } else {
-      alert(json.message || "인증번호 발송에 실패했습니다.");
-    }
-  })
-  .catch(err => {
-    console.log(err);
-    alert("인증번호 발송 중 오류가 발생했습니다.");
-  });
-}
-</script>
-
 <div class="container my-5">
   <div class="card shadow-sm">
     <div class="card-body">
@@ -53,11 +30,22 @@ function sendDormantCode() {
         </small>
       </div>
 
+      <!-- 남은시간 표시 -->
+	  <div class="mb-3">
+	     <small class="text-muted d-block">인증번호 유효시간</small>
+	     <span id="expireTimer" class="font-weight-bold" data-expire="<c:out value='${sessionScope.dormant_cert_expire}'/>">--:--</span>
+	  </div>
+
+
       <form method="post" action="${pageContext.request.contextPath}/member/dormantUnlockEnd.hp">
         <div class="form-group">
           <label class="font-weight-bold">인증번호</label>
-          <!-- 영문자 5 + 숫자 5 -->
-          <input type="text" name="certCode" class="form-control" maxlength="10" placeholder="10자리 인증번호 입력" required />
+          <input type="text"
+                 name="certCode"
+                 class="form-control"
+                 maxlength="10"
+                 placeholder="10자리 인증번호 입력"
+                 required />
         </div>
 
         <button type="submit" class="btn btn-primary">
@@ -75,3 +63,79 @@ function sendDormantCode() {
 </div>
 
 <jsp:include page="/WEB-INF/footer.jsp" />
+
+<script>
+let timerInterval = null;
+
+function startExpireTimer(expireMs) {
+  const el = document.getElementById("expireTimer");
+  if (!el) return;
+
+  if (!expireMs || isNaN(expireMs)) {
+    el.textContent = "--:--";
+    return;
+  }
+
+  if (timerInterval) clearInterval(timerInterval);
+
+  function tick() {
+    const diff = expireMs - Date.now();
+
+    if (diff <= 0) {
+      el.textContent = "00:00";
+      clearInterval(timerInterval);
+      timerInterval = null;
+      return;
+    }
+
+    const totalSec = Math.floor(diff / 1000);
+    const min = String(Math.floor(totalSec / 60)).padStart(2, "0");
+    const sec = String(totalSec % 60).padStart(2, "0");
+
+    // EL 간섭 없는 방식
+    el.textContent = min + ":" + sec;
+  }
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+// 인증번호 발송
+function sendDormantCode() {
+  fetch("${pageContext.request.contextPath}/member/dormantSendCode.hp", {
+    method: "POST",
+    headers: {"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8"},
+    body: ""
+  })
+  .then(res => res.text())
+  .then(text => {
+    console.log("dormantSendCode responseText:", text);
+    if (!text) throw new Error("EMPTY_RESPONSE");
+    return JSON.parse(text);
+  })
+  .then(json => {
+    if (json.success) {
+      alert("인증번호를 이메일로 발송했습니다.");
+      const exp = Number(json.expireAt);
+      startExpireTimer(exp);
+
+      // 화면에도 저장(새로고침해도 유지되게)
+      const el = document.getElementById("expireTimer");
+      if (el) el.dataset.expire = String(exp);
+    } else {
+      alert(json.message || "인증번호 발송에 실패했습니다.");
+    }
+  })
+  .catch(err => {
+    console.log(err);
+    alert("인증번호 발송 중 오류가 발생했습니다.");
+  });
+}
+
+// 로드시 data-expire에서 읽어서 시작
+document.addEventListener("DOMContentLoaded", function() {
+  const el = document.getElementById("expireTimer");
+  const exp = el ? Number(el.dataset.expire) : NaN;
+  startExpireTimer(exp);
+});
+</script>
