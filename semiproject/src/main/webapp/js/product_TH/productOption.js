@@ -3,7 +3,6 @@ $(document).ready(function () {
 	/* =======================
 	   🔹 전역 상태 변수
 	======================= */
-
 	// 🔹 pageData에서 "변하지 않는 값"만 구조분해
 	const { 
 	    isLoggedIn, 
@@ -22,18 +21,37 @@ $(document).ready(function () {
 	let totalPrice = 0;
 
 	// 🔹 옵션 선택 상태
-	let selectStorageSize = "256GB";   // 초기 표시용
 	let selectedColor = "";
 
 	// 🔹 기본 가격 캐싱
 	const l_unitPrice = Number(unitPrice);
 
+	
     /* =======================
        🔹 초기 실행
     ======================= */
-    updateLoginStatus();  //로그인상태
-    updateTotalPrice();  //금액업데이트(수량 증가/감소)
+	// 🔹 로그인 상태
+	updateLoginStatus();
 
+	// 🔹 기본 용량
+	const defaultStorage = "256GB";
+	selectStorageSize = defaultStorage;
+	$('#sortSelectStorageSize').val(defaultStorage);
+
+	// 🔹 해당 용량에 맞는 첫 옵션 선택
+	const defaultOption = optionList.find(
+	    opt => opt.storage === defaultStorage
+	);
+	//첫 상품상세 들어왔을 때 기본옵션
+	if (defaultOption) {
+	    selectedColor = defaultOption.color;
+	    $('#sortSelectColor').val(selectedColor);
+
+	    // 🔥 여기서 옵션 확정
+	    applySelectedOption();
+		
+		updateColorOptionsByStorage(defaultStorage);
+	}
 	
     /* =======================
        🔹 공통 함수
@@ -100,7 +118,7 @@ $(document).ready(function () {
 	        updateTotalPrice();
 	    }
 	});
-	
+	//재고량이 입력될 때마다 계산해주기
     $('#quantity').on('input', function () {
         syncQuantity();
     });
@@ -111,33 +129,65 @@ $(document).ready(function () {
     ======================= */
 	//용량선택
 	$('#sortSelectStorageSize').change(function () {
-	    selectStorageSize = $(this).val();
-	    applySelectedOption();
+	    const storage = $(this).val();
+		 
+		if (!storage) return;
+	    updateColorOptionsByStorage(storage);
 	});
-	//색상선택
+	//색상 선택
 	$('#sortSelectColor').change(function () {
 	    selectedColor = $(this).val();
-	    applySelectedOption();
+	    applySelectedOption(); // 🔥 여기서 재고/가격 변경
 	});
 	
+	//용량에 해당되는 색상 출력 및 선택
+	function updateColorOptionsByStorage(storage) {
+	    const $colorSelect = $('#sortSelectColor');
+
+	    // 해당 용량의 옵션만 필터
+	    const filtered = optionList.filter(opt => opt.storage === storage);
+
+	    // 중복 제거한 색상 목록
+	    const colors = [...new Set(filtered.map(opt => opt.color))];
+
+	    // 셀렉트 초기화
+	    $colorSelect.empty();
+
+	    // 색상 옵션 추가
+	    colors.forEach(color => {
+	        $colorSelect.append(`<option value="${color}">${color}</option>`);
+	    });
+
+	    // 자동 선택 (첫 번째 색상)
+	    if (colors.length > 0) {
+	        $colorSelect.val(colors[0]);
+	        applySelectedOption();
+	    }
+	}
 	
+	//옵션 적용 함수
 	function applySelectedOption() {
 	    const color = $('#sortSelectColor').val();
 	    const storage = $('#sortSelectStorageSize').val();
 
-	    if (!color || !storage) {
+	    if (!storage) {
 	        plusPrice = 0;
 	        updateTotalPrice();
 	        return;
 	    }
 
+		// 용량 또는 색상이 없으면 중단
+	    if (!storage || !color) return;
+
+	    // ✅ 용량 + 색상 기준으로 옵션 찾기
 	    const selected = optionList.find(opt =>
-	        opt.color === color && opt.storage === storage
+	        opt.storage === storage && opt.color === color
 	    );
 
 	    if (!selected) return;
 
 	    // 옵션 반영
+		productOptionId = Number(selected.optionId);
 	    plusPrice = Number(selected.plusPrice);
 	    maxStock = Number(selected.stock);
 	    
@@ -147,21 +197,20 @@ $(document).ready(function () {
 	        $('#quantity').val(quantity);
 	    }
 
-	    // 재고 표시
-	    $('.badge-stock')
-	        .removeClass('badge-danger badge-success')
-	        .addClass(maxStock > 0 ? 'badge-success' : 'badge-danger')
-	        .html(
-	            maxStock > 0
-	                ? `<i class="fas fa-check mr-1"></i>재고 있음 (${maxStock})`
-	                : `<i class="fas fa-times mr-1"></i>품절`
-	        );
-
+		updateStockBadge(maxStock);
 	    updateTotalPrice();
 	}//end of function applySelectedOption()-----
 
-	
-	
+	// 재고 표시
+	function updateStockBadge(stock) {
+	    $('.badge-stock')
+	        .removeClass('badge-danger badge-success')
+	        .addClass(stock > 0 ? 'badge-success' : 'badge-danger')
+	        .html(
+	            stock > 0
+	                ? `<i class="fas fa-check mr-1"></i>재고 있음 (${stock})`
+	                : `<i class="fas fa-times mr-1"></i>품절`);
+	}
 	
 	
 	
@@ -177,7 +226,14 @@ $(document).ready(function () {
             $('#loginModal').modal('show');
             return;
         }
-
+		if(maxStock == 0) {
+			alert("품절인 상품은 장바구니에 담을 수 없습니다!");
+			return;
+		}
+		if(quantity == 0) {
+			alert("한 개 이상의 주문 수량이 필요합니다!")
+			return;
+		}
         if (confirm(quantity+'개의 상품을 장바구니에 담으시겠습니까?\n'+'총 금액: '+totalPrice.toLocaleString()+'원')) {
             alert('장바구니에 상품이 추가되었습니다!');
 			
@@ -213,7 +269,14 @@ $(document).ready(function () {
             $('#loginModal').modal('show');
             return;
         }
-
+		if(maxStock == 0) {
+			alert("품절인 상품은 구매할 수 없습니다!");
+			return;
+		}
+		if(quantity == 0) {
+			alert("한 개 이상의 주문 수량이 필요합니다!")
+			return;
+		}
         if (confirm('상품을 구매하시겠습니까?\n'+'수량: '+quantity+'개\n'+
 				    '총 금액: '+totalPrice.toLocaleString()+'원\n확인 버튼을 누르면 상품 구매 페이지로 이동합니다.')) {
             //alert('상품 구매 페이지로 이동합니다.');
