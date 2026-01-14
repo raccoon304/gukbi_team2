@@ -1427,8 +1427,9 @@ where product_code = '1000AP'
 order by storage_size;
 
 
+select * from tbl_product;
 select * from tbl_product_option
-where color = 'ºí·¢';
+where fk_product_code = '1000AP';
 --order by option_id desc;
 
 insert into tbl_product_option(option_id, fk_product_code, color, storage_size, stock_qty, plus_price)
@@ -1445,3 +1446,11 @@ where color = 'Red' AND storage_size = '256GB' AND fk_product_code = '1000AP';
 
 
 commit;
+
+select * from tbl_product
+where product_code = '2345AE';
+select * from tbl_product_option
+where fk_product_code = '2345AE';
+
+insert into tbl_product(product_code, product_name, brand_name, product_desc, sale_status, image_path, price)
+values('');
