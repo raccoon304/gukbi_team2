@@ -9,7 +9,9 @@ public class MemberDTO {
 	private String birthday;		// 생년월일  
 	private int gender;				// 성별		0:남자 1:여자
 	private String registerday;		// 가입일자 										DB 디폴트 (sysdate)
-
+	private String lastLogin;		// 마지막로그인 일자
+	
+	
    	private int status;             // 회원탈퇴유무   0: 사용가능(가입중) / 1:사용불능(탈퇴) 	DB 디폴트 ( 0 ) 
    	private int idle;               // 휴면유무      0 : 활동중  /  1 : 휴면중				DB 디폴트 ( 0 )
    	private int userseq;
@@ -80,5 +82,12 @@ public class MemberDTO {
 	public void setUserseq(int userseq) {
 		this.userseq = userseq;
 	}
+	public String getLastLogin() {
+		return lastLogin;
+	}
+	public void setLastLogin(String lastLogin) {
+		this.lastLogin = lastLogin;
+	}
+	
    	
 }
