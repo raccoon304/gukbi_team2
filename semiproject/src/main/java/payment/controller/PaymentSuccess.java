@@ -62,26 +62,36 @@ public class PaymentSuccess extends AbstractController {
             return;
         }
 
+        System.out.println("=== PaymentSuccess 시작 ===");
+        
         CartDAO cdao = new CartDAO_imple();
         OrderDAO odao = new OrderDAO_imple();
 
+        // 🔥 수정: "payCartList"로 변경!
         @SuppressWarnings("unchecked")
-        List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("cartList");
+        List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("payCartList");
+
+        System.out.println("payCartList(세션): " + cartList);
 
         // ===== 바로구매 보정 로직 시작 =====
         if (cartList == null || cartList.isEmpty()) {
+            System.out.println("payCartList가 null 또는 비어있음!");
 
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> directOrderList =
                 (List<Map<String, Object>>) session.getAttribute("directOrderList");
 
+            System.out.println("directOrderList(세션): " + directOrderList);
+
             if (directOrderList == null || directOrderList.isEmpty()) {
+                System.out.println("directOrderList도 null 또는 비어있음!");
                 request.setAttribute("message", "주문 상품 없음");
                 request.setAttribute("loc", request.getContextPath() + "/pay/payMent.hp");
                 setViewPage("/WEB-INF/msg.jsp");
                 return;
             }
 
+            System.out.println("directOrderList에서 cartList 생성");
             cartList = new java.util.ArrayList<>();
 
             for (Map<String, Object> m : directOrderList) {
@@ -95,14 +105,19 @@ public class PaymentSuccess extends AbstractController {
                 cartList.add(c);
             }
 
-            session.setAttribute("cartList", cartList);
+            session.setAttribute("payCartList", cartList);
         }
 
-        /* ================= 여기부터 수정 ================= */
+        System.out.println("cartList size: " + cartList.size());
+        for (CartDTO cart : cartList) {
+            System.out.println("    - " + cart.getProductName() 
+                             + ", 수량: " + cart.getQuantity()
+                             + ", 가격: " + cart.getPrice());
+        }
 
-        // 1. 폼에서 전달받은 쿠폰 정보
+        /* ================= 쿠폰 정보 ================= */
         String couponIdParam = request.getParameter("couponId");
-        String discountAmountParam = request.getParameter("discountAmount"); // 또는 discountAmountHidden
+        String discountAmountParam = request.getParameter("discountAmount");
 
         int couponIssueId = 0;
         int discountAmount = 0;
@@ -134,35 +149,48 @@ public class PaymentSuccess extends AbstractController {
             }
         }
 
+        System.out.println("쿠폰ID: " + couponIssueId + ", 할인금액: " + discountAmount);
+
         /* ================= 배송지 ================= */
         String deliveryAddress = request.getParameter("deliveryAddress");
         if (deliveryAddress == null || deliveryAddress.isBlank()) {
            deliveryAddress = "(임시 주소)";
         }
 
+        System.out.println("배송지: " + deliveryAddress);
+
         Integer orderId = (Integer) session.getAttribute("readyOrderId");
 
         if (orderId == null) {
+            System.out.println("readyOrderId가 null!");
             request.setAttribute("message", "유효하지 않은 결제 요청입니다.");
             request.setAttribute("loc", request.getContextPath() + "/index.hp");
             setViewPage("/WEB-INF/msg.jsp");
             return;
         }
 
+        System.out.println("orderId: " + orderId);
+
         try {
+            System.out.println(">>> 주문 정보 업데이트 시작");
 
-            // 2. 주문 정보 업데이트 (할인액, 배송지)
-           int n = odao.updateOrderDiscountAndAddress(orderId, discountAmount, deliveryAddress);
+            // 주문 정보 업데이트 (할인액, 배송지)
+            int n = odao.updateOrderDiscountAndAddress(orderId, discountAmount, deliveryAddress);
 
-           if (n == 0) {
-               throw new Exception("주문 정보 업데이트 실패");
-           }
+            if (n == 0) {
+                throw new Exception("주문 정보 업데이트 실패");
+            }
+
+            System.out.println(" 주문 정보 업데이트 완료");
+            System.out.println(">>> 주문 상세 등록 시작");
            
             for (CartDTO cart : cartList) {
 
+                System.out.println("처리 중: " + cart.getProductName() + ", 옵션ID: " + cart.getOptionId());
+
                 // 재고 차감 실패 → 즉시 실패
                 if (odao.decreaseStock(cart.getOptionId(), cart.getQuantity()) != 1) {
-                    throw new Exception("재고 부족");
+                    throw new Exception("재고 부족: " + cart.getProductName());
                 }
 
                 odao.insertOrderDetail(
@@ -175,26 +203,41 @@ public class PaymentSuccess extends AbstractController {
                 );
             }
 
+            System.out.println("주문 상세 등록 완료");
+
             // 성공
             odao.updateOrderStatus(orderId, "PAID");
             odao.updateDeliveryStatus(orderId, 0);
             
+            System.out.println("주문 상태 업데이트 완료");
+
             // 성공했을 때만 부수 로직
             if (couponIssueId > 0) {
                 odao.updateCouponUsed(loginuser.getMemberid(), couponIssueId);
+                System.out.println("쿠폰 사용 처리 완료");
             }
 
-            cdao.deleteSuccessCartId(
-                cartList.stream()
-                        .map(CartDTO::getCartId)
-                        .filter(id -> id > 0)
-                        .toList()
-            );
+            // 장바구니에서 삭제 (cartId가 0보다 큰 것만)
+            List<Integer> cartIdsToDelete = cartList.stream()
+                    .map(CartDTO::getCartId)
+                    .filter(id -> id > 0)
+                    .toList();
 
-            session.removeAttribute("cartList");
-            session.removeAttribute("readyOrderId");  // 추가: 사용한 orderId 제거
+            if (!cartIdsToDelete.isEmpty()) {
+                cdao.deleteSuccessCartId(cartIdsToDelete);
+                System.out.println("장바구니에서 삭제 완료: " + cartIdsToDelete);
+            }
+
+            // 세션 정리
+            session.removeAttribute("payCartList");  
+            session.removeAttribute("readyOrderId");
+
+            System.out.println("세션 정리 완료");
+            System.out.println("PaymentSuccess 완료 ");
 
         } catch (Exception e) {
+            System.out.println("결제 처리 중 오류 발생!");
+            e.printStackTrace();
 
             // 실패 → DB 반영
             odao.updateOrderStatus(orderId, "FAIL");

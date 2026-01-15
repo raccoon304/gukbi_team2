@@ -1,113 +1,72 @@
 package pay.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.json.JSONObject;
+import cart.model.CartDAO;
+import cart.model.CartDAO_imple;
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
-import cart.model.CartDAO;
-import cart.model.CartDAO_imple;
 
 public class PayPreviewController extends AbstractController {
-    
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json; charset=UTF-8");
-        
+
         HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-        
-        JSONObject json = new JSONObject();
-        
-        /* ===== 로그인 체크 ===== */
+
         if (loginUser == null) {
-            json.put("success", false);
-            json.put("message", "로그인이 필요합니다.");
-            response.getWriter().print(json.toString());
+            response.setContentType("text/html; charset=UTF-8");
+            response.getWriter().println("<script>alert('로그인이 필요합니다.'); history.back();</script>");
             return;
         }
-        
-       
-        System.out.println("cartList in session = " + session.getAttribute("cartList"));
-        System.out.println("directOrderList in session = " + session.getAttribute("directOrderList"));
-        
-        /* ===== 파라미터 ===== */
-        String productCode = request.getParameter("productCode");
-        String optionIdStr = request.getParameter("optionId");
-        String quantityStr = request.getParameter("quantity");
-        
-        if (productCode == null || optionIdStr == null || quantityStr == null) {
-            json.put("success", false);
-            json.put("message", "잘못된 요청입니다.");
-            response.getWriter().print(json.toString());
-            return;
-        }
-        
-        int optionId;
-        int quantity;
-        
+
         try {
-            optionId = Integer.parseInt(optionIdStr);
-            quantity = Integer.parseInt(quantityStr);
-        } catch (NumberFormatException e) {
-            json.put("success", false);
-            json.put("message", "수량 또는 옵션 오류");
-            response.getWriter().print(json.toString());
-            return;
-        }
-        
-        /* ===== DB 조회 ===== */
-        CartDAO cartDao = new CartDAO_imple();
-        Map<String, Object> item = cartDao.selectDirectProduct(productCode, optionId, quantity);
-        
-        if (item == null) {
-            json.put("success", false);
-            json.put("message", "상품 조회 실패");
-            response.getWriter().print(json.toString());
-            return;
-        }
-        
-        // 
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> directOrderList =
-            (List<Map<String, Object>>) session.getAttribute("directOrderList");
+            String memberId = loginUser.getMemberid();
+            int optionId = Integer.parseInt(request.getParameter("optionId"));
+            int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        if (directOrderList == null) {
-            directOrderList = new ArrayList<>();
-        }
+            System.out.println("=== PayPreviewController 시작 ===");
+            System.out.println("memberId: " + memberId);
+            System.out.println("optionId: " + optionId);
+            System.out.println("quantity: " + quantity);
 
-        // 중복 체크 (product_code + option_id)
-        boolean isDuplicate = false;
-        for (Map<String, Object> existing : directOrderList) {
-            String existingCode = String.valueOf(existing.get("product_code"));
-            int existingOptionId = Integer.parseInt(String.valueOf(existing.get("option_id")));
+            CartDAO cdao = new CartDAO_imple();
+            Map<String, Object> cartRow = cdao.selectCartByOption(memberId, optionId);
 
-            if (existingCode.equals(productCode) && existingOptionId == optionId) {
-                int existingQty = Integer.parseInt(String.valueOf(existing.get("quantity")));
-                int newQty = existingQty + quantity;
+            int cartId;
 
-                existing.put("quantity", newQty);
-                existing.put("total_price",
-                    Integer.parseInt(String.valueOf(existing.get("unit_price"))) * newQty);
+            if (cartRow != null) {
+                int existCartId = (int) cartRow.get("cart_id");
+                int existQty = (int) cartRow.get("quantity");
 
-                isDuplicate = true;
-                break;
+                System.out.println("기존 cartId 발견: " + existCartId);
+                System.out.println("기존 수량: " + existQty + " → 변경 수량: " + (existQty + quantity));
+
+                cdao.setQuantity(existCartId, memberId, existQty + quantity);
+                cartId = existCartId;
+            } else {
+                System.out.println("신규 cart 생성");
+                cartId = cdao.insertCartAndReturnId(memberId, optionId, quantity);
+                System.out.println("생성된 cartId: " + cartId);
             }
-        }
 
-        if (!isDuplicate) {
-            directOrderList.add(item);
-        }
+            List<Integer> payCartIds = List.of(cartId);
+            session.setAttribute("payCartIds", payCartIds);
 
-        session.setAttribute("directOrderList", directOrderList);
-        
-        json.put("success", true);
-        json.put("redirect", request.getContextPath() + "/pay/payMent.hp");
-        response.getWriter().print(json.toString());
+            System.out.println(">>> 세션에 저장된 payCartIds: " + payCartIds);
+            System.out.println("=== PayPreviewController 종료 ===");
+
+            // redirect로 변경! (같은 애플리케이션 내에서)
+            response.sendRedirect(request.getContextPath() + "/pay/payMent.hp");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setContentType("text/html; charset=UTF-8");
+            response.getWriter().println("<script>alert('오류가 발생했습니다: " + e.getMessage() + "'); history.back();</script>");
+        }
     }
 }

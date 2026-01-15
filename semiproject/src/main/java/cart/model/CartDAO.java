@@ -1,49 +1,33 @@
 package cart.model;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import java.sql.SQLException;
+
 public interface CartDAO {
 
-	// 이미 장바구니에 있는지 확인
-	boolean isOptionInCart(String memberId, int optionId) throws SQLException; 
+    // option 기준 cart 1건 조회 (있으면 cart_id, quantity)
+    Map<String, Object> selectCartByOption(String memberId, int optionId) throws SQLException;
 
-	/*
-	// 있으면 수량만 증가
-	int updateQuantity(String memberId, int optionId, int quantity) throws SQLException;
-	*/
-	
-	/*
-	// 없으면 새로 insert
-	int insertCart(String memberId, int optionId, int quantity) throws SQLException;
-	*/
-	
-	// 장바구니 목록 조회 (체크박스/이미지/가격)
+    // 장바구니 목록 조회
     List<Map<String, Object>> selectCartList(String memberId) throws SQLException;
 
-    
-    // 장바구니 내에서 선택 삭제
+    // cart_id 기준 단건 조회
+    Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException;
+
+    // 수량 변경
+    int setQuantity(int cartId, String memberId, int quantity) throws SQLException;
+
+    // cart insert 후 생성된 cart_id 반환
+    int insertCartAndReturnId(String memberId, int optionId, int quantity) throws SQLException;
+
+    // 결제 성공 후 cart 삭제
+    int deleteSuccessCartId(List<Integer> cartIdList) throws SQLException;
+
+    // 장바구니 개별 삭제
     int deleteCart(int cartId, String memberId) throws SQLException;
-        
-    // 장바구니 내부에서 수량 변경
-	int updateQuantity(int cartId, String memberId, int quantity) throws SQLException;
-	
-	
-	// 특정 회원(memberId)의 장바구니에서, 특정 행(cartId) 하나의 정보를 조회
-	Map<String, Object> selectCartById(int cartId, String memberId) throws SQLException;
-	
-	/*
-	// 결제 페이지 전용 (DTO)
-	List<CartDTO> selectCartListForPay(String memberId) throws SQLException;
-	 */
-	
-	// 상품상세 페이지에서 바로구매를 눌렀을때 결제페이지 내역을 볼 수 있게 해주는 기능
-	Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
 
-	// 결제에 사용된 cart_id만 삭제
-	int deleteSuccessCartId(List<Integer> cartIdList) throws SQLException;
-
-	
-
+    // JOIN 실패 시 fallback
+	Map<String, Object> selectRawCartById(int cartId, String memberid) throws SQLException;
 }

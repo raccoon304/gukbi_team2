@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
-import order.domain.OrderDTO;
 import order.model.OrderDAO;
 import order.model.OrderDAO_imple;
 
@@ -55,29 +54,40 @@ public class PayController extends AbstractController {
 
         OrderDAO odao = new OrderDAO_imple();
 
-        
         /* ================= 파라미터 ================= */
         String cartIdsParam = request.getParameter("cartIds");
 
+        @SuppressWarnings("unchecked")
+        List<Integer> payCartIds = (List<Integer>) session.getAttribute("payCartIds");
+        
         List<Map<String, Object>> orderList = new ArrayList<>();
         List<CartDTO> cartList = new ArrayList<>();
 
+        System.out.println("=== PayController 디버깅 시작 ===");
+        System.out.println("cartIdsParam: " + cartIdsParam);
+        System.out.println("payCartIds(세션): " + payCartIds);
+        System.out.println("loginUser ID: " + loginUser.getMemberid());
+
         /* ================= 결제 대상 조회 ================= */
+        
+        // 1. URL 파라미터로 넘어온 경우 (장바구니에서 선택 결제)
         if (cartIdsParam != null && !cartIdsParam.isBlank()) {
-            // 장바구니 결제 - directOrderList 세션 삭제
-            session.removeAttribute("directOrderList");
+            System.out.println(">>> 장바구니 선택 결제 경로");
             
-            System.out.println("PayController - Cart Purchase");
             String[] cartIdArray = cartIdsParam.split(",");
 
             for (String cartIdStr : cartIdArray) {
                 try {
                     int cartId = Integer.parseInt(cartIdStr.trim());
+                    System.out.println("처리 중인 cartId: " + cartId);
 
-                    Map<String, Object> item =
-                        cartDao.selectCartById(cartId, loginUser.getMemberid());
+                    Map<String, Object> item = cartDao.selectCartById(cartId, loginUser.getMemberid());
+                    System.out.println("조회 결과: " + item);
 
-                    if (item == null) continue;
+                    if (item == null) {
+                        System.out.println("WARNING: cartId " + cartId + " 조회 실패");
+                        continue;
+                    }
 
                     orderList.add(item);
 
@@ -91,161 +101,97 @@ public class PayController extends AbstractController {
 
                     cartList.add(cart);
 
-                } catch (NumberFormatException ignore) {}
-            }
-
-        } else {
-            // 바로 구매
-            String productCode = request.getParameter("productCode");
-            String optionIdStr = request.getParameter("optionId");
-            String quantityStr = request.getParameter("quantity");
-
-       
-
-            // 파라미터가 있으면 새로 조회해서 추가
-            if (productCode != null && optionIdStr != null && quantityStr != null) {
-                
-                
-                
-                int optionId;
-                int quantity;
-
-                try {
-                    optionId = Integer.parseInt(optionIdStr);
-                    quantity = Integer.parseInt(quantityStr);
-                   
                 } catch (NumberFormatException e) {
-                    System.out.println("ERROR: Number format exception!");
-                    response.getWriter().println(
-                        "<script>alert('잘못된 수량 또는 옵션입니다.');history.back();</script>"
-                    );
-                    return;
+                    System.out.println("ERROR: cartId 파싱 실패 - " + cartIdStr);
                 }
-
-              
-                
-                Map<String, Object> item = cartDao.selectDirectProduct(productCode, optionId, quantity);
-
-                
-
-                if (item != null) {
-                    // 세션에서 기존 리스트 가져오기
-                    @SuppressWarnings("unchecked")
-                    List<Map<String, Object>> directOrderList = 
-                        (List<Map<String, Object>>) session.getAttribute("directOrderList");
-                    
-                    if (directOrderList == null) {
-                        directOrderList = new ArrayList<>();
-                    }
-                    
-                    // 중복 체크 (같은 상품 + 같은 옵션)
-                    boolean isDuplicate = false;
-                    for (Map<String, Object> existingItem : directOrderList) {
-                        String existingProductCode = getStr(existingItem, "product_code");
-                        int existingOptionId = getInt(existingItem, "option_id");
-                        
-                        if (existingProductCode.equals(productCode) && existingOptionId == optionId) {
-                            // 이미 있으면 수량만 증가
-                            int existingQuantity = getInt(existingItem, "quantity");
-                            int newQuantity = existingQuantity + quantity;
-                            
-                            existingItem.put("quantity", newQuantity);
-                            existingItem.put("total_price", getInt(existingItem, "unit_price") * newQuantity);
-                            
-                            isDuplicate = true;
-                            System.out.println("Duplicate found - quantity updated: " + newQuantity);
-                            break;
-                        }
-                    }
-                    
-                    //  중복 아니면 새로 추가
-                    if (!isDuplicate) {
-                        directOrderList.add(item);
-                        
-                    }
-                    
-                    // 세션에 리스트 저장
-                    session.setAttribute("directOrderList", directOrderList);
-                    
-                   
-                } else {
-                  
-                    response.getWriter().println(
-                        "<script>alert('상품 조회에 실패했습니다.');history.back();</script>"
-                    );
-                    return;
-                }
-                
             }
-            
-            // 파라미터 없으면 세션의 전체 리스트 사용
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> directOrderList = 
-                (List<Map<String, Object>>) session.getAttribute("directOrderList");
-            
-            if (directOrderList != null && !directOrderList.isEmpty()) {
-               
-                
-                for (Map<String, Object> directItem : directOrderList) {
-                    orderList.add(directItem);
+        } 
+        // 2. 바로구매에서 넘어온 경우 (세션에 저장된 payCartIds 사용)
+        else if (payCartIds != null && !payCartIds.isEmpty()) {
+            System.out.println(">>> 바로구매 결제 경로");
+            System.out.println("payCartIds size: " + payCartIds.size());
 
-                    CartDTO cart = new CartDTO();
-                    cart.setCartId(0);
-                    cart.setOptionId(getInt(directItem, "option_id"));
-                    cart.setQuantity(getInt(directItem, "quantity"));
-                    cart.setPrice(getInt(directItem, "unit_price"));
-                    cart.setProductName(getStr(directItem, "product_name"));
-                    cart.setBrand_name(getStr(directItem, "brand_name"));
+            for (int cartId : payCartIds) {
+                System.out.println("처리 중인 cartId: " + cartId);
 
-                    cartList.add(cart);
+                Map<String, Object> item = cartDao.selectCartById(cartId, loginUser.getMemberid());
+                System.out.println("selectCartById 결과: " + item);
+
+                // JOIN 실패 시 fallback
+                if (item == null) {
+                    System.out.println("JOIN 실패, fallback 시도...");
+                    item = cartDao.selectRawCartById(cartId, loginUser.getMemberid());
+                    System.out.println("selectRawCartById 결과: " + item);
+                    
+                    if (item == null) {
+                        System.out.println("ERROR: cartId " + cartId + " fallback도 실패");
+                        continue;
+                    }
+
+                    // 최소 결제 정보 보정
+                    item.put("product_name", "(상품정보 조회 중)");
+                    item.put("brand_name", "");
+                    item.put("unit_price", 0);
+                    item.put("total_price", 0);
+                    System.out.println("fallback 데이터로 보정 완료");
                 }
-            } else if (productCode == null) {
-                // 파라미터도 없고 세션도 없으면 오류
-               
-                response.getWriter().println(
-                    "<script>alert('잘못된 접근입니다.');history.back();</script>"
-                );
-                return;
+
+                orderList.add(item);
+
+                CartDTO cart = new CartDTO();
+                cart.setCartId(cartId);
+                cart.setOptionId(getInt(item, "option_id"));
+                cart.setQuantity(getInt(item, "quantity"));
+                cart.setPrice(getInt(item, "unit_price"));
+                cart.setProductName(getStr(item, "product_name"));
+                cart.setBrand_name(getStr(item, "brand_name"));
+
+                cartList.add(cart);
             }
-            
         }
+        // 3. 둘 다 없는 경우
+        else {
+            System.out.println("ERROR: cartIdsParam도 없고 payCartIds도 없음");
+        }
+
+        System.out.println("최종 orderList size: " + orderList.size());
+        System.out.println("=== PayController 디버깅 종료 ===");
 
         /* ================= 공통 검증 ================= */
         if (orderList.isEmpty()) {
+            response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
-                "<script>alert('유효한 상품이 없습니다.');history.back();</script>"
+                "<script>alert('유효한 상품이 없습니다.\\n\\n문제가 계속되면 관리자에게 문의해주세요.');"
+              + "history.back();</script>"
             );
             return;
         }
 
+        // 세션 정리
+        session.removeAttribute("payCartIds");
+        
         /* ================= 총 금액 ================= */
         int totalPrice = 0;
         for (Map<String, Object> item : orderList) {
             totalPrice += getInt(item, "total_price");
         }
 
+        System.out.println("총 결제 금액: " + totalPrice);
+
         /* ================= 쿠폰 목록만 조회 ================= */
-        List<Map<String, Object>> couponList =
-            odao.selectAvailableCoupons(loginUser.getMemberid());
+        List<Map<String, Object>> couponList = odao.selectAvailableCoupons(loginUser.getMemberid());
 
-        
-        /* ================= 임시 주문 생성 ================= */
-        /*
-        OrderDTO order = new OrderDTO();
-        order.setMemberId(loginUser.getMemberid());
-        order.setTotalAmount(totalPrice);
-        order.setDiscountAmount(0);
-        order.setDeliveryAddress("(결제 중 입력됨)");
-        order.setRecipientName(loginUser.getName());
-        order.setRecipientPhone(loginUser.getMobile());
-        order.setOrderStatus("READY");
-
-        int orderId = odao.insertOrder(order);
-        session.setAttribute("readyOrderId", orderId);
-        *
-        
         /* ================= JSP 전달 ================= */
-        session.setAttribute("cartList", cartList);
+        session.setAttribute("payCartList", cartList);
+
+        System.out.println(">>> payCartList 세션 저장 완료");
+        System.out.println(">>> cartList size: " + cartList.size());
+        for (CartDTO cart : cartList) {
+            System.out.println("    - cartId: " + cart.getCartId() 
+                             + ", optionId: " + cart.getOptionId()
+                             + ", quantity: " + cart.getQuantity()
+                             + ", product: " + cart.getProductName());
+        }
 
         request.setAttribute("orderList", orderList);
         request.setAttribute("couponList", couponList);
@@ -254,7 +200,7 @@ public class PayController extends AbstractController {
         request.setAttribute("finalPrice", totalPrice);
         request.setAttribute("loginUser", loginUser);
 
-        System.out.println("Forward to JSP with orderList size: " + orderList.size());
+        System.out.println(">>> JSP로 포워딩: /WEB-INF/pay_MS/payMent.jsp");
 
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");
