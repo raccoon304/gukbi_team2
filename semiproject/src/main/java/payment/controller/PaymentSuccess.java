@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
-import order.domain.OrderDTO;
 import order.model.OrderDAO;
 import order.model.OrderDAO_imple;
 
