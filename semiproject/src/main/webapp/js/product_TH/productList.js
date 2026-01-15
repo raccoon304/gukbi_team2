@@ -15,6 +15,8 @@ $(function(){
 });//and of $(function(){})-----*/
 
 $(function() {
+	applyFilterAndSort();
+	
 	const $searchInput = $("#searchInput");
 	const $searchBtn = $("#searchBtn");
 	const $brandBtns = $(".brand-btn");
@@ -24,7 +26,6 @@ $(function() {
 	const $productRow = $(".product-item").parent();
 	
 	let selectedBrand = "all";
-	
 /* =====================
       필터 + 정렬 핵심 함수
    ====================== */
@@ -33,7 +34,7 @@ $(function() {
 		let visibleCount = 0;
 		let $visibleItems = $();
 		
-		// 필터링 해주괴
+		// 필터링 해주기
 		$products.each(function() {
 			const $item = $(this);
 			const brand = $item.data("brand");
@@ -75,7 +76,8 @@ $(function() {
 		
 		// 결과 개수 갱신
 		$totalCount.text(visibleCount);
-	}
+	}//end of function applyFilterAndSort()-----
+	
 	
 	/* =====================
 	   이벤트 바인딩

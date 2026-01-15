@@ -47,7 +47,7 @@
 			    </div>
 			
 			    <div class="form-container">
-			        <form id="productForm">
+			        <form id="productForm" name="productForm" enctype="multipart/form-data">
 			            <!-- 상품 기본 정보 -->
 			            <h5 class="text-primary mb-4"><i class="fas fa-info-circle mr-2"></i>상품 기본 정보</h5>
 			            
@@ -231,6 +231,8 @@
 							        옵션 추가
 							    </button>
 							</div>
+						    <small class="form-text text-muted text-center">새로운 상품일 경우 기본금을 입력해야 옵션 추가가 가능합니다.</small>
+					        
 							
 			                <div class="option-matrix">
 			                    <div class="matrix-header">

@@ -33,8 +33,8 @@ $(document).ready(function () {
 	// 🔹 로그인 상태
 	updateLoginStatus();
 
-	// 🔹 기본 용량
-	const defaultStorage = "256GB";
+	// 🔹 기본 용량: 실제 존재하는 첫 용량
+	const defaultStorage = optionList[0].storage;
 	selectStorageSize = defaultStorage;
 	$('#sortSelectStorageSize').val(defaultStorage);
 
@@ -214,7 +214,7 @@ $(document).ready(function () {
 	
 	
 	
-	
+//==================== 다른 페이지로 데이터 보내주기 ====================//
     /* =======================
        🔹 장바구니
     ======================= */

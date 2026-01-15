@@ -1,5 +1,7 @@
 package product.domain;
 
+import java.util.List;
+
 //제품테이블의 컬럼
 public class ProductDTO {
 	  private String productCode;	//상품코드
@@ -10,6 +12,8 @@ public class ProductDTO {
 	  private String imagePath;		//제품이미지경로
 	  private int price;				//제품가격
 	  
+	  private List<String> colorList;
+	  private List<String> storageList;
 	  
 	  public String getProductCode() {
 		  return productCode;
@@ -53,5 +57,22 @@ public class ProductDTO {
 	  public void setPrice(int price) {
 		  this.price = price;
 	  }
+	  
+	  public List<String> getColorList() {
+		  return colorList;
+	  }
+	  public void setColorList(List<String> colorList) {
+		  this.colorList = colorList;
+	  }
+	  public List<String> getStorageList() {
+		  return storageList;
+	  }
+	  public void setStorageList(List<String> storageList) {
+		  this.storageList = storageList;
+	  }
+	  
+	  
+	  
+	  
 	  
 }
