@@ -67,7 +67,7 @@ public class PaymentSuccess extends AbstractController {
         CartDAO cdao = new CartDAO_imple();
         OrderDAO odao = new OrderDAO_imple();
 
-        // 🔥 수정: "payCartList"로 변경!
+        // "payCartList"로 변경!
         @SuppressWarnings("unchecked")
         List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("payCartList");
 
