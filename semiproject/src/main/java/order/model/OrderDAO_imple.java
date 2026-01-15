@@ -600,7 +600,7 @@ public class OrderDAO_imple implements OrderDAO {
 		    List<Map<String, Object>> list = new ArrayList<>();
 
 		    String sql =
-		        " SELECT od.product_name, od.brand_name, od.quantity, od.unit_price, po.fk_product_code, "
+		        " SELECT od.product_name, od.brand_name, od.quantity, od.unit_price, po.fk_product_code,  od.is_review_written AS is_review_written,"
 		      + "        (od.quantity * od.unit_price) AS total_price, "
 		      + "        NVL(po.color,'') AS color, "
 		      + "        NVL(po.storage_size,'') AS storage "
@@ -631,6 +631,7 @@ public class OrderDAO_imple implements OrderDAO {
 		            m.put("color", rs.getString("color"));
 		            m.put("storage", rs.getString("storage"));
 		            m.put("fkProductCode", rs.getString("fk_product_code"));
+		            m.put("is_review_written", rs.getInt("is_review_written"));
 		            list.add(m);
 		        }
 

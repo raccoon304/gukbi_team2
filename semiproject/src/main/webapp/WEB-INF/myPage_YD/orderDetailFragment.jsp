@@ -77,16 +77,34 @@
 	                 href="${pageContext.request.contextPath}/product/productOption.hp?productCode=${p['fkProductCode']}">
 	                <c:out value="${p['product_name']}" />
 	              </a>
+	              
 	              <!-- 리뷰 페이지로 이동 버튼 -->
 				  <a class="btn btn-sm btn-outline-primary ml-2"
 				     href="${pageContext.request.contextPath}/review/reviewList.hp?productCode=${p['fkProductCode']}">
 				    리뷰보기
 				  </a>
 				  <!-- 리뷰 작성페이지로 이동 버튼 -->
-				  <a class="btn btn-sm btn-outline-primary ml-2"
-				     href="${pageContext.request.contextPath}/review/reviewWrite.hp?productCode=${p['fkProductCode']}">
-				    리뷰작성하기
-				  </a>
+				  <c:set var="isWritten" value="${p['is_review_written']}" />
+					
+				  <c:choose>
+				  		<%-- 이미 작성한경우 --%>
+					  <c:when test="${isWritten == 1}">
+					    <a class="btn btn-sm btn-secondary ml-2 disabled"
+					       href="javascript:void(0);"
+					       aria-disabled="true"
+					       tabindex="-1">
+					      작성한 리뷰
+					    </a>
+					  </c:when>
+					
+					  <%-- 미작성 경우 --%>
+					  <c:otherwise>
+					    <a class="btn btn-sm btn-outline-primary ml-2"
+					       href="${pageContext.request.contextPath}/review/reviewWrite.hp?productCode=${p['fkProductCode']}">
+					      리뷰작성하기
+					    </a>
+					  </c:otherwise>
+				  </c:choose>
 				  
 	            </div>
 	
