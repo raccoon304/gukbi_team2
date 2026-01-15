@@ -172,11 +172,11 @@
 			                    </div>
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="storage512" name="storage" value="512GB" data-price="300000">
-			                        <label class="toggle-label" for="storage512">512GB<br><small>(+300,000원)</small></label>
+			                        <label class="toggle-label" for="storage512">512GB<br><small>(추가금 기입)</small></label>
 			                    </div>
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="storage1TB" name="storage" value="1TB" data-price="600000">
-			                        <label class="toggle-label" for="storage1TB">1TB<br><small>(+600,000원)</small></label>
+			                        <label class="toggle-label" for="storage1TB">1TB<br><small>(추가금 기입)</small></label>
 			                    </div>
 			                </div>
 			                <small class="form-text text-muted">판매할 저장용량을 선택하세요</small>
@@ -190,39 +190,27 @@
 			                </div>
 			                <div class="toggle-group">
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorBlack" name="color" value="블랙">
+			                        <input type="checkbox" id="colorBlack" name="color" value="Black">
 			                        <label class="toggle-label" for="colorBlack">
 			                            <span class="color-indicator black"></span>블랙
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorWhite" name="color" value="화이트">
+			                        <input type="checkbox" id="colorWhite" name="color" value="White">
 			                        <label class="toggle-label" for="colorWhite">
 			                            <span class="color-indicator white"></span>화이트
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorBlue" name="color" value="블루">
+			                        <input type="checkbox" id="colorBlue" name="color" value="Blue">
 			                        <label class="toggle-label" for="colorBlue">
 			                            <span class="color-indicator blue"></span>블루
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorRed" name="color" value="레드">
+			                        <input type="checkbox" id="colorRed" name="color" value="Red">
 			                        <label class="toggle-label" for="colorRed">
 			                            <span class="color-indicator red"></span>레드
-			                        </label>
-			                    </div>
-			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorGreen" name="color" value="그린">
-			                        <label class="toggle-label" for="colorGreen">
-			                            <span class="color-indicator green"></span>그린
-			                        </label>
-			                    </div>
-			                    <div class="toggle-item">
-			                        <input type="checkbox" id="colorGold" name="color" value="골드">
-			                        <label class="toggle-label" for="colorGold">
-			                            <span class="color-indicator gold"></span>골드
 			                        </label>
 			                    </div>
 			                </div>
@@ -234,7 +222,16 @@
 			            <div class="form-section">
 			                <div class="section-title">
 			                    <i class="fas fa-table mr-2"></i>옵션별 재고 및 추가금 설정 <span class="required-mark">*</span>
+			                    <small class="form-text text-muted">이미 존재하는 옵션일 경우 재고량만 증가합니다.</small>
 			                </div>
+			                
+			                <div class="d-flex justify-content-center mt-3">
+							    <button type="button" id="addOptionMatrix" class="option-add-btn">
+							        <i class="fas fa-plus"></i>
+							        옵션 추가
+							    </button>
+							</div>
+							
 			                <div class="option-matrix">
 			                    <div class="matrix-header">
 			                        <h6 class="mb-0"><i class="fas fa-th mr-2"></i>저장용량 × 색상 조합</h6>
