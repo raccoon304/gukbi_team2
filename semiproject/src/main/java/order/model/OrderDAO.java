@@ -56,6 +56,13 @@ public interface OrderDAO {
 
  	// PG 결제 실패 발생 시 주문 상태를 FAIL로 업데이트 (READY 상태만)
   	 int updateOrderStatusIfReady(Integer orderId, String string) throws SQLException;
+
+	
+
+	 Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
+
+	 // 손영대의 orderpage용
+	 Map<String, Object> selectOrderHeaderforYD(int orderId) throws SQLException;
     
 
     

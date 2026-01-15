@@ -129,7 +129,7 @@ public class OrderDAO_imple implements OrderDAO {
         String sql =
             " SELECT order_id, order_date, total_amount, discount_amount, " +
             "        (total_amount - discount_amount) AS final_amount, " +
-            "        delivery_address, order_status " +
+            "        delivery_address, order_status, recipient_name, recipient_phone" +
             " FROM tbl_orders " +
             " WHERE order_id = ? ";
 
@@ -146,6 +146,8 @@ public class OrderDAO_imple implements OrderDAO {
                     map.put("total_amount", rs.getInt("total_amount"));
                     map.put("discount_amount", rs.getInt("discount_amount"));
                     map.put("final_amount", rs.getInt("final_amount"));
+                    map.put("delivery_address", rs.getString("delivery_address"));
+                    map.put("order_status", rs.getString("order_status"));
                     map.put("delivery_address", rs.getString("delivery_address"));
                     map.put("order_status", rs.getString("order_status"));
                 }
@@ -282,9 +284,9 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
 
-    /* =========================
+    /* 
        7. 주문 상태 변경
-       ========================= */
+        */
     @Override
     public void updateOrderStatus(int orderId, String status) throws SQLException {
 
@@ -671,6 +673,57 @@ public class OrderDAO_imple implements OrderDAO {
 	    }
 
 	    return result;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	@Override
+    public Map<String, Object> selectOrderHeaderforYD(int orderId) throws SQLException {
+
+        Map<String, Object> map = new HashMap<>();
+
+        String sql =
+            " SELECT order_id, order_date, total_amount, discount_amount, " +
+            "        (total_amount - discount_amount) AS final_amount, " +
+            "        delivery_address, order_status, recipient_name, recipient_phone" +
+            " FROM tbl_orders " +
+            " WHERE order_id = ? ";
+
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
+            pstmt.setInt(1, orderId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    map.put("order_id", rs.getInt("order_id"));
+                    map.put("order_date", rs.getString("order_date"));
+                    map.put("total_amount", rs.getInt("total_amount"));
+                    map.put("discount_amount", rs.getInt("discount_amount"));
+                    map.put("final_amount", rs.getInt("final_amount"));
+                    map.put("delivery_address", rs.getString("delivery_address"));
+                    map.put("order_status", rs.getString("order_status"));
+                    map.put("recipient_name", rs.getString("recipient_name"));
+                    map.put("recipient_phone", rs.getString("recipient_phone"));
+                }
+            }
+        }
+
+        return map;
+    }
+
+	@Override
+	public Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException {
+		
+		return null;
 	}
 }
 
