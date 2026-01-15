@@ -44,7 +44,7 @@ public class OrderDetailFragment extends AbstractController {
             return;
         }
 
-        // ✅ 내 주문인지 검증: 기존 메서드(selectOrderSummaryList) 그대로 사용
+        // 내 주문인지 검증 기존 메서드(selectOrderSummaryList) 그대로 사용
         boolean isMine = false;
         List<OrderDTO> myOrders = odao.selectOrderSummaryList(loginUser.getMemberid());
         for (OrderDTO dto : myOrders) {
@@ -62,12 +62,15 @@ public class OrderDetailFragment extends AbstractController {
         }
 
         //  기존 메서드 재사용 (수정/교체 없음)
-        Map<String, Object> header = odao.selectOrderHeader(orderId);
-        List<Map<String, Object>> items = odao.selectOrderDetailForPayment(orderId);
+        Map<String, Object> header = odao.selectOrderHeaderforYD(orderId);
+        List<Map<String, Object>> items = odao.selectOrderItemsForModal(orderId);
         List<Map<String, Object>> product = odao.selectOrderItemsForModal(orderId);
+        
+        
         
         System.out.println("header keys => " + header.keySet());
         System.out.println("header map => " + header);
+
         
         if (header == null || header.isEmpty()) {
             request.setAttribute("errMsg", "주문 정보를 찾을 수 없습니다.");
@@ -79,7 +82,6 @@ public class OrderDetailFragment extends AbstractController {
         request.setAttribute("orderHeader", header);
         request.setAttribute("items", items);
         request.setAttribute("product", product);
-        
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/myPage_YD/orderDetailFragment.jsp");
     }

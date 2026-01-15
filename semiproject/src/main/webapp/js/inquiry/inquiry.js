@@ -51,7 +51,7 @@ function loadInquiryDetail(inquiryNumber) {
       if (!json || json.success === false) {
         // 비밀글 차단이면 메시지로 안내
         if (json && json.secretBlocked) {
-          alert(json.message || "비밀글은 작성자만 조회 가능합니다.");
+        //  alert(json.message || "비밀글은 작성자만 조회 가능합니다.");
           return;
         }
         alert(json && json.message ? json.message : "문의를 찾을 수 없습니다.");
@@ -353,7 +353,15 @@ $(document).on("click", ".inquiry-item", function () {
   // 제목이 '비밀글입니다'로 내려온 경우 막기
   const titleText = $(this).find("h6").text().trim();
   if (isSecret && titleText.includes("비밀글입니다")) {
-    alert("비밀글은 작성자만 조회 가능합니다.");
+	
+	if (!isLoggedIn) {
+	    alert("비밀글은 작성자만 조회 가능합니다.\n로그인을 해주세요.");
+	    return;
+	  }
+	else{
+		alert("비밀글은 작성자만 조회 가능합니다.");
+	}  
+    
     return;
   }
 
@@ -418,3 +426,8 @@ window.saveAdminReply = function (inquiryNumber) {
     }
   });
 };
+
+$(document).on("click", "#reviewBtn", function () {
+ location.href = ctxPath + "/review/reviewList.hp?productCode=" + pageData.productCode
+              + "&optionId=" + pageData.productOptionId;
+});
