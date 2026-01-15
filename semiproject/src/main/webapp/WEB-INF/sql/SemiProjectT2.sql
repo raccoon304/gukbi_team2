@@ -1425,3 +1425,23 @@ join tbl_product_option O
 on P.product_code = O.fk_product_code
 where product_code = '1000AP'
 order by storage_size;
+
+
+select * from tbl_product_option
+where fk_product_code = '1300AP'
+order by option_id desc;
+
+select * from tbl_product
+where product_code = '1100AP';
+
+select * 
+from tbl_product_option
+where fk_product_code = '1100AP';
+
+select distinct storage_size, plus_price , stock_qty
+from tbl_product_option
+where fk_product_code = '1100AP';
+
+select distinct color
+from tbl_product_option
+where fk_product_code = '1100AP';
