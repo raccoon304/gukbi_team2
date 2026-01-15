@@ -111,7 +111,7 @@ public class ProductDAO_imple implements ProductDAO {
 		ProductOptionDTO proDetilDto = new ProductOptionDTO();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, "
+			String sql = " SELECT option_id, fk_product_code, P.product_name, color, storage_size, stock_qty, image_path, "
 						+"	       brand_name, price, product_desc, (price + plus_price) as total_price, plus_price "
 						+" FROM tbl_product_option O "
 						+" JOIN tbl_product P "
@@ -136,6 +136,7 @@ public class ProductDAO_imple implements ProductDAO {
 				proDto.setPrice(rs.getInt("price"));  //상품기본가격(256GB)
 				proDto.setBrandName(rs.getString("brand_name"));
 				proDto.setProductDesc(rs.getString("product_desc"));
+				proDto.setImagePath(rs.getString("image_path"));
 
 				proDetilDto.setProDto(proDto);
 			}
@@ -302,6 +303,162 @@ public class ProductDAO_imple implements ProductDAO {
 		} finally {close();}
 		return isProductName;
 	}//end of public boolean ckProductName(String productName) throws SQLException-----
+
+
+	
+	//상품코드에 해당하는 옵션 값들 DB에 넣어주기
+	/*
+	@Override
+	public int insertProductOption(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " insert into tbl_product_option(option_id, fk_product_code, color, storage_size, stock_qty, plus_price) "
+					+ " values(seq_product_option_id.nextval, ? , ? , ? , ? , ?) ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("productCode"));
+			pstmt.setString(1, paraMap.get("color"));
+			pstmt.setString(1, paraMap.get("storage"));
+			pstmt.setString(1, paraMap.get("stock"));
+			pstmt.setString(1, paraMap.get("additionalPrice"));
+			
+			result = pstmt.executeUpdate();
+		}
+		finally {close();}
+		return result;
+	}//end of public int insertProductOption(Map<String, String> paraMap) throws SQLException-----
+	*/
+
+
+	//선택한 옵션(용량, 색상)이 중복옵션인지, 새 옵션인지 알아와서 update/insert 해주기
+	@Override
+	public int selectInsertOrUpdateOption(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+		boolean isDuplicate = false;
+		
+		try {
+			conn = ds.getConnection();
+			
+			String sql = " select color, storage_size, fk_product_code, stock_qty "
+					+ " from tbl_product_option "
+					+ " where fk_product_code = ? AND storage_size = ? AND color = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("productCode"));
+			pstmt.setString(2, paraMap.get("storage"));
+			pstmt.setString(3, paraMap.get("color"));
+			
+			rs = pstmt.executeQuery();
+			isDuplicate = rs.next(); //가져온 행이 있다면 true
+			
+			if(isDuplicate) {
+				//가져온 행이 있음(중복된 행 => 재고량안 update)
+				sql = " UPDATE tbl_product_option SET stock_qty = stock_qty + ? "
+					+ " WHERE fk_product_code = ? AND storage_size = ? AND color = ? ";
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, paraMap.get("stock"));
+				pstmt.setString(2, paraMap.get("productCode"));
+				pstmt.setString(3, paraMap.get("storage"));
+				pstmt.setString(4, paraMap.get("color"));
+				result = pstmt.executeUpdate();
+				
+			} else {
+				//가져온 행이 없음(새로운 행 => 옵션 등록)
+				sql = " insert into tbl_product_option(option_id, fk_product_code, color, storage_size, stock_qty, plus_price) "
+						+ " values(seq_product_option_id.nextval, ? , ? , ? , ? , ?) ";
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, paraMap.get("productCode"));
+				pstmt.setString(2, paraMap.get("color"));
+				pstmt.setString(3, paraMap.get("storage"));
+				pstmt.setString(4, paraMap.get("stock"));
+				pstmt.setString(5, paraMap.get("additionalPrice"));
+				
+				result = pstmt.executeUpdate();
+			}//end of if~else()-----
+			
+		}
+		finally {close();}
+		return result;
+	}//end of public boolean selectDuplicateOption(Map<String, String> paraMap) throws SQLException-----
+
+
+	//새로운 상품을 테이블에 삽입해주기
+	@Override
+	public int insertProduct(ProductDTO proDto) throws SQLException {
+		int n = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " insert into tbl_product(product_code, product_name, brand_name, product_desc, sale_status, image_path, price) "
+						+" values(?, ?, ?, ?, ?, ?, ?) ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, proDto.getProductCode());
+			pstmt.setString(2, proDto.getProductName());
+			pstmt.setString(3, proDto.getBrandName());
+			pstmt.setString(4, proDto.getProductDesc());
+			pstmt.setString(5, proDto.getSaleStatus());
+			pstmt.setString(6, proDto.getImagePath());
+			pstmt.setInt(7, proDto.getPrice());
+			
+			n = pstmt.executeUpdate();
+		}
+		finally {close();}
+		return n;
+	}//end of public int insertProduct(ProductDTO proDto) throws SQLException-----
+
+	//새로운 상품에 대한 옵션들 삽입해주기
+	@Override
+	public int selectInsertOption(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+		try {
+			conn = ds.getConnection();
+			//가져온 행이 없음(새로운 행 => 옵션 등록)
+			String sql = " insert into tbl_product_option(option_id, fk_product_code, color, storage_size, stock_qty, plus_price) "
+					+ " values(seq_product_option_id.nextval, ? , ? , ? , ? , ?) ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, paraMap.get("productCode"));
+			pstmt.setString(2, paraMap.get("color"));
+			pstmt.setString(3, paraMap.get("storage"));
+			pstmt.setString(4, paraMap.get("stock"));
+			pstmt.setString(5, paraMap.get("additionalPrice"));
+			
+			result = pstmt.executeUpdate();
+		} 
+		finally {close();}
+		return result;
+	}//end of public int selectInsertOption(Map<String, String> paraMap) throws SQLException-----
+
+
+	//제품 코드에 따른 옵션들 모두 가져오기
+	@Override
+	public List<ProductOptionDTO> selectAllOption(String productCode) throws SQLException {
+		List<ProductOptionDTO> proOptionList = new ArrayList<ProductOptionDTO>();
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT option_id, color, storage_size, plus_price, stock_qty "
+						+" FROM tbl_product_option "
+						+" WHERE fk_product_code = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productCode);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				ProductOptionDTO proOptionDto = new ProductOptionDTO();
+				proOptionDto.setOptionId(rs.getInt("option_id"));
+				proOptionDto.setColor(rs.getString("color"));
+				proOptionDto.setStorageSize(rs.getString("storage_size"));
+				proOptionDto.setPlusPrice(rs.getInt("plus_price"));
+				proOptionDto.setStockQty(rs.getInt("stock_qty"));
+				
+				proOptionList.add(proOptionDto);
+			}//end of while()-----
+			
+		}
+		finally {close();}
+		return proOptionList;
+	}//end of public List<ProductOptionDTO> selectAllOption(String productCode) throws SQLException-----
 
 
 	

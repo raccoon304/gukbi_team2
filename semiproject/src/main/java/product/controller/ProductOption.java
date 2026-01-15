@@ -1,6 +1,9 @@
 package product.controller;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,6 +38,11 @@ public class ProductOption extends AbstractController {
 			
 			//제품코드에 따른 추가금을 가져오기(512GB만 추가금이 있으므로 그것만 가져오기
 			int plusPrice = proDao.selectOptionPlusPrice(productCode);
+			
+			//제품 코드에 따른 옵션들 모두 가져오기
+			List<ProductOptionDTO> proOptionList = proDao.selectAllOption(productCode);
+			request.setAttribute("proOptionList", proOptionList);
+			
 				
 			request.setAttribute("proDto", proDto);
 			//request.setAttribute("proOptionList", proOptionList);
