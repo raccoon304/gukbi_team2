@@ -39,6 +39,8 @@ $(function () {
         buyer_name: userid
     }, function (rsp) {
     	
+    	 console.log("readyOrderId =", "${sessionScope.readyOrderId}");
+    	
     	if (rsp.success) {
 
     	    const payForm = opener.document.getElementById("payForm");
@@ -62,10 +64,20 @@ $(function () {
 
              window.close();
 
-         } else {
-             alert("결제 실패: " + rsp.error_msg);
-             window.close();
-         }
+    	} else {
+
+    	    // PG 즉시 실패 → 서버에 FAIL 통보 (실패 유형 3)
+    	    $.post(
+    	        "<%= request.getContextPath() %>/payment/paymentFail.hp",
+    	        {
+    	            orderId: "${sessionScope.readyOrderId}",
+    	            failReason: rsp.error_msg
+    	        }
+    	    );
+
+    	    alert("결제 실패: " + rsp.error_msg);
+    	    window.close();
+    	}
      });
 
  });

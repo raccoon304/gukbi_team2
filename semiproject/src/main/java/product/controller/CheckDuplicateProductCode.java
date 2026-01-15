@@ -34,6 +34,7 @@ public class CheckDuplicateProductCode extends AbstractController {
 			String productName = "";
 			String brandName = "";
 			String productDESC = "";
+			String imagePath = "";
 			int price = 0;
 			
 			if(isProductCode) {
@@ -44,6 +45,7 @@ public class CheckDuplicateProductCode extends AbstractController {
 				price = proOptionDto.getProDto().getPrice();
 				brandName = proOptionDto.getProDto().getBrandName();
 				productDESC = proOptionDto.getProDto().getProductDesc();
+				imagePath = proOptionDto.getProDto().getImagePath();
 				
 				//System.out.println(proOptionDto.getProDto().getProductName());
 				//System.out.println(proOptionDto.getProDto().getPrice());
@@ -54,10 +56,12 @@ public class CheckDuplicateProductCode extends AbstractController {
 			
 			JSONObject jsonObj = new JSONObject();
 			jsonObj.put("isProductCode", isProductCode);
+			jsonObj.put("productCode", productCode);
 			jsonObj.put("productName", productName);
 			jsonObj.put("price", price);
 			jsonObj.put("brandName", brandName);
 			jsonObj.put("productDESC", productDESC);
+			jsonObj.put("imagePath", imagePath);
 			//jsonObj.put("message", message);
 			
 			String json = jsonObj.toString();
