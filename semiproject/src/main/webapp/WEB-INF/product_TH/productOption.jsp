@@ -60,7 +60,7 @@
                             <div class="spec-item">
                                 <div class="spec-label">저장용량</div>
                                 <select class="sort-select form-control" id="sortSelectStorageSize">
-                                	<option value="">용량 선택</option>
+                                		<!-- <option value="">용량 선택</option> -->
 								    <c:forEach var="opt" items="${proOptionList}">
 								        <c:if test="${not fn:contains(storageSet, opt.storageSize)}">
 								            <option value="${opt.storageSize}">${opt.storageSize}</option>
@@ -81,7 +81,7 @@
                             <div class="spec-item">
                                 <div class="spec-label">색상</div>
                                 <select class="sort-select form-control" id="sortSelectColor">
-                                	<option value="">색상 선택</option>
+                                		<option value="">색상 선택</option>
 								    <c:forEach var="opt" items="${proOptionList}">
 								        <c:if test="${not fn:contains(colorSet, opt.color)}">
 								            <option value="${opt.color}">${opt.color}</option>
@@ -204,6 +204,7 @@
     const optionList = [
         <c:forEach var="opt" items="${proOptionList}" varStatus="st">
         {
+        		optionId: ${opt.optionId},
             color: "${opt.color}",
             storage: "${opt.storageSize}",
             stock: ${opt.stockQty},

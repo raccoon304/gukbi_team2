@@ -17,7 +17,6 @@ import order.model.OrderDAO_imple;
 
 public class PaymentSuccess extends AbstractController {
 
-    // 안전한 숫자 파싱 메서드
     private int parseIntSafe(String value) {
         try {
             return Integer.parseInt(value);
@@ -32,24 +31,11 @@ public class PaymentSuccess extends AbstractController {
         HttpSession session = request.getSession();
         MemberDTO loginuser = (MemberDTO) session.getAttribute("loginUser");
 
-         
-        //   GET 요청 처리 (리다이렉트 후)
-       
+        /* ================= GET : 결제 완료 페이지 ================= */
         if ("GET".equalsIgnoreCase(request.getMethod())) {
-            
-            if (loginuser == null) {
-                request.setAttribute("message", "로그인 정보 없음");
-                request.setAttribute("loc", request.getContextPath() + "/login/login.hp");
-                setRedirect(false);
-                setViewPage("/WEB-INF/msg.jsp");
-                return;
-            }
 
-            // 세션에서 orderId 가져오기
             Integer orderId = (Integer) session.getAttribute("lastOrderId");
-
-            // f5를 눌렀을때 메세지 띄우고 인덱스 페이지로 이동시키기
-            if (orderId == null) {
+            if (loginuser == null || orderId == null) {
                 request.setAttribute("message", "이미 처리된 주문입니다.");
                 request.setAttribute("loc", request.getContextPath() + "/index.hp");
                 setRedirect(false);
@@ -57,91 +43,20 @@ public class PaymentSuccess extends AbstractController {
                 return;
             }
 
-            // DB에서 주문 정보 조회
             OrderDAO odao = new OrderDAO_imple();
-            Map<String, Object> orderHeader = odao.selectOrderHeader(orderId);
-            List<Map<String, Object>> orderItems = odao.selectOrderDetailForPayment(orderId);
+            request.setAttribute("order", odao.selectOrderHeader(orderId));
+            request.setAttribute("orderDetailList", odao.selectOrderDetailForPayment(orderId));
 
-            if (orderHeader == null || orderItems == null || orderItems.isEmpty()) {
-                request.setAttribute("message", "주문 정보를 불러올 수 없습니다.");
-                request.setAttribute("loc", request.getContextPath() + "/index.hp");
-                setRedirect(false);
-                setViewPage("/WEB-INF/msg.jsp");
-                return;
-            }
-
-            // 세션에서 orderId 제거 (일회성 - F5 방지)
             session.removeAttribute("lastOrderId");
 
-            // 화면에 데이터 전달
-            request.setAttribute("order", orderHeader);
-            request.setAttribute("orderDetailList", orderItems);
-
-            String deliveryTypeFromSession =
-            (String) session.getAttribute("deliveryType");
-
-            request.setAttribute("deliveryType", deliveryTypeFromSession);
-            session.removeAttribute("deliveryType");
-            
             setRedirect(false);
             setViewPage("/WEB-INF/pay_MS/paymentSuccess.jsp");
             return;
         }
 
-    
-         //  POST 요청 처리 (최초 결제 완료)
-        if (!"POST".equalsIgnoreCase(request.getMethod())) {
-            request.setAttribute("message", "비정상적인 접근입니다.");
-            request.setAttribute("loc", "javascript:history.back()");
-            setRedirect(false);
-            setViewPage("/WEB-INF/msg.jsp");
-            return;
-        }
-
-        /* 
-           2. 로그인 체크
-        */
-        if (loginuser == null) {
-            request.setAttribute("message", "로그인 정보 없음");
-            request.setAttribute("loc", "javascript:history.back()");
-            setRedirect(false);
-            setViewPage("/WEB-INF/msg.jsp");
-            return;
-        }
-
-        /* 
-           3. 결제 식별값 체크
-         */
-        String impUid = request.getParameter("imp_uid");
-        String merchantUid = request.getParameter("merchant_uid");
-
-        if (impUid == null || merchantUid == null) {
-            request.setAttribute("message", "결제 정보 누락");
-            request.setAttribute("loc", "javascript:history.back()");
-            setRedirect(false);
-            setViewPage("/WEB-INF/msg.jsp");
-            return;
-        }
-
-        /* 
-           4. 결제 금액 / 배송지 파라미터
-           (방탄 처리)
-         */
-        int totalAmount = parseIntSafe(request.getParameter("totalAmount"));
-        int discountAmount = parseIntSafe(request.getParameter("discountAmount"));
-        String deliveryAddress = request.getParameter("deliveryAddress");
-        String deliveryType = request.getParameter("deliveryTypeSelected");
-        
-        if (totalAmount <= 0) {
-            request.setAttribute("message", "결제 금액 오류");
-            request.setAttribute("loc", "javascript:history.back()");
-            setRedirect(false);
-            setViewPage("/WEB-INF/msg.jsp");
-            return;
-        }
-
-        if (deliveryAddress == null || deliveryAddress.isBlank()) {
-            request.setAttribute("message", "배송지 정보가 없습니다.");
+        /* ================= POST : 결제 성공 처리 ================= */
+        if (!"POST".equalsIgnoreCase(request.getMethod()) || loginuser == null) {
+            request.setAttribute("message", "비정상 접근");
             request.setAttribute("loc", "javascript:history.back()");
             setRedirect(false);
             setViewPage("/WEB-INF/msg.jsp");
@@ -151,76 +66,123 @@ public class PaymentSuccess extends AbstractController {
         CartDAO cdao = new CartDAO_imple();
         OrderDAO odao = new OrderDAO_imple();
 
-        /* 
-           5. 주문 생성 → orderId 받기
-        */
-        OrderDTO order = new OrderDTO();
-        order.setMemberId(loginuser.getMemberid());
-        order.setTotalAmount(totalAmount);
-        order.setDiscountAmount(discountAmount);
-        order.setDeliveryAddress(deliveryAddress);
-        order.setOrderStatus("PAID");
-
- 
-        // order.setImpUid(impUid);
-        // order.setMerchantUid(merchantUid);
-
-        int orderId = odao.insertOrder(order);
- 
-       // 6. 주문 상세 생성 (장바구니 기준)       
         @SuppressWarnings("unchecked")
         List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("cartList");
 
         if (cartList == null || cartList.isEmpty()) {
-            request.setAttribute("message", "주문할 상품 정보가 없습니다.");
-            request.setAttribute("loc", request.getContextPath() + "/cart/cart.hp");
-            setRedirect(false);
+            throw new RuntimeException("주문 상품 없음");
+        }
+
+        /* ================= 여기부터 수정 ================= */
+
+        // 1. 폼에서 전달받은 쿠폰 정보
+        String couponIdParam = request.getParameter("couponId");
+        String discountAmountParam = request.getParameter("discountAmount"); // 또는 discountAmountHidden
+
+        int couponIssueId = 0;
+        int discountAmount = 0;
+
+        if (couponIdParam != null && !couponIdParam.isBlank()) {
+            try {
+                couponIssueId = Integer.parseInt(couponIdParam);
+                
+                // 쿠폰 유효성 검증
+                if (couponIssueId > 0) {
+                    Map<String, Object> couponInfo =
+                        odao.selectCouponInfo(loginuser.getMemberid(), couponIssueId);
+
+                    if (couponInfo == null) {
+                        throw new RuntimeException("유효하지 않은 쿠폰");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                couponIssueId = 0;
+            }
+        }
+
+        // 할인 금액 파싱
+        if (discountAmountParam != null && !discountAmountParam.isBlank()) {
+            try {
+                discountAmount = Integer.parseInt(discountAmountParam);
+            } catch (NumberFormatException e) {
+                discountAmount = 0;
+            }
+        }
+
+        /* ================= 배송지 ================= */
+        String deliveryAddress = request.getParameter("deliveryAddress");
+        if (deliveryAddress == null || deliveryAddress.isBlank()) {
+            throw new RuntimeException("배송지 없음");
+        }
+
+        Integer orderId = (Integer) session.getAttribute("readyOrderId");
+
+        if (orderId == null) {
+            request.setAttribute("message", "유효하지 않은 결제 요청입니다.");
+            request.setAttribute("loc", request.getContextPath() + "/index.hp");
             setViewPage("/WEB-INF/msg.jsp");
             return;
         }
 
-        int totalInserted = 0;
+        try {
 
-        for (CartDTO cart : cartList) {
-            totalInserted += odao.insertOrderDetail(orderId, cart);
-            
-        }
+            // 2. 주문 정보 업데이트 (할인액, 배송지)
+           int n = odao.updateOrderDiscountAndAddress(orderId, discountAmount, deliveryAddress);
 
-        if (totalInserted != cartList.size()) {
-            throw new RuntimeException("주문 상세 저장 실패");
-        }
+            for (CartDTO cart : cartList) {
 
-        /* 
-           7. 장바구니 정리
-           (결제에 사용된 cart_id만 삭제)
-        */
-        List<Integer> cartIdList = cartList.stream()
-                                           .map(CartDTO::getCartId)
-                                           .toList();
+            	if (n == 0) {
+                    throw new Exception("주문 정보 업데이트 실패");
+                }
 
-        cdao.deleteSuccessCartId(cartIdList);
-        
-        session.removeAttribute("cartList");
-        
-     // 결제한 행에 대해서 사용한 쿠폰 처리
-        int couponId = parseIntSafe(request.getParameter("couponId"));
+                // 재고 차감 실패 → 즉시 실패
+                if (odao.decreaseStock(cart.getOptionId(), cart.getQuantity()) != 1) {
+                    throw new Exception("재고 부족");
+                }
 
-        if (couponId > 0) {
-
-            int couponResult =
-                odao.updateCouponUsed(loginuser.getMemberid(), couponId);
-
-            if (couponResult != 1) {
-                throw new RuntimeException("쿠폰 사용 처리 실패");
+                odao.insertOrderDetail(
+                    orderId,
+                    cart.getOptionId(),
+                    cart.getQuantity(),
+                    cart.getPrice(),
+                    cart.getProductName(),
+                    cart.getBrand_name()
+                );
             }
+
+            // 성공
+            odao.updateOrderStatus(orderId, "PAID");
+            odao.updateDeliveryStatus(orderId, 0);
+            
+            // 성공했을 때만 부수 로직
+            if (couponIssueId > 0) {
+                odao.updateCouponUsed(loginuser.getMemberid(), couponIssueId);
+            }
+
+            cdao.deleteSuccessCartId(
+                cartList.stream()
+                        .map(CartDTO::getCartId)
+                        .filter(id -> id > 0)
+                        .toList()
+            );
+
+            session.removeAttribute("cartList");
+            session.removeAttribute("readyOrderId");  // 추가: 사용한 orderId 제거
+
+        } catch (Exception e) {
+
+            // 실패 → DB 반영
+            odao.updateOrderStatus(orderId, "FAIL");
+            odao.updateDeliveryStatus(orderId, 4);
+
+            request.setAttribute("message", "결제 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+            request.setAttribute("loc", request.getContextPath() + "/payment/payMent.hp");
+            setViewPage("/WEB-INF/msg.jsp");
+            return;
         }
-        /* =========================
-           8. orderId를 세션에 저장하고 GET으로 리다이렉트
-        ========================= */
+
+        /* ================= 완료 페이지 ================= */
         session.setAttribute("lastOrderId", orderId);
-        session.setAttribute("deliveryType", deliveryType);
-        
-        // 같은 URL로 GET 리다이렉트
         setRedirect(true);
         setViewPage(request.getContextPath() + "/payment/paymentSuccess.hp");
     }

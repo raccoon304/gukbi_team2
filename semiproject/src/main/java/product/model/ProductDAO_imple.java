@@ -437,7 +437,7 @@ public class ProductDAO_imple implements ProductDAO {
 		List<ProductOptionDTO> proOptionList = new ArrayList<ProductOptionDTO>();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT fk_product_code, color, storage_size, plus_price, stock_qty "
+			String sql = " SELECT option_id, color, storage_size, plus_price, stock_qty "
 						+" FROM tbl_product_option "
 						+" WHERE fk_product_code = ? ";
 			pstmt = conn.prepareStatement(sql);
@@ -446,6 +446,7 @@ public class ProductDAO_imple implements ProductDAO {
 			
 			while(rs.next()) {
 				ProductOptionDTO proOptionDto = new ProductOptionDTO();
+				proOptionDto.setOptionId(rs.getInt("option_id"));
 				proOptionDto.setColor(rs.getString("color"));
 				proOptionDto.setStorageSize(rs.getString("storage_size"));
 				proOptionDto.setPlusPrice(rs.getInt("plus_price"));
