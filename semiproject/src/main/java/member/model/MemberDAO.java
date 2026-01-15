@@ -38,6 +38,21 @@ public interface MemberDAO {
 	// 인증 완료 이후 비밀번호 변경 메일 보내고 해당 값(난수값)으로 비밀번호 업데이트 
 	int updatePasswordByUserid(String userid, String hashedPwd) throws SQLException;
 
+	// 회원 탈퇴 메서드
+	int updateMemberStatusWithdraw(String memberId) throws SQLException;
+
+	// 휴면 계정 확인(마지막 로그인 시점에서 3개월이 지났는지)
+	boolean isDormantTarget(String memberId) throws SQLException;
+
+	// 휴면 전환 메서드
+	int updateMemberIdle(String memberId) throws SQLException;
+
+	//정상 로그인시 마지막 접속일 업데이트 
+	int updateLastLoginYmd(String memberId) throws SQLException;
+
+	//휴면 해제용 메서드 
+	int unlockDormant(String memberId) throws SQLException;
+
 
 
 }

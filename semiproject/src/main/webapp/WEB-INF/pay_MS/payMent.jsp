@@ -88,29 +88,6 @@
 		  </div>
 		</div>
 		
-		<!-- 배송지 선택 -->
-		<div class="delivery-radio-group">
-		
-		  <label class="delivery-radio">
-		    <input type="checkbox" name="deliveryType" value="HOME">
-		    <span class="circle"></span>
-		    <span class="text">Home</span>
-		  </label>
-		
-		  <label class="delivery-radio">
-		    <input type="checkbox" name="deliveryType" value="OFFICE">
-		    <span class="circle"></span>
-		    <span class="text">Office</span>
-		  </label>
-		
-		  <label class="delivery-radio">
-		    <input type="checkbox" name="deliveryType" value="SCHOOL">
-		    <span class="circle"></span>
-		    <span class="text">School</span>
-		  </label>
-		
-		</div>
-		
     </div>
 
   </div>
@@ -176,8 +153,10 @@
         
 	<div class="price-row">
 			
-<select id="couponSelect" class="form-control">
+<select id="couponSelect" name="couponSelect" class="form-control">
   <option value="">쿠폰 선택</option>
+
+
 
   <c:forEach var="row" items="${couponList}">
     <c:set var="coupon" value="${row.coupon}" />
@@ -187,6 +166,8 @@
     <c:if test="${coupon.discountType == 0}">
       <option value="${issue.couponId}"
               data-discount="${coupon.discountValue}">
+              
+              
         ${coupon.couponName}
         ( <fmt:formatNumber value="${coupon.discountValue}" pattern="#,###"/>원 할인 )
       </option>
@@ -237,7 +218,7 @@
 <input type="hidden" name="totalAmount" id="totalAmount" value="${totalPrice}">
 <input type="hidden" name="discountAmount" id="discountAmountHidden" value="0">
 <input type="hidden" name="deliveryAddress" id="deliveryAddress" value="">
-<input type="hidden" name="deliveryTypeSelected" id="deliveryTypeSelected" value="">
+
 
 </form>
 

@@ -292,4 +292,48 @@ public class DeliveryDAO_imple implements DeliveryDAO {
         }
         return n;
 	}
+	
+	// 기본배송지를 변경 하는 메서드 
+	@Override
+	public int setDefaultDelivery(Map<String, String> paraMap) throws SQLException {
+		int result = 0;
+
+	    try {
+	        conn = ds.getConnection();
+	        conn.setAutoCommit(false);
+
+	        // 해당 회원 배송지 기본값 전체 해제
+	        String sql1 = " update tbl_delivery "
+	                    + " set is_default = 0 "
+	                    + " where fk_member_id = ? ";
+
+	        pstmt = conn.prepareStatement(sql1);
+	        pstmt.setString(1, paraMap.get("memberId"));
+	        pstmt.executeUpdate();
+	        pstmt.close();
+
+	        // 선택한 배송지를 기본값으로 설정 (회원 소유 검증 포함)
+	        String sql2 = " update tbl_delivery "
+	                    + " set is_default = 1 "
+	                    + " where delivery_address_id = ? and fk_member_id = ? ";
+
+	        pstmt = conn.prepareStatement(sql2);
+	        pstmt.setInt(1, Integer.parseInt(paraMap.get("deliveryAddressId")));
+	        pstmt.setString(2, paraMap.get("memberId"));
+
+	        result = pstmt.executeUpdate(); // 1이면 성공
+
+	        conn.commit();
+	    }
+	    catch(SQLException e) {
+	        if (conn != null) conn.rollback();
+	        throw e;
+	    }
+	    finally {
+	        if (conn != null) conn.setAutoCommit(true);
+	        close();
+	    }
+
+	    return result;
+	}
 }
