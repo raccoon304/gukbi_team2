@@ -39,7 +39,7 @@ $(function () {
     fetchAccounting("CUSTOM", s, e);
   });
 
-  // 상품 정렬 변경 시(서버에서 정렬하거나, 프론트에서 정렬해도 됨)
+  // 상품 정렬 변경 시
   $("#productSort").on("change", function () {
     const period = $("#periodSelect").val();
     if (period === "CUSTOM") {
@@ -54,7 +54,7 @@ function fetchAccounting(period, startDate, endDate) {
   const sort = $("#productSort").val();
 
   $.ajax({
-    url: ctxPath + "/admin/accountingData.hp",   // ★ 너 매핑으로 수정
+    url: ctxPath + "/admin/accountingData.hp",
     method: "GET",
     dataType: "json",
     data: {

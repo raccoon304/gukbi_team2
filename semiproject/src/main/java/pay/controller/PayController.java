@@ -66,10 +66,10 @@ public class PayController extends AbstractController {
 
         /* ================= 결제 대상 조회 ================= */
         if (cartIdsParam != null && !cartIdsParam.isBlank()) {
-            // ✅ 장바구니 결제 - directOrderItem 세션 삭제
-            session.removeAttribute("directOrderItem");
+            // 장바구니 결제 - directOrderList 세션 삭제
+            session.removeAttribute("directOrderList");
             
-            System.out.println("▼▼▼▼▼ PayController - Cart Purchase ▼▼▼▼▼");
+            System.out.println("PayController - Cart Purchase");
             String[] cartIdArray = cartIdsParam.split(",");
 
             for (String cartIdStr : cartIdArray) {
@@ -97,22 +97,17 @@ public class PayController extends AbstractController {
             }
 
         } else {
-            // ✅ 바로 구매
+            // 바로 구매
             String productCode = request.getParameter("productCode");
             String optionIdStr = request.getParameter("optionId");
             String quantityStr = request.getParameter("quantity");
 
-            System.out.println("▼▼▼▼▼ PayController - Direct Purchase ▼▼▼▼▼");
-            System.out.println("productCode: [" + productCode + "]");
-            System.out.println("optionIdStr: [" + optionIdStr + "]");
-            System.out.println("quantityStr: [" + quantityStr + "]");
+       
 
-            // ✅ 파라미터가 있으면 새로 조회 (세션 무시)
+            // 파라미터가 있으면 새로 조회해서 추가
             if (productCode != null && optionIdStr != null && quantityStr != null) {
                 
-                System.out.println("NEW PURCHASE - Parameters found, clearing old session");
-                // ✅ 기존 세션 삭제
-                session.removeAttribute("directOrderItem");
+                
                 
                 int optionId;
                 int quantity;
@@ -120,7 +115,7 @@ public class PayController extends AbstractController {
                 try {
                     optionId = Integer.parseInt(optionIdStr);
                     quantity = Integer.parseInt(quantityStr);
-                    System.out.println("Parsed - optionId: " + optionId + ", quantity: " + quantity);
+                   
                 } catch (NumberFormatException e) {
                     System.out.println("ERROR: Number format exception!");
                     response.getWriter().println(
@@ -129,70 +124,92 @@ public class PayController extends AbstractController {
                     return;
                 }
 
-                System.out.println("Calling cartDao.selectDirectProduct...");
+              
                 
                 Map<String, Object> item = cartDao.selectDirectProduct(productCode, optionId, quantity);
 
-                System.out.println("After cartDao.selectDirectProduct - item: " + item);
+                
 
                 if (item != null) {
-                    // ✅ 새로운 상품 정보를 세션에 저장
-                    session.setAttribute("directOrderItem", item);
+                    // 세션에서 기존 리스트 가져오기
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> directOrderList = 
+                        (List<Map<String, Object>>) session.getAttribute("directOrderList");
                     
-                    orderList.add(item);
-
-                    CartDTO cart = new CartDTO();
-                    cart.setCartId(0);
-                    cart.setOptionId(optionId);
-                    cart.setQuantity(quantity);
-                    cart.setPrice(getInt(item, "unit_price"));
-                    cart.setProductName(getStr(item, "product_name"));
-                    cart.setBrand_name(getStr(item, "brand_name"));
-
-                    cartList.add(cart);
+                    if (directOrderList == null) {
+                        directOrderList = new ArrayList<>();
+                    }
                     
-                    System.out.println("New item saved to session and added to orderList");
+                    // 중복 체크 (같은 상품 + 같은 옵션)
+                    boolean isDuplicate = false;
+                    for (Map<String, Object> existingItem : directOrderList) {
+                        String existingProductCode = getStr(existingItem, "product_code");
+                        int existingOptionId = getInt(existingItem, "option_id");
+                        
+                        if (existingProductCode.equals(productCode) && existingOptionId == optionId) {
+                            // 이미 있으면 수량만 증가
+                            int existingQuantity = getInt(existingItem, "quantity");
+                            int newQuantity = existingQuantity + quantity;
+                            
+                            existingItem.put("quantity", newQuantity);
+                            existingItem.put("total_price", getInt(existingItem, "unit_price") * newQuantity);
+                            
+                            isDuplicate = true;
+                            System.out.println("Duplicate found - quantity updated: " + newQuantity);
+                            break;
+                        }
+                    }
+                    
+                    //  중복 아니면 새로 추가
+                    if (!isDuplicate) {
+                        directOrderList.add(item);
+                        
+                    }
+                    
+                    // 세션에 리스트 저장
+                    session.setAttribute("directOrderList", directOrderList);
+                    
+                   
                 } else {
-                    System.out.println("ERROR: item is NULL!");
+                  
                     response.getWriter().println(
                         "<script>alert('상품 조회에 실패했습니다.');history.back();</script>"
                     );
                     return;
                 }
                 
-            } else {
-                // ✅ 파라미터가 없으면 세션 사용 (JSP forward 시)
-                System.out.println("NO PARAMETERS - Using session");
+            }
+            
+            // 파라미터 없으면 세션의 전체 리스트 사용
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> directOrderList = 
+                (List<Map<String, Object>>) session.getAttribute("directOrderList");
+            
+            if (directOrderList != null && !directOrderList.isEmpty()) {
+               
                 
-                Map<String, Object> directItem = (Map<String, Object>) session.getAttribute("directOrderItem");
-                
-                if (directItem != null) {
-                    System.out.println("directItem from session: " + directItem);
-                    
-                    int savedQuantity = getInt(directItem, "quantity");
-                    System.out.println("Quantity from session: " + savedQuantity);
-                    
+                for (Map<String, Object> directItem : directOrderList) {
                     orderList.add(directItem);
 
                     CartDTO cart = new CartDTO();
                     cart.setCartId(0);
                     cart.setOptionId(getInt(directItem, "option_id"));
-                    cart.setQuantity(savedQuantity);
+                    cart.setQuantity(getInt(directItem, "quantity"));
                     cart.setPrice(getInt(directItem, "unit_price"));
                     cart.setProductName(getStr(directItem, "product_name"));
                     cart.setBrand_name(getStr(directItem, "brand_name"));
 
                     cartList.add(cart);
-                } else {
-                    System.out.println("ERROR: No session item and no parameters!");
-                    response.getWriter().println(
-                        "<script>alert('잘못된 접근입니다.');history.back();</script>"
-                    );
-                    return;
                 }
+            } else if (productCode == null) {
+                // 파라미터도 없고 세션도 없으면 오류
+               
+                response.getWriter().println(
+                    "<script>alert('잘못된 접근입니다.');history.back();</script>"
+                );
+                return;
             }
             
-            System.out.println("▲▲▲▲▲ PayController - Direct Purchase END ▲▲▲▲▲");
         }
 
         /* ================= 세션 초기화 (주문 관련만) ================= */

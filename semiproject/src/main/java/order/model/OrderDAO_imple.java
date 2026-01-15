@@ -721,8 +721,93 @@ public class OrderDAO_imple implements OrderDAO {
 
 	@Override
 	public Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException {
-		
-		return null;
+
+	    Map<String, Object> item = null;
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    String sql =
+	          " SELECT "
+	        + "    p.product_code, "
+	        + "    p.product_name, "
+	        + "    p.brand_name, "
+	        + "    p.price AS base_price, "
+	        + "    o.option_id, "
+	        + "    o.plus_price, "
+	        + "    o.color, "
+	        + "    ? AS quantity, "
+	        + "    (p.price + o.plus_price) AS unit_price, "
+	        + "    p.image_path, "
+	        + "    (p.price + o.plus_price) * ? AS total_price "
+	        + " FROM tbl_product_option o "
+	        + " JOIN tbl_product p "
+	        + "   ON o.fk_product_code = p.product_code "
+	        + " WHERE p.product_code = ? "
+	        + "   AND o.option_id = ? ";
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+	        
+	        System.out.println("DB Connection: SUCCESS");
+
+	        pstmt.setInt(1, quantity);
+	        pstmt.setInt(2, quantity);
+	        pstmt.setString(3, productCode);
+	        pstmt.setInt(4, optionId);
+
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            item = new HashMap<>();
+
+	            // 상품 기본 정보
+	            item.put("product_code", rs.getString("product_code"));
+	            item.put("product_name", rs.getString("product_name"));
+	            item.put("brand_name", rs.getString("brand_name"));
+	            item.put("image_path", rs.getString("image_path"));
+
+	            // 가격 정보
+	            item.put("price", rs.getInt("base_price"));
+	            item.put("plus_price", rs.getInt("plus_price"));
+	            item.put("unit_price", rs.getInt("unit_price"));
+	            item.put("total_price", rs.getInt("total_price"));
+
+	            // 옵션 정보
+	            item.put("option_id", rs.getInt("option_id"));
+	            item.put("color", rs.getString("color"));
+
+	            // 수량
+	            item.put("quantity", rs.getInt("quantity"));
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw e;
+	        
+	    } finally {
+	        
+	        try {
+	            if (rs != null) rs.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        
+	        try {
+	            if (pstmt != null) pstmt.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        
+	        try {
+	            if (conn != null) conn.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    return item;
 	}
 }
 
