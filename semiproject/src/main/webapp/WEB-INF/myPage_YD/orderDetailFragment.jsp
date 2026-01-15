@@ -72,10 +72,22 @@
 	        <div class="yd-item">
 	          <div>
 	            <div class="yd-item-name">
+	              <!-- 상품 상세 페이지로 이동버튼  -->
 	              <a class="yd-item-link"
 	                 href="${pageContext.request.contextPath}/product/productOption.hp?productCode=${p['fkProductCode']}">
 	                <c:out value="${p['product_name']}" />
 	              </a>
+	              <!-- 리뷰 페이지로 이동 버튼 -->
+				  <a class="btn btn-sm btn-outline-primary ml-2"
+				     href="${pageContext.request.contextPath}/review/reviewList.hp?productCode=${p['fkProductCode']}">
+				    리뷰보기
+				  </a>
+				  <!-- 리뷰 작성페이지로 이동 버튼 -->
+				  <a class="btn btn-sm btn-outline-primary ml-2"
+				     href="${pageContext.request.contextPath}/review/reviewWrite.hp?productCode=${p['fkProductCode']}">
+				    리뷰작성하기
+				  </a>
+				  
 	            </div>
 	
 	            <div class="yd-item-opt">
