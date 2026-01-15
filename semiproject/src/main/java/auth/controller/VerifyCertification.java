@@ -53,7 +53,7 @@ public class VerifyCertification extends AbstractController {
             try { expireAt = Long.parseLong((String) expObj); } catch (Exception ignore) {}
         }
 
-        // 세션에 저장해둔 비번찾기 대상 아이디 (조작 방지)
+        // 세션에 저장해둔 비번찾기 대상 아이디
         String sessionUserid = (String) session.getAttribute("pwdfind_memberid");
 
         String message = "";
@@ -102,7 +102,7 @@ public class VerifyCertification extends AbstractController {
         // 코드 일치 검사
         if (certication_code != null && certication_code.equals(userCertificationCode)) {
 
-            // ===== phone(SMS) 인증 성공 처리 =====
+            // ===== 휴댚ㅗㄴ(SMS) 인증 성공 처리 =====
             if ("phone".equalsIgnoreCase(channel)) {
 
                 String sessionMobile = (String) session.getAttribute("pwdfind_mobile"); // PwdFind에서 저장됨
@@ -112,16 +112,16 @@ public class VerifyCertification extends AbstractController {
                     loc = request.getContextPath() + "/member/accountFind.hp";
                 } else {
 
-                    // 1) 임시비번(숫자 6자리)
+                    //임시비번(숫자 6자리)
                     String tempPwd = makeTempPassword6();
 
-                    // 2) DB 업데이트(sha256)
+                    // DB 업데이트(sha256)
                     String hashedPwd = Sha256.encrypt(tempPwd);
                     int n = mdao.updatePasswordByUserid(userid, hashedPwd);
 
                     if (n == 1) {
 
-                        // 3) 문자로 임시비번 발송
+                        // 문자로 임시비번 발송
                         boolean sent;
                         try {
                             SmsService smsService = new SmsService(request.getServletContext());
@@ -137,7 +137,6 @@ public class VerifyCertification extends AbstractController {
                             message = "임시비밀번호는 발급되었으나 문자 전송에 실패했습니다. 관리자에게 문의하세요.";
                         }
 
-                        // ★ 요청한 이동: /index.hp
                         loc = request.getContextPath() + "/index.hp";
 
                     } else {
@@ -146,12 +145,12 @@ public class VerifyCertification extends AbstractController {
                     }
                 }
 
-                // phone 케이스: 인증/비번찾기 세션 정리
+                // 인증/비번찾기 세션 정리
                 cleanupVerifySession(session);
 
             }
 
-            // ===== email 인증 성공 처리(기존 로직 유지) =====
+            // ===== 이메일 인증 성공 처리 =====
             else {
                 session.setAttribute("pwdfind_verified", true);
                 session.setAttribute("pwdfind_verified_userid", userid);
@@ -191,7 +190,5 @@ public class VerifyCertification extends AbstractController {
         session.removeAttribute("pwdfind_cert_expire");
         session.removeAttribute("pwdfind_mobile");
         session.removeAttribute("pwdfind_channel");
-        // 아래는 재시도 UX에 따라 남겨도 되지만, 조작 방지 위해 보통 같이 제거 추천
-        // session.removeAttribute("pwdfind_memberid");
     }
 }

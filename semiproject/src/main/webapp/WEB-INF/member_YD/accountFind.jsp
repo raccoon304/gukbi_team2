@@ -96,8 +96,6 @@
 
         <!-- ===== 아이디 찾기 폼 ===== -->
         <form id="idFindForm" class="space-y-6" method="post" action="<%=ctxPath%>/member/idFind.hp">
-          <!-- (너 기존 코드 그대로) -->
-          ...
         </form>
 
         <!-- ===== 비밀번호 찾기 폼 ===== -->
@@ -177,7 +175,7 @@
             </div>
           </div>
 
-          <!-- ✅ MAIL_SENT / SMS_SENT일 때는 버튼 숨김 -->
+          <!-- MAIL_SENT / SMS_SENT일 때는 버튼 숨김 -->
           <c:if test="${requestScope.pwd_status ne 'MAIL_SENT' and requestScope.pwd_status ne 'SMS_SENT'}">
             <div>
               <button type="submit" id="pwdFindBtn"

@@ -15,7 +15,7 @@ $(function () {
 
   function startPwdExpireTimer(expireMs) {
     const el = document.getElementById("pwdExpireTimer");
-    if (!el) return; // 결과영역이 없을 수도 있음
+    if (!el) return; // 결과영역이 없을 경우
 
     if (!expireMs || isNaN(expireMs)) {
       el.textContent = "--:--";

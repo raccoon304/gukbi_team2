@@ -24,6 +24,7 @@
   </resource-ref>
   <!-- ========= SemiProject Setting End  ===========  -->
 
+  <!-- SMS 수신용 정보 -->
 	<context-param>
 	  <param-name>COOLSMS_API_KEY</param-name>
 	  <param-value>NCSIFFEJP0BPVSQU</param-value>

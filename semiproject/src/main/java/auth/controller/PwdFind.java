@@ -4,17 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.json.simple.JSONObject;
-
 import common.controller.AbstractController;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import mail.controller.GoogleMail;
 import member.model.MemberDAO;
 import member.model.MemberDAO_imple;
-import net.nurigo.java_sdk.api.Message;
 import util.sms.SmsService;
 
 public class PwdFind extends AbstractController {
@@ -26,7 +22,6 @@ public class PwdFind extends AbstractController {
 
         String method = request.getMethod();
 
-        // 탭 유지
         // accountFind.jsp로 다시 포워드 됐을 때도 비밀번호 찾기 탭이 계속 선택된 상태로 보이게 하기위함
         request.setAttribute("activeTab", "pwd");
 
@@ -62,7 +57,7 @@ public class PwdFind extends AbstractController {
         // 상태를 하나로만 결정 뷰단에서 이 값만 보고 1개 메시지만 출력하면 되게 구성
         String pwd_status = "UNKNOWN";
 
-        // ====== (추가) phone(SMS) 분기 처리 ======
+        // ====== (추가) 휴대폰(SMS) 분기 처리 ======
         if ("phone".equalsIgnoreCase(pwdFindType)) {
 
             if (memberid.isEmpty() || name.isEmpty() || mobile.isEmpty()) {
@@ -124,7 +119,7 @@ public class PwdFind extends AbstractController {
             super.setViewPage("/WEB-INF/member_YD/accountFind.jsp");
             return;
         }
-        // ====== (추가 끝) phone(SMS) 분기 처리 ======
+        // ====== (추가 끝) 휴대폰(SMS) 분기 처리 ======
 
         // 유효성
         if (memberid.isEmpty() || name.isEmpty() || email.isEmpty()) {
@@ -185,7 +180,7 @@ public class PwdFind extends AbstractController {
         super.setViewPage("/WEB-INF/member_YD/accountFind.jsp");
     }
 
-    // 인증코드 생성: 영문소문자 5 + 숫자 5
+    // 인증코드 생성 영문소문자 5 + 숫자 5
     private String makeCertificationCode() {
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder();
