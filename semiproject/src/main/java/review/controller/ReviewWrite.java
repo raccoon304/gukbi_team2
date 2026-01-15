@@ -57,7 +57,7 @@ public class ReviewWrite extends AbstractController {
             productCode = productCode.trim();
 
             List<Map<String, Object>> writableList =
-                    rdao.getWritableOrderDetailList(loginUser.getMemberid(), productCode);
+                    rdao.getWritableOrderDetailList(loginUser.getMemberid(), "ALL");
 
             request.setAttribute("productCode", productCode);
             request.setAttribute("writableList", writableList);
