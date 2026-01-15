@@ -68,6 +68,7 @@ public class OrderDetailFragment extends AbstractController {
         
         System.out.println("header keys => " + header.keySet());
         System.out.println("header map => " + header);
+
         
         if (header == null || header.isEmpty()) {
             request.setAttribute("errMsg", "주문 정보를 찾을 수 없습니다.");
