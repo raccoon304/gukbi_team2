@@ -68,8 +68,34 @@ public class PaymentSuccess extends AbstractController {
         @SuppressWarnings("unchecked")
         List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("cartList");
 
+        // ===== 바로구매 보정 로직 시작 =====
         if (cartList == null || cartList.isEmpty()) {
-            throw new RuntimeException("주문 상품 없음");
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> directOrderList =
+                (List<Map<String, Object>>) session.getAttribute("directOrderList");
+
+            if (directOrderList == null || directOrderList.isEmpty()) {
+                request.setAttribute("message", "주문 상품 없음");
+                request.setAttribute("loc", request.getContextPath() + "/pay/payMent.hp");
+                setViewPage("/WEB-INF/msg.jsp");
+                return;
+            }
+
+            cartList = new java.util.ArrayList<>();
+
+            for (Map<String, Object> m : directOrderList) {
+                CartDTO c = new CartDTO();
+                c.setCartId(0);
+                c.setOptionId(Integer.parseInt(String.valueOf(m.get("option_id"))));
+                c.setQuantity(Integer.parseInt(String.valueOf(m.get("quantity"))));
+                c.setPrice(Integer.parseInt(String.valueOf(m.get("unit_price"))));
+                c.setProductName(String.valueOf(m.get("product_name")));
+                c.setBrand_name(String.valueOf(m.get("brand_name")));
+                cartList.add(c);
+            }
+
+            session.setAttribute("cartList", cartList);
         }
 
         /* ================= 여기부터 수정 ================= */
@@ -111,7 +137,7 @@ public class PaymentSuccess extends AbstractController {
         /* ================= 배송지 ================= */
         String deliveryAddress = request.getParameter("deliveryAddress");
         if (deliveryAddress == null || deliveryAddress.isBlank()) {
-            throw new RuntimeException("배송지 없음");
+           deliveryAddress = "(임시 주소)";
         }
 
         Integer orderId = (Integer) session.getAttribute("readyOrderId");
@@ -128,11 +154,11 @@ public class PaymentSuccess extends AbstractController {
             // 2. 주문 정보 업데이트 (할인액, 배송지)
            int n = odao.updateOrderDiscountAndAddress(orderId, discountAmount, deliveryAddress);
 
+           if (n == 0) {
+               throw new Exception("주문 정보 업데이트 실패");
+           }
+           
             for (CartDTO cart : cartList) {
-
-            	if (n == 0) {
-                    throw new Exception("주문 정보 업데이트 실패");
-                }
 
                 // 재고 차감 실패 → 즉시 실패
                 if (odao.decreaseStock(cart.getOptionId(), cart.getQuantity()) != 1) {
@@ -175,7 +201,7 @@ public class PaymentSuccess extends AbstractController {
             odao.updateDeliveryStatus(orderId, 4);
 
             request.setAttribute("message", "결제 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
-            request.setAttribute("loc", request.getContextPath() + "/payment/payMent.hp");
+            request.setAttribute("loc", request.getContextPath() + "/pay/payMent.hp");
             setViewPage("/WEB-INF/msg.jsp");
             return;
         }

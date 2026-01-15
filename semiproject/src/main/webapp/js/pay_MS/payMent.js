@@ -50,7 +50,7 @@ $(function () {
     const address = $("#address").val();
     const detailAddress = $("#detailAddress").val();
     const finalPrice = Number($("#finalPrice").val()) || 0;
-	const addressRegex = /^[가-힣0-9\s\-()]+$/;
+	
 
     if (!address) {
       alert("주소를 입력하세요.");
@@ -60,11 +60,6 @@ $(function () {
       alert("상세주소를 입력하세요.");
       return;
     }
-	
-	if (!addressRegex.test(detailAddress)) {
-	  alert("상세주소 형식이 올바르지 않습니다.");
-	  return;
-	}
 	
     if (finalPrice <= 0) {
       alert("결제 금액 오류");

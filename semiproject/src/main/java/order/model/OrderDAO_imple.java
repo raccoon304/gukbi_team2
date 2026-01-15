@@ -50,7 +50,7 @@ public class OrderDAO_imple implements OrderDAO {
                  "     delivery_status = 4 " +
                  " WHERE order_status = 'READY' " +
                  "   AND fk_member_id = ? " +
-                 "   AND order_date < (SYSDATE - INTERVAL '3' minute) ";
+                 "   AND order_date < (SYSDATE - INTERVAL '10' minute) ";
 
           try {
               conn = ds.getConnection();
@@ -683,132 +683,7 @@ public class OrderDAO_imple implements OrderDAO {
 	
 	
 	
-	@Override
-    public Map<String, Object> selectOrderHeaderforYD(int orderId) throws SQLException {
-
-        Map<String, Object> map = new HashMap<>();
-
-        String sql =
-            " SELECT order_id, order_date, total_amount, discount_amount, " +
-            "        (total_amount - discount_amount) AS final_amount, " +
-            "        delivery_address, order_status, recipient_name, recipient_phone" +
-            " FROM tbl_orders " +
-            " WHERE order_id = ? ";
-
-        try (
-            Connection conn = ds.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-        ) {
-            pstmt.setInt(1, orderId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    map.put("order_id", rs.getInt("order_id"));
-                    map.put("order_date", rs.getString("order_date"));
-                    map.put("total_amount", rs.getInt("total_amount"));
-                    map.put("discount_amount", rs.getInt("discount_amount"));
-                    map.put("final_amount", rs.getInt("final_amount"));
-                    map.put("delivery_address", rs.getString("delivery_address"));
-                    map.put("order_status", rs.getString("order_status"));
-                    map.put("recipient_name", rs.getString("recipient_name"));
-                    map.put("recipient_phone", rs.getString("recipient_phone"));
-                }
-            }
-        }
-
-        return map;
-    }
-
-	@Override
-	public Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException {
-
-	    Map<String, Object> item = null;
-	    Connection conn = null;
-	    PreparedStatement pstmt = null;
-	    ResultSet rs = null;
-
-	    String sql =
-	          " SELECT "
-	        + "    p.product_code, "
-	        + "    p.product_name, "
-	        + "    p.brand_name, "
-	        + "    p.price AS base_price, "
-	        + "    o.option_id, "
-	        + "    o.plus_price, "
-	        + "    o.color, "
-	        + "    ? AS quantity, "
-	        + "    (p.price + o.plus_price) AS unit_price, "
-	        + "    p.image_path, "
-	        + "    (p.price + o.plus_price) * ? AS total_price "
-	        + " FROM tbl_product_option o "
-	        + " JOIN tbl_product p "
-	        + "   ON o.fk_product_code = p.product_code "
-	        + " WHERE p.product_code = ? "
-	        + "   AND o.option_id = ? ";
-
-	    try {
-	        conn = ds.getConnection();
-	        pstmt = conn.prepareStatement(sql);
-	        
-	        System.out.println("DB Connection: SUCCESS");
-
-	        pstmt.setInt(1, quantity);
-	        pstmt.setInt(2, quantity);
-	        pstmt.setString(3, productCode);
-	        pstmt.setInt(4, optionId);
-
-	        rs = pstmt.executeQuery();
-
-	        if (rs.next()) {
-	            item = new HashMap<>();
-
-	            // 상품 기본 정보
-	            item.put("product_code", rs.getString("product_code"));
-	            item.put("product_name", rs.getString("product_name"));
-	            item.put("brand_name", rs.getString("brand_name"));
-	            item.put("image_path", rs.getString("image_path"));
-
-	            // 가격 정보
-	            item.put("price", rs.getInt("base_price"));
-	            item.put("plus_price", rs.getInt("plus_price"));
-	            item.put("unit_price", rs.getInt("unit_price"));
-	            item.put("total_price", rs.getInt("total_price"));
-
-	            // 옵션 정보
-	            item.put("option_id", rs.getInt("option_id"));
-	            item.put("color", rs.getString("color"));
-
-	            // 수량
-	            item.put("quantity", rs.getInt("quantity"));
-	        }
-
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        throw e;
-	        
-	    } finally {
-	        
-	        try {
-	            if (rs != null) rs.close();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	        
-	        try {
-	            if (pstmt != null) pstmt.close();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	        
-	        try {
-	            if (conn != null) conn.close();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    return item;
-	}
+	
 }
 
     

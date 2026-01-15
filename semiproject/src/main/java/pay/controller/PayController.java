@@ -55,9 +55,7 @@ public class PayController extends AbstractController {
 
         OrderDAO odao = new OrderDAO_imple();
 
-        /* ================= 오래된 READY 주문 FAIL 처리 ================= */
-        int n = odao.expireReadyOrders(loginUser.getMemberid());
-
+        
         /* ================= 파라미터 ================= */
         String cartIdsParam = request.getParameter("cartIds");
 
@@ -212,10 +210,6 @@ public class PayController extends AbstractController {
             
         }
 
-        /* ================= 세션 초기화 (주문 관련만) ================= */
-        session.removeAttribute("readyOrderId");
-        session.removeAttribute("usedCouponId");
-
         /* ================= 공통 검증 ================= */
         if (orderList.isEmpty()) {
             response.getWriter().println(
@@ -234,7 +228,9 @@ public class PayController extends AbstractController {
         List<Map<String, Object>> couponList =
             odao.selectAvailableCoupons(loginUser.getMemberid());
 
+        
         /* ================= 임시 주문 생성 ================= */
+        /*
         OrderDTO order = new OrderDTO();
         order.setMemberId(loginUser.getMemberid());
         order.setTotalAmount(totalPrice);
@@ -246,7 +242,8 @@ public class PayController extends AbstractController {
 
         int orderId = odao.insertOrder(order);
         session.setAttribute("readyOrderId", orderId);
-
+        *
+        
         /* ================= JSP 전달 ================= */
         session.setAttribute("cartList", cartList);
 
