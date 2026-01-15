@@ -62,7 +62,7 @@ public class OrderDetailFragment extends AbstractController {
         }
 
         //  기존 메서드 재사용 (수정/교체 없음)
-        Map<String, Object> header = odao.selectOrderHeader(orderId);
+        Map<String, Object> header = odao.selectOrderHeaderforYD(orderId);
         List<Map<String, Object>> items = odao.selectOrderDetailForPayment(orderId);
         List<Map<String, Object>> product = odao.selectOrderItemsForModal(orderId);
         
