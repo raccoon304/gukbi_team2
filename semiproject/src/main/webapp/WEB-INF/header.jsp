@@ -84,7 +84,11 @@
                         <i class="fa-solid fa-headset"></i> 고객센터
                     </a>
                 </li>
-                
+                <li class="nav-item">
+                    <a class="nav-link" href="<%=ctxPath%>/map/mapView.hp">
+                        <i class="fa-regular fa-map"></i> 매장 위치
+                    </a>
+                </li>
                 
                 <!------------ 임시 상품등록 페이지 ------------>
                 <%-- <li class="nav-item">
