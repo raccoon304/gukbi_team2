@@ -15,8 +15,6 @@ $(function(){
 });//and of $(function(){})-----*/
 
 $(function() {
-	applyFilterAndSort();
-	
 	const $searchInput = $("#searchInput");
 	const $searchBtn = $("#searchBtn");
 	const $brandBtns = $(".brand-btn");
@@ -26,6 +24,8 @@ $(function() {
 	const $productRow = $(".product-item").parent();
 	
 	let selectedBrand = "all";
+	
+	applyFilterAndSort();
 /* =====================
       필터 + 정렬 핵심 함수
    ====================== */

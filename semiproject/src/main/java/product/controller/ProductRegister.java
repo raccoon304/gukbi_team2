@@ -15,7 +15,7 @@ public class ProductRegister extends AbstractController {
 		HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
         
-        if(!loginUser.getMemberid().equals("admin")) {
+        if(loginUser == null || !loginUser.getMemberid().equals("admin")) {
         	//관리자가 아닐 경우(아마 그럴 일 없음)
         	super.setRedirect(true);
         	super.setViewPage(request.getContextPath()+"/index.hp");

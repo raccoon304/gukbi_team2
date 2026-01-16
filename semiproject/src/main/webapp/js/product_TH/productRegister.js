@@ -581,7 +581,7 @@ $(document).ready(function() {
             imagePath: imagePath,
             salesStatus: '판매중'
         };
-
+		
 		//상품옵션 테이블 데이터
         const optionData = optionCombinations;
 		
@@ -591,10 +591,28 @@ $(document).ready(function() {
             options: optionCombinations
         };
 
+		
+		const formData = new FormData();
+		
+		//이미지 파일
+		const imageFile = $('#imageFile')[0].files[0];
+		if (imageFile) {
+		    formData.append('image', imageFile);
+		}
+		//JSON 데이터 (문자열로)
+		formData.append(
+		    'registrationData',
+		    new Blob(
+		        [JSON.stringify(registrationData)],
+		        { type: 'application/json' }
+		    )
+		);
+		
+		
         console.log('=== 상품 등록 데이터 ===');
         console.log('전체 데이터:', registrationData);
 
-		// ======= AJAX로 서버에 전송 ======= //
+	// ================== AJAX로 서버에 전송 ================== //
 		if(isSendData){
 			//상품코드가 중복됐을 때 ajax로 보내는 값들(옵션만 보내주기)
 			console.log('=== 상품 등록 데이터 ===');
@@ -640,8 +658,9 @@ $(document).ready(function() {
 			$.ajax({
 			    url: 'productRegisterNewPCodeEnd.hp', // 서버 API 주소
 			    method: 'POST',
-			    contentType: 'application/json',
-			    data: JSON.stringify(registrationData),
+			    //contentType: 'application/json', //기존코드
+			    //data: JSON.stringify(registrationData), //기존코드
+			    data: formData,
 				processData:false,  // 파일 전송시 설정 
 				contentType:false,  // 파일 전송시 설정
 			    success: function(json) {

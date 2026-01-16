@@ -123,7 +123,8 @@
 			                <div class="section-title">
 			                    <i class="fas fa-file-alt mr-2"></i>제품 설명 <span class="required-mark">*</span>
 			                </div>
-			                <textarea class="form-control" id="description" name="description" rows="6" placeholder="제품의 상세 설명을 입력하세요" required></textarea>
+			                <textarea class="form-control" id="description" name="description" rows="6" 
+			                		  placeholder="제품의 상세 설명을 입력하세요" required></textarea>
 			            </div>
 			
 			

@@ -1,9 +1,6 @@
 package product.controller;
 
 
-import java.io.File;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,12 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import common.controller.AbstractController;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
-import member.domain.MemberDTO;
 import product.domain.ProductDTO;
 import product.model.ProductDAO;
 import product.model.ProductDAO_imple;
@@ -24,24 +17,12 @@ import product.model.ProductDAO_imple;
 
 //상품등록 페이지의 데이터를 DB에 넣어주는 페이지
 //해당 페이지는 상품추가 및 옵션추가 모두 해주는 페이지
-public class ProductRegisterNewPCodeEndTEST extends AbstractController {
+public class ProductRegisterNewPCodeEndOriginal extends AbstractController {
 	private ProductDAO proDao = new ProductDAO_imple();
-	
-	private String extractFileName(String partHeader) {
-		for(String cd : partHeader.split("\\;")) {
-			if(cd.trim().startsWith("filename")) {
-				String fileName = cd.substring(cd.indexOf("=") + 1).trim().replace("\"", ""); 
-				// File.separator 란? OS가 Windows 이라면 \ 이고, OS가 Mac, Linux, Unix 이라면 / 을 말하는 것이다.
-				int index = fileName.lastIndexOf(File.separator);        
-				return fileName.substring(index + 1);
-			}
-		}
-		return null;
-	}
 	
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        //System.out.println("상품등록페이지 최종 처리 시작..");
+        System.out.println("상품등록페이지 최종 처리 시작..");
 
         //1️ JSON 문자열 읽기
         StringBuilder sb = new StringBuilder();
@@ -72,58 +53,14 @@ public class ProductRegisterNewPCodeEndTEST extends AbstractController {
         proDto.setImagePath(imagePath);
         proDto.setSaleStatus(salesStatus);
         
-        
-        HttpSession session = request.getSession();
-        MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-        
-        //1. 첨부되어진 파일을 디스크의 어느 경로에 업로드 할 것인지 그 경로를 설정해야 한다.  
-		ServletContext svlCtx = session.getServletContext();
-		String uploadFileDir = svlCtx.getRealPath("/images");
-		System.out.println("이미지 파일 실제경로: " + uploadFileDir);
-		//이미지 파일 실제경로: C:\NCS\workspace_jsp\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\semiproject\images
-        
-		String image = null; //제품 이미지
-		
-		Collection<Part> parts = request.getParts();
-		for(Part part : parts) {
-			//form 태그에서 전송되어온 것이 파일일 경우
-			if(part.getHeader("Content-Disposition").contains("filename=")) {
-				String fileName = extractFileName(part.getHeader("Content-Disposition"));
-				if(part.getSize() > 0) {
-					System.out.println("업로드한 파일명:  " + fileName);
-					
-					String newFilename = fileName.substring(0, fileName.lastIndexOf(".")); // 확장자를 뺀 파일명 알아오기  
-					newFilename += "_"+String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", Calendar.getInstance()); 
-		    		newFilename += System.nanoTime();
-		    		newFilename += fileName.substring(fileName.lastIndexOf(".")); // 확장자 붙이기
-		    		System.out.println("실제 업로드 newFilename: " + newFilename);
-		    		
-		    		//파일을 지정된 디스크 경로에 저장해주기. 이것이 파일을 업로드 해주는 작업
-		    		part.write(uploadFileDir + File.separator + newFilename);
-		    		
-		    		//임시 저장된 파일 데이터를 제거
-		    		part.delete();
-		    		
-		    		if("image".equals(part.getName())) {
-		    			image = newFilename;
-		    		}
-				}//end of if(part.getSize() > 0)-----
-				
-			}//end of if(part.getHeader("Content-Disposition").contains("filename="))-----
-			//form 태그에서 전송되어온 파일이 아닐 경우
-			else {
-				String formValue = request.getParameter(part.getName());
-				System.out.printf("파일이 아닌 경우 파라미터(name)명 : %s, value값 : %s \n", part.getName(), formValue);
-			}
-			System.out.println("");
-			
-		}//end of for()-----
-		
         //새로운 상품을 테이블에 삽입해주기
         int n = proDao.insertProduct(proDto);
         if(n == 0) {
     		System.out.println("DB 오류입니다!!");
         }
+        
+
+        
         
         // 3️ options 배열 파싱
         JSONArray options = jsonRequest.getJSONArray("options");
