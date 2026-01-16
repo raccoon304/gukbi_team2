@@ -336,6 +336,89 @@ public class CartDAO_imple implements CartDAO {
 	    return cartId;
 	}
 
+	// 바로 구매를 눌렀을때 완전히 똑같은 제품, 용량, 색깔이 아니면 행 자체에 올림
+	// 바로구매 전용: 수량 교체
+	@Override
+	public int upsertCartAndReturnId(String memberId, int optionId, int quantity) throws SQLException {
+
+	    int cartId = 0;
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        // 1. 기존 cart 조회
+	        String selectSql =
+	            " SELECT cart_id FROM tbl_cart " +
+	            " WHERE fk_member_id = ? AND fk_option_id = ? ";
+
+	        pstmt = conn.prepareStatement(selectSql);
+	        pstmt.setString(1, memberId);
+	        pstmt.setInt(2, optionId);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            // === 이미 있으면 수량 교체 ===
+	            cartId = rs.getInt("cart_id");
+	            rs.close();
+	            pstmt.close();
+
+	            String updateSql =
+	                " UPDATE tbl_cart " +
+	                " SET quantity = ? " +  // ✅ 교체 (누적 아님)
+	                " WHERE cart_id = ? ";
+
+	            pstmt = conn.prepareStatement(updateSql);
+	            pstmt.setInt(1, quantity);  // oldQty + quantity ❌
+	            pstmt.setInt(2, cartId);
+	            pstmt.executeUpdate();
+
+	        } else {
+	            // === 없으면 INSERT ===
+	            rs.close();
+	            pstmt.close();
+
+	            String insertSql =
+	                " INSERT INTO tbl_cart (cart_id, fk_member_id, fk_option_id, quantity) " +
+	                " VALUES ( (SELECT NVL(MAX(cart_id),0)+1 FROM tbl_cart), ?, ?, ? ) ";
+
+	            pstmt = conn.prepareStatement(insertSql);
+	            pstmt.setString(1, memberId);
+	            pstmt.setInt(2, optionId);
+	            pstmt.setInt(3, quantity);
+	            pstmt.executeUpdate();
+	            pstmt.close();
+
+	            // 방금 넣은 cart_id 조회
+	            String idSql =
+	                " SELECT cart_id FROM tbl_cart " +
+	                " WHERE fk_member_id = ? AND fk_option_id = ? ";
+
+	            pstmt = conn.prepareStatement(idSql);
+	            pstmt.setString(1, memberId);
+	            pstmt.setInt(2, optionId);
+	            rs = pstmt.executeQuery();
+
+	            if (rs.next()) {
+	                cartId = rs.getInt("cart_id");
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw e;
+	    } finally {
+	        if (rs != null) try { rs.close(); } catch (Exception e) {}
+	        if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+	        if (conn != null) try { conn.close(); } catch (Exception e) {}
+	    }
+
+	    return cartId;
+	}
+	
+	
 	@Override
 	public Map<String, Object> selectRawCartById(int cartId, String memberid) throws SQLException {
 
@@ -382,4 +465,6 @@ public class CartDAO_imple implements CartDAO {
 
 	    return map; // 없으면 null
 	}
+
+	
 }

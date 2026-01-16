@@ -22,6 +22,9 @@ public interface CartDAO {
     // cart insert 후 생성된 cart_id 반환
     int insertCartAndReturnId(String memberId, int optionId, int quantity) throws SQLException;
 
+    // 바로 구매를 눌렀을때 완전히 똑같은 제품, 용량, 색깔이 아니면 행 자체에 올림
+    int upsertCartAndReturnId(String memberId, int optionId, int quantity) throws SQLException;
+    
     // 결제 성공 후 cart 삭제
     int deleteSuccessCartId(List<Integer> cartIdList) throws SQLException;
 
@@ -30,4 +33,6 @@ public interface CartDAO {
 
     // JOIN 실패 시 fallback
 	Map<String, Object> selectRawCartById(int cartId, String memberid) throws SQLException;
+
+	
 }

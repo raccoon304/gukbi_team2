@@ -35,24 +35,7 @@ public class PayPreviewController extends AbstractController {
             System.out.println("quantity: " + quantity);
 
             CartDAO cdao = new CartDAO_imple();
-            Map<String, Object> cartRow = cdao.selectCartByOption(memberId, optionId);
-
-            int cartId;
-
-            if (cartRow != null) {
-                int existCartId = (int) cartRow.get("cart_id");
-                int existQty = (int) cartRow.get("quantity");
-
-                System.out.println("기존 cartId 발견: " + existCartId);
-                System.out.println("기존 수량: " + existQty + " → 변경 수량: " + (existQty + quantity));
-
-                cdao.setQuantity(existCartId, memberId, existQty + quantity);
-                cartId = existCartId;
-            } else {
-                System.out.println("신규 cart 생성");
-                cartId = cdao.insertCartAndReturnId(memberId, optionId, quantity);
-                System.out.println("생성된 cartId: " + cartId);
-            }
+            int cartId = cdao.upsertCartAndReturnId(memberId, optionId, quantity);
 
             List<Integer> payCartIds = List.of(cartId);
             session.setAttribute("payCartIds", payCartIds);

@@ -9,6 +9,7 @@ import order.domain.OrderDTO;
 import order.model.OrderDAO;
 import order.model.OrderDAO_imple;
 
+// PG창에 연결되는 곳
 public class CoinPaymentPopupController extends AbstractController {
 	
 	@Override
