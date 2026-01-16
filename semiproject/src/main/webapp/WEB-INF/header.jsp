@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <title>쇼핑몰 메인임시</title>
+    <title>휴대폰 쇼핑몰</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 

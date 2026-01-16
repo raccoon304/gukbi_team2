@@ -17,6 +17,9 @@ public class AdminDeliveryDTO {
     private String recipientName;
     private String recipientPhone;
     private int deliveryStatus;      // 0/1/2/4
+    private String deliveryNumber;
+    private String deliveryStartdate;
+    private String deliveryEnddate;
 
     // 조합용 DTO
     private MemberDTO mdto = new MemberDTO();
@@ -81,6 +84,24 @@ public class AdminDeliveryDTO {
 	}
 	public void setPodto(ProductOptionDTO podto) {
 		this.podto = podto;
+	}
+	public String getDeliveryNumber() {
+		return deliveryNumber;
+	}
+	public void setDeliveryNumber(String deliveryNumber) {
+		this.deliveryNumber = deliveryNumber;
+	}
+	public String getDeliveryStartdate() {
+		return deliveryStartdate;
+	}
+	public void setDeliveryStartdate(String deliveryStartdate) {
+		this.deliveryStartdate = deliveryStartdate;
+	}
+	public String getDeliveryEnddate() {
+		return deliveryEnddate;
+	}
+	public void setDeliveryEnddate(String deliveryEnddate) {
+		this.deliveryEnddate = deliveryEnddate;
 	}
 
     

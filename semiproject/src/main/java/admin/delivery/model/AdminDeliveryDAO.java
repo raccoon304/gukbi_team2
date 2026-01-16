@@ -19,4 +19,7 @@ public interface AdminDeliveryDAO {
     // 배송상태 일괄 변경(결제실패 제외)
     int updateDeliveryStatus(List<Long> orderIdList, int newStatus) throws SQLException;
     
+    // 배송 상태 조회
+    public Map<Long, Integer> selectDeliveryStatusMap(List<Long> orderIdList) throws SQLException;
+    
 }

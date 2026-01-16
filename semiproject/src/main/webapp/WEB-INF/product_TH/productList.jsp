@@ -99,8 +99,23 @@
 					<div class="card-body">
 						<h5 class="card-title">${product.productName}</h5>
 						<p class="card-text">${product.brandName}</p>
-						<p class="card-text">Black&nbsp;/&nbsp;White&nbsp;/&nbsp;red&nbsp;/&nbsp;blue</p>
-						<p class="card-text">256GB&nbsp;/&nbsp;512GB</p>
+						
+						<!-- <p class="card-text">Black&nbsp;/&nbsp;White&nbsp;/&nbsp;red&nbsp;/&nbsp;blue</p>
+						<p class="card-text">256GB&nbsp;/&nbsp;512GB</p> -->
+						
+						<p class="card-text">
+					    <c:forEach var="color" items="${product.colorList}" varStatus="status">
+					        ${color}<c:if test="${!status.last}"> / </c:if>
+					    </c:forEach>
+						</p>
+						
+						<p class="card-text">
+						    <c:forEach var="storage" items="${product.storageList}" varStatus="status">
+						        ${storage}<c:if test="${!status.last}"> / </c:if>
+						    </c:forEach>
+						</p>
+						
+						
 						<p class="card-text">
 							<fmt:formatNumber value="${product.price}" pattern="###,###"/>&nbsp;원
 						</p>

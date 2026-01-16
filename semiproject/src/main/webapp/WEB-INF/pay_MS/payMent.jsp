@@ -229,6 +229,8 @@
 
 <script>
   const ctxpath = '<%= ctxPath %>';
+  const loginUserName = '${loginUser.name}';      // ㅎ
+  const loginUserMobile = '${loginUser.mobile}';  // ㅇ
 </script>
 
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -154,23 +155,46 @@ public class ProductDAO_imple implements ProductDAO {
 		List<ProductDTO> productCardList = new ArrayList<ProductDTO>();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT product_code, product_name, brand_name, image_path, price, sale_status "
-						+" FROM tbl_product "
-						+" WHERE sale_status='판매중' ";
+			String sql = " SELECT product_code, product_name, brand_name, image_path, price, option_id, color, storage_size "
+					+ " FROM tbl_product P "
+					+ " JOIN tbl_product_option O "
+					+ " ON P.product_code = O.fk_product_code "
+					+ " WHERE sale_status = '판매중' ";
 			pstmt = conn.prepareStatement(sql);
 			rs = pstmt.executeQuery();
 			
+			Map<String, ProductDTO> map = new LinkedHashMap<String, ProductDTO>();
+			
 			while(rs.next()) {
-				ProductDTO proDto = new ProductDTO();
-				proDto.setProductCode(rs.getString("product_code"));
-				proDto.setProductName(rs.getString("product_name"));
-				proDto.setBrandName(rs.getString("brand_name"));
-				proDto.setImagePath(rs.getString("image_path"));
-				proDto.setPrice(rs.getInt("price"));
-				productCardList.add(proDto);
+				String productCode = rs.getString("product_code");
+				
+				ProductDTO proDto = map.get(productCode);
+				if(proDto == null) {
+					proDto = new ProductDTO();
+					proDto.setProductCode(rs.getString("product_code"));
+					proDto.setProductName(rs.getString("product_name"));
+					proDto.setBrandName(rs.getString("brand_name"));
+					proDto.setImagePath(rs.getString("image_path"));
+					proDto.setPrice(rs.getInt("price"));
+					proDto.setColorList(new ArrayList<String>());
+					proDto.setStorageList(new ArrayList<String>());
+					map.put(productCode, proDto);
+				}
+				
+				String color = rs.getString("color");
+				String storageSize = rs.getString("storage_size");
+				
+				if(!proDto.getColorList().contains(color)) {
+					proDto.getColorList().add(color);
+				}
+				if(!proDto.getStorageList().contains(storageSize)) {
+					proDto.getStorageList().add(storageSize);
+				}
 			}
 			
-		} finally {close();}
+			productCardList.addAll(map.values());
+		} 
+		finally {close();}
 		return productCardList;
 	}//end of public List<ProductListDTO> productCardList() throws SQLException-----
 

@@ -60,9 +60,6 @@ public interface OrderDAO {
 	 // 손영대의 orderpage용
 	 Map<String, Object> selectOrderHeaderforYD(int orderId) throws SQLException;
     
-	 // 상품 상세에서 구매하기로 넘어가는 부분
-	 Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
-    
 
      
    
