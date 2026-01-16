@@ -2742,3 +2742,10 @@ update tbl_orders set delivery_status = 0
 where delivery_status = 2;
 
 commit;
+
+select * from tbl_product;
+select * from tbl_product_option
+where fk_product_code = '1234IN';
+
+select * from tbl_product_option
+where fk_product_code = '1000AP';
