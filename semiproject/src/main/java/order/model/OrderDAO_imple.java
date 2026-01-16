@@ -689,12 +689,15 @@ public class OrderDAO_imple implements OrderDAO {
 
         Map<String, Object> map = new HashMap<>();
 
-        String sql =
-            " SELECT order_id, order_date, total_amount, discount_amount, " +
-            "        (total_amount - discount_amount) AS final_amount, " +
-            "        delivery_address, order_status, recipient_name, recipient_phone, delivery_status" +
-            " FROM tbl_orders " +
-            " WHERE order_id = ? ";
+        String sql = " SELECT order_id, order_date, total_amount, discount_amount, " 
+        		   + "        delivery_number, " 
+        		   + "        TO_CHAR(delivery_startdate, 'YYYY-MM-DD') AS delivery_startdate, " 
+        		   + "        NVL(TO_CHAR(delivery_enddate,   'YYYY-MM-DD'), '') AS delivery_enddate, " 
+        		   + "        (total_amount - discount_amount) AS final_amount, " 
+        		   + "        delivery_address, order_status, recipient_name, recipient_phone, delivery_status " 
+        		   + " FROM tbl_orders " 
+        	       + " WHERE order_id = ? ";
+
 
         try (
             Connection conn = ds.getConnection();
@@ -714,7 +717,9 @@ public class OrderDAO_imple implements OrderDAO {
                     map.put("recipient_name", rs.getString("recipient_name"));
                     map.put("recipient_phone", rs.getString("recipient_phone"));
                     map.put("delivery_status", rs.getString("delivery_status"));
-
+                    map.put("delivery_number", rs.getString("delivery_number"));
+                    map.put("delivery_startdate", rs.getString("delivery_startdate"));
+                    map.put("delivery_enddate", rs.getString("delivery_enddate"));
                 }
             }
         }
