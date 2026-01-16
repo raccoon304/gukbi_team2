@@ -97,7 +97,14 @@
           </div>
 
           <div class="k">주문 상태</div>
-          <div class="v"><c:out value="${orderHeader['order_status']}" /></div>
+          <div class="v">
+            <c:choose>
+              <c:when test="${orderHeader['order_status'] eq 'PAID'}">결제완료</c:when>
+              <c:when test="${orderHeader['order_status'] eq 'FAIL'}">결제실패</c:when>
+              
+              <c:otherwise><c:out value="${status}" /></c:otherwise>
+            </c:choose>
+          </div>
         </div>
       </div>
     </div>
