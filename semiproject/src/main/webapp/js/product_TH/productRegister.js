@@ -5,12 +5,34 @@ $(document).ready(function() {
     let isImageFileANDPath = false;	  //이미지파일, 이미지경로 올렸는지 검사
     let isSendData = false;			  //중복된 상품코드와 새로운 상품코드를 구분하는 값
     let productCode = ""; //상품코드
-
+	
+	let isDefaultOptionCreated = false; //기본금 입력에 따른 기본옵션
+	
     const colorClassMap = { '블랙': 'Black', '화이트': 'White', '블루': 'Blue', '레드': 'Red' };
 
     // 초기 비활성화
     disableTag();
 
+	// 초기 상태 => 옵션 추가에 대한 버튼을 비활성화 해두기
+	$('#addOptionMatrix').prop('disabled', true);
+
+	// 기본금 입력 완료 시 1회만
+	$('#basePrice').on('blur', function () {
+	    const basePrice = Number($(this).val());
+
+	    if (basePrice > 0) {
+	        $('#addOptionMatrix').prop('disabled', false);
+	        addDefault256OptionIfNeeded();
+	    }
+	});
+	
+	// 기본금 입력 감지
+	$('#basePrice').on('input', function () {
+		const basePrice = Number($(this).val());
+	    $('#addOptionMatrix').prop('disabled', basePrice <= 0);
+	});
+	
+	
 	//비활성화 함수
     function disableTag() {
         $('#brand').val("").prop('disabled', true);
@@ -41,6 +63,7 @@ $(document).ready(function() {
     $('#productCode').on('input', function() {
         isDuplicateCheckCode = false; //상품코드 중복체크 거짓
         isDuplicateCheckName = false; //상품명 중복체크 거짓
+		isDefaultOptionCreated = false;
     });
 
 	//===상품코드 중복확인 버튼 클릭 이벤트===//
@@ -68,14 +91,12 @@ $(document).ready(function() {
 	    setTimeout(function() {
 			$.ajax({
 				url:"checkDuplicateProductCode.hp",
+				type: "post",
 				data:{
 					"productCode":$("input#productCode").val()
 				},
-				type: "post",
 				dataType:"json",
 				success:function(json){
-					//console.log("확인용 json:" ,json);
-					//alert(json.message);
 					const isDuplicate = json.isProductCode;
 					const productName = json.productName;
 					const brandName = json.brandName;
@@ -113,9 +134,13 @@ $(document).ready(function() {
             $('#imagePath').val(imagePath).prop('disabled', true);
             $('#removeImageBtn').prop('disabled', true);
             $('#dropZone').css({ 'pointer-events': 'none', 'opacity': '0.4' });
-            isDuplicateCheckName = true; //상품명 중복체크 참값
+            
+			isDuplicateCheckName = true; //상품명 중복체크 참값
             isImageFileANDPath = true;	 //이미지등록,경로 참값
             isSendData = true; //중복됐을 때의 ajax 보내기 구분
+			
+			$('#addOptionMatrix').prop('disabled', false);
+		    addDefault256OptionIfNeeded();
             
             setTimeout(function() {
                 $('html, body').animate({ scrollTop: $('#optionSection').offset().top - 100 }, 500);
@@ -210,7 +235,57 @@ $(document).ready(function() {
 
 	
 	
-//========================== 옵션 매트릭스 ==========================//	
+//========================== 옵션 매트릭스 ==========================//
+	function addDefault256OptionIfNeeded() {
+		if (isDefaultOptionCreated) return;
+		
+	    // 중복 상품이면 자동 생성 ❌
+	    if (isSendData === true) return;
+	
+	    const basePrice = parseInt($('#basePrice').val());
+	    if (!basePrice || basePrice <= 0) return;
+	
+	    // 이미 256GB 옵션이 있으면 종료
+	    /*const exists = $('.matrix-row[data-storage="256GB"]').length > 0;
+	    if (exists) return;*/
+	
+	    // 256GB + 기본 색상(임시)
+	    const defaultColor = $('input[name="color"]:first').val() || '기본';
+	
+	    const row = $(`
+	        <div class="matrix-row" data-storage="256GB" data-color="${defaultColor}" data-default="true">
+	            <div class="matrix-cell storage">
+	                <i class="fas fa-hdd mr-2"></i>256GB
+	            </div>
+	            <div class="matrix-cell color">
+	                <i class="fas fa-palette mr-2"></i>${defaultColor}
+	            </div>
+	            <div class="matrix-input">
+	                <input type="number" class="form-control option-stock"
+	                    data-storage="256GB" data-color="${defaultColor}"
+	                    placeholder="재고" min="0" required>
+	            </div>
+	            <div class="matrix-input">
+	                <input type="number" class="form-control option-additional-price"
+	                    data-is-base="true" value="${basePrice}"
+	                    readonly style="background:#e9ecef;">
+	            </div>
+	            <div class="matrix-delete">
+	                <button type="button" class="btn btn-secondary btn-sm" disabled>
+	                    기본옵션
+	                </button>
+	            </div>
+	        </div>
+	    `);
+	
+	    $('#optionMatrixTable .matrix-empty').remove();
+	    $('#optionMatrixTable').append(row);
+		
+		isDefaultOptionCreated = true; 
+	}
+
+
+
 	//중복 옵션 확인 함수
     function isDuplicateOption(storage, color) {
         let isDuplicate = false;
@@ -243,6 +318,12 @@ $(document).ready(function() {
         const container = $('#optionMatrixTable');
         const basePrice = parseInt($('#basePrice').val()) || 0;
 
+		// 256GB는 수동 추가 못 하게
+		/*if ($('input[name="storage"][value="256GB"]').is(':checked')) {
+		    alert('256GB는 기본 옵션으로 자동 추가됩니다.');
+		    return false;
+		}*/
+		
 		//선택하지 않았을 경우
         if (selectedStorages.length === 0 || selectedColors.length === 0) {
             return false;
@@ -333,16 +414,20 @@ $(document).ready(function() {
 
 	//옵션 삭제 기능
     $(document).on('click', '.delete-option-btn', function() {
-        const storage = $(this).data('storage');
-        const color = $(this).data('color');
+		const row = $(this).closest('.matrix-row');
+		
+		if (row.data('default') === true) {
+		        alert('기본 옵션(256GB)은 삭제할 수 없습니다.');
+		        return;
+	    }
         
-        if (confirm(`${storage} - ${color} 조합을 삭제하시겠습니까?`)) {
-            $(this).closest('.matrix-row').fadeOut(300, function() {
-                $(this).remove();
-                if ($('.matrix-row').length === 0) {
+        if (confirm('해당 옵션을 삭제하시겠습니까?')) {
+			row.fadeOut(300, function() {
+	            $(this).remove();
+				if ($('.matrix-row').length === 0) {
                     $('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택 후 \'옵션 조합 추가\' 버튼을 클릭하세요</p></div>');
                 }
-            });
+	        });
         }
     });
 
@@ -378,6 +463,7 @@ $(document).ready(function() {
         e.preventDefault();
         e.stopPropagation();
         $(this).removeClass('dragover');
+		
         const files = e.originalEvent.dataTransfer.files;
         if (files.length > 0) handleFile(files[0]);
     });
@@ -495,7 +581,7 @@ $(document).ready(function() {
             imagePath: imagePath,
             salesStatus: '판매중'
         };
-
+		
 		//상품옵션 테이블 데이터
         const optionData = optionCombinations;
 		
@@ -505,10 +591,28 @@ $(document).ready(function() {
             options: optionCombinations
         };
 
+		
+		const formData = new FormData();
+		
+		//이미지 파일
+		const imageFile = $('#imageFile')[0].files[0];
+		if (imageFile) {
+		    formData.append('image', imageFile);
+		}
+		//JSON 데이터 (문자열로)
+		formData.append(
+		    'registrationData',
+		    new Blob(
+		        [JSON.stringify(registrationData)],
+		        { type: 'application/json' }
+		    )
+		);
+		
+		
         console.log('=== 상품 등록 데이터 ===');
         console.log('전체 데이터:', registrationData);
 
-		// ======= AJAX로 서버에 전송 =======
+	// ================== AJAX로 서버에 전송 ================== //
 		if(isSendData){
 			//상품코드가 중복됐을 때 ajax로 보내는 값들(옵션만 보내주기)
 			console.log('=== 상품 등록 데이터 ===');
@@ -520,6 +624,8 @@ $(document).ready(function() {
 			    //contentType: 'application/json',
 				dataType:"json",
 				traditional: true,
+				processData:false,  // 파일 전송시 설정 
+				contentType:false,  // 파일 전송시 설정
 			    data: JSON.stringify({
 					"optionData": optionData,
 					"productCode": productCode
@@ -552,8 +658,11 @@ $(document).ready(function() {
 			$.ajax({
 			    url: 'productRegisterNewPCodeEnd.hp', // 서버 API 주소
 			    method: 'POST',
-			    contentType: 'application/json',
-			    data: JSON.stringify(registrationData),
+			    //contentType: 'application/json', //기존코드
+			    //data: JSON.stringify(registrationData), //기존코드
+			    data: formData,
+				processData:false,  // 파일 전송시 설정 
+				contentType:false,  // 파일 전송시 설정
 			    success: function(json) {
 			        console.log('서버 응답:', json);
 			        // 성공 모달 표시
@@ -590,6 +699,7 @@ $(document).ready(function() {
         isDuplicateCheckCode = false;
         isDuplicateCheckName = false;
         uploadedFile = null;
+		isDefaultOptionCreated = false;
         disableTag();
     });
 });
