@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -250,7 +252,8 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
 
             String sql = " SELECT rno, order_id, member_id, member_name, order_date, "
                        + "        total_amount, discount_amount, order_status, pay_amount, "
-                       + "        delivery_address, recipient_name, recipient_phone, delivery_status, "
+                       + "        recipient_name, recipient_phone, delivery_status, "
+                       + "        delivery_number, delivery_startdate, delivery_enddate, "
                        + "        product_name, brand_name, detail_cnt, color, storage_size "
                        + " FROM ( "
                        + "   SELECT ROW_NUMBER() OVER(ORDER BY " + orderBy + ") AS rno, "
@@ -261,11 +264,13 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "          o.total_amount, "
                        + "          o.discount_amount, "
                        + "          o.order_status, "
-                       + "          o.total_amount AS pay_amount, "   // 실결제금액
-                       + "          o.delivery_address, "
+                       + "          o.total_amount AS pay_amount, "
                        + "          o.recipient_name, "
                        + "          o.recipient_phone, "
                        + "          o.delivery_status, "
+                       + "          o.delivery_number, "
+                       + "          TO_CHAR(o.delivery_startdate,'YYYY-MM-DD') AS delivery_startdate, "
+                       + "          TO_CHAR(o.delivery_enddate,'YYYY-MM-DD') AS delivery_enddate, "
                        + "          dr.product_name, "
                        + "          dr.brand_name, "
                        + "          dr.detail_cnt, "
@@ -275,19 +280,18 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "     JOIN tbl_member m "
                        + "       ON m.member_id = o.fk_member_id "
                        + "     LEFT JOIN ( "
-                       + "        SELECT fk_order_id, product_name, brand_name, fk_option_id, detail_cnt "
-                       + "          FROM ( "
-                       + "            SELECT d.fk_order_id, "
-                       + "                   d.product_name, "
-                       + "                   d.brand_name, "
-                       + "                   d.fk_option_id, "
-                       + "                   ROW_NUMBER() OVER(PARTITION BY d.fk_order_id "
-                       + "                                     ORDER BY d.unit_price DESC, d.order_detail_id DESC) AS rn, "
-                       + "                   COUNT(*) OVER(PARTITION BY d.fk_order_id) AS detail_cnt "
-                       + "              FROM tbl_order_detail d "
-                       + "          ) "
-                       + "         WHERE rn = 1 "
-                       + "     ) dr "
+                       + "                   SELECT fk_order_id, product_name, brand_name, fk_option_id, detail_cnt "
+                       + "                   FROM ( "
+                       + "                   		SELECT d.fk_order_id, "
+                       + "                                  d.product_name, "
+                       + "                                  d.brand_name, "
+                       + "                                  d.fk_option_id, "
+                       + "                                  ROW_NUMBER() OVER(PARTITION BY d.fk_order_id "
+                       + "                                                    ORDER BY d.unit_price DESC, d.order_detail_id DESC) AS rn, "
+                       + "                                  COUNT(*) OVER(PARTITION BY d.fk_order_id) AS detail_cnt "
+                       + "                           FROM tbl_order_detail d "
+                       + "                         ) "
+                       + "                    WHERE rn = 1 ) dr "
                        + "       ON dr.fk_order_id = o.order_id "
                        + "     LEFT JOIN tbl_product_option po "
                        + "       ON po.option_id = dr.fk_option_id "
@@ -347,13 +351,16 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                 dto.setRownum(rs.getInt("rno"));
                 dto.setDetailCnt(rs.getInt("detail_cnt"));
                 dto.setPayAmount(rs.getLong("pay_amount"));
+                dto.setDeliveryNumber(rs.getString("delivery_number"));
+                dto.setDeliveryStartdate(rs.getString("delivery_startdate"));
+                dto.setDeliveryEnddate(rs.getString("delivery_enddate"));
 
                 dto.getOdto().setOrderId(rs.getInt("order_id"));
                 dto.getOdto().setMemberId(rs.getString("member_id"));
                 dto.getOdto().setOrderDate(rs.getString("order_date"));
                 dto.getOdto().setTotalAmount(rs.getInt("total_amount"));
                 dto.getOdto().setDiscountAmount(rs.getInt("discount_amount"));
-                dto.getOdto().setDeliveryAddress(rs.getString("delivery_address"));
+             // dto.getOdto().setDeliveryAddress(rs.getString("delivery_address"));
                 dto.getOdto().setOrderStatus(rs.getString("order_status"));
 
                 dto.setRecipientName(rs.getString("recipient_name"));
@@ -376,40 +383,141 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
         return list;
     }
 
+    
     // 배송상태 일괄 변경 (결제실패는 제외 / 0,1,2만 허용)
     @Override
     public int updateDeliveryStatus(List<Long> orderIdList, int newStatus) throws SQLException {
 
-        if (orderIdList == null || orderIdList.isEmpty()) return 0;
-        if (!(newStatus == 0 || newStatus == 1 || newStatus == 2)) return 0;
+    	 	if (orderIdList == null || orderIdList.isEmpty()) return 0;
+    	    if (newStatus != 1 && newStatus != 2) return 0;
 
-        int updated = 0;
+    	    int updated = 0;
+
+    	    try {
+    	        conn = ds.getConnection();
+    	        conn.setAutoCommit(false);
+
+    	       
+    	        if (newStatus == 1) {
+    	            // 테이블 락
+    	            pstmt = conn.prepareStatement("LOCK TABLE tbl_orders IN EXCLUSIVE MODE");
+    	            pstmt.executeUpdate();
+    	            pstmt.close(); pstmt = null;
+
+    	            String ymd = new SimpleDateFormat("yyyyMMdd").format(new Date());
+
+    	            // 오늘 배송번호의 최대 뒷번호 + 1
+    	            int nextNo = 1;
+    	            String sqlMax =
+    	                    " SELECT NVL(MAX(TO_NUMBER(SUBSTR(delivery_number, INSTR(delivery_number,'-')+1))),0) + 1 "
+    	                  + "   FROM tbl_orders "
+    	                  + "  WHERE delivery_number LIKE ? ";
+
+    	            pstmt = conn.prepareStatement(sqlMax);
+    	            pstmt.setString(1, "D" + ymd + "-%");
+    	            rs = pstmt.executeQuery();
+    	            if (rs.next()) nextNo = rs.getInt(1);
+    	            rs.close(); rs = null;
+    	            pstmt.close(); pstmt = null;
+
+    	            // 0 -> 1 만 허용
+    	            String sqlUpd =
+    	                    " UPDATE tbl_orders "
+    	                  + "    SET delivery_status = 1 "
+    	                  + "      , delivery_startdate = SYSDATE "
+    	                  + "      , delivery_number = ? "
+    	                  + "  WHERE order_id = ? "
+    	                  + "    AND delivery_status = 0 "
+    	                  + "    AND delivery_status != 4 ";
+
+    	            pstmt = conn.prepareStatement(sqlUpd);
+
+    	            for (Long orderId : orderIdList) {
+    	                String deliveryNo = "D" + ymd + "-" + nextNo;
+    	                nextNo++;
+
+    	                pstmt.setString(1, deliveryNo);
+    	                pstmt.setLong(2, orderId);
+
+    	                updated += pstmt.executeUpdate();
+    	            }
+    	        }
+    	        else { // newStatus == 2
+    	            // 1 -> 2 만 허용
+    	            String sqlUpd =
+    	                    " UPDATE tbl_orders "
+    	                  + "    SET delivery_status = 2 "
+    	                  + "      , delivery_enddate = SYSDATE "
+    	                  + "  WHERE order_id = ? "
+    	                  + "    AND delivery_status = 1 "
+    	                  + "    AND delivery_status != 4 ";
+
+    	            pstmt = conn.prepareStatement(sqlUpd);
+
+    	            for (Long orderId : orderIdList) {
+    	                pstmt.setLong(1, orderId);
+    	                updated += pstmt.executeUpdate();
+    	            }
+    	        }
+
+    	        conn.commit();
+
+    	    } catch (SQLException e) {
+    	        if (conn != null) {
+    	        		try { 
+    	        			conn.rollback(); 
+    	        		} catch (SQLException er) {}
+    	        }
+    	        throw e;
+    	    } finally {
+    	        if (conn != null) {
+	    	        	try { 
+	    	        		conn.setAutoCommit(true);
+	    	        	} catch (SQLException e) {}
+    	        }
+    	        close();
+    	    }
+
+    	    return updated;
+    }
+    
+    
+    // 배송 상태 조회
+    @Override
+    public Map<Long, Integer> selectDeliveryStatusMap(List<Long> orderIdList) throws SQLException {
+
+        Map<Long, Integer> map = new java.util.HashMap<>();
+        if (orderIdList == null || orderIdList.isEmpty()) return map;
 
         try {
             conn = ds.getConnection();
 
-            String placeholders = String.join(",", Collections.nCopies(orderIdList.size(), "?"));
+            String placeholders = "";
+            for (int i = 0; i < orderIdList.size(); i++) {
+                placeholders += (i == 0 ? "?" : ",?");
+            }
 
-            String sql = " UPDATE tbl_orders "
-                       + "    SET delivery_status = ? "
-                       + "  WHERE order_id IN (" + placeholders + ") "
-                       + "    AND delivery_status != 4 ";
+            String sql = " SELECT order_id, delivery_status "
+                       + "   FROM tbl_orders "
+                       + "  WHERE order_id IN (" + placeholders + ") ";
 
             pstmt = conn.prepareStatement(sql);
 
-            pstmt.setInt(1, newStatus);
-
             for (int i = 0; i < orderIdList.size(); i++) {
-                pstmt.setLong(i + 2, orderIdList.get(i));
+                pstmt.setLong(i + 1, orderIdList.get(i));
             }
 
-            updated = pstmt.executeUpdate();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getLong("order_id"), rs.getInt("delivery_status"));
+            }
 
         } finally {
             close();
         }
 
-        return updated;
+        return map;
     }
-
+    
+    
 }

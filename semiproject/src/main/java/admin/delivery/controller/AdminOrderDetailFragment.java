@@ -1,4 +1,4 @@
-package myPage.controller;
+package admin.delivery.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -8,26 +8,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
-import order.domain.OrderDTO;
 import order.model.OrderDAO;
 import order.model.OrderDAO_imple;
 
-public class OrderDetailFragment extends AbstractController {
+public class AdminOrderDetailFragment extends AbstractController {
 
     private OrderDAO odao = new OrderDAO_imple();
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+    		
         response.setContentType("text/html; charset=UTF-8");
 
         HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-        if (loginUser == null) {
-            request.setAttribute("errMsg", "로그인이 필요합니다.");
+        // 관리자 체크
+        if (loginUser == null || !"admin".equals(loginUser.getMemberid())) {
+            request.setAttribute("errMsg", "관리자만 접근 가능합니다.");
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/myPage_YD/orderDetailFragment.jsp");
+            super.setViewPage("/WEB-INF/admin/delivery/orderDetailFragment.jsp");
             return;
         }
 
@@ -40,49 +40,25 @@ public class OrderDetailFragment extends AbstractController {
         } catch (NumberFormatException e) {
             request.setAttribute("errMsg", "잘못된 주문번호입니다.");
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/myPage_YD/orderDetailFragment.jsp");
+            super.setViewPage("/WEB-INF/admin/delivery/adminOrderDetailFragment.jsp.jsp");
             return;
         }
 
-        // 내 주문인지 검증 기존 메서드(selectOrderSummaryList) 그대로 사용
-        boolean isMine = false;
-        List<OrderDTO> myOrders = odao.selectOrderSummaryList(loginUser.getMemberid());
-        for (OrderDTO dto : myOrders) {
-            if (dto.getOrderId() == orderId) {
-                isMine = true;
-                break;
-            }
-        }
-
-        if (!isMine) {
-            request.setAttribute("errMsg", "접근 권한이 없습니다.");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/myPage_YD/orderDetailFragment.jsp");
-            return;
-        }
-
-        //  기존 메서드 재사용 (수정/교체 없음)
         Map<String, Object> header = odao.selectOrderHeaderforYD(orderId);
         List<Map<String, Object>> items = odao.selectOrderItemsForModal(orderId);
-        List<Map<String, Object>> product = odao.selectOrderItemsForModal(orderId);
-        
-        
-        
-        System.out.println("header keys => " + header.keySet());
-        System.out.println("header map => " + header);
 
-        
         if (header == null || header.isEmpty()) {
             request.setAttribute("errMsg", "주문 정보를 찾을 수 없습니다.");
             super.setRedirect(false);
-            super.setViewPage("/WEB-INF/myPage_YD/orderDetailFragment.jsp");
+            super.setViewPage("/WEB-INF/admin/delivery/adminOrderDetailFragment.jsp.jsp");
             return;
         }
 
         request.setAttribute("orderHeader", header);
         request.setAttribute("items", items);
-        request.setAttribute("product", product);
+        request.setAttribute("product", items); //
+        
         super.setRedirect(false);
-        super.setViewPage("/WEB-INF/myPage_YD/orderDetailFragment.jsp");
+        super.setViewPage("/WEB-INF/admin/delivery/adminOrderDetailFragment.jsp");
     }
 }

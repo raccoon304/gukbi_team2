@@ -600,7 +600,7 @@ public class OrderDAO_imple implements OrderDAO {
 		    List<Map<String, Object>> list = new ArrayList<>();
 
 		    String sql =
-		        " SELECT od.product_name, od.brand_name, od.quantity, od.unit_price, "
+		        " SELECT od.product_name, od.brand_name, od.quantity, od.unit_price, po.fk_product_code,  od.is_review_written AS is_review_written,"
 		      + "        (od.quantity * od.unit_price) AS total_price, "
 		      + "        NVL(po.color,'') AS color, "
 		      + "        NVL(po.storage_size,'') AS storage "
@@ -630,7 +630,8 @@ public class OrderDAO_imple implements OrderDAO {
 		            m.put("total_price", rs.getInt("total_price"));
 		            m.put("color", rs.getString("color"));
 		            m.put("storage", rs.getString("storage"));
-		            
+		            m.put("fkProductCode", rs.getString("fk_product_code"));
+		            m.put("is_review_written", rs.getInt("is_review_written"));
 		            list.add(m);
 		        }
 
@@ -682,7 +683,50 @@ public class OrderDAO_imple implements OrderDAO {
 	
 	
 	
-	
+
+	@Override
+    public Map<String, Object> selectOrderHeaderforYD(int orderId) throws SQLException {
+
+        Map<String, Object> map = new HashMap<>();
+
+        String sql = " SELECT order_id, order_date, total_amount, discount_amount, " 
+        		   + "        delivery_number, " 
+        		   + "        TO_CHAR(delivery_startdate, 'YYYY-MM-DD') AS delivery_startdate, " 
+        		   + "        NVL(TO_CHAR(delivery_enddate,   'YYYY-MM-DD'), '') AS delivery_enddate, " 
+        		   + "        (total_amount - discount_amount) AS final_amount, " 
+        		   + "        delivery_address, order_status, recipient_name, recipient_phone, delivery_status " 
+        		   + " FROM tbl_orders " 
+        	       + " WHERE order_id = ? ";
+
+
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
+            pstmt.setInt(1, orderId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    map.put("order_id", rs.getInt("order_id"));
+                    map.put("order_date", rs.getString("order_date"));
+                    map.put("total_amount", rs.getInt("total_amount"));
+                    map.put("discount_amount", rs.getInt("discount_amount"));
+                    map.put("final_amount", rs.getInt("final_amount"));
+                    map.put("delivery_address", rs.getString("delivery_address"));
+                    map.put("order_status", rs.getString("order_status"));
+                    map.put("recipient_name", rs.getString("recipient_name"));
+                    map.put("recipient_phone", rs.getString("recipient_phone"));
+                    map.put("delivery_status", rs.getString("delivery_status"));
+                    map.put("delivery_number", rs.getString("delivery_number"));
+                    map.put("delivery_startdate", rs.getString("delivery_startdate"));
+                    map.put("delivery_enddate", rs.getString("delivery_enddate"));
+                }
+            }
+        }
+
+        return map;
+    }
+
 	
 }
 

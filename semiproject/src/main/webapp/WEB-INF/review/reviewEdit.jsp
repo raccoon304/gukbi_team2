@@ -40,7 +40,7 @@ $(function(){
     paintStars(val);
   });
 
-  // submit 검증
+  // submit 검증(프론트)
   $("#reviewEditFrm").on("submit", function(){
     const title = $("input[name='reviewTitle']").val().trim();
     const content = $("textarea[name='reviewContent']").val().trim();
@@ -79,6 +79,13 @@ $(function(){
   <div class="card">
     <div class="card-body">
 
+      <!-- 서버 검증 에러 메시지 -->
+      <c:if test="${not empty errMsg}">
+        <div class="alert alert-danger mb-3">
+          <c:out value="${errMsg}" />
+        </div>
+      </c:if>
+
       <c:if test="${empty review}">
         <div class="alert alert-warning mb-0">
           수정할 리뷰 정보가 없습니다.
@@ -89,8 +96,10 @@ $(function(){
         <form id="reviewEditFrm"
               method="post"
               action="<%=ctxPath%>/review/reviewUpdate.hp">
-         
-          <input type="hidden" name="reviewNumber" value="${review.reviewNumber}" />
+
+          <input type="hidden" name="reviewNumber" value="${reviewNumber}" />
+
+          <!-- 목록 복귀용 -->
           <input type="hidden" name="productCode" value="${empty productCode ? 'ALL' : productCode}" />
           <input type="hidden" name="sort" value="${empty sort ? 'latest' : sort}" />
           <input type="hidden" name="sizePerPage" value="${empty sizePerPage ? '10' : sizePerPage}" />
@@ -113,7 +122,7 @@ $(function(){
             <label class="font-weight-bold">별점</label>
 
             <!-- 서버로 보내는 값 -->
-            <input type="hidden" name="rating" id="rating" value="${review.rating}" required>
+            <input type="hidden" name="rating" id="rating" value="<c:out value='${review.rating}'/>" required>
 
             <!-- 별 UI -->
             <div id="starBox" class="star-fa">
@@ -156,7 +165,5 @@ $(function(){
     </div>
   </div>
 </div>
-
-
 
 <jsp:include page="../footer.jsp"/>

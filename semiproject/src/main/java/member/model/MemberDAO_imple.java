@@ -179,7 +179,7 @@ public class MemberDAO_imple implements MemberDAO {
 					   + " where mobile_phone = ? ";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, aes.encrypt(mobile));
-			
+						
 			rs = pstmt.executeQuery();
 			
 			isExists = rs.next();
@@ -560,5 +560,37 @@ public class MemberDAO_imple implements MemberDAO {
 	    }
 
 	    return n;
+	}
+
+	// 휴대폰으로 비밀번호 찾기 
+	@Override
+	public boolean isUserExistsForPwdFindPhone(Map<String, String> paraMap) throws SQLException {
+
+	    boolean exists = false;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " select 1 "
+	                   + " from tbl_member "
+	                   + " where member_id = ? "
+	                   + "   and name = ? "
+	                   + "   and mobile_phone = ? ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, paraMap.get("memberid"));
+	        pstmt.setString(2, paraMap.get("name"));
+	        pstmt.setString(3, aes.encrypt(paraMap.get("mobile")));
+
+	        rs = pstmt.executeQuery();
+	        exists = rs.next();
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        close();
+	    }
+
+	    return exists;
 	}
 }
