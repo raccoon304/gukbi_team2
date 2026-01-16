@@ -21,6 +21,7 @@ $(document).ready(function() {
 	    const basePrice = Number($(this).val());
 
 	    if (basePrice > 0) {
+			//기본금이 0보다 크다면 옵션추가버튼 활성화
 	        $('#addOptionMatrix').prop('disabled', false);
 	        addDefault256OptionIfNeeded();
 	    }
@@ -59,11 +60,13 @@ $(document).ready(function() {
         $('#dropZone').css({ 'pointer-events': 'auto', 'opacity': '1' });
     }
 
-	//상품코드 입력 시 비활성화 항목들 활성화해주기
+	//상품코드 입력 시 모두 초기화
     $('#productCode').on('input', function() {
+		disableTag();
         isDuplicateCheckCode = false; //상품코드 중복체크 거짓
         isDuplicateCheckName = false; //상품명 중복체크 거짓
 		isDefaultOptionCreated = false;
+		$('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택 후 \'옵션 조합 추가\' 버튼을 클릭하세요</p></div>');
     });
 
 	//===상품코드 중복확인 버튼 클릭 이벤트===//
@@ -155,6 +158,7 @@ $(document).ready(function() {
 			
 			//새로운 상품코드이므로 비활성화 항목들 모두 활성화해주기
             enableTag();
+			
         }
         resultDiv.fadeIn();
     }
@@ -236,6 +240,7 @@ $(document).ready(function() {
 	
 	
 //========================== 옵션 매트릭스 ==========================//
+	//기본용량 256GB에 대한 함수
 	function addDefault256OptionIfNeeded() {
 		if (isDefaultOptionCreated) return;
 		
@@ -550,11 +555,19 @@ $(document).ready(function() {
             const additionalPrice = parseInt(priceInput.val());
             const isBase = priceInput.data('is-base');
 
+			//최대 재고량에 대한 제한
+			if(stock > 1000) {
+				alert("최대 재고량은 1000개입니다.");
+				hasError = true;
+				return false;
+			}
+			//재고량이 입력되지 않았거나 0보다 작은 경우 제한
             if (!stock || stock < 0) {
                 alert(`${storage}-${color} 조합의 재고를 입력해주세요.`);
                 hasError = true;
                 return false;
             }
+			//기본가가 입력되지 않았거나 추가금이 0보다 작은 경우 제한
             if (isNaN(additionalPrice) || additionalPrice < 0) {
                 alert(`${storage}-${color} 조합의 ${isBase ? '기본가' : '추가금'}를 확인해주세요.`);
                 hasError = true;
