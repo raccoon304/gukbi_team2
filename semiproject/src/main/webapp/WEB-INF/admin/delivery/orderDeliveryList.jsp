@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <% String ctxPath = request.getContextPath(); %>
 <!DOCTYPE html>
 <html>
@@ -18,7 +20,7 @@
 <link rel="stylesheet" type="text/css" href="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.css" />
 <script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
 
-<script src="<%=ctxPath%>/js/admin/delivery.js"></script>
+<%-- <script src="<%=ctxPath%>/js/admin/delivery.js"></script> --%>
 
 <style>
   td.orderSummaryCell {
@@ -51,14 +53,58 @@
   .orderSummaryCell .small{ line-height:1.2; }
   input[type="checkbox"]{ transform: translateY(1px); }
 
-  /* ==== select 폭 줄이기 ==== */
   .sel-sm { width: 140px !important; min-width: 140px !important; }
   .sel-xs { width: 120px !important; min-width: 120px !important; }
 
-  /* 검색줄 간격 */
   .toolbar-row + .toolbar-row { margin-top: 8px; }
-  
-  
+
+  /* ===== 주문상세 모달(관리자) 전용 ===== */
+  .yd-modal-backdrop{
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 1rem;
+  }
+  .yd-modal{
+    width: 100%;
+    max-width: 900px;
+    background: #fff;
+    border-radius: .75rem;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .yd-modal-header{
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .yd-modal-title{ font-size: 18px; font-weight: 700; margin: 0; }
+  .yd-modal-close{
+    background: transparent;
+    border: 0;
+    font-size: 22px;
+    line-height: 1;
+    color: #6c757d;
+    cursor: pointer;
+  }
+  .yd-modal-body{ padding: 1.25rem; overflow: auto; }
+  .yd-modal-footer{
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    background: #fff;
+  }
+  .yd-loading{ color:#6c757d; font-size:14px; }
 </style>
 
 <script>
@@ -99,10 +145,33 @@ $(function(){
     $("#chkAll").prop("checked", total > 0 && total === checkedCnt);
   });
 
-  // 행 클릭
-  $(document).on("click", "tr.orderRow", function(){
+  // ===== 행 클릭 -> 주문상세 모달 =====
+  $(document).on("click", "tr.orderRow", function(e){
+    // 체크박스/버튼/링크 클릭은 무시
+    if($(e.target).closest("input, button, a, label").length) return;
+
     const orderId = $(this).data("orderid");
-    console.log("clicked orderId =", orderId);
+    if(!orderId) return;
+
+    openOrderModal();
+    loadOrderDetail(orderId);
+  });
+
+  // 모달 닫기
+  $(document).on("click", ".js-close-order-modal", function(){
+    closeOrderModal();
+  });
+
+  // 바깥 클릭 닫기
+  $(document).on("click", "#ydOrderModalBackdrop", function(e){
+    if(e.target === this) closeOrderModal();
+  });
+
+  // ESC 닫기
+  $(document).on("keydown", function(e){
+    if(e.key === "Escape" && $("#ydOrderModalBackdrop").css("display") === "flex") {
+      closeOrderModal();
+    }
   });
 
   // 일괄 변경
@@ -120,13 +189,35 @@ $(function(){
       return;
     }
 
-    // 결제실패 제외
+    // 주문실패 제외
     const invalid = $checked.filter(function(){
       return String($(this).data("status")) === "4";
     });
     if(invalid.length > 0){
-      alert("결제실패 주문은 배송상태 변경 대상이 아닙니다.");
+      alert("주문실패 주문은 배송상태 변경 대상이 아닙니다.");
       return;
+    }
+
+    // 1(배송중)으로 바꾸려면 현재가 0만 가능
+    if(String(newStatus) === "1") {
+      const wrong = $checked.filter(function(){
+        return String($(this).data("status")) !== "0";
+      });
+      if(wrong.length > 0){
+        alert("배송준비중인 주문만 배송중으로 변경할 수 있습니다.");
+        return;
+      }
+    }
+
+    // 2(배송완료)로 바꾸려면 현재가 1만 가능
+    if(String(newStatus) === "2") {
+      const wrong = $checked.filter(function(){
+        return String($(this).data("status")) !== "1";
+      });
+      if(wrong.length > 0){
+        alert("배송중인 주문만 배송완료로 변경할 수 있습니다.");
+        return;
+      }
     }
 
     const orderIds = $checked.map(function(){ return $(this).val(); }).get();
@@ -152,10 +243,52 @@ function goSearch() {
   $("input[name='currentShowPageNo']").val("1");
   document.order_search_frm.submit();
 }
+
+function openOrderModal(){
+  $("#ydOrderModalBackdrop").css("display","flex").attr("aria-hidden","false");
+  $("body").css("overflow","hidden");
+}
+
+function closeOrderModal(){
+  $("#ydOrderModalBackdrop").hide().attr("aria-hidden","true");
+  $("body").css("overflow","");
+}
+
+function loadOrderDetail(orderId){
+  $("#ydModalLoading").show().text("불러오는 중...");
+  $("#ydModalContent").hide().empty();
+
+  fetch("<%=ctxPath%>/admin/delivery/orderDetailFragment.hp?orderNo=" + encodeURIComponent(orderId), {
+    method: "GET",
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  })
+  .then(res => {
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.text();
+  })
+  .then(html => {
+    $("#ydModalContent").html(html).show();
+    $("#ydModalLoading").hide();
+  })
+  .catch(err => {
+    $("#ydModalLoading").show().text("상세 정보를 불러오지 못했습니다. (" + err.message + ")");
+  });
+}
 </script>
 </head>
 
 <body>
+
+<!-- 메시지: 성공이면 div, 실패면 alert() -->
+<c:if test="${not empty msg}">
+  <c:set var="isSuccess" value="${fn:contains(msg, '완료')}" />
+  <c:if test="${!isSuccess}">
+    <script>
+      alert("${fn:escapeXml(msg)}");
+    </script>
+  </c:if>
+</c:if>
+
 <div class="wrapper">
   <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
 
@@ -180,14 +313,17 @@ function goSearch() {
 
           <div class="card-body">
 
-            <!-- flash 메시지 -->
+            <!-- 성공 메시지만 상단 div로 보여주기 -->
             <c:if test="${not empty msg}">
-              <div class="alert ${msg eq '변경 완료' ? 'alert-success' : 'alert-danger'} alert-dismissible fade show" role="alert">
-                ${msg}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
+              <c:set var="isSuccess" value="${fn:contains(msg, '완료')}" />
+              <c:if test="${isSuccess}">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  ${msg}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </c:if>
             </c:if>
 
             <!-- 검색/필터 -->
@@ -220,7 +356,7 @@ function goSearch() {
                   <div class="d-flex align-items-center mb-2">
                     <select class="custom-select sel-sm mr-2" id="bulkDeliveryStatus">
                       <option value="">배송상태 선택</option>
-                      <option value="0">배송준비중</option>
+                      <%-- <option value="0">배송준비중</option> --%>
                       <option value="1">배송중</option>
                       <option value="2">배송완료</option>
                     </select>
@@ -268,16 +404,18 @@ function goSearch() {
                     <th style="width:50px;" class="text-center">
                       <input type="checkbox" id="chkAll" />
                     </th>
-                    <th style="width:70px;">주문번호</th>
+
+                    <th style="width:90px;">주문번호</th>
+                    <th style="width:120px;">주문일</th>
                     <th style="width:120px;">아이디</th>
                     <th style="width:120px;">이름</th>
-                    <th style="width:120px;">주문상품</th>
-                    <th style="width:150px;">결제금액</th>
-                    <th style="min-width:270px;">배송지</th>
+                    <th style="width:220px;">주문상품</th>
+                    <th style="width:140px;">결제금액</th>
                     <th style="width:110px;">수령인</th>
-                    <th style="width:150px;">수령인 번호</th>
+                    <th style="width:140px;">배송번호</th>
+                    <th style="width:120px;">배송시작일</th>
+                    <th style="width:120px;">배송완료일</th>
                     <th style="width:110px;">배송상태</th>
-                    <th style="width:140px;">주문일자</th>
                   </tr>
                 </thead>
 
@@ -286,7 +424,7 @@ function goSearch() {
 
                   <c:if test="${empty orderList}">
                     <tr>
-                      <td colspan="11" class="text-center text-muted py-4">주문 내역이 없습니다.</td>
+                      <td colspan="12" class="text-center text-muted py-4">주문 내역이 없습니다.</td>
                     </tr>
                   </c:if>
 
@@ -299,26 +437,19 @@ function goSearch() {
                                  data-status="${r.deliveryStatus}" />
                         </td>
 
-				   <%-- <td>${r.rownum}</td> --%> <%-- 1부터 시작하는 그냥 번호 --%>
-						<td>${r.odto.orderId}</td>
+                        <td>${r.odto.orderId}</td>
+                        <td>${r.odto.orderDate}</td>
                         <td>${r.odto.memberId}</td>
                         <td>${r.mdto.name}</td>
 
                         <td class="orderSummaryCell">
                           <div>
-                            <div class="small text-muted">
-                              <small class="text-muted">${r.pdto.brandName}</small>
-                            </div>
-
+                            <div class="small text-muted"><small class="text-muted">${r.pdto.brandName}</small></div>
                             <strong>${r.pdto.productName}</strong>
-
                             <c:if test="${r.detailCnt > 1}">
                               <span class="text-dark"> 외 ${r.detailCnt - 1}건</span>
                             </c:if>
-
-                            <div class="small text-muted">
-                              ${r.podto.color} / ${r.podto.storageSize}
-                            </div>
+                            <div class="small text-muted">${r.podto.color} / ${r.podto.storageSize}</div>
                           </div>
                         </td>
 
@@ -326,9 +457,11 @@ function goSearch() {
                           <fmt:formatNumber value="${r.payAmount}" pattern="#,###"/>원
                         </td>
 
-                        <td>${r.odto.deliveryAddress}</td>
                         <td>${r.recipientName}</td>
-                        <td>${r.recipientPhone}</td>
+
+                        <td>${r.deliveryNumber}</td>
+                        <td>${r.deliveryStartdate}</td>
+                        <td>${r.deliveryEnddate}</td>
 
                         <td>
                           <c:choose>
@@ -346,8 +479,6 @@ function goSearch() {
                             </c:otherwise>
                           </c:choose>
                         </td>
-
-                        <td>${r.odto.orderDate}</td>
                       </tr>
                     </c:forEach>
                   </c:if>
@@ -369,6 +500,25 @@ function goSearch() {
         </div>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 주문상세 모달 ===== -->
+<div id="ydOrderModalBackdrop" class="yd-modal-backdrop" aria-hidden="true">
+  <div class="yd-modal" role="dialog" aria-modal="true" aria-labelledby="ydModalTitle">
+    <div class="yd-modal-header">
+      <h3 class="yd-modal-title" id="ydModalTitle">주문 내역 상세</h3>
+      <button type="button" class="yd-modal-close js-close-order-modal" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="yd-modal-body">
+      <div id="ydModalLoading" class="yd-loading">불러오는 중...</div>
+      <div id="ydModalContent" style="display:none;"></div>
+    </div>
+
+    <div class="yd-modal-footer">
+      <button type="button" class="btn btn-secondary js-close-order-modal">닫기</button>
     </div>
   </div>
 </div>

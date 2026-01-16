@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import mail.controller.GoogleMail;
 import member.model.MemberDAO;
 import member.model.MemberDAO_imple;
+import util.sms.SmsService;
 
 public class PwdFind extends AbstractController {
 
@@ -21,7 +22,6 @@ public class PwdFind extends AbstractController {
 
         String method = request.getMethod();
 
-        // 탭 유지
         // accountFind.jsp로 다시 포워드 됐을 때도 비밀번호 찾기 탭이 계속 선택된 상태로 보이게 하기위함
         request.setAttribute("activeTab", "pwd");
 
@@ -41,28 +41,85 @@ public class PwdFind extends AbstractController {
         String memberid = request.getParameter("memberid");
         String name     = request.getParameter("name");
         String email    = request.getParameter("email");
-
+        String mobile   = request.getParameter("mobile"); //휴대폰관련추가
+        
         memberid = (memberid == null) ? "" : memberid.trim();
         name     = (name == null) ? "" : name.trim();
         email    = (email == null) ? "" : email.trim();
+        mobile   = (mobile == null) ? "" : mobile.trim(); //휴대폰관련추가 
 
         // 화면 유지용 입력값 유지
         request.setAttribute("pwdFindType", pwdFindType.toLowerCase());
         request.setAttribute("pwd_memberid", memberid);
         request.setAttribute("pwd_name", name);
         request.setAttribute("pwd_email", email);
-
+        request.setAttribute("pwd_mobile", mobile); //휴대폰관련추가
         // 상태를 하나로만 결정 뷰단에서 이 값만 보고 1개 메시지만 출력하면 되게 구성
         String pwd_status = "UNKNOWN";
 
-        // 지금은 이메일만 구현
-        if (!"email".equalsIgnoreCase(pwdFindType)) { // 개발 해야됨.
-            pwd_status = "NOT_READY";
-            applyCompatFlags(request, false, false, pwd_status);
+        // ====== (추가) 휴대폰(SMS) 분기 처리 ======
+        if ("phone".equalsIgnoreCase(pwdFindType)) {
+
+            if (memberid.isEmpty() || name.isEmpty() || mobile.isEmpty()) {
+                pwd_status = "INVALID";
+                applyCompatFlags(request, false, false, pwd_status);
+                super.setRedirect(false);
+                super.setViewPage("/WEB-INF/member_YD/accountFind.jsp");
+                return;
+            }
+
+            mobile = mobile.replaceAll("\\D", "");
+            request.setAttribute("pwd_mobile", mobile);
+
+            Map<String, String> paraMap = new HashMap<>();
+            paraMap.put("memberid", memberid);
+            paraMap.put("name", name);
+            paraMap.put("mobile", mobile);
+
+            boolean isUserExists = mdao.isUserExistsForPwdFindPhone(paraMap);
+            System.out.println("isUserExists(phone) : " + isUserExists);
+
+            if (!isUserExists) {
+                pwd_status = "NO_USER";
+                applyCompatFlags(request, false, false, pwd_status);
+                super.setRedirect(false);
+                super.setViewPage("/WEB-INF/member_YD/accountFind.jsp");
+                return;
+            }
+
+            String smsCode = makeSmsCode6();
+
+            boolean smsSuccess = false;
+
+            try {
+                SmsService smsService = new SmsService(request.getServletContext());
+
+                // 인증코드 발송(성공/실패 boolean)
+                smsSuccess = smsService.sendVerificationCode(mobile, smsCode);
+
+                if (smsSuccess) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute("certication_code", smsCode);
+                    session.setAttribute("pwdfind_cert_expire", System.currentTimeMillis() + (5 * 60 * 1000));
+                    session.setAttribute("pwdfind_mobile", mobile);
+                    session.setAttribute("pwdfind_memberid", memberid);
+                    session.setAttribute("pwdfind_channel", "phone");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                smsSuccess = false;
+            }
+
+
+            pwd_status = smsSuccess ? "SMS_SENT" : "SMS_FAIL";
+            applyCompatFlags(request, true, smsSuccess, pwd_status);
+
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/member_YD/accountFind.jsp");
             return;
         }
+        // ====== (추가 끝) 휴대폰(SMS) 분기 처리 ======
 
         // 유효성
         if (memberid.isEmpty() || name.isEmpty() || email.isEmpty()) {
@@ -123,7 +180,7 @@ public class PwdFind extends AbstractController {
         super.setViewPage("/WEB-INF/member_YD/accountFind.jsp");
     }
 
-    // 인증코드 생성: 영문소문자 5 + 숫자 5
+    // 인증코드 생성 영문소문자 5 + 숫자 5
     private String makeCertificationCode() {
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder();
@@ -145,5 +202,12 @@ public class PwdFind extends AbstractController {
 
         request.setAttribute("pwd_isUserExists", isUserExists);
         request.setAttribute("pwd_sendMailSuccess", sendMailSuccess);
+    }
+    
+    // (추가) SMS 인증코드(숫자 6자리)
+    private String makeSmsCode6() {
+        Random rnd = new Random();
+        int n = rnd.nextInt(900000) + 100000; // 100000~999999
+        return String.valueOf(n);
     }
 }

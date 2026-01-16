@@ -126,6 +126,13 @@ $(function () {
     });
   }
 
+  
+  // 초기 별점 반영 (서버에서 내려준 rating 값이 있으면 별 채워주기)
+    const initVal = parseFloat($("#rating").val() || "0");
+    if (initVal > 0) {
+      paintStars(initVal);
+    }
+  
  
   // 별점 클릭 이벤트
   $("#starBox").on("click", ".hit", function(){

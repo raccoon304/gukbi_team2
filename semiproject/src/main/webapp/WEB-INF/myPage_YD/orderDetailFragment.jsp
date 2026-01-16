@@ -48,10 +48,8 @@
           <div class="k">주문상태</div>
           <div class="v">
             <c:choose>
-              <c:when test="${status eq '0'}">배송준비중</c:when>
-              <c:when test="${status eq '1'}">배송중</c:when>
-              <c:when test="${status eq '2'}">배송 완료</c:when>
-              <c:when test="${status eq '4'}">배송 취소</c:when>
+              <c:when test="${orderHeader['order_status'] eq 'PAID'}">결재완료</c:when>
+              <c:when test="${orderHeader['order_status'] eq 'FAIL'}">결재실패</c:when>
               
               <c:otherwise><c:out value="${status}" /></c:otherwise>
             </c:choose>
@@ -77,18 +75,47 @@
 	                 href="${pageContext.request.contextPath}/product/productOption.hp?productCode=${p['fkProductCode']}">
 	                <c:out value="${p['product_name']}" />
 	              </a>
+	              
 	              <!-- 리뷰 페이지로 이동 버튼 -->
 				  <a class="btn btn-sm btn-outline-primary ml-2"
 				     href="${pageContext.request.contextPath}/review/reviewList.hp?productCode=${p['fkProductCode']}">
 				    리뷰보기
 				  </a>
-				  <!-- 리뷰 작성페이지로 이동 버튼 -->
-				  <a class="btn btn-sm btn-outline-primary ml-2"
-				     href="${pageContext.request.contextPath}/review/reviewWrite.hp?productCode=${p['fkProductCode']}">
-				    리뷰작성하기
-				  </a>
 				  
-	            </div>
+				  <!-- 리뷰 작성페이지로 이동 버튼 -->
+				  <c:set var="isWritten" value="${p['is_review_written']}" />
+				
+				  <!-- 배송코드가 4일 때만 리뷰 버튼 노출 -->
+				  <c:if test="${status eq '2'}">
+				
+				    <c:choose>
+				  
+				      <c:when test="${isWritten == 1}">
+				        <a class="btn btn-sm btn-secondary ml-2 disabled" href="javascript:void(0);" aria-disabled="true" tabindex="-1">
+				          리뷰작성됨
+				        </a>
+				      </c:when>
+				
+				
+				      <c:when test="${isWritten == 0}">
+				        <a class="btn btn-sm btn-outline-primary ml-2"
+				           href="${pageContext.request.contextPath}/review/reviewWrite.hp?productCode=${p['fkProductCode']}">
+				          리뷰작성하기
+				        </a>
+				      </c:when>
+				
+				
+				      <c:otherwise>
+				        <a class="btn btn-sm btn-outline-primary ml-2"
+				           href="${pageContext.request.contextPath}/review/reviewWrite.hp?productCode=${p['fkProductCode']}">
+				          리뷰작성하기
+				        </a>
+				      </c:otherwise>
+				    </c:choose>
+				
+				 </c:if>
+				  
+	             </div>
 	
 	            <div class="yd-item-opt">
 	              브랜드: <c:out value="${p['brand_name']}" /><br/>
@@ -158,7 +185,24 @@
           <div class="k">택배 번호</div>
           <div class="v">
             <c:choose>
-              <c:when test="${status eq 'READY' or status eq 'PAID'}">준비중</c:when>
+              <c:when test="${status eq '0' }">준비중</c:when>
+              <c:when test="${status ne '0' }">${orderHeader['delivery_number']}</c:when>
+              <c:otherwise>-</c:otherwise>
+            </c:choose>
+          </div>
+          <div class="k">배송 시작일</div>
+          <div class="v">
+            <c:choose>
+              <c:when test="${status eq '0' }">준비중</c:when>
+              <c:when test="${status ne '0' }">${orderHeader['delivery_startdate']}</c:when>
+              <c:otherwise>-</c:otherwise>
+            </c:choose>
+          </div>
+          <div class="k">택배 도착일</div>
+          <div class="v">
+            <c:choose>
+              <c:when test="${status ne '2' }">준비중</c:when>
+              <c:when test="${status eq '2' }">${orderHeader['delivery_enddate']}</c:when>
               <c:otherwise>-</c:otherwise>
             </c:choose>
           </div>

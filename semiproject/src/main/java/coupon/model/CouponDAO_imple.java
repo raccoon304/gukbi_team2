@@ -763,12 +763,15 @@ public class CouponDAO_imple implements CouponDAO {
 	    java.time.LocalDate expire = java.time.LocalDate.now().plusDays(expire_days);
 	    String expireDateStr = expire.toString(); // yyyy-MM-dd
 
-	    List<String> memberIdList = new java.util.ArrayList<>();
+	    List<String> memberIdList = new ArrayList<>();
 	    memberIdList.add(memberId);
 	    return issueCouponToMembers(welcome_coupon_category_no, memberIdList, expireDateStr);
 	    
 	    
 	}
+	
+	
+
 
 	
 	

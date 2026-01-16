@@ -1,8 +1,6 @@
 package review.controller;
 
 import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,40 +19,33 @@ import review.model.ReviewDAO_imple;
 
 public class ReviewWrite extends AbstractController {
 
+    private ReviewDAO rdao = new ReviewDAO_imple();
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-    		ReviewDAO rdao = new ReviewDAO_imple();
-    	
         HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
         String method = request.getMethod();
 
-        // GET : 리뷰 작성 페이지
+        //  productCode 정리
+        String productCode = request.getParameter("productCode");
+        if (productCode == null) productCode = "ALL";
+        productCode = productCode.replace('\u00A0', ' ').trim();
+        if (productCode.isEmpty()) productCode = "ALL";
+        if ("ALL".equalsIgnoreCase(productCode)) productCode = "ALL";
+
+        // GET : 작성 페이지
         if ("GET".equalsIgnoreCase(method)) {
 
-            // 로그인 체크
             if (loginUser == null) {
-                String productCode = request.getParameter("productCode");
-                if (productCode == null || productCode.trim().isEmpty()) productCode = "ALL";
-
-                String returnUrl = request.getContextPath() + "/review/reviewWrite.hp?productCode="
-                        + URLEncoder.encode(productCode, StandardCharsets.UTF_8);
-
-                request.setAttribute("message", "리뷰 작성은 로그인 후 가능합니다.");
-                request.setAttribute("loc",
-                        request.getContextPath() + "/login.hp?returnUrl="
-                                + URLEncoder.encode(returnUrl, StandardCharsets.UTF_8));
-
-                super.setRedirect(false);
-                super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
-                return;
+	            	request.setAttribute("message", "로그인이 필요합니다.");
+	            	request.setAttribute("loc", "javascript:history.back()");
+	            	super.setRedirect(false);
+	            	super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+	            	return;
             }
-
-            String productCode = request.getParameter("productCode");
-            if (productCode == null || productCode.trim().isEmpty()) productCode = "ALL";
-            productCode = productCode.trim();
 
             List<Map<String, Object>> writableList =
                     rdao.getWritableOrderDetailList(loginUser.getMemberid(), productCode);
@@ -67,9 +58,7 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-
-        // POST : 리뷰 등록
-        // 로그인 체크
+        // POST : 등록
         if (loginUser == null) {
             request.setAttribute("message", "로그인 후 이용 가능합니다.");
             request.setAttribute("loc", request.getContextPath() + "/login.hp");
@@ -78,53 +67,41 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // productCode - 상품상세에서 들어오면 그 상품으로 감
-        String productCode = request.getParameter("productCode");
-        if (productCode == null || productCode.trim().isEmpty()) productCode = "ALL";
-        productCode = productCode.trim();
-
-        // 주문상세 선택값
+        // 주문상세 선택
         int orderDetailId;
         try {
             orderDetailId = Integer.parseInt(request.getParameter("orderDetailId"));
         } catch (Exception e) {
-            request.setAttribute("message", "구매한 옵션을 선택해야 리뷰 작성이 가능합니다.");
-            request.setAttribute("loc", "javascript:history.back()");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+            failToWritePage(request, loginUser, productCode, "구매 옵션을 선택하세요.");
             return;
         }
 
         // 작성 가능 체크
         boolean canWrite = rdao.canWriteReview(loginUser.getMemberid(), orderDetailId);
         if (!canWrite) {
-            request.setAttribute("message", "리뷰 작성이 불가능합니다 (구매내역이 없거나 이미 작성된 리뷰가 있습니다.)");
-            request.setAttribute("loc", "javascript:history.back()");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+            failToWritePage(request, loginUser, productCode,
+                    "리뷰 작성이 불가능합니다. (배송 완료된 주문이 없거나 이미 작성된 리뷰가 있습니다.)");
             return;
         }
 
         // optionId 조회
         int optionId = rdao.getOptionIdByOrderDetailId(loginUser.getMemberid(), orderDetailId);
         if (optionId <= 0) {
-            request.setAttribute("message", "리뷰 작성 정보 확인에 실패했습니다.");
-            request.setAttribute("loc", "javascript:history.back()");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+            failToWritePage(request, loginUser, productCode, "리뷰 작성 정보 확인에 실패했습니다.");
             return;
         }
 
         // 제목
-        String title = request.getParameter("reviewTitle"); // JSP에서 name="reviewTitle" 로 맞춰줘
+        String title = request.getParameter("reviewTitle");
         if (title == null) title = "";
         title = title.trim();
 
-        if (title.isBlank() || title.length() > 100) {
-            request.setAttribute("message", "리뷰 제목은 1~100자 사이로 입력하세요.");
-            request.setAttribute("loc", "javascript:history.back()");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+        if (title.isBlank()) {
+            failToWritePage(request, loginUser, productCode, "리뷰 제목을 입력하세요.");
+            return;
+        }
+        if (title.length() > 100) {
+            failToWritePage(request, loginUser, productCode, "글자수를 초과하여 작성 할 수 없습니다. (제목 최대 100자)");
             return;
         }
 
@@ -133,11 +110,12 @@ public class ReviewWrite extends AbstractController {
         if (content == null) content = "";
         content = content.trim();
 
-        if (content.isBlank() || content.length() > 1000) {
-            request.setAttribute("message", "리뷰 내용은 1~1000자 사이로 입력하세요.");
-            request.setAttribute("loc", "javascript:history.back()");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+        if (content.isBlank()) {
+            failToWritePage(request, loginUser, productCode, "리뷰 내용을 입력하세요.");
+            return;
+        }
+        if (content.length() > 1000) {
+            failToWritePage(request, loginUser, productCode, "글자수를 초과하여 작성 할 수 없습니다. (내용 최대 1000자)");
             return;
         }
 
@@ -149,11 +127,8 @@ public class ReviewWrite extends AbstractController {
             rating = 0;
         }
 
-        if (rating < 0.5 || rating > 5.0 || (rating * 2 != Math.floor(rating * 2))) {
-            request.setAttribute("message", "별점은 0.5~5.0 사이로 선택하세요.");
-            request.setAttribute("loc", "javascript:history.back()");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+        if (!(rating >= 0.5 && rating <= 5.0 && (rating * 2 == Math.floor(rating * 2)))) {
+            failToWritePage(request, loginUser, productCode, "별점은 0.5~5.0 사이로 선택하세요.");
             return;
         }
 
@@ -185,9 +160,7 @@ public class ReviewWrite extends AbstractController {
             if (!(ext.equals(".jpg") || ext.equals(".jpeg") || ext.equals(".png") || ext.equals(".webp"))) continue;
 
             String saveName = "rv_" + UUID.randomUUID().toString().replace("-", "") + ext;
-
-            File saveFile = new File(dir, saveName);
-            part.write(saveFile.getAbsolutePath());
+            part.write(new File(dir, saveName).getAbsolutePath());
 
             String webPath = "/image/review/" + saveName;
 
@@ -199,10 +172,9 @@ public class ReviewWrite extends AbstractController {
             sortNo++;
         }
 
-        int reviewNumber;
-
+        //  DB 저장
         try {
-            reviewNumber = rdao.insertReviewWithImages(
+            rdao.insertReviewWithImages(
                     loginUser.getMemberid(),
                     optionId,
                     orderDetailId,
@@ -213,34 +185,54 @@ public class ReviewWrite extends AbstractController {
             );
         } catch (Exception e) {
 
-            // 실패하면 업로드한 파일 삭제
-            if (!images.isEmpty()) {
-                for (Map<String, Object> img : images) {
-                    try {
-                        String webPath = (String) img.get("imagePath");
-                        if (webPath == null) continue;
-                        String fileName = webPath.substring(webPath.lastIndexOf("/") + 1);
-                        File f = new File(dir, fileName);
-                        if (f.exists()) f.delete();
-                    } catch (Exception ignore) {}
-                }
+            // 실패하면 업로드 파일 삭제
+            for (Map<String, Object> img : images) {
+                try {
+                    String webPath = (String) img.get("imagePath");
+                    if (webPath == null) continue;
+                    String fileName = webPath.substring(webPath.lastIndexOf("/") + 1);
+                    File f = new File(dir, fileName);
+                    if (f.exists()) f.delete();
+                } catch (Exception ignore) {}
             }
 
-            request.setAttribute("message", "리뷰 등록에 실패했습니다. 이미 작성한 리뷰는 추가 작성이 불가합니다.");
-            request.setAttribute("loc", "javascript:history.back()");
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+            String emsg = String.valueOf(e.getMessage());
+
+            // ORA-12899(길이 초과)면 글자수 초과로 안내 + 작성페이지 유지
+            if (emsg != null && emsg.contains("ORA-12899")) {
+                failToWritePage(request, loginUser, productCode, "글자수를 초과하여 작성 할 수 없습니다.");
+            } else {
+                failToWritePage(request, loginUser, productCode, "리뷰 등록에 실패했습니다. (이미 작성된 리뷰/DB 오류)");
+            }
             return;
         }
 
-        // 성공 메시지 + 리뷰리스트 이동(선택상품 유지)
-        String loc = request.getContextPath() + "/review/reviewList.hp?productCode="
-                + URLEncoder.encode(productCode, StandardCharsets.UTF_8);
+        // 성공: 리스트로 이동
+        String loc = request.getContextPath() + "/review/reviewList.hp?productCode=" + productCode;
 
         request.setAttribute("message", "리뷰가 등록되었습니다.");
         request.setAttribute("loc", loc);
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
-        return;
+    }
+
+    // 실패 : write.jsp로 forward + 입력값 유지 + writableList 재조회
+    private void failToWritePage(HttpServletRequest request, MemberDTO loginUser, String productCode, String msg) throws Exception {
+
+        request.setAttribute("errMsg", msg);
+
+        request.setAttribute("formOrderDetailId", request.getParameter("orderDetailId"));
+        request.setAttribute("formTitle", request.getParameter("reviewTitle"));
+        request.setAttribute("formContent", request.getParameter("reviewContent"));
+        request.setAttribute("formRating", request.getParameter("rating"));
+
+        request.setAttribute("productCode", productCode);
+
+        List<Map<String, Object>> writableList =
+                rdao.getWritableOrderDetailList(loginUser.getMemberid(), productCode);
+        request.setAttribute("writableList", writableList);
+
+        super.setRedirect(false);
+        super.setViewPage("/WEB-INF/review/reviewWrite.jsp");
     }
 }

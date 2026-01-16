@@ -24,4 +24,20 @@
   </resource-ref>
   <!-- ========= SemiProject Setting End  ===========  -->
 
+  <!-- SMS 수신용 정보 -->
+	<context-param>
+	  <param-name>COOLSMS_API_KEY</param-name>
+	  <param-value>NCSIFFEJP0BPVSQU</param-value>
+	</context-param>
+	
+	<context-param>
+	  <param-name>COOLSMS_API_SECRET</param-name>
+	  <param-value>JW2CYTPS4P7NLXNA9PAUN0VCBVGJ2IK0</param-value>
+	</context-param>
+	
+	<context-param>
+	  <param-name>COOLSMS_FROM_PHONE</param-name>
+	  <param-value>01020660376</param-value>
+	</context-param>
+
 </web-app>
