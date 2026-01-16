@@ -33,7 +33,7 @@
 
     <div>
       <a class="btn btn-primary btn-sm"
-         href="<%=ctxPath%>/review/reviewWrite.hp?productCode=${productCode}">
+         href="<%=ctxPath%>/review/reviewWrite.hp?productCode=ALL"> <%-- href="<%=ctxPath%>/review/reviewWrite.hp?productCode=${productCode}"> --%>
         <i class="fa-solid fa-pen-to-square mr-1"></i>리뷰 작성
       </a>
     </div>
@@ -76,11 +76,11 @@
           <tr>
             <th style="width:50px;">No</th>
             <th style="width:140px;"></th>
-            <th>제목</th>
+            <th style="width:200px;">제목</th>
             <th style="width:150px;">작성자</th>
             <th style="width:240px;">구매 상품</th>
             <th style="width:140px;">별점</th>
-            <th style="width:120px;">작성일</th>
+            <th style="width:170px;">작성일</th>
           </tr>
         </thead>
 

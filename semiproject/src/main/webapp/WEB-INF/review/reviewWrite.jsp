@@ -34,17 +34,25 @@
   <div class="card">
     <div class="card-body">
 
+      <!-- 에러 메시지 -->
+      <c:if test="${not empty errMsg}">
+        <div class="alert alert-danger mb-3">
+          <c:out value="${errMsg}" />
+        </div>
+      </c:if>
+
       <form id="reviewWriteFrm"
             method="post"
             action="<%=ctxPath%>/review/reviewWrite.hp"
-            enctype="multipart/form-data" novalidate>
+            enctype="multipart/form-data"
+            novalidate>
 
         <!-- productCode -->
         <input type="hidden" name="productCode" value="${productCode}">
 
         <c:if test="${empty writableList}">
           <div class="alert alert-warning mb-3">
-            구매한 옵션이 없거나 이미 리뷰를 작성하셨습니다.
+            작성 할 수 있는 리뷰가 없습니다.
           </div>
 
           <select class="form-control mb-3" disabled>
@@ -64,31 +72,36 @@
           <div class="form-group">
             <label class="font-weight-bold">구매 옵션</label>
             <select name="orderDetailId" class="form-control" required>
-              <option value="">구매한 옵션을 선택하세요</option>
-              <c:forEach var="w" items="${writableList}">
-                <option value="${w.orderDetailId}">
-                  ${w.optionName}
-                </option>
-              </c:forEach>
-            </select>
+			  <option value="">구매한 옵션을 선택하세요</option>
+			  <c:forEach var="w" items="${writableList}">
+			    <c:set var="odid" value="${w.orderDetailId}" />
+			    <option value="${odid}"
+			      <c:if test="${not empty formOrderDetailId and formOrderDetailId == odid}">selected</c:if>>
+			      ${w.optionName}
+			    </option>
+			  </c:forEach>
+			</select>
           </div>
 
-          <!-- 제목  -->
+          <!-- 제목 -->
           <div class="form-group mt-3">
             <label class="font-weight-bold">리뷰 제목</label>
             <input type="text"
-                   name="reviewTitle"
-                   class="form-control"
-                   maxlength="100"
-                   placeholder="제목을 입력해주세요 (최대 100자)"
-                   required />
+		       name="reviewTitle"
+		       class="form-control"
+		       maxlength="100"
+		       placeholder="제목을 입력해주세요 (최대 100자)"
+		       required
+		       value="${empty formTitle ? '' : formTitle}" />
+            <small class="text-muted">최대 100자</small>
           </div>
 
           <!-- 별점 -->
           <div class="form-group mt-3">
             <label class="font-weight-bold">별점</label>
 
-            <input type="hidden" name="rating" id="rating" value="" required>
+            <!-- 서버에서 내려준 별점 유지 -->
+            <input type="hidden" name="rating" id="rating" value="${formRating}">
 
             <div id="starBox" class="star-fa">
               <c:forEach begin="1" end="5" var="i">
@@ -116,7 +129,7 @@
                       rows="6"
                       maxlength="1000"
                       placeholder="사용 후기를 입력해주세요(최대 1000자)"
-                      required></textarea>
+                      required><c:out value="${formContent}"/></textarea>
             <small class="text-muted">최대 1000자</small>
           </div>
 
@@ -129,7 +142,7 @@
                    accept="image/*"
                    multiple
                    class="form-control-file">
-            <small class="text-muted">jpg / jpeg / png </small>
+            <small class="text-muted">jpg / jpeg / png</small>
 
             <div id="previewWrap" class="mt-3 d-flex flex-wrap"></div>
           </div>
@@ -148,5 +161,7 @@
     </div>
   </div>
 </div>
+
+
 
 <jsp:include page="../footer.jsp"/>
