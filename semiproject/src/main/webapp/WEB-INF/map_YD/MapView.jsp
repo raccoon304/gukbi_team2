@@ -6,6 +6,8 @@
     String ctxPath = request.getContextPath();
 %>
 
+<c:set var="loginUser" value="${sessionScope.loginUser}" />
+
 <style>
   #map_container {
     max-width: 1600px;
@@ -52,8 +54,8 @@
     border: 1px solid #e9ecef;
     border-radius: 12px;
     background: #fff;
-    height: 520px;          /* 지도 높이랑 맞춤 */
-    overflow: hidden;       /* 헤더/바디 분리 */
+    height: 520px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     box-shadow: 0 6px 18px rgba(0,0,0,.04);
@@ -168,6 +170,10 @@
   .btn-outline-soft:hover{
     background: #f8f9fa;
   }
+
+  .admin-add-wrap{
+    padding: .75rem .75rem 0;
+  }
 </style>
 
 <div id="map_container" class="container">
@@ -181,10 +187,18 @@
           <small class="text-muted"></small>
         </div>
 
-        <div class="store-tabs">
-          <button type="button" class="store-btn active" data-store="gangnam">강남점</button>
-          <button type="button" class="store-btn" data-store="hongdae">홍대점</button>
-          <button type="button" class="store-btn" data-store="anseong">안성점</button>
+        <!-- ✅ admin이면 “매장 추가” 버튼 노출 -->
+        <c:if test="${not empty loginUser and loginUser.memberid eq 'admin'}">
+          <div class="admin-add-wrap">
+            <a href="${pageContext.request.contextPath}/map/storeAdd.hp" class="btn btn-sm btn-primary btn-block">
+              <i class="fa-solid fa-plus mr-1"></i> 매장 추가
+            </a>
+          </div>
+        </c:if>
+
+        <!-- 탭 버튼 들어갈 영역(동적) -->
+        <div class="store-tabs" id="storeTabs">
+          <div class="text-muted" style="font-size:13px;">매장 정보를 불러오는 중...</div>
         </div>
       </div>
     </div>
@@ -215,7 +229,7 @@
                 <div id="sdAddr">-</div>
 
                 <i class="fa-solid fa-circle-info"></i>
-                <div>매장 방문 전, 재고/상담 가능 여부를 확인하면 더 편합니다.</div>
+                <div id="sdHint">매장 방문 전, 재고/상담 가능 여부를 확인하면 더 편합니다.</div>
               </div>
 
               <div class="store-desc-box">
@@ -242,33 +256,32 @@
   </div>
 </div>
 
-<!-- ✅ 카카오 지도 SDK: appkey 1개만! -->
+<!-- ✅ 카카오 지도 SDK -->
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fdd26aed348276cbc1ee6c0ef42c2d5e"></script>
 
 <script>
 (function () {
   const ctxPath = "<%=ctxPath%>";
-  const mapEl = document.getElementById("map");
 
-  // ✅ 우측 상세 패널 요소
+  const mapEl = document.getElementById("map");
+  const storeTabsEl = document.getElementById("storeTabs");
+
   const sdName = document.getElementById("sdName");
   const sdAddr = document.getElementById("sdAddr");
   const sdDesc = document.getElementById("sdDesc");
 
-  // ✅ 하단 버튼
   const btnCopyAddr = document.getElementById("btnCopyAddr");
   const btnOpenKakao = document.getElementById("btnOpenKakao");
 
-  // 현재 선택된 매장 code
-  let currentKey = null;
-
-  // DB에서 받아온 stores를 여기에 채움 (key=storeCode)
+  // DB에서 받은 store 목록을 {code: storeObj} 형태로 보관
   let stores = {};
+  let storeKeys = [];
+  let currentKey = "";
 
-  // 지도 객체(데이터 오기 전 임시 기본값)
+  // 지도 생성(임시 기본값)
   const map = new kakao.maps.Map(mapEl, {
     center: new kakao.maps.LatLng(37.5665, 126.9780),
-    level: 4
+    level: 5
   });
 
   const markers = {};
@@ -276,6 +289,12 @@
 
   function closeAllInfo() {
     Object.keys(infows).forEach(k => infows[k].close());
+  }
+
+  function setActiveTab(key) {
+    document.querySelectorAll(".store-btn").forEach(b => b.classList.remove("active"));
+    const t = document.querySelector('.store-btn[data-store="' + key + '"]');
+    if (t) t.classList.add("active");
   }
 
   function renderDetail(key) {
@@ -288,56 +307,55 @@
     sdDesc.textContent = s.description || "-";
   }
 
-  function setActiveTab(key){
-    document.querySelectorAll(".store-btn").forEach(b => b.classList.remove("active"));
-    const t = document.querySelector('.store-btn[data-store="'+key+'"]');
-    if (t) t.classList.add("active");
-  }
-
   function moveToStore(key) {
     const s = stores[key];
     if (!s) return;
 
-    const pos = new kakao.maps.LatLng(Number(s.lat), Number(s.lng));
+    const lat = Number(s.lat);
+    const lng = Number(s.lng);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
 
-    map.setLevel(4); 
-    
+    const pos = new kakao.maps.LatLng(lat, lng);
+
+    // ✅ “대한민국 전체”처럼 멀어지는 것 방지: 선택할 때 줌 고정
+    map.setLevel(4);
     map.panTo(pos);
 
     closeAllInfo();
-    infows[key].open(map, markers[key]);
+    if (infows[key] && markers[key]) infows[key].open(map, markers[key]);
 
     renderDetail(key);
   }
 
-  // ✅ 좌측 탭 버튼을 DB 기준으로 동적 생성
-  function renderTabsFromDB(list){
-    const tabWrap = document.querySelector(".store-tabs");
-    tabWrap.innerHTML = "";
+  function buildTabs() {
+    if (!storeKeys.length) {
+      storeTabsEl.innerHTML = "<div class='text-muted' style='font-size:13px;'>등록된 매장이 없습니다.</div>";
+      return;
+    }
 
-    list.forEach((s, idx) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "store-btn" + (idx === 0 ? " active" : "");
-      btn.setAttribute("data-store", s.storeCode);
-      btn.textContent = s.storeName;
-      tabWrap.appendChild(btn);
+    let html = "";
+    storeKeys.forEach((key, idx) => {
+      const s = stores[key];
+      const active = (idx === 0) ? "active" : "";
+      html += '<button type="button" class="store-btn ' + active + '" data-store="' + key + '">' + (s.storeName || key) + '</button>';
     });
+
+    storeTabsEl.innerHTML = html;
   }
 
-  // ✅ 마커/인포윈도우 생성
-  function buildMapObjects(list){
-    const bounds = new kakao.maps.LatLngBounds();
+  function buildMarkers() {
+    // 기존 마커/인포윈도우 정리
+    Object.keys(markers).forEach(k => markers[k].setMap(null));
 
-    list.forEach(s => {
-      const key = s.storeCode;
+    storeKeys.forEach(key => {
+      const s = stores[key];
       const lat = Number(s.lat);
       const lng = Number(s.lng);
       if (Number.isNaN(lat) || Number.isNaN(lng)) return;
 
       const pos = new kakao.maps.LatLng(lat, lng);
 
-      const marker = new kakao.maps.Marker({ map, position: pos });
+      const marker = new kakao.maps.Marker({ map: map, position: pos });
       markers[key] = marker;
 
       const content =
@@ -346,23 +364,18 @@
         "  <div style='color:#6c757d;'>" + (s.address || "") + "</div>" +
         "</div>";
 
-      const infowindow = new kakao.maps.InfoWindow({ content });
+      const infowindow = new kakao.maps.InfoWindow({ content: content });
       infows[key] = infowindow;
 
-      bounds.extend(pos);
-
-      kakao.maps.event.addListener(marker, 'click', function() {
+      kakao.maps.event.addListener(marker, "click", function() {
         setActiveTab(key);
         moveToStore(key);
       });
     });
-
-    // 마커 전체가 보이게
-    map.setBounds(bounds);
   }
 
-  // 탭 클릭 이벤트(동적 생성이라 위임)
-  document.addEventListener("click", function(e){
+  // 탭 클릭
+  document.addEventListener("click", function(e) {
     const btn = e.target.closest(".store-btn");
     if (!btn) return;
 
@@ -374,11 +387,15 @@
   // 주소 복사
   btnCopyAddr.addEventListener("click", async function(){
     const s = stores[currentKey];
-    const addr = (s && s.address) ? s.address : "";
+    const addr = (s && s.address) ? String(s.address) : "";
     if (!addr) return;
 
     try {
       await navigator.clipboard.writeText(addr);
+      btnCopyAddr.innerHTML = "<i class='fa-solid fa-check mr-1'></i> 복사됨";
+      setTimeout(() => {
+        btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
+      }, 1200);
     } catch (e) {
       const ta = document.createElement("textarea");
       ta.value = addr;
@@ -386,53 +403,42 @@
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
-    }
 
-    btnCopyAddr.innerHTML = "<i class='fa-solid fa-check mr-1'></i> 복사됨";
-    setTimeout(() => {
-      btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
-    }, 1200);
+      btnCopyAddr.innerHTML = "<i class='fa-solid fa-check mr-1'></i> 복사됨";
+      setTimeout(() => {
+        btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
+      }, 1200);
+    }
   });
 
-  
-  
-  
-  
+  // ✅ 지도 보기: kakao_url 있으면 그걸 열고, 없으면 좌표 링크 생성
   btnOpenKakao.addEventListener("click", function(){
-	  const s = stores[currentKey];
-	  const url = (s && s.kakaoUrl) ? String(s.kakaoUrl).trim() : "";
+    const s = stores[currentKey];
+    if (!s) return;
 
-	  // place 링크면 그대로 오픈
-	  if (url && (url.includes("place.map.kakao.com") || url.includes("map.kakao.com/link"))) {
-	    window.open(url, "_blank");
-	    return;
-	  }
+    const url = (s.kakaoUrl) ? String(s.kakaoUrl).trim() : "";
 
-	  // fallback: 좌표로 카카오맵 열기
-	  const lat = s ? Number(s.lat) : NaN;
-	  const lng = s ? Number(s.lng) : NaN;
+    // kakao_url이 정상 링크면 그대로 오픈
+    if (url) {
+      window.open(url, "_blank");
+      return;
+    }
 
-	  if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
-	    //const name = encodeURIComponent(s.name || "매장");
-	    const mapUrl = "https://map.kakao.com/link/map/"/*  + name + ","  */+ lat + "," + lng;
-	    window.open(mapUrl, "_blank");
-	    return;
-	  }
+    // 없으면 좌표 기반 링크 생성
+    const lat = Number(s.lat);
+    const lng = Number(s.lng);
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+      const name = encodeURIComponent(s.storeName || "매장");
+      const mapUrl = "https://map.kakao.com/link/map/" + name + "," + lat + "," + lng;
+      window.open(mapUrl, "_blank");
+      return;
+    }
 
-	  window.open("https://map.kakao.com/", "_blank");
-	});
+    window.open("https://map.kakao.com/", "_blank");
+  });
 
-
-  
-  
-  
-  
-  
-  
-  
-  
-  // ✅ DB에서 로딩
-  fetch(ctxPath + "/map/storeLocationJSON.hp", {
+  // ✅ DB에서 매장 목록 가져오기
+  fetch(ctxPath + "/map/storeListJSON.hp", {
     method: "GET",
     headers: { "X-Requested-With": "XMLHttpRequest" }
   })
@@ -441,24 +447,37 @@
     return res.json();
   })
   .then(list => {
-    if (!Array.isArray(list) || list.length === 0) return;
+    if (!Array.isArray(list) || list.length === 0) {
+      stores = {};
+      storeKeys = [];
+      buildTabs();
+      return;
+    }
 
-    // stores 구성
     stores = {};
-    list.forEach(s => { stores[s.storeCode] = s; });
+    list.forEach(s => {
+      // data-store용 key는 storeCode 사용
+      const key = s.storeCode;
+      if (!key) return;
+      stores[key] = s;
+    });
 
-    // 좌측 탭 생성
-    renderTabsFromDB(list);
+    storeKeys = Object.keys(stores);
 
-    // 지도 마커 구성
-    buildMapObjects(list);
+    buildTabs();
+    buildMarkers();
 
-    // 최초 1번(정렬 1번)
-    const firstKey = list[0].storeCode;
-    setActiveTab(firstKey);
-    moveToStore(firstKey);
+    // 최초 선택: sort_no 정렬이 DB에서 이미 됐으니 첫 번째가 디폴트
+    const firstKey = storeKeys[0];
+    if (firstKey) {
+      setActiveTab(firstKey);
+      moveToStore(firstKey);
+    }
   })
-  .catch(console.error);
+  .catch(err => {
+    console.error(err);
+    storeTabsEl.innerHTML = "<div class='text-muted' style='font-size:13px;'>매장 정보를 불러오지 못했습니다.</div>";
+  });
 
 })();
 </script>

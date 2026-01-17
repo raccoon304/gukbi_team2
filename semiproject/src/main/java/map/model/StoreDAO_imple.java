@@ -90,4 +90,45 @@ public class StoreDAO_imple implements StoreDAO {
 
         return list;
     }
+
+    // 매장 추가하기 
+    @Override
+    public int insertStore(StoreDTO dto) throws SQLException {
+
+        int n = 0;
+
+        try {
+            conn = ds.getConnection();
+
+            // store_id는 시퀀스로 넣는다고 가정 (네 시퀀스명에 맞게 수정)
+            // 예: SEQ_TBL_STORE_STORE_ID.nextval
+            String sql =
+                  " INSERT INTO tbl_store ( "
+                + "   store_id, store_code, store_name, address, lat, lng, "
+                + "   description, kakao_url, phone, is_active, business_hours, sort_no "
+                + " ) VALUES ( "
+                + "   SEQ_TBL_STORE_STORE_ID.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
+                + " ) ";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, dto.getStoreCode());
+            pstmt.setString(2, dto.getStoreName());
+            pstmt.setString(3, dto.getAddress());
+            pstmt.setDouble(4, dto.getLat());
+            pstmt.setDouble(5, dto.getLng());
+            pstmt.setString(6, dto.getDescription());
+            pstmt.setString(7, dto.getKakaoUrl());
+            pstmt.setString(8, dto.getPhone());
+            pstmt.setInt(9, dto.getIsActive());
+            pstmt.setString(10, dto.getBusinessHours());
+            pstmt.setInt(11, dto.getSortNo());
+
+            n = pstmt.executeUpdate();
+
+        } finally {
+            close();
+        }
+
+        return n;
+    }
 }
