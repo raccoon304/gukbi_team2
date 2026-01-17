@@ -247,6 +247,7 @@
 
 <script>
 (function () {
+  const ctxPath = "<%=ctxPath%>";
   const mapEl = document.getElementById("map");
 
   // ✅ 우측 상세 패널 요소
@@ -258,66 +259,20 @@
   const btnCopyAddr = document.getElementById("btnCopyAddr");
   const btnOpenKakao = document.getElementById("btnOpenKakao");
 
-  // ✅ 지점 데이터 (나중에 DB로 바꾸면 이 부분만 JSON으로 채우면 됨)
-  const stores = {
-    gangnam: {
-      name: "강남점",
-      lat: 37.4979, lng: 127.0276,
-      address: "서울 강남구 (예시 주소)",
-      desc: "강남역 인근 매장입니다.\n대중교통 접근성이 좋고, 방문 상담이 가능합니다.",
-      kakaoUrl: "https://map.kakao.com/"  // 실제 링크 있으면 교체
-    },
-    hongdae: {
-      name: "홍대점",
-      lat: 37.5563, lng: 126.9220,
-      address: "서울 마포구 (예시 주소)",
-      desc: "홍대입구역 근처 매장입니다.\n주말 방문 고객이 많아 예약 후 방문을 권장합니다.",
-      kakaoUrl: "https://map.kakao.com/"
-    },
-    anseong: {
-      name: "안성점",
-      lat: 37.0081, lng: 127.2798,
-      address: "경기 안성시 (예시 주소)",
-      desc: "안성 지역 매장입니다.\n주차가 비교적 편리하며 가족 단위 방문이 많습니다.",
-      kakaoUrl: "https://map.kakao.com/"
-    }
-  };
+  // 현재 선택된 매장 code
+  let currentKey = null;
 
-  // 현재 선택된 매장 key
-  let currentKey = "gangnam";
+  // DB에서 받아온 stores를 여기에 채움 (key=storeCode)
+  let stores = {};
 
-  // 1) 지도 생성
+  // 지도 객체(데이터 오기 전 임시 기본값)
   const map = new kakao.maps.Map(mapEl, {
-    center: new kakao.maps.LatLng(stores.gangnam.lat, stores.gangnam.lng),
+    center: new kakao.maps.LatLng(37.5665, 126.9780),
     level: 4
   });
 
-  // 2) 마커/인포윈도우 생성
   const markers = {};
   const infows = {};
-
-  Object.keys(stores).forEach(key => {
-    const s = stores[key];
-    const pos = new kakao.maps.LatLng(s.lat, s.lng);
-
-    const marker = new kakao.maps.Marker({ map, position: pos });
-    markers[key] = marker;
-
-    const content =
-      "<div style='padding:10px; font-size:13px; line-height:1.4;'>" +
-      "  <div style='font-weight:800; margin-bottom:6px;'>" + s.name + "</div>" +
-      "  <div style='color:#6c757d;'>" + (s.address || "") + "</div>" +
-      "</div>";
-
-    const infowindow = new kakao.maps.InfoWindow({ content });
-    infows[key] = infowindow;
-
-    // 마커 클릭 시도 해당 매장으로 이동/표시
-    kakao.maps.event.addListener(marker, 'click', function() {
-      setActiveTab(key);
-      moveToStore(key);
-    });
-  });
 
   function closeAllInfo() {
     Object.keys(infows).forEach(k => infows[k].close());
@@ -328,23 +283,9 @@
     if (!s) return;
 
     currentKey = key;
-    sdName.textContent = s.name || "-";
+    sdName.textContent = s.storeName || "-";
     sdAddr.textContent = s.address || "-";
-    sdDesc.textContent = s.desc || "-";
-  }
-
-  function moveToStore(key) {
-    const s = stores[key];
-    if (!s) return;
-
-    const pos = new kakao.maps.LatLng(s.lat, s.lng);
-
-    map.panTo(pos);
-
-    closeAllInfo();
-    infows[key].open(map, markers[key]);
-
-    renderDetail(key);
+    sdDesc.textContent = s.description || "-";
   }
 
   function setActiveTab(key){
@@ -353,7 +294,74 @@
     if (t) t.classList.add("active");
   }
 
-  // 3) 탭 클릭 이벤트
+  function moveToStore(key) {
+    const s = stores[key];
+    if (!s) return;
+
+    const pos = new kakao.maps.LatLng(Number(s.lat), Number(s.lng));
+
+    map.setLevel(4); 
+    
+    map.panTo(pos);
+
+    closeAllInfo();
+    infows[key].open(map, markers[key]);
+
+    renderDetail(key);
+  }
+
+  // ✅ 좌측 탭 버튼을 DB 기준으로 동적 생성
+  function renderTabsFromDB(list){
+    const tabWrap = document.querySelector(".store-tabs");
+    tabWrap.innerHTML = "";
+
+    list.forEach((s, idx) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "store-btn" + (idx === 0 ? " active" : "");
+      btn.setAttribute("data-store", s.storeCode);
+      btn.textContent = s.storeName;
+      tabWrap.appendChild(btn);
+    });
+  }
+
+  // ✅ 마커/인포윈도우 생성
+  function buildMapObjects(list){
+    const bounds = new kakao.maps.LatLngBounds();
+
+    list.forEach(s => {
+      const key = s.storeCode;
+      const lat = Number(s.lat);
+      const lng = Number(s.lng);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+      const pos = new kakao.maps.LatLng(lat, lng);
+
+      const marker = new kakao.maps.Marker({ map, position: pos });
+      markers[key] = marker;
+
+      const content =
+        "<div style='padding:10px; font-size:13px; line-height:1.4;'>" +
+        "  <div style='font-weight:800; margin-bottom:6px;'>" + (s.storeName || "") + "</div>" +
+        "  <div style='color:#6c757d;'>" + (s.address || "") + "</div>" +
+        "</div>";
+
+      const infowindow = new kakao.maps.InfoWindow({ content });
+      infows[key] = infowindow;
+
+      bounds.extend(pos);
+
+      kakao.maps.event.addListener(marker, 'click', function() {
+        setActiveTab(key);
+        moveToStore(key);
+      });
+    });
+
+    // 마커 전체가 보이게
+    map.setBounds(bounds);
+  }
+
+  // 탭 클릭 이벤트(동적 생성이라 위임)
   document.addEventListener("click", function(e){
     const btn = e.target.closest(".store-btn");
     if (!btn) return;
@@ -363,7 +371,7 @@
     moveToStore(key);
   });
 
-  // 4) 주소 복사
+  // 주소 복사
   btnCopyAddr.addEventListener("click", async function(){
     const s = stores[currentKey];
     const addr = (s && s.address) ? s.address : "";
@@ -371,35 +379,86 @@
 
     try {
       await navigator.clipboard.writeText(addr);
-      btnCopyAddr.innerHTML = "<i class='fa-solid fa-check mr-1'></i> 복사됨";
-      setTimeout(() => {
-        btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
-      }, 1200);
     } catch (e) {
-      // clipboard 권한 막히면 fallback
       const ta = document.createElement("textarea");
       ta.value = addr;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
-      btnCopyAddr.innerHTML = "<i class='fa-solid fa-check mr-1'></i> 복사됨";
-      setTimeout(() => {
-        btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
-      }, 1200);
     }
+
+    btnCopyAddr.innerHTML = "<i class='fa-solid fa-check mr-1'></i> 복사됨";
+    setTimeout(() => {
+      btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
+    }, 1200);
   });
 
-  // 5) 카카오 지도 링크 열기
+  
+  
+  
+  
   btnOpenKakao.addEventListener("click", function(){
-    const s = stores[currentKey];
-    const url = (s && s.kakaoUrl) ? s.kakaoUrl : "https://map.kakao.com/";
-    window.open(url, "_blank");
-  });
+	  const s = stores[currentKey];
+	  const url = (s && s.kakaoUrl) ? String(s.kakaoUrl).trim() : "";
 
-  // ✅ 최초: 리스트 최상단(강남점) active + 상세 자동 표시
-  setActiveTab("gangnam");
-  moveToStore("gangnam");
+	  // place 링크면 그대로 오픈
+	  if (url && (url.includes("place.map.kakao.com") || url.includes("map.kakao.com/link"))) {
+	    window.open(url, "_blank");
+	    return;
+	  }
+
+	  // fallback: 좌표로 카카오맵 열기
+	  const lat = s ? Number(s.lat) : NaN;
+	  const lng = s ? Number(s.lng) : NaN;
+
+	  if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+	    //const name = encodeURIComponent(s.name || "매장");
+	    const mapUrl = "https://map.kakao.com/link/map/"/*  + name + ","  */+ lat + "," + lng;
+	    window.open(mapUrl, "_blank");
+	    return;
+	  }
+
+	  window.open("https://map.kakao.com/", "_blank");
+	});
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  // ✅ DB에서 로딩
+  fetch(ctxPath + "/map/storeLocationJSON.hp", {
+    method: "GET",
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  })
+  .then(list => {
+    if (!Array.isArray(list) || list.length === 0) return;
+
+    // stores 구성
+    stores = {};
+    list.forEach(s => { stores[s.storeCode] = s; });
+
+    // 좌측 탭 생성
+    renderTabsFromDB(list);
+
+    // 지도 마커 구성
+    buildMapObjects(list);
+
+    // 최초 1번(정렬 1번)
+    const firstKey = list[0].storeCode;
+    setActiveTab(firstKey);
+    moveToStore(firstKey);
+  })
+  .catch(console.error);
 
 })();
 </script>
