@@ -24,7 +24,7 @@
     background: #fff;
   }
 
-  /* ✅ 지점 탭(사이드바용) */
+  /* 지점 탭(사이드바용으로 마이페이지 참고해서 만듬 ) */
   .store-tabs { padding: .75rem; border-top: 1px solid #eee; }
   .store-tabs .store-btn{
     width: 100%;
@@ -49,7 +49,7 @@
     background: rgba(13,110,253,.08);
   }
 
-  /* ✅ 우측 매장 상세 패널 (디자인 맞춤) */
+  /* 우측 매장 상세 패널 */
   .store-detail{
     border: 1px solid #e9ecef;
     border-radius: 12px;
@@ -179,7 +179,7 @@
 <div id="map_container" class="container">
   <div class="row">
 
-    <!-- ✅ 왼쪽 네비게이션(지점 리스트) -->
+    <!-- 왼쪽 네비게이션(지점 리스트) -->
     <div class="col-md-2 mb-4">
       <div class="card shadow-sm position-sticky" style="top: 100px;">
         <div class="card-body text-center">
@@ -187,23 +187,27 @@
           <small class="text-muted"></small>
         </div>
 
-        <!-- ✅ admin이면 “매장 추가” 버튼 노출 -->
+        <!-- admin이면 매장 추가 및 관리 버튼 올림. -->
         <c:if test="${not empty loginUser and loginUser.memberid eq 'admin'}">
           <div class="admin-add-wrap">
             <a href="${pageContext.request.contextPath}/map/storeAdd.hp" class="btn btn-sm btn-primary btn-block">
               <i class="fa-solid fa-plus mr-1"></i> 매장 추가
             </a>
+            <a href="${pageContext.request.contextPath}/map/storeDelete.hp"
+       class="btn btn-sm btn-outline-danger btn-block mt-2">
+      <i class="fa-solid fa-gear mr-1"></i> 매장 관리
+    </a>
           </div>
         </c:if>
 
-        <!-- 탭 버튼 들어갈 영역(동적) -->
+        <!-- 탭 버튼 들어갈 영역 -->
         <div class="store-tabs" id="storeTabs">
           <div class="text-muted" style="font-size:13px;">매장 정보를 불러오는 중...</div>
         </div>
       </div>
     </div>
 
-    <!-- ✅ 오른쪽(지도 + 상세) 영역 -->
+    <!-- 오른쪽(지도 + 상세) 영역 -->
     <div class="col-md-10 mb-4">
       <div class="row">
 
@@ -256,7 +260,7 @@
   </div>
 </div>
 
-<!-- ✅ 카카오 지도 SDK -->
+<!-- 카카오 지도 SDK -->
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fdd26aed348276cbc1ee6c0ef42c2d5e"></script>
 
 <script>
@@ -344,7 +348,7 @@
   }
 
   function buildMarkers() {
-    // 기존 마커/인포윈도우 정리
+    // 기존 마커랑 인포윈도우 정리
     Object.keys(markers).forEach(k => markers[k].setMap(null));
 
     storeKeys.forEach(key => {
@@ -374,7 +378,7 @@
     });
   }
 
-  // 탭 클릭
+  // 탭 클릭시
   document.addEventListener("click", function(e) {
     const btn = e.target.closest(".store-btn");
     if (!btn) return;
@@ -411,7 +415,7 @@
     }
   });
 
-  // ✅ 지도 보기: kakao_url 있으면 그걸 열고, 없으면 좌표 링크 생성
+  // 지도 보기 kakao_url 있으면 그걸 열고, 없으면 좌표 링크 생성
   btnOpenKakao.addEventListener("click", function(){
     const s = stores[currentKey];
     if (!s) return;
@@ -437,7 +441,7 @@
     window.open("https://map.kakao.com/", "_blank");
   });
 
-  // ✅ DB에서 매장 목록 가져오기
+  // DB에서 매장 목록 가져오기
   fetch(ctxPath + "/map/storeListJSON.hp", {
     method: "GET",
     headers: { "X-Requested-With": "XMLHttpRequest" }
@@ -462,12 +466,12 @@
       stores[key] = s;
     });
 
-    storeKeys = Object.keys(stores);
+    storeKeys = list.map(s => s.storeCode);
 
     buildTabs();
     buildMarkers();
 
-    // 최초 선택: sort_no 정렬이 DB에서 이미 됐으니 첫 번째가 디폴트
+    // 최초 선택 sort_no 정렬이 DB에서 이미 됐으니 첫 번째가 디폴트로 나올 수 있게. 
     const firstKey = storeKeys[0];
     if (firstKey) {
       setActiveTab(firstKey);

@@ -22,7 +22,6 @@ public class StoreListJSON extends AbstractController {
                 .replace("\r", "\\r")
                 .replace("\n", "\\n");
     }
-
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -35,6 +34,7 @@ public class StoreListJSON extends AbstractController {
 
         for (int i = 0; i < list.size(); i++) {
             StoreDTO s = list.get(i);
+            if (i > 0) sb.append(",");
 
             sb.append("{");
             sb.append("\"storeId\":").append(s.getStoreId()).append(",");
@@ -49,14 +49,12 @@ public class StoreListJSON extends AbstractController {
             sb.append("\"businessHours\":\"").append(esc(s.getBusinessHours())).append("\",");
             sb.append("\"sortNo\":").append(s.getSortNo());
             sb.append("}");
-
-            if (i < list.size() - 1) sb.append(",");
         }
 
         sb.append("]");
 
         response.getWriter().write(sb.toString());
-        super.setRedirect(false);
-        super.setViewPage(null);
+        response.getWriter().flush();
+        return;  // 무조건 종료 시킴.
     }
 }

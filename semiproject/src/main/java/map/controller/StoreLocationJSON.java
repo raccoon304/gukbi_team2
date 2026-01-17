@@ -20,7 +20,7 @@ public class StoreLocationJSON extends AbstractController {
 
         List<StoreDTO> list = sdao.selectActiveStores();
 
-        // JSON 직접 만들기(외부 라이브러리 없이)
+        // JSON 형태로 스트링 빌더에 쌓아서 보냄. 
         StringBuilder sb = new StringBuilder();
         sb.append("[");
 
