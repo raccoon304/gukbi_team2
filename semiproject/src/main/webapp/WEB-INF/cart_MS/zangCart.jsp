@@ -162,6 +162,6 @@
 
 	
     <script src="<%= ctxPath %>/js/cart_MS/zangCart.js"></script>
- 
+ <jsp:include page="/WEB-INF/header.jsp" />
 </body>
 </html>

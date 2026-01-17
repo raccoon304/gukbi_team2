@@ -31,7 +31,7 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
 
-    /* ================= 오래된 READY 주문 FAIL 처리 ================= */
+    /* ================= 0. 오래된 READY 주문 FAIL 처리 ================= */
     @Override
     public int expireReadyOrders(String memberid) {
         Connection conn = null;
