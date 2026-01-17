@@ -20,10 +20,7 @@ import order.domain.OrderDTO;
 public class OrderDAO_imple implements OrderDAO {
 
     private DataSource ds;
-    private Connection conn;
-    private PreparedStatement pstmt;
-    private ResultSet rs;
-    
+
     public OrderDAO_imple() {
         try {
             Context initContext = new InitialContext();
@@ -69,202 +66,152 @@ public class OrderDAO_imple implements OrderDAO {
 
         return result;
     }
-    
-    /* ================= 1. 주문 생성 (기존 - 호환성 유지) ================= */
+
+    /* ================= 1-1. 트랜잭션: 주문 + 주문상세 + 재고차감 ================= */
     @Override
-    public int insertOrder(OrderDTO order) throws SQLException {
-
-        int orderId = 0;
-
-        String seqSql = " SELECT SEQ_TBL_ORDERS_ORDER_ID.nextval FROM dual ";
-        String insertSql =
-            " INSERT INTO tbl_orders ( " +
-            "   order_id, fk_member_id, total_amount, discount_amount, " +
-            "   delivery_address, recipient_name, recipient_phone, " +
-            "   delivery_status, order_status, order_date ) " +
-            " VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE ) ";
-
-        try (
-            Connection conn = ds.getConnection();
-            PreparedStatement seqPstmt = conn.prepareStatement(seqSql);
-            ResultSet rs = seqPstmt.executeQuery()
-        ) {
-            if (rs.next()) {
-                orderId = rs.getInt(1);
-            }
-
-            try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-                pstmt.setInt(1, orderId);
-                pstmt.setString(2, order.getMemberId());
-                pstmt.setInt(3, order.getTotalAmount());
-                pstmt.setInt(4, order.getDiscountAmount());
-                pstmt.setString(5, order.getDeliveryAddress());
-                pstmt.setString(6, order.getRecipientName());
-                pstmt.setString(7, order.getRecipientPhone());
-                pstmt.setInt(8, 0);
-                pstmt.setString(9, order.getOrderStatus());
-                
-                pstmt.executeUpdate();
-            }
-        }
-
-        return orderId;
-    }
-
-    /* ================= 1-1. 트랜잭션으로 주문 + 주문 상세 생성 (신규 추가) ================= */
-    @Override
-    public int insertOrderWithDetails(
-        OrderDTO order,
-        List<Map<String, Object>> orderDetails
-    ) throws SQLException {
-        
+    public int insertOrderWithDetailsAndStock(OrderDTO order, List<Map<String, Object>> orderDetails) {
         Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
         int orderId = 0;
-        
+
         try {
             conn = ds.getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
-            
-            System.out.println("=== 트랜잭션 시작: 주문 생성 ===");
-            
+
             // 1. 시퀀스로 주문 ID 생성
-            String seqSql = " SELECT SEQ_TBL_ORDERS_ORDER_ID.nextval FROM dual ";
-            String insertOrderSql =
-                " INSERT INTO tbl_orders ( " +
-                "   order_id, fk_member_id, total_amount, discount_amount, " +
-                "   delivery_address, recipient_name, recipient_phone, " +
-                "   delivery_status, order_status, order_date ) " +
-                " VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE ) ";
-            
-            try (PreparedStatement seqPstmt = conn.prepareStatement(seqSql);
-                 ResultSet rs = seqPstmt.executeQuery()) {
-                
-                if (rs.next()) {
-                    orderId = rs.getInt(1);
-                }
-            }
-            
-            if (orderId == 0) {
+            String seqSql = "SELECT SEQ_TBL_ORDERS_ORDER_ID.nextval FROM dual";
+            pstmt = conn.prepareStatement(seqSql);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                orderId = rs.getInt(1);
+            } else {
                 throw new SQLException("주문 ID 생성 실패");
             }
-            
-            System.out.println("생성된 주문 ID: " + orderId);
-            
-            // 2. 주문 헤더 생성
-            try (PreparedStatement pstmt = conn.prepareStatement(insertOrderSql)) {
+
+            // ResultSet, PreparedStatement 닫기
+            if (rs != null) {
+                try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+                rs = null;
+            }
+            if (pstmt != null) {
+                try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+                pstmt = null;
+            }
+
+            // 1-2. 주문 생성
+            String orderSql =
+                " INSERT INTO tbl_orders " +
+                " (order_id, fk_member_id, total_amount, discount_amount, " +
+                "  delivery_address, recipient_name, recipient_phone, " +
+                "  delivery_status, order_status, order_date) " +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE) ";
+
+            pstmt = conn.prepareStatement(orderSql);
+            pstmt.setInt(1, orderId);
+            pstmt.setString(2, order.getMemberId());
+            pstmt.setInt(3, order.getTotalAmount());
+            pstmt.setInt(4, order.getDiscountAmount());
+            pstmt.setString(5, order.getDeliveryAddress());
+            pstmt.setString(6, order.getRecipientName());
+            pstmt.setString(7, order.getRecipientPhone());
+            pstmt.setInt(8, 0);  // delivery_status
+            pstmt.setString(9, order.getOrderStatus());
+
+            int result = pstmt.executeUpdate();
+            if (result != 1) {
+                throw new SQLException("주문 생성 실패");
+            }
+
+            // PreparedStatement 닫기
+            if (pstmt != null) {
+                try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+                pstmt = null;
+            }
+
+            // 1-3. 주문 상세 생성
+            String detailSql =
+                " INSERT INTO tbl_order_detail " +
+                " (order_detail_id, fk_order_id, fk_option_id, quantity, unit_price, product_name, brand_name) " +
+                " VALUES (SEQ_TBL_ORDER_DETAIL_ORDER_DETAIL_ID.nextval, ?, ?, ?, ?, ?, ?) ";
+
+            pstmt = conn.prepareStatement(detailSql);
+
+            for (Map<String, Object> detail : orderDetails) {
                 pstmt.setInt(1, orderId);
-                pstmt.setString(2, order.getMemberId());
-                pstmt.setInt(3, order.getTotalAmount());
-                pstmt.setInt(4, order.getDiscountAmount());
-                pstmt.setString(5, order.getDeliveryAddress());
-                pstmt.setString(6, order.getRecipientName());
-                pstmt.setString(7, order.getRecipientPhone());
-                pstmt.setInt(8, 0);
-                pstmt.setString(9, order.getOrderStatus());
-                
-                int orderResult = pstmt.executeUpdate();
-                if (orderResult == 0) {
-                    throw new SQLException("주문 생성 실패");
+                pstmt.setInt(2, (Integer) detail.get("option_id"));
+                pstmt.setInt(3, (Integer) detail.get("quantity"));
+                pstmt.setInt(4, (Integer) detail.get("unit_price"));
+                pstmt.setString(5, String.valueOf(detail.get("product_name")));
+                pstmt.setString(6, String.valueOf(detail.get("brand_name")));
+                pstmt.addBatch();
+            }
+
+            int[] detailResults = pstmt.executeBatch();
+            for (int r : detailResults) {
+                if (r < 1) {
+                    throw new SQLException("주문 상세 생성 실패");
                 }
             }
-            
-            System.out.println("주문 헤더 생성 완료");
-            
-            // 3. 주문 상세 생성
-            String insertDetailSql =
-                " INSERT INTO tbl_order_detail ( " +
-                "   order_detail_id, fk_order_id, fk_option_id, " +
-                "   quantity, unit_price, product_name, brand_name " +
-                " ) VALUES ( " +
-                "   SEQ_TBL_ORDER_DETAIL_ORDER_DETAIL_ID.nextval, ?, ?, ?, ?, ?, ? ) ";
-            
-            int detailCount = 0;
-            
-            try (PreparedStatement pstmt = conn.prepareStatement(insertDetailSql)) {
-                for (Map<String, Object> detail : orderDetails) {
-                    pstmt.setInt(1, orderId);
-                    int optionId = getInt(detail, "option_id");
-                    if (optionId <= 0) {
-                        throw new SQLException("유효하지 않은 option_id");
-                    }
-                    pstmt.setInt(2, optionId);
-                    
-                    pstmt.setInt(3, getInt(detail, "quantity"));
-                    pstmt.setInt(4, getInt(detail, "unit_price"));
-                    pstmt.setString(5, String.valueOf(detail.get("product_name")));
-                    pstmt.setString(6, String.valueOf(detail.get("brand_name")));
-                    
-                    int result = pstmt.executeUpdate();
-                    if (result > 0) {
-                        detailCount++;
-                        System.out.println("  - 주문 상세 추가: " + detail.get("product_name"));
-                    } else {
-                        throw new SQLException("주문 상세 생성 실패: " + detail.get("product_name"));
-                    }
-                }
+
+            // PreparedStatement 닫기
+            if (pstmt != null) {
+                try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+                pstmt = null;
             }
-            
-            System.out.println("주문 상세 생성 완료: " + detailCount + "개");
-            
-            // 4. 재고 차감
-            String decreaseStockSql =
+
+            // 1-4. 재고 차감
+            String stockSql =
                 " UPDATE tbl_product_option " +
                 " SET stock_qty = stock_qty - ? " +
-                " WHERE option_id = ? " +
-                "   AND stock_qty >= ? ";
-            
-            int stockUpdateCount = 0;
-            
-            try (PreparedStatement pstmt = conn.prepareStatement(decreaseStockSql)) {
-                for (Map<String, Object> detail : orderDetails) {
-                    int optionId = getInt(detail, "option_id");
-                    int quantity = getInt(detail, "quantity");
-                    
-                    pstmt.setInt(1, quantity);
-                    pstmt.setInt(2, optionId);
-                    pstmt.setInt(3, quantity);
-                    
-                    int result = pstmt.executeUpdate();
-                    if (result > 0) {
-                        stockUpdateCount++;
-                        System.out.println("  - 재고 차감: 옵션ID=" + optionId + ", 수량=" + quantity);
-                    } else {
-                        throw new SQLException("재고 부족: 옵션ID=" + optionId);
-                    }
+                " WHERE option_id = ? AND stock_qty >= ? ";
+
+            pstmt = conn.prepareStatement(stockSql);
+
+            for (Map<String, Object> detail : orderDetails) {
+                int optionId = (Integer) detail.get("option_id");
+                int quantity = (Integer) detail.get("quantity");
+
+                pstmt.setInt(1, quantity);
+                pstmt.setInt(2, optionId);
+                pstmt.setInt(3, quantity);
+                pstmt.addBatch();
+            }
+
+            int[] stockResults = pstmt.executeBatch();
+            for (int r : stockResults) {
+                if (r != 1) {
+                    throw new SQLException("재고 차감 실패 - 재고 부족");
                 }
             }
-            
-            System.out.println("재고 차감 완료: " + stockUpdateCount + "개");
-            
-            // 5. 검증
-            if (detailCount != orderDetails.size()) {
-                throw new SQLException("주문 상세 개수 불일치: 예상=" + orderDetails.size() + ", 실제=" + detailCount);
-            }
-            
-            if (stockUpdateCount != orderDetails.size()) {
-                throw new SQLException("재고 차감 개수 불일치: 예상=" + orderDetails.size() + ", 실제=" + stockUpdateCount);
-            }
-            
-            // ✅ 모두 성공 - 커밋
-            conn.commit();
-            System.out.println("=== 트랜잭션 커밋 완료 ===");
-            
-        } catch (SQLException e) {
-            System.out.println("❌ 트랜잭션 롤백 실행!");
-            e.printStackTrace();
-            
+
+            conn.commit();  //  커밋
+            System.out.println(" 트랜잭션 완료 - orderId: " + orderId);
+
+            return orderId;
+
+        } catch (Exception e) {
             if (conn != null) {
                 try {
-                    conn.rollback();
-                    System.out.println("롤백 완료");
+                    conn.rollback();  //  롤백
+                    System.out.println(" 트랜잭션 롤백: " + e.getMessage());
                 } catch (SQLException ex) {
-                    System.out.println("롤백 실패: " + ex.getMessage());
                     ex.printStackTrace();
                 }
             }
-            throw e;
-            
+            e.printStackTrace();
+            return 0;  // 실패 시 0 반환
+
         } finally {
+            // 자원 정리
+            if (rs != null) {
+                try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (pstmt != null) {
+                try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
             if (conn != null) {
                 try {
                     conn.setAutoCommit(true);
@@ -274,8 +221,6 @@ public class OrderDAO_imple implements OrderDAO {
                 }
             }
         }
-        
-        return orderId;
     }
 
     /* ================= 2. 주문 헤더 조회 ================= */
@@ -322,7 +267,7 @@ public class OrderDAO_imple implements OrderDAO {
         List<Map<String, Object>> list = new ArrayList<>();
 
         String sql =
-            " SELECT fk_option_id, product_name, brand_name, quantity, unit_price, " +  // ✅ fk_option_id 추가
+            " SELECT fk_option_id, product_name, brand_name, quantity, unit_price, " +
             "        (quantity * unit_price) AS total_price " +
             " FROM tbl_order_detail " +
             " WHERE fk_order_id = ? ";
@@ -336,7 +281,7 @@ public class OrderDAO_imple implements OrderDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("option_id", rs.getInt("fk_option_id"));  // ✅ 추가
+                    map.put("option_id", rs.getInt("fk_option_id"));
                     map.put("product_name", rs.getString("product_name"));
                     map.put("brand_name", rs.getString("brand_name"));
                     map.put("quantity", rs.getInt("quantity"));
@@ -377,60 +322,7 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
 
-    /* ================= 5. 재고 차감 ================= */
-    @Override
-    public int decreaseStock(int optionId, int quantity) throws SQLException {
-
-        String sql =
-            " UPDATE tbl_product_option " +
-            " SET stock_qty = stock_qty - ? " +
-            " WHERE option_id = ? " +
-            "   AND stock_qty >= ? ";
-
-        try (
-            Connection conn = ds.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-        ) {
-            pstmt.setInt(1, quantity);
-            pstmt.setInt(2, optionId);
-            pstmt.setInt(3, quantity);
-            return pstmt.executeUpdate();
-        }
-    }
-
-    /* ================= 6. 주문 상세 생성 ================= */
-    @Override
-    public int insertOrderDetail(
-        int orderId,
-        int optionId,
-        int quantity,
-        int unitPrice,
-        String productName,
-        String brandName
-    ) throws SQLException {
-
-        String sql =
-            " INSERT INTO tbl_order_detail ( " +
-            "   order_detail_id, fk_order_id, fk_option_id, " +
-            "   quantity, unit_price, product_name, brand_name " +
-            " ) VALUES ( " +
-            "   SEQ_TBL_ORDER_DETAIL_ORDER_DETAIL_ID.nextval, ?, ?, ?, ?, ?, ? ) ";
-
-        try (
-            Connection conn = ds.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-        ) {
-            pstmt.setInt(1, orderId);
-            pstmt.setInt(2, optionId);
-            pstmt.setInt(3, quantity);
-            pstmt.setInt(4, unitPrice);
-            pstmt.setString(5, productName);
-            pstmt.setString(6, brandName);
-            return pstmt.executeUpdate();
-        }
-    }
-
-    /* ================= 7. 주문 상태 변경 ================= */
+    /* ================= 5. 주문 상태 변경 ================= */
     @Override
     public void updateOrderStatus(int orderId, String status) throws SQLException {
 
@@ -449,7 +341,7 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
 
-    /* ================= 8. 쿠폰 정보 조회 ================= */
+    /* ================= 6. 쿠폰 정보 조회 ================= */
     @Override
     public Map<String, Object> selectCouponInfo(String memberId, int couponIssueId) throws SQLException {
 
@@ -492,7 +384,7 @@ public class OrderDAO_imple implements OrderDAO {
         return result;
     }
 
-    /* ================= 9. 사용 가능한 쿠폰 조회 ================= */
+    /* ================= 7. 사용 가능한 쿠폰 조회 ================= */
     @Override
     public List<Map<String, Object>> selectAvailableCoupons(String memberid) throws SQLException {
 
@@ -549,8 +441,8 @@ public class OrderDAO_imple implements OrderDAO {
 
         return list;
     }
-
-    /* ================= 10. 배송 상태 업데이트 ================= */
+    
+    /* ================= 8. 배송 상태 업데이트 ================= */
     @Override
     public void updateDeliveryStatus(Integer orderId, int status) throws SQLException {
 
@@ -571,111 +463,96 @@ public class OrderDAO_imple implements OrderDAO {
 
             pstmt.executeUpdate();
 
-        } catch (SQLException e) {
-            throw e;
-        
         } finally {
-            if (pstmt != null) {
-                try { pstmt.close(); } catch (SQLException ignore) {}
-            }
-            if (conn != null) {
-                try { conn.close(); } catch (SQLException ignore) {}
-            }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
         }
     }
 
-    /* ================= 11. 할인 금액 및 배송지 업데이트 ================= */
+    /* ================= 9. 할인 금액 및 배송지 업데이트 ================= */
     @Override
-    public int updateOrderDiscountAndAddress(int orderId, int discountAmount, String deliveryAddress) 
-            throws SQLException {
+    public int updateOrderDiscountAndAddress(
+            int orderId,
+            int discountAmount,
+            String deliveryAddress) throws SQLException {
+
         int result = 0;
         Connection conn = null;
         PreparedStatement pstmt = null;
-        
-        String sql = " UPDATE tbl_orders "
-                   + " SET discount_amount = ?, "
-                   + "     delivery_address = ? "
-                   + " WHERE order_id = ? ";
-        
+
+        String sql =
+            " UPDATE tbl_orders " +
+            " SET discount_amount = ?, " +
+            "     delivery_address = ? " +
+            " WHERE order_id = ? ";
+
         try {
             conn = ds.getConnection();
             pstmt = conn.prepareStatement(sql);
-            
+
             pstmt.setInt(1, discountAmount);
             pstmt.setString(2, deliveryAddress);
             pstmt.setInt(3, orderId);
-            
+
             result = pstmt.executeUpdate();
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-            
+
         } finally {
-            if (pstmt != null) {
-                try { pstmt.close(); } catch (SQLException ignore) {}
-            }
-            if (conn != null) {
-                try { conn.close(); } catch (SQLException ignore) {}
-            }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
         }
-        
+
         return result;
     }
 
-    /* ================= 12. 주문 요약 목록 조회 ================= */
+    /* ================= 10. 주문 요약 목록 조회 ================= */
     @Override
     public List<OrderDTO> selectOrderSummaryList(String memberid) throws SQLException {
 
         List<OrderDTO> list = new ArrayList<>();
 
-        try {
-            conn = ds.getConnection();
+        String sql =
+            " SELECT ORDER_ID, FK_MEMBER_ID, " +
+            "        TO_CHAR(ORDER_DATE, 'YY/MM/DD') AS ORDER_DATE, " +
+            "        TOTAL_AMOUNT, DISCOUNT_AMOUNT, ORDER_STATUS, " +
+            "        DELIVERY_ADDRESS, RECIPIENT_NAME, RECIPIENT_PHONE, DELIVERY_STATUS " +
+            " FROM TBL_ORDERS " +
+            " WHERE FK_MEMBER_ID = ? " +
+            " ORDER BY ORDER_DATE DESC, ORDER_ID DESC ";
 
-            String sql =
-                " SELECT ORDER_ID, " +
-                "        FK_MEMBER_ID, " +
-                "        TO_CHAR(ORDER_DATE, 'YY/MM/DD') AS ORDER_DATE, " +
-                "        TOTAL_AMOUNT, DISCOUNT_AMOUNT, ORDER_STATUS, " +
-                "        DELIVERY_ADDRESS, RECIPIENT_NAME, RECIPIENT_PHONE, DELIVERY_STATUS " +
-                " FROM TBL_ORDERS " +
-                " WHERE FK_MEMBER_ID = ? " +
-                " ORDER BY ORDER_DATE DESC, ORDER_ID DESC ";
-
-            pstmt = conn.prepareStatement(sql);
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
             pstmt.setString(1, memberid);
 
-            rs = pstmt.executeQuery();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    OrderDTO dto = new OrderDTO();
 
-            while (rs.next()) {
-                OrderDTO dto = new OrderDTO();
+                    dto.setOrderId(rs.getInt("ORDER_ID"));
+                    dto.setMemberId(rs.getString("FK_MEMBER_ID"));
+                    dto.setOrderDate(rs.getString("ORDER_DATE"));
+                    dto.setTotalAmount(rs.getInt("TOTAL_AMOUNT"));
+                    dto.setDiscountAmount(rs.getInt("DISCOUNT_AMOUNT"));
+                    dto.setOrderStatus(rs.getString("ORDER_STATUS"));
+                    dto.setDeliveryAddress(rs.getString("DELIVERY_ADDRESS"));
+                    dto.setRecipientName(rs.getString("RECIPIENT_NAME"));
+                    dto.setRecipientPhone(rs.getString("RECIPIENT_PHONE"));
+                    dto.setDeliveryStatus(rs.getInt("DELIVERY_STATUS"));
 
-                dto.setOrderId(rs.getInt("ORDER_ID"));
-                dto.setMemberId(rs.getString("FK_MEMBER_ID"));
-                dto.setOrderDate(rs.getString("ORDER_DATE"));
-                dto.setTotalAmount(rs.getInt("TOTAL_AMOUNT"));
-                dto.setDiscountAmount(rs.getInt("DISCOUNT_AMOUNT"));
-                dto.setOrderStatus(rs.getString("ORDER_STATUS"));
-                dto.setDeliveryAddress(rs.getString("DELIVERY_ADDRESS"));
-                dto.setRecipientName(rs.getString("RECIPIENT_NAME"));
-                dto.setRecipientPhone(rs.getString("RECIPIENT_PHONE"));
-                dto.setDeliveryStatus(rs.getInt("DELIVERY_STATUS"));
-                
-                list.add(dto);
+                    list.add(dto);
+                }
             }
-
-        } finally {
-            if (rs != null) rs.close();
-            if (pstmt != null) pstmt.close();
-            if (conn != null) conn.close();
         }
 
         return list;
     }
 
-    /* ================= 13. 모달용 주문 헤더 조회 ================= */
+    /* ================= 11. 모달용 주문 헤더 조회 ================= */
     @Override
-    public Map<String, Object> selectOrderHeaderForModal(int orderId, String memberId) throws SQLException {
+    public Map<String, Object> selectOrderHeaderForModal(
+            int orderId,
+            String memberId) throws SQLException {
 
         Map<String, Object> map = new HashMap<>();
 
@@ -689,38 +566,30 @@ public class OrderDAO_imple implements OrderDAO {
             " WHERE order_id = ? " +
             "   AND fk_member_id = ? ";
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = ds.getConnection();
-            pstmt = conn.prepareStatement(sql);
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
             pstmt.setInt(1, orderId);
             pstmt.setString(2, memberId);
 
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                map.put("order_id", rs.getInt("order_id"));
-                map.put("order_date", rs.getString("order_date"));
-                map.put("total_amount", rs.getInt("total_amount"));
-                map.put("discount_amount", rs.getInt("discount_amount"));
-                map.put("final_amount", rs.getInt("final_amount"));
-                map.put("delivery_address", rs.getString("delivery_address"));
-                map.put("order_status", rs.getString("order_status"));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    map.put("order_id", rs.getInt("order_id"));
+                    map.put("order_date", rs.getString("order_date"));
+                    map.put("total_amount", rs.getInt("total_amount"));
+                    map.put("discount_amount", rs.getInt("discount_amount"));
+                    map.put("final_amount", rs.getInt("final_amount"));
+                    map.put("delivery_address", rs.getString("delivery_address"));
+                    map.put("order_status", rs.getString("order_status"));
+                }
             }
-
-        } finally {
-            if (rs != null) rs.close();
-            if (pstmt != null) pstmt.close();
-            if (conn != null) conn.close();
         }
 
         return map;
     }
 
-    /* ================= 14. 모달용 주문 아이템 조회 ================= */
+    /* ================= 12. 모달용 주문 아이템 조회 ================= */
     @Override
     public List<Map<String, Object>> selectOrderItemsForModal(int orderId) throws SQLException {
 
@@ -738,78 +607,59 @@ public class OrderDAO_imple implements OrderDAO {
             " WHERE od.fk_order_id = ? " +
             " ORDER BY od.order_detail_id ASC ";
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = ds.getConnection();
-            pstmt = conn.prepareStatement(sql);
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
             pstmt.setInt(1, orderId);
 
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> m = new HashMap<>();
-                m.put("product_name", rs.getString("product_name"));
-                m.put("brand_name", rs.getString("brand_name"));
-                m.put("quantity", rs.getInt("quantity"));
-                m.put("unit_price", rs.getInt("unit_price"));
-                m.put("total_price", rs.getInt("total_price"));
-                m.put("color", rs.getString("color"));
-                m.put("storage", rs.getString("storage"));
-                m.put("fkProductCode", rs.getString("fk_product_code"));
-                m.put("is_review_written", rs.getInt("is_review_written"));
-                list.add(m);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("product_name", rs.getString("product_name"));
+                    m.put("brand_name", rs.getString("brand_name"));
+                    m.put("quantity", rs.getInt("quantity"));
+                    m.put("unit_price", rs.getInt("unit_price"));
+                    m.put("total_price", rs.getInt("total_price"));
+                    m.put("color", rs.getString("color"));
+                    m.put("storage", rs.getString("storage"));
+                    m.put("fkProductCode", rs.getString("fk_product_code"));
+                    m.put("is_review_written", rs.getInt("is_review_written"));
+                    list.add(m);
+                }
             }
-
-        } finally {
-            if (rs != null) rs.close();
-            if (pstmt != null) pstmt.close();
-            if (conn != null) conn.close();
         }
 
         return list;
     }
 
-    /* ================= 15. READY 상태인 주문만 FAIL로 업데이트 ================= */
+    /* ================= 13. READY 상태인 주문만 FAIL 처리 ================= */
     @Override
     public int updateOrderStatusIfReady(Integer orderId, String status) throws SQLException {
-        
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        int result = 0;
 
-        try {
-            conn = ds.getConnection();
+        String sql =
+            " UPDATE tbl_orders " +
+            " SET order_status = ? " +
+            " WHERE order_id = ? " +
+            "   AND order_status = 'READY' ";
 
-            String sql =
-                " UPDATE tbl_orders " +
-                " SET order_status = ? " +
-                " WHERE order_id = ? " +
-                "   AND order_status = 'READY' ";
-
-            pstmt = conn.prepareStatement(sql);
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
             pstmt.setString(1, status);
             pstmt.setInt(2, orderId);
-
-            result = pstmt.executeUpdate();
+            return pstmt.executeUpdate();
         }
-        finally {
-            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) {}
-            if (conn != null) try { conn.close(); } catch (SQLException e) {}
-        }
-
-        return result;
     }
 
-    /* ================= 16. 주문 헤더 조회 (배송 정보 포함) ================= */
+    /* ================= 14. 주문 헤더 조회 (배송 정보 포함) ================= */
     @Override
     public Map<String, Object> selectOrderHeaderforYD(int orderId) throws SQLException {
 
         Map<String, Object> map = new HashMap<>();
 
-        String sql = 
+        String sql =
             " SELECT order_id, order_date, total_amount, discount_amount, " +
             "        delivery_number, " +
             "        TO_CHAR(delivery_startdate, 'YYYY-MM-DD') AS delivery_startdate, " +
@@ -847,81 +697,48 @@ public class OrderDAO_imple implements OrderDAO {
         return map;
     }
 
-    /* ================= 17. 재고 조회 ================= */
+    /* ================= 15. 재고 조회 ================= */
     @Override
     public int selectStock(int optionId) throws SQLException {
 
-        int stockQty = 0;
+        String sql =
+            " SELECT stock_qty " +
+            " FROM tbl_product_option " +
+            " WHERE option_id = ? ";
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = ds.getConnection();
-
-            String sql = 
-                " SELECT stock_qty " +
-                " FROM tbl_product_option " +
-                " WHERE option_id = ? ";
-
-            pstmt = conn.prepareStatement(sql);
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
             pstmt.setInt(1, optionId);
 
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                stockQty = rs.getInt("stock_qty");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("stock_qty");
+                }
             }
         }
 
-        return stockQty;
+        return 0;
     }
 
-    /* ================= 18. 재고 복구 ================= */
+    /* ================= 16. 재고 복구 ================= */
     @Override
     public int increaseStock(int optionId, int quantity) throws SQLException {
-        int result = 0;
-        
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        
-        try {
-            conn = ds.getConnection();
-            
-            String sql = 
-                " UPDATE tbl_product_option " +
-                " SET stock_qty = stock_qty + ? " +
-                " WHERE option_id = ? ";
-            
-            pstmt = conn.prepareStatement(sql);
+
+        String sql =
+            " UPDATE tbl_product_option " +
+            " SET stock_qty = stock_qty + ? " +
+            " WHERE option_id = ? ";
+
+        try (
+            Connection conn = ds.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
             pstmt.setInt(1, quantity);
             pstmt.setInt(2, optionId);
-            
-            result = pstmt.executeUpdate();
-            
-        } finally {
-            if (pstmt != null) {
-                try { pstmt.close(); } catch (SQLException e) {}
-            }
-            if (conn != null) {
-                try { conn.close(); } catch (SQLException e) {}
-            }
+            return pstmt.executeUpdate();
         }
-        
-        return result;
     }
 
     /* ================= 유틸리티: 안전한 int 파싱 ================= */
@@ -935,4 +752,6 @@ public class OrderDAO_imple implements OrderDAO {
             return 0;
         }
     }
+
+	
 }

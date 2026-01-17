@@ -64,9 +64,9 @@ public class CoinPaymentPopupController extends AbstractController {
             return;
         }
 
-        // 🔥 PG 진입 전 재고 검증 + 선점
+        // PG 진입 전 재고 검증
         for (CartDTO cart : cartList) {
-            int stock = odao.selectStock(cart.getOptionId());
+            int stock = odao.selectStock(cart.getOptionId()); // 잘됨
             if (stock < cart.getQuantity()) {
                 alertAndClose(response, "재고가 부족한 상품이 있어 결제를 진행할 수 없습니다.");
                 return;
@@ -74,10 +74,10 @@ public class CoinPaymentPopupController extends AbstractController {
         }
 
         try {
-            // 1. 이전 READY 정리
+            // 1. 이전 READY 주문 정리 (이건 그냥 테스트용인것이다.)
             odao.expireReadyOrders(loginUser.getMemberid());
 
-            // 2. 주문 생성 (READY)
+            // 2. 주문 DTO 생성
             OrderDTO order = new OrderDTO();
             order.setMemberId(loginUser.getMemberid());
             order.setTotalAmount(finalPrice);
@@ -86,40 +86,28 @@ public class CoinPaymentPopupController extends AbstractController {
             order.setRecipientName(loginUser.getName());
             order.setRecipientPhone(loginUser.getMobile());
 
-            // 주문 상세 리스트 생성
+            // 3. 주문 상세 리스트 생성
             List<Map<String, Object>> orderDetails = new ArrayList<>();
-
-            //  3. 주문 상세도 여기서 생성!
             for (CartDTO cart : cartList) {
-            	 Map<String, Object> d = new HashMap<>();
-            	    d.put("option_id", cart.getOptionId());
-            	    d.put("quantity", cart.getQuantity());
-            	    d.put("unit_price", cart.getPrice());
-            	    d.put("product_name", cart.getProductName());
-            	    d.put("brand_name", cart.getBrand_name());
-            	    orderDetails.add(d);
-            	}
-
-            	//  트랜잭션 메서드 단 한 줄
-            	int orderId = odao.insertOrderWithDetails(order, orderDetails);
-
-            	// 세션 저장
-            	session.setAttribute("readyOrderId", orderId);
-
-            // 4. 재고도 여기서 차감! (READY 상태로 선점)
-            for (CartDTO cart : cartList) {
-                if (odao.decreaseStock(cart.getOptionId(), cart.getQuantity()) != 1) {
-                    throw new Exception("재고 차감 실패");
-                }
+                Map<String, Object> detail = new HashMap<>();
+                detail.put("option_id", cart.getOptionId());
+                detail.put("quantity", cart.getQuantity());
+                detail.put("unit_price", cart.getPrice());
+                detail.put("product_name", cart.getProductName());
+                detail.put("brand_name", cart.getBrand_name());
+                orderDetails.add(detail);
             }
+
+            // 4. 주문 생성 + 주문상세 생성 + 재고 차감 (단일 트랜잭션)
+            int orderId = odao.insertOrderWithDetailsAndStock(order, orderDetails);
 
             // 5. 세션에 저장
             session.setAttribute("readyOrderId", orderId);
 
-            System.out.println("=== READY 주문 생성 완료 ===");
-            System.out.println("orderId: " + orderId);
-            System.out.println("주문 상세 등록 완료");
-            System.out.println("재고 차감 완료");
+    //        System.out.println("=== READY 주문 생성 완료 ===");
+    //        System.out.println("orderId: " + orderId);
+    //        System.out.println("주문 상세 등록 완료");
+    //        System.out.println("재고 차감 완료");
 
         } catch (Exception e) {
             e.printStackTrace();
