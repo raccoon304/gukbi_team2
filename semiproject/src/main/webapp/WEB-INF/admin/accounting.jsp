@@ -30,6 +30,9 @@
 	
 	<%-- 직접 만든 JS --%>
     <script src="<%=ctxPath%>/js/admin/accounting.js"></script>
+    
+    <%-- 차트 --%>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
  
 <script>
   const ctxPath = "<%= request.getContextPath() %>";
@@ -193,8 +196,13 @@
 		  border-bottom: 1px solid #eee;
 		}
 		.main-content{
-		  padding-top: 25px;  /* 헤더 높이만큼 밀기(조절) , 헤더 있으면 70px */
+		  padding-top: 25px;  /* 헤더 높이만큼 밀기 , 헤더 있으면 70px */
 		}
+		
+		/* 차트 높이 */
+		.chart-box{
+  		  height: 420px;     /* 테이블 max-height 맞춤 */
+}
         
     </style>
 </head>
@@ -323,23 +331,37 @@
 	            
 	            <!-- Daily Statistics -->
 	            <div class="section-card">
-	                <h2 class="section-title">기간별 집계</h2>
-	                <div class="table-wrapper">
-	                    <table class="table">
-	                        <thead>
-	                            <tr>
-	                                <th style="width: 25%;">기준일</th>
-	                                <th style="width: 25%;" class="text-right">주문건수</th>
-	                                <th style="width: 25%;" class="text-right">판매수량</th>
-	                                <th style="width: 25%;" class="text-right">할인 전 판매금액</th>
-	                            </tr>
-	                        </thead>
-	                        <tbody id="dailyStatsBody">
-	                            <!-- Populated by JavaScript -->
-	                        </tbody>
-	                    </table>
-	                </div>
-	            </div>
+		            <div class="row">
+			            <div class="col-md-7">
+			                <h2 class="section-title">기간별 집계</h2>
+			                <div class="table-wrapper">
+			                    <table class="table">
+			                        <thead>
+			                            <tr>
+			                                <th id="baseDateHeader" style="width: 25%;">기준일</th>
+			                                <th style="width: 25%;" class="text-right">주문건수</th>
+			                                <th style="width: 25%;" class="text-right">판매수량</th>
+			                                <th style="width: 25%;" class="text-right">할인 전 판매금액</th>
+			                            </tr>
+			                        </thead>
+			                        <tbody id="dailyStatsBody">
+			                            <!-- Populated by JavaScript -->
+			                        </tbody>
+			                    </table>
+			                </div>
+			            </div>
+		            
+			            <div class="col-md-5">
+					      <h2 class="section-title">추이</h2>
+					      <div class="chart-box">
+					        <canvas id="dailyChart"></canvas>
+					      </div>
+					      <div class="text-muted mt-2" style="font-size:12px;">
+					        * 왼쪽 축: 판매금액 / 오른쪽 축: 주문건수
+					      </div>
+					    </div>
+				    </div>
+			    </div>
 	            
 	            <!-- Product Statistics -->
 	            <div class="section-card">
@@ -371,6 +393,51 @@
 	        </div>
         </div>
     </div>
+
+	<!-- 옵션별 판매수량 모달 -->
+	<div class="modal fade" id="optionSalesModal" tabindex="-1" role="dialog" aria-labelledby="optionSalesModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-lg" role="document">
+	    <div class="modal-content" style="border-radius:12px;">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="optionSalesModalLabel">상품 옵션별 집계</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	
+	      <div class="modal-body">
+	        <div class="d-flex justify-content-between align-items-center mb-2">
+	          <div>
+	            <div id="modalProductTitle" style="font-weight:600;"></div>
+	            <div id="modalRangeLabel" class="text-muted" style="font-size:13px;"></div>
+	          </div>
+	        </div>
+	
+	        <div class="table-wrapper" style="max-height:360px;">
+	          <table class="table">
+	            <thead>
+	              <tr>
+	                <th style="width: 14%;">옵션ID</th>
+	                <th style="width: 22%;">색상</th>
+	                <th style="width: 22%;">용량</th>
+	                <th style="width: 20%;" class="text-right">판매수량</th>
+	                <th style="width: 22%;" class="text-right">판매금액(할인 전)</th>
+	              </tr>
+	            </thead>
+	            <tbody id="optionSalesBody">
+	              <tr><td colspan="5" class="text-center text-muted">상품을 선택하세요.</td></tr>
+	            </tbody>
+	          </table>
+	        </div>
+	
+	      </div>
+	
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
 
 </body>
 </html>

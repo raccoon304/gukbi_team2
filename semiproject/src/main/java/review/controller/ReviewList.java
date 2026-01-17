@@ -90,14 +90,14 @@ public class ReviewList extends AbstractController {
 				+ "/review/reviewList.hp?productCode=" + productCode
 				+ "&sort=" + sort
 				+ "&sizePerPage=" + sizePerPage
-				+ "&currentShowPageNo=1'>[처음]</a></li>";
+				+ "&currentShowPageNo=1'>처음</a></li>";
 
 		if (pageNo != 1) {
 			pageBar += "<li class='page-item'><a class='page-link' href='" + ctxPath
 					+ "/review/reviewList.hp?productCode=" + productCode
 					+ "&sort=" + sort
 					+ "&sizePerPage=" + sizePerPage
-					+ "&currentShowPageNo=" + (pageNo - 1) + "'>[이전]</a></li>";
+					+ "&currentShowPageNo=" + (pageNo - 1) + "'>이전</a></li>";
 		}
 
 		while (!(loop > blockSize || pageNo > totalPage)) {
@@ -121,14 +121,14 @@ public class ReviewList extends AbstractController {
 					+ "/review/reviewList.hp?productCode=" + productCode
 					+ "&sort=" + sort
 					+ "&sizePerPage=" + sizePerPage
-					+ "&currentShowPageNo=" + pageNo + "'>[다음]</a></li>";
+					+ "&currentShowPageNo=" + pageNo + "'>다음</a></li>";
 		}
 
 		pageBar += "<li class='page-item'><a class='page-link' href='" + ctxPath
 				+ "/review/reviewList.hp?productCode=" + productCode
 				+ "&sort=" + sort
 				+ "&sizePerPage=" + sizePerPage
-				+ "&currentShowPageNo=" + totalPage + "'>[마지막]</a></li>";
+				+ "&currentShowPageNo=" + totalPage + "'>마지막</a></li>";
 
 		// ===== 리스트 =====
 		List<ReviewDTO> reviewList = rdao.selectReviewPaging(paraMap);

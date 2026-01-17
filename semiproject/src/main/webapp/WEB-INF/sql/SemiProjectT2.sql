@@ -2735,10 +2735,14 @@ ON TBL_REVIEW ( CASE WHEN deleted_yn = 0 THEN fk_order_detail_id END );
 DESC TBL_REVIEW;
 
 
+select * from tbl_orders where order_status = 'PAID';
 select * from tbl_orders;
-
 
 update tbl_orders set delivery_status = 0
 where delivery_status = 2;
+
+
+
+
 
 commit;
