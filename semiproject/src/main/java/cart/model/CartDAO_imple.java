@@ -466,5 +466,61 @@ public class CartDAO_imple implements CartDAO {
 	    return map; // 없으면 null
 	}
 
+	@Override
+	public Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException {
+
+	    Map<String, Object> map = new HashMap<>();
+
+	    String sql =
+	        " SELECT "
+	      + "   p.product_name, "
+	      + "   p.brand_name, "
+	      + "   p.image_path, "
+	      + "   (p.price + o.plus_price) AS unit_price, "
+	      + "   ? AS quantity, "
+	      + "   (p.price + o.plus_price) * ? AS total_price "
+	      + " FROM tbl_product p "
+	      + " JOIN tbl_product_option o "
+	      + "   ON p.product_code = o.fk_product_code "
+	      + " WHERE p.product_code = ? "
+	      + " AND o.option_id = ? ";
+
+	    try (Connection conn = ds.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setInt(1, quantity);
+	        pstmt.setInt(2, quantity);
+	        pstmt.setString(3, productCode);
+	        pstmt.setInt(4, optionId);
+
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            if (rs.next()) {
+	                map.put("product_name", rs.getString("product_name"));
+	                map.put("brand_name", rs.getString("brand_name"));
+	                map.put("image_path", rs.getString("image_path"));
+	                map.put("unit_price", rs.getInt("unit_price"));
+	                map.put("quantity", rs.getInt("quantity"));
+	                map.put("total_price", rs.getInt("total_price"));
+	                
+	                System.out.println(" selectDirectProduct 성공:");
+	                System.out.println("  - product_name: " + rs.getString("product_name"));
+	                System.out.println("  - unit_price: " + rs.getInt("unit_price"));
+	                System.out.println("  - quantity: " + quantity);
+	                System.out.println("  - total_price: " + rs.getInt("total_price"));
+	            } else {
+	                System.out.println("❌ selectDirectProduct 조회 결과 없음");
+	                System.out.println("  - productCode: " + productCode);
+	                System.out.println("  - optionId: " + optionId);
+	            }
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("selectDirectProduct SQL 오류: " + e.getMessage());
+	        e.printStackTrace();
+	        throw e;
+	    }
+
+	    return map.isEmpty() ? null : map;
+	}
+
 	
 }

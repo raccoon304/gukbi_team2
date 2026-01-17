@@ -34,5 +34,8 @@ public interface CartDAO {
     // JOIN 실패 시 fallback
 	Map<String, Object> selectRawCartById(int cartId, String memberid) throws SQLException;
 
+	// ㅇ
+	Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
+
 	
 }

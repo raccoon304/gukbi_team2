@@ -13,7 +13,7 @@ public class AdminPageDTO {
 	 private String name;
 	 private int quantity;
 	 
-	 private int payAmount; // 주문 결제액 totalAmount - discountAmount
+	 private long payAmount; // 주문 결제액 totalAmount - discountAmount
 	 private String orderDate;
 	 
 	 private int detailCnt; // 주문상세 건수
@@ -72,10 +72,10 @@ public class AdminPageDTO {
 	 public void setQuantity(int quantity) {
 		 this.quantity = quantity;
 	 }
-	 public int getPayAmount() {
+	 public long getPayAmount() {
 		 return payAmount;
 	 }
-	 public void setPayAmount(int payAmount) {
+	 public void setPayAmount(long payAmount) {
 		 this.payAmount = payAmount;
 	 }
 	 public String getOrderDate() {
