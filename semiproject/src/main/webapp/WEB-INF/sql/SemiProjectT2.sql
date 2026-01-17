@@ -1425,3 +1425,17 @@ join tbl_product_option O
 on P.product_code = O.fk_product_code
 where product_code = '1000AP'
 order by storage_size;
+
+select product_name, product_code, color, storage_size, stock_qty, plus_price, option_id
+from tbl_product_option O
+Join tbl_product P
+on O.fk_product_code = P.product_code
+where P.product_name = 'Galaxy Z Fold7';
+
+update tbl_product_option set stock_qty = stock_qty + 20
+where option_id = 208;
+
+update tbl_product_option set stock_qty = 0
+where option_id = 132;
+
+commit;
