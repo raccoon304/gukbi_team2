@@ -83,7 +83,7 @@ public class PaymentSuccess extends AbstractController {
 
         // paymentStatus 검증
         if (paymentStatus == null || paymentStatus.isBlank()) {
-    //        System.out.println("❌ PG 결제 상태 정보 없음!");
+    //        System.out.println(" PG 결제 상태 정보 없음!");
             
             @SuppressWarnings("unchecked")
             List<CartDTO> cartList = (List<CartDTO>) session.getAttribute("payCartList");

@@ -215,7 +215,9 @@ public class PayController extends AbstractController {
         /* ================= 총 금액 ================= */
         int totalPrice = 0;
         for (Map<String, Object> item : orderList) {
-            totalPrice += getInt(item, "total_price");
+            int unitPrice = getInt(item, "unit_price");
+            int qty = getInt(item, "quantity");
+            totalPrice += unitPrice * qty;   // 할인 전 기준
         }
 
         /* ================= 쿠폰 ================= */

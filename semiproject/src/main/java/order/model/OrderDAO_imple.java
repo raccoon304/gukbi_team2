@@ -101,7 +101,7 @@ public class OrderDAO_imple implements OrderDAO {
                 pstmt = null;
             }
 
-            // 1-2. 주문 생성
+         // 1-2. 주문 생성 (계산된 금액 사용)
             String orderSql =
                 " INSERT INTO tbl_orders " +
                 " (order_id, fk_member_id, total_amount, discount_amount, " +
@@ -109,15 +109,23 @@ public class OrderDAO_imple implements OrderDAO {
                 "  delivery_status, order_status, order_date) " +
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE) ";
 
+         // ⭐ 1-1. orderDetails에서 실제 총금액 계산 (이 부분 추가!)
+            int calculatedTotalAmount = 0;
+            for (Map<String, Object> detail : orderDetails) {
+                int unitPrice = getInt(detail, "unit_price");
+                int quantity = getInt(detail, "quantity");
+                calculatedTotalAmount += unitPrice * quantity;
+            }
+            
             pstmt = conn.prepareStatement(orderSql);
             pstmt.setInt(1, orderId);
             pstmt.setString(2, order.getMemberId());
-            pstmt.setInt(3, order.getTotalAmount());
-            pstmt.setInt(4, order.getDiscountAmount());
+            pstmt.setInt(3, calculatedTotalAmount);  // ⭐ 계산된 총금액 사용
+            pstmt.setInt(4, 0);  // ⭐ 초기 할인금액 0 (나중에 업데이트)
             pstmt.setString(5, order.getDeliveryAddress());
             pstmt.setString(6, order.getRecipientName());
             pstmt.setString(7, order.getRecipientPhone());
-            pstmt.setInt(8, 0);  // delivery_status
+            pstmt.setInt(8, 0);
             pstmt.setString(9, order.getOrderStatus());
 
             int result = pstmt.executeUpdate();
@@ -125,7 +133,6 @@ public class OrderDAO_imple implements OrderDAO {
                 throw new SQLException("주문 생성 실패");
             }
 
-            // PreparedStatement 닫기
             if (pstmt != null) {
                 try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
                 pstmt = null;
@@ -230,11 +237,18 @@ public class OrderDAO_imple implements OrderDAO {
         Map<String, Object> map = new HashMap<>();
 
         String sql =
-            " SELECT order_id, order_date, total_amount, discount_amount, " +
-            "        (total_amount - discount_amount) AS final_amount, " +
-            "        delivery_address, order_status, recipient_name, recipient_phone " +
-            " FROM tbl_orders " +
-            " WHERE order_id = ? ";
+            " SELECT o.order_id, o.order_date, " +
+            "        o.discount_amount, " +
+            "        o.delivery_address, o.order_status, " +
+            "        o.recipient_name, o.recipient_phone, " +
+            "        NVL(SUM(od.quantity * od.unit_price), 0) AS total_amount, " +  // ← 변경!
+            "        (NVL(SUM(od.quantity * od.unit_price), 0) - o.discount_amount) AS final_amount " +
+            " FROM tbl_orders o " +
+            " LEFT JOIN tbl_order_detail od ON o.order_id = od.fk_order_id " +
+            " WHERE o.order_id = ? " +
+            " GROUP BY o.order_id, o.order_date, o.discount_amount, " +
+            "          o.delivery_address, o.order_status, " +
+            "          o.recipient_name, o.recipient_phone ";
 
         try (
             Connection conn = ds.getConnection();
