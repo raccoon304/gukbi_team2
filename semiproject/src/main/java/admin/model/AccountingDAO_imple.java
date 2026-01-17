@@ -72,25 +72,23 @@ public class AccountingDAO_imple implements AccountingDAO {
 		
 		String sql = " WITH orders_in_range AS ( "
 				   + "   SELECT order_id, total_amount, discount_amount "
-				   + "    FROM tbl_orders "
+				   + "     FROM tbl_orders "
 				   + "    WHERE order_date >= ? AND order_date < ? "
-				   + "    AND order_status = 'PAID' "
-				   + " ), detail_sum AS ( "
-				   + "   SELECT d.fk_order_id AS order_id, "
-				   + "          SUM(d.quantity) AS qty, "
-				   + "          SUM(d.quantity * d.unit_price) AS gross "
+				   + "      AND order_status = 'PAID' "
+				   + " ), detail_qty AS ( "
+				   + "   SELECT d.fk_order_id AS order_id, SUM(d.quantity) AS qty "
 				   + "     FROM tbl_order_detail d "
 				   + "     JOIN orders_in_range o ON o.order_id = d.fk_order_id "
 				   + "    GROUP BY d.fk_order_id "
 				   + " ) "
 				   + " SELECT "
 				   + "   COUNT(*) AS orders, "
-				   + "   NVL(SUM(ds.qty),0) AS qty, "
-				   + "   NVL(SUM(ds.gross),0) AS gross, "            // 할인 전
+				   + "   NVL(SUM(dq.qty),0) AS qty, "
+				   + "   NVL(SUM(o.total_amount),0) AS gross, "                //  할인 전
 				   + "   NVL(SUM(o.discount_amount),0) AS discount, "
-				   + "   NVL(SUM(o.total_amount),0) AS net "         // 할인 후
+				   + "   NVL(SUM(o.total_amount - o.discount_amount),0) AS net " // 할인 후
 				   + " FROM orders_in_range o "
-				   + " LEFT JOIN detail_sum ds ON ds.order_id = o.order_id ";
+				   + " LEFT JOIN detail_qty dq ON dq.order_id = o.order_id ";
 
 
         try {
@@ -124,21 +122,26 @@ public class AccountingDAO_imple implements AccountingDAO {
 	@Override
 	public List<DailyAggDTO> selectDaily(LocalDate start, LocalDate end) throws Exception {
 		
-		String sql = " WITH orders_in_range AS ( "
-				   + "   SELECT order_id, TRUNC(order_date) AS base_date "
-				   + "    FROM tbl_orders "
-				   + "    WHERE order_date >= ? AND order_date < ? "
-				   + "    AND order_status = 'PAID' "
-				   + " ) "
-				   + " SELECT "
-				   + "   TO_CHAR(o.base_date, 'YYYY-MM-DD') AS baseDate, "
-				   + "   COUNT(DISTINCT o.order_id) AS orders, "
-				   + "   NVL(SUM(d.quantity),0) AS qty, "
-				   + "   NVL(SUM(d.quantity * d.unit_price),0) AS amount "  // 할인 전
-				   + " FROM orders_in_range o "
-				   + " JOIN tbl_order_detail d ON d.fk_order_id = o.order_id "
-				   + " GROUP BY o.base_date "
-				   + " ORDER BY o.base_date DESC ";
+		 String sql = " WITH orders_in_range AS ( " +
+			          "   SELECT order_id, TRUNC(order_date) AS base_date, total_amount " +
+			          "     FROM tbl_orders " +
+			          "    WHERE order_date >= ? AND order_date < ? " +
+			          "      AND order_status = 'PAID' " +
+			          " ), order_qty AS ( " +
+			          "   SELECT d.fk_order_id AS order_id, SUM(d.quantity) AS qty " +
+			          "     FROM tbl_order_detail d " +
+			          "     JOIN orders_in_range o ON o.order_id = d.fk_order_id " +
+			          "    GROUP BY d.fk_order_id " +
+			          " ) " +
+			          " SELECT " +
+			          "   TO_CHAR(o.base_date, 'YYYY-MM-DD') AS baseDate, " +
+			          "   COUNT(o.order_id) AS orders, " +
+			          "   NVL(SUM(q.qty),0) AS qty, " +
+			          "   NVL(SUM(o.total_amount),0) AS amount " +   // 주문 기준
+			          " FROM orders_in_range o " +
+			          " LEFT JOIN order_qty q ON q.order_id = o.order_id " +
+			          " GROUP BY o.base_date " +
+			          " ORDER BY o.base_date DESC ";
 
 	    List<DailyAggDTO> list = new ArrayList<>();
 
