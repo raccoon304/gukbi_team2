@@ -2736,13 +2736,18 @@ DESC TBL_REVIEW;
 
 
 select * from tbl_orders where order_status = 'PAID';
-select * from tbl_orders;
+
+select * from tbl_orders
+order by order_id;
+
+select * from tbl_order_detail
+order by fk_order_id;
 
 update tbl_orders set delivery_status = 0
 where delivery_status = 2;
 
 
-
+select * from tbl_member;
 
 
 commit;

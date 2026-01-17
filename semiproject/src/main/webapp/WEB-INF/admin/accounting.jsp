@@ -208,6 +208,36 @@
 		}
 		
 	   .section-card .section-title { margin-bottom: 12px; }
+       
+       /* custom range 에러 메시지*/
+	   .custom-range-error{
+		  margin-top: 8px;
+		  padding: 10px 12px;
+		  border-radius: 10px;
+		  background: #fff5f5;
+		  border: 1px solid #f5c2c7; 
+		  color: #b02a37;
+		  font-size: 12px;
+		  line-height: 1.4;
+		  display: flex;
+		  align-items: flex-start;
+		  gap: 8px;
+		}
+		
+		/* 왼쪽 아이콘(가짜) */
+		.custom-range-error::before{
+		  content: "⚠";
+		  font-size: 13px;
+		  line-height: 1.2;
+		  margin-top: 1px;
+		}
+		
+		/* input 빨간 테두리 */
+		#customRange .is-invalid{
+		  border-color: #dc3545 !important;
+		  box-shadow: 0 0 0 .15rem rgba(220,53,69,.15);
+		}
+       
         
     </style>
 </head>
@@ -261,6 +291,9 @@
 							  <div class="text-muted mt-1" style="font-size:12px;">
 							    * 종료일 포함(예: 01-01~01-05는 5일까지)
 							  </div>
+							  
+							  <div id="customRangeError" class="custom-range-error" style="display:none;"></div>
+							  
 							</div>
 							
 							<!-- 선택된 실제 기간 표시 -->
