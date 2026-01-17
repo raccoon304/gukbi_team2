@@ -268,3 +268,93 @@ ul.inquiry-pagination .page-item.disabled .page-link{
   padding: .25rem .75rem;
   font-weight: 600;
 }
+
+
+.inquiry-page-wrap{
+  padding-top: 70px;   /* 헤더 높이에 맞춰 조절 (보통 70~90) */
+}
+
+@media (max-width: 991px){
+  .inquiry-page-wrap{
+    padding-top: 70px;
+  }
+}
+
+
+/* 우측 placeholder를 '크고 시원하게' */
+#inquiryDetailPlaceholder{
+  min-height: 725px;                 /* 왼쪽 리스트 높이랑 비슷하게 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 은은한 배경 그라데이션/패턴 */
+#inquiryDetailPlaceholder::before{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background: radial-gradient(circle at 20% 20%, rgba(102,126,234,0.18), transparent 55%),
+              radial-gradient(circle at 80% 30%, rgba(118,75,162,0.14), transparent 60%),
+              radial-gradient(circle at 40% 90%, rgba(102,126,234,0.10), transparent 60%);
+  transform: rotate(8deg);
+}
+
+/* 실제 내용은 위로 */
+#inquiryDetailPlaceholder > div{
+  position: relative;
+  text-align: center;
+  max-width: 420px;
+}
+
+/* 말풍선 아이콘 더 크게 + 동그란 배지처럼 */
+#inquiryDetailPlaceholder i{
+  font-size: 52px;
+  color: #667eea;
+  background: rgba(102,126,234,0.12);
+  width: 84px;
+  height: 84px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+/* 타이틀/설명 텍스트 개선 */
+#inquiryDetailPlaceholder h4{
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #1f2937;
+}
+
+#inquiryDetailPlaceholder .mt-2{
+  margin-top: 0 !important;
+  font-size: 1.0rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 250px;
+}
+
+/* 모바일에서는 너무 높지 않게 */
+@media (max-width: 991px){
+  #inquiryDetailPlaceholder{
+    min-height: 360px;
+    padding: 28px 18px;
+  }
+  #inquiryDetailPlaceholder i{
+    width: 72px;
+    height: 72px;
+    font-size: 44px;
+  }
+  #inquiryDetailPlaceholder h4{
+    font-size: 1.35rem;
+  }
+}

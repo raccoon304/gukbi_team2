@@ -717,6 +717,7 @@ public class AdminDAO_imple implements AdminDAO {
 	    			   + "         TOTAL_AMOUNT, "
 	    			   + "         DISCOUNT_AMOUNT "
 	    			   + "     FROM TBL_ORDERS "
+	    			   + "     WHERE order_status = 'PAID' "
 	    			   + "     ORDER BY ORDER_DATE DESC, ORDER_ID DESC "
 	    			   + "     FETCH FIRST 5 ROWS ONLY "
 	    			   + " ), "
@@ -786,7 +787,8 @@ public class AdminDAO_imple implements AdminDAO {
 
 	    String sql =	 " select count(*) as CNT "
 	               + " from TBL_ORDERS "
-	               + " where trunc(ORDER_DATE) = trunc(sysdate) ";
+	               + " where trunc(ORDER_DATE) = trunc(sysdate) "
+	               + " and order_status = 'PAID' ";
 
 	    try {
 	        conn = ds.getConnection();
@@ -813,7 +815,8 @@ public class AdminDAO_imple implements AdminDAO {
 
 	    String sql =	 " select nvl(sum(total_amount - discount_amount),0) as real_amount "
 	    		       + " from tbl_orders "
-	    		       + " where trunc(ORDER_DATE) = trunc(sysdate) ";
+	    		       + " where trunc(ORDER_DATE) = trunc(sysdate) "
+	    		       + "   and order_status = 'PAID' ";
 
 	    try {
 	        conn = ds.getConnection();
@@ -821,7 +824,7 @@ public class AdminDAO_imple implements AdminDAO {
 	        rs = pstmt.executeQuery();
 
 	        if (rs.next()) {
-	            sales = rs.getInt("real_amount");
+	            sales = rs.getLong("real_amount");
 	        }
 	    } finally {
 	        close();
