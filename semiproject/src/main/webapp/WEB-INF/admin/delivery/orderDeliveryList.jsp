@@ -361,7 +361,7 @@ function loadOrderDetail(orderId){
                       <option value="2">배송완료</option>
                     </select>
 
-                    <button type="button" class="btn btn-primary" id="btnBulkUpdate">
+                    <button type="button" class="btn btn-primary" id="btnBulkUpdate" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                       <i class="fas fa-pen-to-square mr-1"></i> 상태변경
                     </button>
                   </div>
@@ -406,10 +406,10 @@ function loadOrderDetail(orderId){
                     </th>
 
                     <th style="width:90px;">주문번호</th>
-                    <th style="width:120px;">주문일</th>
+                    <th style="width:130px;">주문일</th>
                     <th style="width:120px;">아이디</th>
                     <th style="width:120px;">이름</th>
-                    <th style="width:220px;">주문상품</th>
+                    <th style="width:210px;">주문상품</th>
                     <th style="width:140px;">결제금액</th>
                     <th style="width:110px;">수령인</th>
                     <th style="width:140px;">배송번호</th>

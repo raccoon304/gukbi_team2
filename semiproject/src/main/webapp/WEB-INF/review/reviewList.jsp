@@ -26,10 +26,10 @@
   tr.rv-row:hover{ background:#f8f9fa; }
 </style>
 
-<div class="container" style="margin-top:5%;">
-
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0"><i class="fa-solid fa-star mr-2"></i>구매 리뷰</h4>
+<div class="container review-page" style="margin-top:5%;">
+  <div class="page-header review-header">		
+  <div class="d-flex justify-content-between align-items-center">
+    <h4 class="mb-1"><i class="fa-solid fa-star mr-2"></i>구매 리뷰</h4>
 
     <div>
       <a class="btn btn-primary btn-sm"
@@ -38,9 +38,10 @@
       </a>
     </div>
   </div>
+  </div>
 
   <!-- 상품 선택 필터 -->
-  <form method="get" action="<%=ctxPath%>/review/reviewList.hp" class="form-inline mb-3">
+  <form method="get" action="<%=ctxPath%>/review/reviewList.hp" class="review-filter form-inline mb-3">
     <input type="hidden" name="sort" value="${sort}"/>
     <input type="hidden" name="sizePerPage" value="${sizePerPage}"/>
     <input type="hidden" name="currentShowPageNo" value="1"/>
@@ -57,7 +58,7 @@
     </select>
   </form>
 
-  <div class="mb-2 text-muted">
+  <div class="review-summary">
     총 <b>${totalCount}</b>건 / ${currentShowPageNo}페이지 (총 ${totalPage}페이지)
   </div>
 
@@ -167,7 +168,7 @@
 
   <div class="mt-4 d-flex justify-content-center">
     <nav aria-label="Page navigation">
-      <ul class="pagination pagination-sm mb-0">
+      <ul class="pagination pagination-sm mb-0 review-pagination">
         ${pageBar}
       </ul>
     </nav>
