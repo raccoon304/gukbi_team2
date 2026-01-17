@@ -53,6 +53,9 @@ public interface MemberDAO {
 	//휴면 해제용 메서드 
 	int unlockDormant(String memberId) throws SQLException;
 
+	// 휴대폰으로 비밀번호 찾기 
+	boolean isUserExistsForPwdFindPhone(Map<String, String> paraMap) throws SQLException;
+
 
 
 }

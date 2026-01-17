@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 public class CartDAO_imple implements CartDAO {
     
     private DataSource ds;
-    
+     
     // 생성자: DataSource 초기화
     public CartDAO_imple() {
         try {
@@ -29,48 +29,6 @@ public class CartDAO_imple implements CartDAO {
         }
     }
     
-    // 이미 장바구니에 있는지 확인
-    @Override
-    public boolean isOptionInCart(String memberId, int optionId) throws SQLException {
-
-        boolean exists = false;
-
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        String sql =
-            " SELECT COUNT(*) " +
-            " FROM tbl_cart " +
-            " WHERE fk_member_id = ? " +
-            " AND fk_option_id = ? ";
-
-        try {
-            conn = ds.getConnection();
-            pstmt = conn.prepareStatement(sql);
-
-            pstmt.setString(1, memberId);
-            pstmt.setInt(2, optionId);
-
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                exists = rs.getInt(1) > 0;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (rs != null) try { rs.close(); } catch (SQLException e) {}
-            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) {}
-            if (conn != null) try { conn.close(); } catch (SQLException e) {}
-        }
-
-        return exists;
-    }
-  
-
     // 장바구니 페이지 내역 조회
     @Override
     public List<Map<String, Object>> selectCartList(String memberId) throws SQLException {
@@ -85,6 +43,7 @@ public class CartDAO_imple implements CartDAO {
               " SELECT "
             + "    c.cart_id, "
             + "    c.quantity, "
+            + "    c.fk_option_id, "
             + "    p.product_name, "
             + "    p.brand_name, "
             + "    p.price AS base_price, "
@@ -120,6 +79,8 @@ public class CartDAO_imple implements CartDAO {
                 map.put("total_price", rs.getInt("total_price"));
                 map.put("brand_name", rs.getString("brand_name"));
                 map.put("color", rs.getString("color"));
+                map.put("option_id", rs.getInt("fk_option_id"));
+                
                 list.add(map);
             }
 
@@ -137,7 +98,7 @@ public class CartDAO_imple implements CartDAO {
 
     // 장바구니 내부에서 수량 변경
     @Override
-    public int updateQuantity(int cartId, String memberId, int quantity) throws SQLException {
+    public int setQuantity(int cartId, String memberId, int quantity) throws SQLException {
 
         int n = 0;
         Connection conn = null;
@@ -213,7 +174,7 @@ public class CartDAO_imple implements CartDAO {
 	    	    " SELECT " +
 	    	    "   c.cart_id, " +
 	    	    "   c.quantity, " + 
-	    	    "   c.fk_option_id AS option_id, " +
+	    	    "   c.fk_option_id, " +
 	    	    "   p.product_name, " +
 	    	    "	o.option_id,	" +
 	    	    "   o.plus_price,   " +
@@ -242,57 +203,14 @@ public class CartDAO_imple implements CartDAO {
 	        	    map.put("unit_price", rs.getInt("unit_price"));
 	        	    map.put("total_price", rs.getInt("total_price"));
 	        	    map.put("brand_name", rs.getString("brand_name"));
-	        	    map.put("option_id", rs.getInt("option_id"));
+	        	    map.put("option_id", rs.getInt("fk_option_id"));
+	        	   
 	        	}
 	        }
 	    }
 	    
 	    return map.isEmpty() ? null : map;
 	}
-
-
-	// 상품상세에서 구매하기를 눌렀을때 떠야 될것
-	@Override
-	public Map<String, Object> selectDirectProduct(
-	        String productCode, int optionId, int quantity) throws SQLException {
-
-	    Map<String, Object> map = new HashMap<>();
-
-	    String sql =
-	        " SELECT "
-	      + "   p.product_name, "
-	      + "   p.image_path, "
-	      + "   (p.price + o.plus_price) AS unit_price, "
-	      + "   ? AS quantity, "
-	      + "   (p.price + o.plus_price) * ? AS total_price "
-	      + " FROM tbl_product p "
-	      + " JOIN tbl_product_option o "
-	      + "   ON p.product_code = o.fk_product_code "
-	      + " WHERE p.product_code = ? "
-	      + " AND o.option_id = ? ";
-
-	    try (Connection conn = ds.getConnection();
-	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-	        pstmt.setInt(1, quantity);
-	        pstmt.setInt(2, quantity);
-	        pstmt.setString(3, productCode);
-	        pstmt.setInt(4, optionId);
-
-	        try (ResultSet rs = pstmt.executeQuery()) {
-	            if (rs.next()) {
-	                map.put("product_name", rs.getString("product_name"));
-	                map.put("image_path", rs.getString("image_path"));
-	                map.put("unit_price", rs.getInt("unit_price"));
-	                map.put("quantity", rs.getInt("quantity"));
-	                map.put("total_price", rs.getInt("total_price"));
-	            }
-	        }
-	    }
-
-	    return map.isEmpty() ? null : map;
-	}
-	
 
 	// 결제 완료가 되었을때 선택한 장바구니 항목에 있는 행을 지우기
 	@Override
@@ -333,6 +251,220 @@ public class CartDAO_imple implements CartDAO {
 
 	    return result;
 	}
-		
+	
+
+	/* ================= 바로구매 → cart 흡수 ================= */
+	@Override
+	public Map<String, Object> selectCartByOption(String memberId, int optionId) throws SQLException {
+
+		String sql =
+		        " SELECT cart_id, quantity " +
+		        " FROM tbl_cart " +
+		        " WHERE fk_member_id = ? " +
+		        "   AND fk_option_id = ? ";
+
+		    try (Connection conn = ds.getConnection();
+		         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+		        pstmt.setString(1, memberId);
+		        pstmt.setInt(2, optionId);
+
+		        try (ResultSet rs = pstmt.executeQuery()) {
+		            if (rs.next()) {
+		                Map<String, Object> map = new HashMap<>();
+		                map.put("cart_id", rs.getInt("cart_id"));
+		                map.put("quantity", rs.getInt("quantity"));
+		                return map;
+		            }
+		        }
+		    }
+
+		    return null; // 없으면 null
+		}
+
+	// cart insert 후 생성된 cart_id 반환
+	@Override
+	public int insertCartAndReturnId(String memberId, int optionId, int quantity) throws SQLException {
+
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    int cartId = 0;
+
+	    String sql =
+	        " INSERT INTO tbl_cart (cart_id, fk_member_id, fk_option_id, quantity) " +
+	        " VALUES ((SELECT NVL(MAX(cart_id), 0) + 1 FROM tbl_cart), ?, ?, ?) ";
+
+	    String getIdSql =
+	        " SELECT MAX(cart_id) FROM tbl_cart WHERE fk_member_id = ? ";
+
+	    try {
+	        conn = ds.getConnection();
+
+	        // insert
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, memberId);
+	        pstmt.setInt(2, optionId);
+	        pstmt.setInt(3, Math.max(quantity, 1));
+	        pstmt.executeUpdate();
+	        pstmt.close();
+
+	        // 생성된 cart_id 조회
+	        pstmt = conn.prepareStatement(getIdSql);
+	        pstmt.setString(1, memberId);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            cartId = rs.getInt(1);
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw e;
+
+	    } finally {
+	        if (rs != null) try { rs.close(); } catch (SQLException e) {}
+	        if (pstmt != null) try { pstmt.close(); } catch (SQLException e) {}
+	        if (conn != null) try { conn.close(); } catch (SQLException e) {}
+	    }
+
+	    if (cartId == 0) {
+	        throw new SQLException("cart_id 생성 실패");
+	    }
+
+	    return cartId;
+	}
+
+	// 바로 구매를 눌렀을때 완전히 똑같은 제품, 용량, 색깔이 아니면 행 자체에 올림
+	// 바로구매 전용: 수량 교체
+	@Override
+	public int upsertCartAndReturnId(String memberId, int optionId, int quantity) throws SQLException {
+
+	    int cartId = 0;
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        conn = ds.getConnection();
+
+	        // 1. 기존 cart 조회
+	        String selectSql =
+	            " SELECT cart_id FROM tbl_cart " +
+	            " WHERE fk_member_id = ? AND fk_option_id = ? ";
+
+	        pstmt = conn.prepareStatement(selectSql);
+	        pstmt.setString(1, memberId);
+	        pstmt.setInt(2, optionId);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            // === 이미 있으면 수량 교체 ===
+	            cartId = rs.getInt("cart_id");
+	            rs.close();
+	            pstmt.close();
+
+	            String updateSql =
+	                " UPDATE tbl_cart " +
+	                " SET quantity = ? " +  // ✅ 교체 (누적 아님)
+	                " WHERE cart_id = ? ";
+
+	            pstmt = conn.prepareStatement(updateSql);
+	            pstmt.setInt(1, quantity);  // oldQty + quantity ❌
+	            pstmt.setInt(2, cartId);
+	            pstmt.executeUpdate();
+
+	        } else {
+	            // === 없으면 INSERT ===
+	            rs.close();
+	            pstmt.close();
+
+	            String insertSql =
+	                " INSERT INTO tbl_cart (cart_id, fk_member_id, fk_option_id, quantity) " +
+	                " VALUES ( (SELECT NVL(MAX(cart_id),0)+1 FROM tbl_cart), ?, ?, ? ) ";
+
+	            pstmt = conn.prepareStatement(insertSql);
+	            pstmt.setString(1, memberId);
+	            pstmt.setInt(2, optionId);
+	            pstmt.setInt(3, quantity);
+	            pstmt.executeUpdate();
+	            pstmt.close();
+
+	            // 방금 넣은 cart_id 조회
+	            String idSql =
+	                " SELECT cart_id FROM tbl_cart " +
+	                " WHERE fk_member_id = ? AND fk_option_id = ? ";
+
+	            pstmt = conn.prepareStatement(idSql);
+	            pstmt.setString(1, memberId);
+	            pstmt.setInt(2, optionId);
+	            rs = pstmt.executeQuery();
+
+	            if (rs.next()) {
+	                cartId = rs.getInt("cart_id");
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw e;
+	    } finally {
+	        if (rs != null) try { rs.close(); } catch (Exception e) {}
+	        if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+	        if (conn != null) try { conn.close(); } catch (Exception e) {}
+	    }
+
+	    return cartId;
+	}
+	
+	
+	@Override
+	public Map<String, Object> selectRawCartById(int cartId, String memberid) throws SQLException {
+
+	    Map<String, Object> map = null;
+
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    String sql =
+	        " SELECT " +
+	        "   c.cart_id, " +
+	        "   c.quantity, " +
+	        "   c.fk_option_id " +
+	        " FROM tbl_cart c " +
+	        " WHERE c.cart_id = ? " +
+	        " AND c.fk_member_id = ? ";
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+
+	        pstmt.setInt(1, cartId);
+	        pstmt.setString(2, memberid);
+
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            map = new HashMap<>();
+	            map.put("cart_id", rs.getInt("cart_id"));
+	            map.put("quantity", rs.getInt("quantity"));
+	            map.put("option_id", rs.getInt("fk_option_id"));
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw e;
+
+	    } finally {
+	        if (rs != null) try { rs.close(); } catch (SQLException e) {}
+	        if (pstmt != null) try { pstmt.close(); } catch (SQLException e) {}
+	        if (conn != null) try { conn.close(); } catch (SQLException e) {}
+	    }
+
+	    return map; // 없으면 null
+	}
+
 	
 }

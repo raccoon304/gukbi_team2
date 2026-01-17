@@ -55,7 +55,7 @@ public class InquiryDAO_imple implements InquiryDAO {
     
     
     
-    // 1. 문의 등록 (기본 상태: 1-접수)
+    // 문의 등록
     @Override
     public int insertInquiry(InquiryDTO idto) throws SQLException {
         int result = 0;

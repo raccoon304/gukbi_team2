@@ -35,15 +35,16 @@ public class InquiryDetail extends AbstractController {
         HttpSession session = request.getSession();
 	    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-        if (loginUser == null) {
-            json.put("success", false);
-            json.put("needLogin", true);
-            json.put("message", "로그인이 필요합니다.");
-            request.setAttribute("json", json.toString());
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
-            return;
-        }
+	    
+//        if (loginUser == null) {
+//            json.put("success", false);
+//           json.put("needLogin", true);
+//            json.put("message", "로그인이 필요합니다.");
+//            request.setAttribute("json", json.toString());
+//            super.setRedirect(false);
+//            super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
+//            return;
+//        }
 
         int inquiryNumber = 0;
         try {
@@ -73,19 +74,28 @@ public class InquiryDetail extends AbstractController {
             return;
         }
 
-        boolean isAdmin = "admin".equalsIgnoreCase(loginUser.getMemberid());
-        boolean isOwner = loginUser.getMemberid().equals(dto.getMemberid());
+        boolean isAdmin = (loginUser != null) && "admin".equalsIgnoreCase(loginUser.getMemberid());
+        boolean isOwner = (loginUser != null) && loginUser.getMemberid().equals(dto.getMemberid());
 
         // 비밀글 차단: 작성자/관리자 아니면 상세 조회 자체를 막음
         if (dto.getIsSecret() == 1 && !(isAdmin || isOwner)) {
             json.put("success", false);
             json.put("secretBlocked", true);
-            json.put("message", "비밀글은 작성자만 조회 가능합니다.");
+            
+            if (loginUser == null) {
+            	
+            		json.put("message", "비밀글은 작성자만 조회 가능합니다. 로그인을 해주세요.");
+            }
+            else {
+            		json.put("message", "비밀글은 작성자만 조회 가능합니다.");
+            }
             request.setAttribute("json", json.toString());
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/admin/admin_jsonview.jsp");
             return;
         }
+       
+        
 
         // 정상 상세 반환
         json.put("success", true);

@@ -2,7 +2,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%String ctxPath=request.getContextPath();%>
 
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
 <style>
     .sidebar {
         position: fixed;
@@ -167,7 +167,7 @@
             </a>
         </li>
         <li class="sidebar-menu-item">
-            <a class="sidebar-menu-link <%= request.getRequestURI().contains("members") ? "active" : "" %>" 
+            <a class="sidebar-menu-link <%= request.getRequestURI().contains("productRegister") ? "active" : "" %>" 
                href="<%=ctxPath%>/product/productRegister.hp">
                 <i class="fa-solid fa-cart-plus"></i>
                 <span>상품등록</span>
@@ -180,6 +180,13 @@
                 <span>가입회원조회</span>
             </a>
         </li>
+        <li class="sidebar-menu-item">
+		  <a class="sidebar-menu-link <%= request.getRequestURI().contains("/admin/delivery") ? "active" : "" %>"
+		     href="<%= ctxPath %>/admin/delivery/orderDeliveryList.hp">
+		    <i class="fas fa-truck-fast"></i>
+		    <span>주문/배송 관리</span>
+		  </a>
+		</li>       
         <li class="sidebar-menu-item">
             <a class="sidebar-menu-link <%= request.getRequestURI().contains("coupons") ? "active" : "" %>" 
                href="<%= ctxPath %>/admin/coupon.hp">

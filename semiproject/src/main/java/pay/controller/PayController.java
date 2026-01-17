@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
-import order.domain.OrderDTO;
 import order.model.OrderDAO;
 import order.model.OrderDAO_imple;
 
@@ -55,34 +54,40 @@ public class PayController extends AbstractController {
 
         OrderDAO odao = new OrderDAO_imple();
 
-        /* ================= 오래된 READY 주문 FAIL 처리 (본인 것만) ================= */
-        int n = odao.expireReadyOrders(loginUser.getMemberid());
-
-        /* ================= 세션 초기화 (READY 재사용 방지) ================= */
-        session.removeAttribute("readyOrderId");
-        session.removeAttribute("cartList");
-        session.removeAttribute("usedCouponId");
-
         /* ================= 파라미터 ================= */
         String cartIdsParam = request.getParameter("cartIds");
-        // couponIdParam 삭제 - 여기서는 받지 않음
 
+        @SuppressWarnings("unchecked")
+        List<Integer> payCartIds = (List<Integer>) session.getAttribute("payCartIds");
+        
         List<Map<String, Object>> orderList = new ArrayList<>();
         List<CartDTO> cartList = new ArrayList<>();
 
+        System.out.println("=== PayController 디버깅 시작 ===");
+        System.out.println("cartIdsParam: " + cartIdsParam);
+        System.out.println("payCartIds(세션): " + payCartIds);
+        System.out.println("loginUser ID: " + loginUser.getMemberid());
+
         /* ================= 결제 대상 조회 ================= */
+        
+        // 1. URL 파라미터로 넘어온 경우 (장바구니에서 선택 결제)
         if (cartIdsParam != null && !cartIdsParam.isBlank()) {
-            // 장바구니 결제
+            System.out.println(">>> 장바구니 선택 결제 경로");
+            
             String[] cartIdArray = cartIdsParam.split(",");
 
             for (String cartIdStr : cartIdArray) {
                 try {
                     int cartId = Integer.parseInt(cartIdStr.trim());
+                    System.out.println("처리 중인 cartId: " + cartId);
 
-                    Map<String, Object> item =
-                        cartDao.selectCartById(cartId, loginUser.getMemberid());
+                    Map<String, Object> item = cartDao.selectCartById(cartId, loginUser.getMemberid());
+                    System.out.println("조회 결과: " + item);
 
-                    if (item == null) continue;
+                    if (item == null) {
+                        System.out.println("WARNING: cartId " + cartId + " 조회 실패");
+                        continue;
+                    }
 
                     orderList.add(item);
 
@@ -96,45 +101,47 @@ public class PayController extends AbstractController {
 
                     cartList.add(cart);
 
-                } catch (NumberFormatException ignore) {}
+                } catch (NumberFormatException e) {
+                    System.out.println("ERROR: cartId 파싱 실패 - " + cartIdStr);
+                }
             }
+        } 
+        // 2. 바로구매에서 넘어온 경우 (세션에 저장된 payCartIds 사용)
+        else if (payCartIds != null && !payCartIds.isEmpty()) {
+            System.out.println(">>> 바로구매 결제 경로");
+            System.out.println("payCartIds size: " + payCartIds.size());
 
-        } else {
-            // 상품 상세 → 바로 구매
-            String productCode = request.getParameter("productCode");
-            String optionIdStr = request.getParameter("optionId");
-            String quantityStr = request.getParameter("quantity");
+            for (int cartId : payCartIds) {
+                System.out.println("처리 중인 cartId: " + cartId);
 
-            if (productCode == null || optionIdStr == null || quantityStr == null) {
-                response.getWriter().println(
-                    "<script>alert('잘못된 접근입니다.');history.back();</script>"
-                );
-                return;
-            }
+                Map<String, Object> item = cartDao.selectCartById(cartId, loginUser.getMemberid());
+                System.out.println("selectCartById 결과: " + item);
 
-            int optionId;
-            int quantity;
+                // JOIN 실패 시 fallback
+                if (item == null) {
+                    System.out.println("JOIN 실패, fallback 시도...");
+                    item = cartDao.selectRawCartById(cartId, loginUser.getMemberid());
+                    System.out.println("selectRawCartById 결과: " + item);
+                    
+                    if (item == null) {
+                        System.out.println("ERROR: cartId " + cartId + " fallback도 실패");
+                        continue;
+                    }
 
-            try {
-                optionId = Integer.parseInt(optionIdStr);
-                quantity = Integer.parseInt(quantityStr);
-            } catch (NumberFormatException e) {
-                response.getWriter().println(
-                    "<script>alert('잘못된 수량 또는 옵션입니다.');history.back();</script>"
-                );
-                return;
-            }
+                    // 최소 결제 정보 보정
+                    item.put("product_name", "(상품정보 조회 중)");
+                    item.put("brand_name", "");
+                    item.put("unit_price", 0);
+                    item.put("total_price", 0);
+                    System.out.println("fallback 데이터로 보정 완료");
+                }
 
-            Map<String, Object> item =
-                cartDao.selectDirectProduct(productCode, optionId, quantity);
-
-            if (item != null) {
                 orderList.add(item);
 
                 CartDTO cart = new CartDTO();
-                cart.setCartId(0); // 바로구매
-                cart.setOptionId(optionId);
-                cart.setQuantity(quantity);
+                cart.setCartId(cartId);
+                cart.setOptionId(getInt(item, "option_id"));
+                cart.setQuantity(getInt(item, "quantity"));
                 cart.setPrice(getInt(item, "unit_price"));
                 cart.setProductName(getStr(item, "product_name"));
                 cart.setBrand_name(getStr(item, "brand_name"));
@@ -142,47 +149,58 @@ public class PayController extends AbstractController {
                 cartList.add(cart);
             }
         }
+        // 3. 둘 다 없는 경우
+        else {
+            System.out.println("ERROR: cartIdsParam도 없고 payCartIds도 없음");
+        }
+
+        System.out.println("최종 orderList size: " + orderList.size());
+        System.out.println("=== PayController 디버깅 종료 ===");
 
         /* ================= 공통 검증 ================= */
         if (orderList.isEmpty()) {
+            response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
-                "<script>alert('유효한 상품이 없습니다.');history.back();</script>"
+                "<script>alert('유효한 상품이 없습니다.\\n\\n문제가 계속되면 관리자에게 문의해주세요.');"
+              + "history.back();</script>"
             );
             return;
         }
 
+        // 세션 정리
+        session.removeAttribute("payCartIds");
+        
         /* ================= 총 금액 ================= */
         int totalPrice = 0;
         for (Map<String, Object> item : orderList) {
             totalPrice += getInt(item, "total_price");
         }
 
-        /* ================= 쿠폰 목록만 조회 (계산은 JSP에서) ================= */
-        List<Map<String, Object>> couponList =
-            odao.selectAvailableCoupons(loginUser.getMemberid());
+        System.out.println("총 결제 금액: " + totalPrice);
 
-        /* ================= 임시 주문 생성 (할인 전) ================= */
-        OrderDTO order = new OrderDTO();
-        order.setMemberId(loginUser.getMemberid());
-        order.setTotalAmount(totalPrice);
-        order.setDiscountAmount(0);  // 일단 0으로
-        order.setDeliveryAddress("(결제 중 입력됨)");  // 임시값
-        order.setRecipientName(loginUser.getName());
-        order.setRecipientPhone(loginUser.getMobile());
-        order.setOrderStatus("READY");
-
-        int orderId = odao.insertOrder(order);
-        session.setAttribute("readyOrderId", orderId);
+        /* ================= 쿠폰 목록만 조회 ================= */
+        List<Map<String, Object>> couponList = odao.selectAvailableCoupons(loginUser.getMemberid());
 
         /* ================= JSP 전달 ================= */
-        session.setAttribute("cartList", cartList);
+        session.setAttribute("payCartList", cartList);
+
+        System.out.println(">>> payCartList 세션 저장 완료");
+        System.out.println(">>> cartList size: " + cartList.size());
+        for (CartDTO cart : cartList) {
+            System.out.println("    - cartId: " + cart.getCartId() 
+                             + ", optionId: " + cart.getOptionId()
+                             + ", quantity: " + cart.getQuantity()
+                             + ", product: " + cart.getProductName());
+        }
 
         request.setAttribute("orderList", orderList);
         request.setAttribute("couponList", couponList);
         request.setAttribute("totalPrice", totalPrice);
-        request.setAttribute("discountPrice", 0);  // JSP에서 계산
-        request.setAttribute("finalPrice", totalPrice);  // JSP에서 변경
+        request.setAttribute("discountPrice", 0);
+        request.setAttribute("finalPrice", totalPrice);
         request.setAttribute("loginUser", loginUser);
+
+        System.out.println(">>> JSP로 포워딩: /WEB-INF/pay_MS/payMent.jsp");
 
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");

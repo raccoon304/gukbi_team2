@@ -106,7 +106,7 @@
                                 <table class="table table-hover" id="couponTable">
                                     <thead>
                                         <tr>
-                                        	   <th>NO</th>
+                                        	   <th>No</th>
                                             <th>쿠폰번호</th>
                                             <th>쿠폰명</th>
                                             <th>할인타입</th>
@@ -209,7 +209,7 @@
                     <form id="createCouponForm">
                         <div class="form-group">
                             <label>쿠폰명</label>
-                            <input type="text" class="form-control" id="couponName" required>
+                            <input type="text" class="form-control" id="couponName" maxlength="40" placeholder="쿠폰명 (최대 40자)" required>
                         </div>
                         <div class="form-group">
                             <label>할인 타입</label>

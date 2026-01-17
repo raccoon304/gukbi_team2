@@ -47,7 +47,7 @@ public interface CouponDAO {
 	// 쿠폰 사용안함 → 사용함 처리
 	int enableCoupon(int couponCategoryNo) throws SQLException;
 	
-	// 웰컴 쿠폰 회원에게 발행
+	// 웰컴 쿠폰 회원에게 발행(임시)
 	public int issueWelcomeCoupon(String memberId) throws SQLException;
 	
 	// 쿠폰의 총개수 알아오기

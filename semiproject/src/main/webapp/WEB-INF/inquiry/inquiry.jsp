@@ -286,14 +286,14 @@ const ctxPath = "<%=ctxPath%>";
 
             <div class="form-group">
               <label for="inquiryTitle"><strong>제목</strong> <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="inquiryTitle"
-                     placeholder="문의 제목을 입력해주세요" required>
+              <input type="text" class="form-control" id="inquiryTitle" maxlength="100"
+                     placeholder="문의 제목을 입력해주세요 (100자 이내)" required>
             </div>
 
             <div class="form-group">
               <label for="inquiryContent"><strong>내용</strong> <span class="text-danger">*</span></label>
-              <textarea class="form-control" id="inquiryContent" rows="8"
-                        placeholder="문의 내용을 상세히 입력해주세요" required></textarea>
+              <textarea class="form-control" id="inquiryContent" rows="8" maxlength="1000"
+                        placeholder="문의 내용을 상세히 입력해주세요 (1000자 이내)" required></textarea>
             </div>
           </form>
         </div>
@@ -350,7 +350,7 @@ const ctxPath = "<%=ctxPath%>";
 	        <small class="text-muted" data-field="replyEditorDate"></small>
 	      </div>
 	
-	      <textarea id="adminReplyContent" class="form-control" rows="5" placeholder="답변 내용을 입력하세요"></textarea>
+	      <textarea id="adminReplyContent" class="form-control" rows="5" maxlength="1000" placeholder="답변 내용을 입력하세요 (1000자 이내)"></textarea>
 	
 	      <div class="mt-2 text-right">
 	        <button type="button" class="btn btn-sm btn-outline-secondary mr-2" data-action="closeReplyEditor">취소</button>
