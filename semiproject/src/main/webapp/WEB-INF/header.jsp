@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <title>쇼핑몰 메인임시</title>
+    <title>휴대폰 쇼핑몰</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -84,7 +84,11 @@
                         <i class="fa-solid fa-headset"></i> 고객센터
                     </a>
                 </li>
-                
+                <li class="nav-item">
+                    <a class="nav-link" href="<%=ctxPath%>/map/mapView.hp">
+                        <i class="fa-regular fa-map"></i> 매장 위치
+                    </a>
+                </li>
                 
                 <!------------ 임시 상품등록 페이지 ------------>
                 <%-- <li class="nav-item">

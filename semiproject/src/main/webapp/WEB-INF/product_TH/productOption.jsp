@@ -106,72 +106,72 @@
                             </div>
                         
 
-                        <!-- 수량 조절 및 가격 -->
-                        <div class="quantity-section" id="quantitySection">
-                            <div class="quantity-control">
-                                <label>수량</label>
-                                <div class="quantity-input-group">
-                                    <button class="quantity-btn" id="decreaseBtn">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <!-- 스크립트 단에서 수량 증가/감소된 값이 올라옴! -->
-                                    <input type="number" class="quantity-input" id="quantity" value="1" min="1" max="48" readonly>
-                                    <button class="quantity-btn" id="increaseBtn">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
+	                        <!-- 수량 조절 및 가격 -->
+	                        <div class="quantity-section" id="quantitySection">
+	                            <div class="quantity-control">
+	                                <label>수량</label>
+	                                <div class="quantity-input-group">
+	                                    <button class="quantity-btn" id="decreaseBtn">
+	                                        <i class="fas fa-minus"></i>
+	                                    </button>
+	                                    <!-- 스크립트 단에서 수량 증가/감소된 값이 올라옴! -->
+	                                    <input type="number" class="quantity-input" id="quantity" value="1" min="1" max="48" readonly>
+	                                    <button class="quantity-btn" id="increaseBtn">
+	                                        <i class="fas fa-plus"></i>
+	                                    </button>
+	                                </div>
+	                            </div>
+	
+	                            <div class="total-price-section">
+	                                <span class="total-label">총 상품 금액</span>
+	                                <span class="total-price" id="totalPrice">
+	                                		<fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>&nbsp;원
+	                                </span>
+	                            </div>
+	                        </div>
 
-                            <div class="total-price-section">
-                                <span class="total-label">총 상품 금액</span>
-                                <span class="total-price" id="totalPrice">
-                                		<fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>&nbsp;원
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- 구매 버튼 영역 -->
-                        <div class="login-required-overlay" id="purchaseArea">
-                            <div class="action-buttons">
-                                <button class="btn btn-cart" id="cartBtn">
-                                    <i class="fas fa-shopping-cart mr-2"></i>장바구니
-                                </button>
-                                <button class="btn btn-purchase" id="purchaseBtn">
-                                    <i class="fas fa-credit-card mr-2"></i>구매하기
-                                </button>
-                            </div>
-
-                            <!-- 로그인 필요 메시지 -->
-                            <div class="login-required-message" id="loginRequiredMsg">
-                                <i class="fas fa-lock"></i>
-                                <p>로그인이 필요한 서비스입니다</p>
-                            </div>
-                        </div>
-
-                        <!-- 리뷰 보기 버튼 -->
-                        <a class="btn btn-review"
-						   href="<%=ctxPath%>/review/reviewList.hp?productCode=${proOptionDto.fkProductCode}">
-						  <i class="fas fa-star mr-2"></i>구매 리뷰 보기
-						</a>
+	                        <!-- 구매 버튼 영역 -->
+	                        <div class="login-required-overlay" id="purchaseArea">
+	                            <div class="action-buttons">
+	                                <button class="btn btn-cart" id="cartBtn">
+	                                    <i class="fas fa-shopping-cart mr-2"></i>장바구니
+	                                </button>
+	                                <button class="btn btn-purchase" id="purchaseBtn">
+	                                    <i class="fas fa-credit-card mr-2"></i>구매하기
+	                                </button>
+	                            </div>
+	
+	                            <!-- 로그인 필요 메시지 -->
+	                            <div class="login-required-message" id="loginRequiredMsg">
+	                                <i class="fas fa-lock"></i>
+	                                <p>로그인이 필요한 서비스입니다</p>
+	                            </div>
+	                        </div>
+	
+	                        <!-- 리뷰 보기 버튼 -->
+	                        <a class="btn btn-review"
+							   href="<%=ctxPath%>/review/reviewList.hp?productCode=${proOptionDto.fkProductCode}">
+							  <i class="fas fa-star mr-2"></i>구매 리뷰 보기
+							</a>
                         
-                    </div>
-                </div>
-            </div>
-
-            <!-- 상품 설명 -->
-            <div class="row mt-5">
-                <div class="col-12">
-                    <h4 class="mb-4"><i class="fas fa-info-circle mr-2"></i>상품 설명</h4>
-                    <div class="product-description">
-                    	<p>${proDto.productDesc}</p>
-                    </div>
-                </div>
-            </div>
+	                    </div>
+	                </div>
+	            </div>
+	
+	            <!-- 상품 설명 -->
+	            <div class="row mt-5">
+	                <div class="col-12">
+	                    <h4 class="mb-4"><i class="fas fa-info-circle mr-2"></i>상품 설명</h4>
+	                    <div class="product-description">
+	                    	<p>${proDto.productDesc}</p>
+	                    </div>
+	                </div>
+	            </div>
             
-        </div>
-    </div>
+	        </div>
+	    </div>
+	</div>
 </div>
-
 
 <script>
 	//java단에서 받아온 데이터를 JS 파일로 넘겨주기
