@@ -190,7 +190,7 @@
 	            </div>
 	
 	            <!-- 상품 설명 -->
-	            <div class="row mt-5 desc-row">
+	            <div class="row desc-row">
 	                <div class="col-12">
 	                    <h4 class="mb-4"><i class="fas fa-info-circle mr-2"></i>상품 설명</h4>
 	                    <div class="product-description">
