@@ -1,10 +1,11 @@
 $(document).ready(function() {
     let isDuplicateCheckCode = false; //상품코드 중복체크
     let isDuplicateCheckName = false; //상품명 중복체크
-    let uploadedFile = null;		  //이미지 경로
-    let isImageFileANDPath = false;	  //이미지파일, 이미지경로 올렸는지 검사
     let isSendData = false;			  //중복된 상품코드와 새로운 상품코드를 구분하는 값
     let productCode = ""; //상품코드
+	
+    //let uploadedFile = null;		  //이미지 경로
+    //let isImageFileANDPath = false;	  //이미지파일, 이미지경로 올렸는지 검사
 	
 	let isDefaultOptionCreated = false; //기본금 입력에 따른 기본옵션
 	
@@ -15,6 +16,8 @@ $(document).ready(function() {
 
 	// 초기 상태 => 옵션 추가에 대한 버튼을 비활성화 해두기
 	$('#addOptionMatrix').prop('disabled', true);
+	//이미지도 비활성화 해두기
+	lockImageUpload('상품 코드/상품명 중복 확인 후 이미지 등록이 가능합니다.');
 
 	// 기본금 입력 완료 시 1회만
 	$('#basePrice').on('blur', function () {
@@ -41,9 +44,6 @@ $(document).ready(function() {
         $('#checkDuplicateNameBtn').prop('disabled', true);
         $('#basePrice').val("").prop('readonly', true);
         $("#description").val("").prop('readonly', true);
-        $('#imageFile').prop('disabled', true);
-        $('#imagePath').prop('disabled', true);
-        $('#removeImageBtn').prop('disabled', true);
         $('#dropZone').css({ 'pointer-events': 'none', 'opacity': '0.4' });
     }
 	
@@ -54,15 +54,38 @@ $(document).ready(function() {
         $('#checkDuplicateNameBtn').prop('disabled', false);
         $('#basePrice').val("").prop('readonly', false);
         $("#description").val("").prop('readonly', false);
-        $('#imageFile').prop('disabled', false);
-        $('#imagePath').prop('disabled', false);
-        $('#removeImageBtn').prop('disabled', false);
         $('#dropZone').css({ 'pointer-events': 'auto', 'opacity': '1' });
     }
 
+	
+	//이미지 등록 잠금함수
+	function lockImageUpload(message) {
+	  $('#imageUploadSection').addClass('image-upload-locked');
+
+	  // 안내 문구(없으면 생성)
+	  if ($('#imageLockHint').length === 0) {
+	    $('#imageUploadSection').append(
+	      `<div class="image-lock-hint" id="imageLockHint">
+	         ${message || '필수 정보를 먼저 입력/확인한 뒤 이미지 등록이 가능합니다.'}
+	       </div>`
+	    );
+	  } else {
+	    $('#imageLockHint').text(message || '필수 정보를 먼저 입력/확인한 뒤 이미지 등록이 가능합니다.');
+	  }
+	}
+	//잠금된 이미지 해제
+	function unlockImageUpload() {
+	  $('#imageUploadSection').removeClass('image-upload-locked');
+	  $('#imageLockHint').remove();
+	}
+	
+	
+	
+	
 	//상품코드 입력 시 모두 초기화
     $('#productCode').on('input', function() {
 		disableTag();
+		lockImageUpload();
         isDuplicateCheckCode = false; //상품코드 중복체크 거짓
         isDuplicateCheckName = false; //상품명 중복체크 거짓
 		isDefaultOptionCreated = false;
@@ -142,6 +165,8 @@ $(document).ready(function() {
             isImageFileANDPath = true;	 //이미지등록,경로 참값
             isSendData = true; //중복됐을 때의 ajax 보내기 구분
 			
+			
+			
 			$('#addOptionMatrix').prop('disabled', false);
 		    addDefault256OptionIfNeeded();
             
@@ -158,6 +183,7 @@ $(document).ready(function() {
 			
 			//새로운 상품코드이므로 비활성화 항목들 모두 활성화해주기
             enableTag();
+			unlockImageUpload(); //잠금된 이미지들 풀어주기
 			
         }
         resultDiv.fadeIn();
@@ -233,11 +259,11 @@ $(document).ready(function() {
 	//기본금액 유효성 검사
     $('#basePrice').on('input', function() {
         let value = $(this).val();
-        value = value.replace(/[^0-9]/g, '');
+		value = value.replace(/[^0-9]/g, '');
+		value = value.replace(/^0+/, '');
         $(this).val(value);
     });
 
-	
 	
 //========================== 옵션 매트릭스 ==========================//
 	//기본용량 256GB에 대한 함수
@@ -288,7 +314,6 @@ $(document).ready(function() {
 		
 		isDefaultOptionCreated = true; 
 	}
-
 
 
 	//중복 옵션 확인 함수
@@ -449,72 +474,150 @@ $(document).ready(function() {
         });
     }
 
-//================== 이미지 처리 ==================//	
-	//드래그 앤 드롭
-	$('#dropZone').click(function() {
-		$('#imageFile').click();
-	});
-    $('#dropZone').on('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).addClass('dragover');
-    });
-    $('#dropZone').on('dragleave', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).removeClass('dragover');
-    });
-    $('#dropZone').on('drop', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).removeClass('dragover');
-		
-        const files = e.originalEvent.dataTransfer.files;
-        if (files.length > 0) handleFile(files[0]);
-    });
-    $('#imageFile').change(function() {
-        if (this.files && this.files[0]) handleFile(this.files[0]);
-    });
+//================== 이미지 처리 ==================//
+//--------------------------------------------------------------------------------------
+	// 각 슬롯의 업로드 파일을 보관 (서버로 보낼 때 사용 가능)
+	const uploadedFiles = {
+		main: null,
+		sub1: null,
+		sub2: null
+	};
 
-    function handleFile(file) {
-        if (file.size > 5 * 1024 * 1024) {
-            alert('파일 크기는 5MB 이하여야 합니다.');
-            return;
-        }
-        if (!file.type.match('image.*')) {
-            alert('이미지 파일만 업로드 가능합니다.');
-            return;
-        }
-        uploadedFile = file;
-		
-		//이미지를 드롭했다면 경로는 수정할 수 없게 막아주기
-        $('#imagePath').prop('disabled', true);
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            $('#previewImg').attr('src', e.target.result);
-            $('#imagePreview').fadeIn();
-            $('#imagePath').val(file.name);
-        }
-        reader.readAsDataURL(file);
-    }
+	function initImageSlot(slotKey, selectors) {
+		const $dropZone = $(selectors.dropZone);
+		const $fileInput = $(selectors.fileInput);
+		const $pathInput = $(selectors.pathInput);
+		const $previewWrap = $(selectors.previewWrap);
+		const $previewImg = $(selectors.previewImg);
+	  	//const $removeBtn = $(selectors.removeBtn);
 
-	//이미지를 삭제하는 버튼
-    $('#removeImageBtn').click(function() {
-        uploadedFile = null;
-        $('#imageFile').val('');
-        $('#imagePath').val('').prop('disabled', false);
-        $('#imagePreview').fadeOut();
-    });
+		// 클릭 → 파일 선택
+		$dropZone.on('click', function () {
+		    $fileInput.click();
+		});
+		// dragover
+		$dropZone.on('dragover', function (e) {
+		    e.preventDefault();
+		    e.stopPropagation();
+		    $dropZone.addClass('dragover');
+		});
+		// dragleave
+		$dropZone.on('dragleave', function (e) {
+		    e.preventDefault();
+		    e.stopPropagation();
+		    $dropZone.removeClass('dragover');
+		});
+		// drop
+		$dropZone.on('drop', function (e) {
+		    e.preventDefault();
+		    e.stopPropagation();
+		$dropZone.removeClass('dragover');
 	
-	//이미지경로 블러처리
-    $('#imagePath').on('blur', function() {
-        const url = $(this).val();
-        if (url && url.startsWith('http')) {
-            $('#previewImg').attr('src', url);
-            $('#imagePreview').fadeIn();
-        }
-    });
+		const files = e.originalEvent.dataTransfer.files;
+		    if (files && files.length > 0) handleFileForSlot(slotKey, files[0]);
+		});
+	
+		// input change
+		$fileInput.on('change', function () {
+		    if (this.files && this.files[0]) handleFileForSlot(slotKey, this.files[0]);
+		});
+	
+		function handleFileForSlot(key, file) {
+		    if (file.size > 5 * 1024 * 1024) {
+		      alert('파일 크기는 5MB 이하여야 합니다.');
+		      return;
+		}
+		if (!file.type.match('image.*')) {
+		      alert('이미지 파일만 업로드 가능합니다.');
+		      return;
+		}
+	
+	    uploadedFiles[key] = file;
+		$pathInput.prop('disabled', true); //파일 업로드 시 URL 입력창 비활성화
+		$pathInput.val(file.name); //파일명 입력
+	
+	    const isSubImage = (key === 'sub1' || key === 'sub2');
+	    const $previewWrap = isSubImage ? $('#imagePreviewSub') : $('#imagePreviewMain');
+	    const $previewImg = isSubImage ? $('#previewImgSub') : $('#previewImgMain');
+	
+	    const reader = new FileReader();
+	    reader.onload = function (ev) {
+		      $previewImg.attr('src', ev.target.result);
+		      $previewWrap.fadeIn();
+		    };
+		    reader.readAsDataURL(file);
+		}
+	
+		//URL 입력 blur → 미리보기
+		$pathInput.on('blur', function () {
+			const url = $pathInput.val().trim();
+		    if (!url || !url.startsWith('http')) return;
+		
+		    uploadedFiles[slotKey] = null;
+		    $fileInput.val('');
+		
+		    const isSubImage = (slotKey === 'sub1' || slotKey === 'sub2');
+		    const $wrap = isSubImage ? $('#imagePreviewSub') : $('#imagePreviewMain');
+		    const $img  = isSubImage ? $('#previewImgSub')    : $('#previewImgMain');
+		
+		    $img.attr('src', url);
+		    $wrap.fadeIn();
+		});
+	}//end of function initImageSlot(slotKey, selectors)-----
 
+	
+	//메인 이미지 삭제 버튼
+	$('#removeImageBtnMain').on('click', function () {
+		uploadedFiles.main = null; // 대표 이미지 파일 제거
+		$('#imageFileMain').val(''); // file input 초기화
+		$('#imagePathMain').val('').prop('disabled', false); // URL 입력값 초기화 + 다시 입력 가능하게
+		
+		// 미리보기 숨김
+		$('#imagePreviewMain').fadeOut();
+		$('#previewImgMain').attr('src', '');
+	});
+
+	//추가 이미지에 대한 삭제 버튼
+	$('#removeImageBtnSub').on('click', function () {
+		uploadedFiles.sub1 = null;
+		uploadedFiles.sub2 = null;
+		
+		$('#imageFileSub1, #imageFileSub2').val('');
+		$('#imagePathSub1, #imagePathSub2').val('').prop('disabled', false);
+		
+		$('#imagePreviewSub').fadeOut();
+		$('#previewImgSub').attr('src', '');
+	});
+	
+	//메인 이미지
+	initImageSlot('main', {
+	    dropZone: '#dropZoneMain',
+	    fileInput: '#imageFileMain',
+	    pathInput: '#imagePathMain',
+	    previewWrap: '#imagePreviewMain',
+	    previewImg: '#previewImgMain',
+	    removeBtn: '#removeImageBtnMain'
+	});
+	//추가 이미지1
+	initImageSlot('sub1', {
+	    dropZone: '#dropZoneSub1',
+	    fileInput: '#imageFileSub1',
+	    pathInput: '#imagePathSub1',
+	    previewWrap: '#imagePreviewSub1',
+	    previewImg: '#previewImgSub1',
+	    removeBtn: '#removeImageBtnSub1'
+	});
+	//추가 이미지2
+	initImageSlot('sub2', {
+	    dropZone: '#dropZoneSub2',
+	    fileInput: '#imageFileSub2',
+	    pathInput: '#imagePathSub2',
+	    previewWrap: '#imagePreviewSub2',
+	    previewImg: '#previewImgSub2',
+	    removeBtn: '#removeImageBtnSub2'
+	});
+//--------------------------------------------------------------------------------------
+	
 	
 	
 // ******** ========== 폼 제출 ========== ******** //
@@ -530,20 +633,25 @@ $(document).ready(function() {
             alert('상품명 중복 확인을 해주세요.');
             return;
         }
-		//이미지 업로드 검사
-        const imagePath = $('#imagePath').val();
-        if (!isImageFileANDPath) {
-            if (!imagePath && !uploadedFile) {
-                alert('이미지를 업로드하거나 URL을 입력해주세요.');
-                return;
-            }
-        }
+		
+		const mainOk = uploadedFiles.main || $('#imagePathMain').val().trim();
+	    const sub1Ok = uploadedFiles.sub1 || $('#imagePathSub1').val().trim();
+	    const sub2Ok = uploadedFiles.sub2 || $('#imagePathSub2').val().trim();
+
+	    if (!mainOk || !sub1Ok || !sub2Ok) {
+	      e.preventDefault();
+	      alert('대표 이미지 1개 + 추가 이미지 2개를 모두 등록해야 합니다.');
+	      return false;
+	    }
+		
 		//상품옵션을 추가했는지 검사
         if ($('.matrix-row').length === 0) {
             alert('옵션을 최소 하나 이상 추가해주세요.');
             return;
         }
 
+		//옵션 매트릭스 검사
+		//하나라도 해당되지 않으면 제출하지 못 하게 막기
         const optionCombinations = [];
         let hasError = false;
 
@@ -591,14 +699,14 @@ $(document).ready(function() {
             brand: $('#brand').val(),
             description: $('#description').val(),
             basePrice: parseInt($('#basePrice').val()),
-            imagePath: imagePath,
+            //imagePath: imagePath,
             salesStatus: '판매중'
         };
 		
 		//상품옵션 테이블 데이터
         const optionData = optionCombinations;
 		
-		//전송할 전체 데이터
+		//새로운 상품일경우 상품데이터 + 옵션데이터
         const registrationData = {
             product: productData,
             options: optionCombinations
@@ -607,29 +715,24 @@ $(document).ready(function() {
 		
 		const formData = new FormData();
 		
-		//이미지 파일
-		const imageFile = $('#imageFile')[0].files[0];
-		if (imageFile) {
-		    formData.append('image', imageFile);
-		}
-		//JSON 데이터 (문자열로)
+		// ✅ 이미지 파일 3개(대표+추가2)
+		if (uploadedFiles.main) formData.append('mainImage', uploadedFiles.main);
+		if (uploadedFiles.sub1) formData.append('subImage1', uploadedFiles.sub1);
+		if (uploadedFiles.sub2) formData.append('subImage2', uploadedFiles.sub2);
+
+		// ✅ JSON 데이터
 		formData.append(
-		    'registrationData',
-		    new Blob(
-		        [JSON.stringify(registrationData)],
-		        { type: 'application/json' }
-		    )
+		  'registrationData',
+		  new Blob([JSON.stringify(registrationData)], { type: 'application/json' })
 		);
 		
-		
-        console.log('=== 상품 등록 데이터 ===');
-        console.log('전체 데이터:', registrationData);
+        //console.log('=== 상품 등록 데이터 ===');
+        //console.log('전체 데이터:', registrationData);
+		//console.log('옵션 데이터:', optionData);
 
 	// ================== AJAX로 서버에 전송 ================== //
 		if(isSendData){
 			//상품코드가 중복됐을 때 ajax로 보내는 값들(옵션만 보내주기)
-			console.log('=== 상품 등록 데이터 ===');
-		    console.log('전체 데이터:', registrationData);
 			
 			$.ajax({
 			    url: 'productRegisterEnd.hp', // 서버 API 주소
@@ -644,10 +747,9 @@ $(document).ready(function() {
 					"productCode": productCode
 				}),
 			    success: function(json) {
-			        console.log('서버 응답:', json);
+			        //console.log('서버 응답:', json);
 			        // 성공 모달 표시
 			        $('#successModal').modal('show');
-			        
 			        $('#successModal').on('hidden.bs.modal', function() {
 			            // 폼 초기화
 			            $('#productForm')[0].reset();
@@ -655,7 +757,7 @@ $(document).ready(function() {
 			            $('#duplicateCheckResult').hide();
 			            $('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택하면 조합이 표시됩니다</p></div>');
 			            $('#imagePreview').hide();
-						console.log(json.message);
+						//console.log(json.message);
 			        });
 			    },
 				error:function(request, status, error){
@@ -665,8 +767,6 @@ $(document).ready(function() {
 			
 		} else {
 			//새로운 상품코드일 경우 ajax로 보내는 값들
-			console.log('=== 상품 등록 데이터 ===');
-		    console.log('전체 데이터:', registrationData);
 			
 			$.ajax({
 			    url: 'productRegisterNewPCodeEnd.hp', // 서버 API 주소
@@ -677,10 +777,9 @@ $(document).ready(function() {
 				processData:false,  // 파일 전송시 설정 
 				contentType:false,  // 파일 전송시 설정
 			    success: function(json) {
-			        console.log('서버 응답:', json);
+			        //console.log('서버 응답:', json);
 			        // 성공 모달 표시
 			        $('#successModal').modal('show');
-			        
 			        $('#successModal').on('hidden.bs.modal', function() {
 			            // 폼 초기화
 			            $('#productForm')[0].reset();
@@ -689,7 +788,7 @@ $(document).ready(function() {
 			            $('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택하면 조합이 표시됩니다</p></div>');
 			            $('#imagePreview').hide();
 						
-						console.log(json.message);
+						//console.log(json.message);
 			        });
 			    },
 				error:function(request, status, error){
@@ -697,7 +796,7 @@ $(document).ready(function() {
 				}
 			});
 		}//end of if~else()-----
-
+		
     });
 // ******** ========== 폼 제출 ========== ******** //
 	

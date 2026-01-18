@@ -83,6 +83,8 @@
 .btn-reset { padding: 12px 40px; font-size: 1.1rem; font-weight: 600; }
 .required-mark { color: #dc3545; font-weight: bold; }
 
+
+
 /* 드래그 & 드롭 영역 */
 .drop-zone {
     border: 3px dashed #dee2e6;
@@ -124,6 +126,71 @@
 }
 .btn-remove-image:hover { background: #c82333; }
 
+
+
+/* 공통 이미지 슬롯 */
+.image-slot {
+  margin-bottom: 30px;
+}
+
+/* =========================
+   대표 이미지 (크게)
+========================= */
+.image-slot-main .drop-zone {
+  min-height: 180px;
+  padding: 40px 20px;
+}
+
+.image-slot-main .drop-zone i {
+  font-size: 48px;
+}
+
+.image-slot-main .drop-zone p {
+  font-size: 16px;
+}
+
+/* =========================
+   추가 이미지 (작게)
+========================= */
+.image-slot-sub-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+/* 모바일 */
+@media (max-width: 768px) {
+  .image-slot-sub-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+.image-slot-sub .drop-zone {
+  min-height: 120px;      /* ⬅ 작게 */
+  padding: 25px 15px;
+}
+
+.image-slot-sub .drop-zone i {
+  font-size: 34px;        /* 아이콘 작게 */
+}
+
+.image-slot-sub .drop-zone p {
+  font-size: 14px;
+}
+
+/* 미리보기 이미지도 작게 */
+.image-slot-sub .image-preview img {
+  max-height: 120px;
+}
+
+/* URL 입력창 살짝 컴팩트 */
+.image-slot-sub input.form-control {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+
+
+
+
+
 /* 중복 체크 결과 표시 */
 .duplicate-result { padding: 10px 15px; border-radius: 6px; font-weight: 600; }
 .duplicate-result.available { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
@@ -132,6 +199,7 @@
 /* 테두리 버튼 */
 .btn-outline-primary { font-weight: 600; }
 .btn-outline-primary:hover { background: #667eea; color: white; }
+
 
 
 
@@ -251,6 +319,23 @@
 .delete-option-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+
+
+/* 이미지 업로드 잠금 상태 */
+.image-upload-locked {
+  pointer-events: none;   /* ✅ 내부 클릭/드래그 전부 차단 */
+  opacity: 0.45;          /* ✅ 회색 처리 */
+  filter: grayscale(0.2);
+  user-select: none;
+}
+
+/* 잠금 안내 문구(선택) */
+.image-lock-hint {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #6c757d;
 }
 
 

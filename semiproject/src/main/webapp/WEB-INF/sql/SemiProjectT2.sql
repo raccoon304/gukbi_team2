@@ -2746,3 +2746,137 @@ where delivery_status = 2;
 
 
 commit;
+
+
+
+
+select  product_name
+from tbl_product
+order by product_name;
+
+select  product_code, image_path
+from tbl_product;
+
+
+
+CREATE TABLE tbl_product_image (
+    image_id     NUMBER        NOT NULL,
+    product_code VARCHAR2(50)  NOT NULL,
+    image_path   VARCHAR2(300) NOT NULL
+);
+-- Table TBL_PRODUCT_IMAGE이(가) 생성되었습니다.
+
+ALTER TABLE tbl_product_image
+RENAME COLUMN product_code TO fk_product_code_image;
+ALTER TABLE tbl_product_image
+RENAME COLUMN image_path TO plus_image_path;
+commit;
+
+-- PRIMARY KEY 추가
+ALTER TABLE tbl_product_image ADD CONSTRAINT pk_product_image PRIMARY KEY (image_id);
+
+-- FOREIGN KEY 추가 (상품 테이블과 연결)
+ALTER TABLE tbl_product_image ADD CONSTRAINT fk_product_image_product FOREIGN KEY (fk_product_code_image)
+REFERENCES tbl_product(product_code) ON DELETE CASCADE;
+commit;
+
+select * from tbl_product
+where product_code = '2352SQ';
+select * from tbl_product_image;
+
+
+CREATE SEQUENCE seq_product_image
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+-- Sequence SEQ_PRODUCT_IMAGE이(가) 생성되었습니다.
+
+commit;
+
+select product_code, product_name
+from tbl_product
+where product_code = '1200AP';
+
+INSERT INTO tbl_product_image(image_id, product_code, image_path)
+VALUES (1, '1200AP', 'iphone171.png');
+
+INSERT INTO tbl_product_image(image_id, product_code, image_path)
+VALUES(2, '1200AP', 'iphone172.png');
+
+update tbl_product_image set image_id = 60
+where image_id = 2;
+commit;
+
+select * from tbl_product_image;
+
+
+select product_code, product_name, plus_image_path
+from tbl_product P
+join tbl_product_image I
+on P.product_code = I.fk_product_code_image;
+
+select * from tbl_product
+where brand_name = 'Samsung'
+order by product_name;
+
+
+update tbl_product set product_desc = 'asdkmlaslkdmaiop ;laksdm sadklm asnedj sakldjna eunsakn r ls waslkd miasd dfeioda mlksad  slkadm e maslk dmase malskdm '
+where product_code = '1234IN';
+commit;
+
+select product_code, product_name, image_path
+from tbl_product
+where product_code like '%GX'
+order by product_name;
+
+update tbl_product set image_path = 'Main_galaxy_z_fold5.jpg'
+where product_code = '3000GX';
+update tbl_product set image_path = 'Main_galaxy_s23_ultra.jpg'
+where product_code = '3200GX';
+update tbl_product set image_path = 'Main_galaxy_s24_ultra.jpg'
+where product_code = '2200GX';
+update tbl_product set image_path = 'Main_galaxy_s25_ultra.jpg'
+where product_code = '1200GX';
+update tbl_product set image_path = 'Main_galaxy_z_flip5.jpg'
+where product_code = '3100GX';
+update tbl_product set image_path = 'Main_galaxy_z_flip6.jpg'
+where product_code = '2100GX';
+update tbl_product set image_path = 'Main_galaxy_z_flip7.jpg'
+where product_code = '1100GX';
+
+select * from tbl_product;
+
+delete tbl_product
+where product_code = '1234SD';
+
+commit;
+
+
+SELECT constraint_name
+FROM user_constraints
+WHERE table_name = 'TBL_PRODUCT_OPTION' AND constraint_type = 'R';
+
+ALTER TABLE TBL_PRODUCT_OPTION
+DROP CONSTRAINT FK_TBL_PRODUCT_OPTION_FK_PRODUCT_CODE;
+
+ALTER TABLE TBL_PRODUCT_OPTION
+ADD CONSTRAINT FK_TBL_PRODOPT_PROD_CODE
+FOREIGN KEY (fk_PRODUCT_CODE)
+REFERENCES TBL_PRODUCT (PRODUCT_CODE)
+ON DELETE CASCADE;
+
+commit;
+
+select product_name, price
+from tbl_product
+order by price desc;
+
+
+
+select * from tbl_product_image;
+
+select product_code,product_name,image_path, image_id, plus_image_path
+from tbl_product P
+join tbl_product_image I
+on P.product_code = I.fk_product_code_image;

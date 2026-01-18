@@ -55,6 +55,32 @@ $(document).ready(function () {
       updateColorOptionsByStorage(defaultStorage);
    }
    
+   
+   
+   /* =======================
+      🔹 썸네일 클릭 → 메인 이미지 변경
+   ======================= */
+
+   function setMainImage(fullSrc, $thumb){
+     if(!fullSrc) return;
+
+     $('#productImage').attr('src', fullSrc);
+
+     // active 표시
+     if($thumb && $thumb.length){
+       $('.thumb-img').removeClass('active');
+       $thumb.addClass('active');
+     }
+   }
+
+   $(document).on('click', '.thumb-img', function(){
+     const fullSrc = $(this).data('full') || $(this).attr('src');
+     setMainImage(fullSrc, $(this));
+   });
+   
+   
+   
+   
     /* =======================
        🔹 공통 함수
     ======================= */

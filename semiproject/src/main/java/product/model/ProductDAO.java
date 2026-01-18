@@ -44,12 +44,18 @@ public interface ProductDAO {
 	//선택한 옵션(용량, 색상)이 중복옵션인지, 새 옵션인지 알아와서 update/insert 해주기
 	int selectInsertOrUpdateOption(Map<String, String> paraMap) throws SQLException;
 
-	//새로운 상품을 테이블에 삽입해주기
+	//새로운 상품을 테이블에 삽입해주기(추가 이미지는 트랙잭션 처리하여 같이 넣기)
 	int insertProduct(ProductDTO proDto) throws SQLException;
 	//새로운 상품에 대한 옵션들 삽입해주기
 	int selectInsertOption(Map<String, String> paraMap) throws SQLException;
+	
+	//추가 이미지를 테이블에 삽입해주기
+	int insertProductImages(String productCode, String subImage) throws SQLException;
 
 	//제품 코드에 따른 옵션들 모두 가져오기
 	List<ProductOptionDTO> selectAllOption(String productCode) throws SQLException;
+
+	//제품의 추가 이미지 가져오기
+	List<String> selectPlusImage(String productCode) throws SQLException;
 
 }

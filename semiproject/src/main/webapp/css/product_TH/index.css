@@ -1,100 +1,134 @@
 @charset "UTF-8";
 
+/* =========================
+   Navbar (Apple-like, but SOLID)
+   - 반투명/블러 제거
+   - 점선(포커스 아웃라인) 제거
+   ========================= */
+
+/* fixed-top 쓰면 본문 덮이니까 */
 body {
     font-family: 'Noto Sans KR', sans-serif;
-    background: #f8f9fa;
+    padding-top: 90px; /* 네비 높이에 맞게 조절 */
 }
 
-/* 네비게이션 */
+/* 네비게이션 바 */
 .navbar-custom {
-    /* border: solid 2px red; */
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    padding: 15px 0;
+    background: #ffffff;                      /* ✅ 반투명 제거 */
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);  /* 은은한 그림자 */
+    padding: 10px 0;
+    
+   	/* border: solid 2px red; */
 }
-.navbar-brand {
-    /* border: solid 2px blue; */
-    font-size: 1.8rem;
-    font-weight: 700;
+
+
+
+/* 브랜드(로고) - 기존 그라데이션 텍스트 유지 */
+.navbar-custom .navbar-brand {
+    font-size: 1.6rem;
+    font-weight: 800;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
-.navbar-nav .nav-link {
-    /* border: solid 2px green; */
-    font-weight: 500;
-    color: #495057;
-    padding: 8px 10px;
-    margin: 0 5px;
-    transition: all 0.3s;
-    border-radius: 8px;
-}
-.navbar-nav .nav-link:hover {
-    background: #f0f4ff;
-    color: #667eea;
-}
-.navbar-nav .nav-link i {
-    margin-right: 5px;
-}
-.btn-login, .btn-signup {
-    padding: 8px 20px;
+
+/* 메뉴 링크 */
+.navbar-custom .navbar-nav .nav-link {
     font-weight: 600;
-    border-radius: 8px;
+    color: rgba(0,0,0,0.78);
+    padding: 10px 12px;
+    margin: 0 4px;
+    border-radius: 10px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+/* hover만 살짝 */
+.navbar-custom .navbar-nav .nav-link:hover {
+    background: rgba(0,0,0,0.05);
+    transform: translateY(-1px);
+    color: rgba(0,0,0,0.85);
+}
+
+/* ✅ "점선/색 바뀜" 원인 제거: focus/active outline 제거 */
+.navbar-custom .navbar-nav .nav-link:focus,
+.navbar-custom .navbar-nav .nav-link:active,
+.navbar-custom .navbar-toggler:focus,
+.navbar-custom .btn-login:focus,
+.navbar-custom .btn-signup:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 로그인/회원가입 버튼 */
+.btn-login, .btn-signup {
+    padding: 8px 18px;
+    font-weight: 700;
+    border-radius: 12px;
     margin-left: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
+
 .btn-login {
-    border: 2px solid #667eea;
-    color: #667eea;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: #ffffff;
+    color: rgba(0,0,0,0.78);
 }
+
 .btn-login:hover {
-    background: #667eea;
-    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
 }
+
 .btn-signup {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
-    color: white;
+    color: #ffffff;
 }
+
 .btn-signup:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(102, 126, 234, 0.25);
 }
-/* 반응형 네비게이션 */
-.navbar-toggler {
-    border: 2px solid #667eea;
+
+/* 토글 버튼(모바일) */
+.navbar-custom .navbar-toggler {
+    border: 1px solid rgba(0,0,0,0.16);
+    border-radius: 12px;
     padding: 8px 12px;
 }
-.navbar-toggler-icon {
-    /* background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); */
-}
+
+/* 모바일에서 메뉴 펼쳤을 때 */
 @media (max-width: 991px) {
+    body { padding-top: 96px; }
+
+    .navbar-custom .container {
+        border-radius: 18px;      /* 모바일은 캡슐보다 카드형이 보기 좋음 */
+        height: auto;
+        padding: 10px 14px;
+    }
+
     .navbar-collapse {
-        background: white;
-        margin-top: 15px;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        background: #ffffff;      /* ✅ 반투명 제거 */
+        margin-top: 12px;
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 12px 26px rgba(0,0,0,0.08);
     }
-    .navbar-nav {
-        margin-bottom: 15px;
-    }
+
     .navbar-nav .nav-link {
-        padding: 12px 15px;
-        margin: 5px 0;
-        border-left: 3px solid transparent;
+        padding: 12px 14px;
+        margin: 6px 0;
     }
-    .navbar-nav .nav-link:hover {
-        border-left-color: #667eea;
-    }
+
     .btn-login, .btn-signup {
         width: 100%;
         margin: 8px 0;
     }
-    .navbar-brand {
-        font-size: 1.5rem;
-    }
 }
+
 
 
 
@@ -274,6 +308,7 @@ body {
     font-weight: 600;
     font-size: 0.95rem;
 }
+
 
 /* 푸터 */
 .footer {
