@@ -47,7 +47,7 @@ $(function () {
 
   // 페이지 로드시(또는 탭 전환으로 영역 표시시) 타이머 시작
   function tryStartPwdTimerIfNeeded() {
-    const st = String(PWD_STATUS || "").toUpperCase();
+    const st = String(window.PWD_STATUS || "").toUpperCase();
     if (!(st === "MAIL_SENT" || st === "SMS_SENT")) return;
 
     const expireAtMs = Number(window.PWD_EXPIRE_AT_MS);
@@ -70,7 +70,7 @@ $(function () {
     $idFindForm.addClass('hidden');
 
     // 서버에서 POST 후 돌아온 경우 결과 영역 보여주기
-    const posted = (PWD_POSTED === true || String(PWD_POSTED).toLowerCase() === "true");
+	const posted = (window.PWD_POSTED === true || String(window.PWD_POSTED).toLowerCase() === "true");
     if (posted) {
       $('#pwdFindResultArea').removeClass('hidden');
       if (window.feather) feather.replace();
@@ -121,14 +121,14 @@ $(function () {
 
   // ===== 서버에서 내려준 pwdFindType(선택값) 유지 =====
   // PwdFind에서 request.setAttribute("pwdFindType", "phone/email") 내려줌
-  const serverPwdType = String(PWD_FIND_TYPE || "").toLowerCase();
+  const serverPwdType = String(window.PWD_FIND_TYPE || "").toLowerCase();
   if (serverPwdType === "phone" || serverPwdType === "email") {
     $('input[name="pwdFindType"][value="' + serverPwdType + '"]').prop('checked', true);
     $('input[name="pwdFindType"]').trigger('change');
   }
 
   // 서버에서 activeTab=pwd 로 내려오면 비밀번호 탭 유지
-  if (String(ACTIVE_TAB).toLowerCase() === "pwd") {
+  if (String(window.ACTIVE_TAB).toLowerCase() === "pwd") {
     $tabPwdFind.trigger('click');
   } else {
     tryStartPwdTimerIfNeeded();
