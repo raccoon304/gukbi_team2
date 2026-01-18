@@ -19,14 +19,16 @@ $(function () {
     const IMP = window.IMP;
     IMP.init("imp11367665");
 
-    const userid = "${userid}";
     const userName = "${sessionScope.loginUser.name}";
+    const productName = "${param.productName}" || "상품";
     const finalPrice = Number("${finalPrice}") || 0;
+    const buyerEmail = "${sessionScope.loginUser.email}";
     
     let isPaymentCompleted = false; // 결제 완료 플래그
 
     console.log("=== 결제 시작 ===");
-    console.log("userid:", userid);
+    console.log("userName:", userName);
+//  console.log("userid:", userid);
     console.log("userName:", userName);
     console.log("finalPrice:", finalPrice);
     console.log("readyOrderId:", "${sessionScope.readyOrderId}");
@@ -88,27 +90,28 @@ $(function () {
         pg: "html5_inicis",
         pay_method: "card",
         merchant_uid: merchantUid,
-        name: "ShopMall 상품 결제",
+        name: productName,
         amount: 100,
-        buyer_name: userName
+        buyer_name: userName,
+        buyer_email: buyerEmail
     }, function (rsp) {
 
-        console.log("=== 결제 콜백 시작 ===");
-        console.log("rsp.success:", rsp.success);
-        console.log("rsp.imp_uid:", rsp.imp_uid);
-        console.log("rsp.merchant_uid:", rsp.merchant_uid);
+    //    console.log("=== 결제 콜백 시작 ===");
+    //   console.log("rsp.success:", rsp.success);
+    //   console.log("rsp.imp_uid:", rsp.imp_uid);
+    //    console.log("rsp.merchant_uid:", rsp.merchant_uid);
 
         clearInterval(sessionCheckInterval);
 
         if (rsp.success) {
-            console.log(" 결제 성공");
+    //        console.log(" 결제 성공");
             
             isPaymentCompleted = true; // 플래그 설정
 
             const payForm = opener.document.getElementById("payForm");
 
             if (!payForm) {
-                console.error(" payForm을 찾을 수 없음!");
+    //            console.error(" payForm을 찾을 수 없음!");
                 alert("결제 처리 중 오류가 발생했습니다.");
                 window.close();
                 return;
@@ -144,7 +147,7 @@ $(function () {
             window.close();
 
         } else {
-            console.log(" 결제 실패: " + rsp.error_msg);
+  //          console.log(" 결제 실패: " + rsp.error_msg);
             
             isPaymentCompleted = true; // 플래그 설정
 

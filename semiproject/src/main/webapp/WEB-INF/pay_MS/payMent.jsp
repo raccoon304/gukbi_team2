@@ -112,7 +112,6 @@
         <input type="text" class="form-control info-input" id="recipientName" value="${loginUser.name}">
         <span class="info-label phone-label">전화번호</span>
         <input type="text" class="form-control info-input" id="recipientPhone" value="${loginUser.mobile}">
-        <button type="button" class="btn btn-change-phone" data-toggle="modal" data-target="#memberInfoModal">변경</button>
       </div>
 
       <div class="info-row address-row">
@@ -214,7 +213,9 @@
         <div class="price-row">
           <select id="couponSelect" name="couponSelect" class="form-control">
             <option value="">쿠폰 선택</option>
-
+			<option value="cancel" data-discount="0" style="display: none;
+			">쿠폰 X (0원)</option>
+			
             <c:forEach var="row" items="${couponList}">
               <c:set var="coupon" value="${row.coupon}" />
               <c:set var="issue" value="${row.issue}" />
@@ -274,6 +275,16 @@
 <input type="hidden" name="totalAmount" id="totalAmount" value="${totalPrice}">
 <input type="hidden" name="discountAmount" id="discountAmountHidden" value="0">
 <input type="hidden" name="deliveryAddress" id="deliveryAddress" value="">
+
+<!-- 상품명 정보 추가 -->
+<c:choose>
+  <c:when test="${orderList.size() == 1}">
+    <input type="hidden" id="productName" value="${orderList[0].product_name}" />
+  </c:when>
+  <c:otherwise>
+    <input type="hidden" id="productName" value="${orderList[0].product_name} 외 ${orderList.size() - 1}건" />
+  </c:otherwise>
+</c:choose>
 
 </form>
 
@@ -543,6 +554,7 @@
   const ctxpath = '<%= ctxPath %>';
   const loginUserName = '${loginUser.name}';
   const loginUserMobile = '${loginUser.mobile}';
+  const loginUserEmail = '${loginUser.email}';
   
   // 마이페이지 정보 수정 페이지로 이동
   function goToMemberEdit() {

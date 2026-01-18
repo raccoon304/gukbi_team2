@@ -42,22 +42,34 @@ public class CartDAO_imple implements CartDAO {
         String sql =
               " SELECT "
             + "    c.cart_id, "
-            + "    c.quantity, "
+            + "    CASE "
+            + "        WHEN c.quantity > o.stock_qty THEN o.stock_qty "  // 재고보다 많으면 재고량으로
+            + "        ELSE c.quantity "
+            + "    END AS quantity, "
+            + "    o.stock_qty, "  // 재고량 추가
             + "    c.fk_option_id, "
             + "    p.product_name, "
             + "    p.brand_name, "
             + "    p.price AS base_price, "
             + "    o.plus_price, "
-            + "	   o.color, "	
+            + "    o.color, "	
             + "    (p.price + o.plus_price) AS unit_price, "
             + "    p.image_path, "
-            + "    (p.price + o.plus_price) * c.quantity AS total_price "
+            + "    CASE "
+            + "        WHEN c.quantity > o.stock_qty THEN (p.price + o.plus_price) * o.stock_qty "
+            + "        ELSE (p.price + o.plus_price) * c.quantity "
+            + "    END AS total_price, "
+            + "    CASE "
+            + "        WHEN c.quantity > o.stock_qty THEN 1 "  // 수량이 조정되었는지
+            + "        ELSE 0 "
+            + "    END AS is_adjusted "
             + " FROM tbl_cart c "
             + " LEFT JOIN tbl_product_option o "
             + "    ON c.fk_option_id = o.option_id "
             + " LEFT JOIN tbl_product p "
             + "    ON o.fk_product_code = p.product_code "
             + " WHERE c.fk_member_id = ? "
+            + "   AND o.stock_qty > 0 "  // 재고 0인 상품 제외
             + " ORDER BY c.added_date DESC ";
 
         try {
@@ -71,6 +83,7 @@ public class CartDAO_imple implements CartDAO {
                 Map<String, Object> map = new HashMap<>();
                 map.put("cart_id", rs.getInt("cart_id"));
                 map.put("quantity", rs.getInt("quantity"));
+                map.put("stock_qty", rs.getInt("stock_qty"));  // 재고량 추가
                 map.put("product_name", rs.getString("product_name"));
                 map.put("price", rs.getInt("base_price"));
                 map.put("plus_price", rs.getInt("plus_price"));
@@ -80,6 +93,7 @@ public class CartDAO_imple implements CartDAO {
                 map.put("brand_name", rs.getString("brand_name"));
                 map.put("color", rs.getString("color"));
                 map.put("option_id", rs.getInt("fk_option_id"));
+                map.put("is_adjusted", rs.getInt("is_adjusted"));  // 조정 여부 추가
                 
                 list.add(map);
             }
@@ -105,9 +119,14 @@ public class CartDAO_imple implements CartDAO {
         PreparedStatement pstmt = null;
 
         String sql =
-            " update tbl_cart " +
-            " set quantity = ? " +
-            " where cart_id = ? and fk_member_id = ? ";
+            " UPDATE tbl_cart c " +
+            " SET c.quantity = LEAST(?, ( "  +  // LEAST: 둘 중 작은 값
+            "     SELECT o.stock_qty " +
+            "     FROM tbl_product_option o " +
+            "     WHERE o.option_id = c.fk_option_id " +
+            " )) " +
+            " WHERE c.cart_id = ? " +
+            " AND c.fk_member_id = ? ";
 
         try {
             conn = ds.getConnection();
