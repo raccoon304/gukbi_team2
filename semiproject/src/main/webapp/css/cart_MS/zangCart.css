@@ -120,12 +120,13 @@ h4 {
 .product-name {
     font-size: 13px;          
     font-weight: 500;         
-    line-height: 1.2;        
-    margin-bottom: 4px;
+    line-height: 1.4;        
+    margin-bottom: 6px;
 
     /* 레이아웃 보호 옵션 */
     word-break: keep-all;    
-    white-space: normal;      
+    white-space: normal;  
+    overflow-wrap: break-word;    
 }
 
 /* 수량 조절 */
@@ -314,6 +315,7 @@ td.color .badge-light {
 /* 상품명 td만 왼쪽 정렬 */
 .cart-table td.product-col {
     text-align: left;
+    font-size : 10pt;
 }
 
 /* 상품명 줄깨짐 보호 */

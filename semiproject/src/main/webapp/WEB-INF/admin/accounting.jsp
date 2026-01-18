@@ -19,6 +19,10 @@
     
     <!-- 직접 만든 CSS -->
     <link href="<%=ctxPath%>/css/admin/admin.css" rel="stylesheet" />
+ 
+    <script>
+     const ctxPath = "<%= request.getContextPath() %>";
+    </script> 
     
     <!-- Optional JavaScript -->
 	<script type="text/javascript" src="<%= ctxPath%>/js/jquery-3.7.1.min.js"></script>
@@ -28,15 +32,15 @@
 	<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.css" />
 	<script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
 	
+	<%-- 차트 --%>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	
 	<%-- 직접 만든 JS --%>
     <script src="<%=ctxPath%>/js/admin/accounting.js"></script>
     
-    <%-- 차트 --%>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
  
-<script>
-  const ctxPath = "<%= request.getContextPath() %>";
-</script> 
+
     
     <style>
         body {
@@ -51,6 +55,7 @@
             flex: 1;
             margin-left: 250px;
             padding: 20px;
+            padding-top: 25px;  /* 헤더 높이만큼 밀기 , 헤더 있으면 70px */
         }
         .stat-card {
             background: white;
@@ -195,14 +200,14 @@
 		  z-index: 1000;
 		  border-bottom: 1px solid #eee;
 		}
-		.main-content{
-		  padding-top: 25px;  /* 헤더 높이만큼 밀기 , 헤더 있으면 70px */
-		}
 		
 		/* 차트 높이 */
 		.chart-box{
   		  height: 420px;     /* 테이블 max-height 맞춤 */
-}
+  		  position: relative;
+		}
+		
+	   .section-card .section-title { margin-bottom: 12px; }
         
     </style>
 </head>

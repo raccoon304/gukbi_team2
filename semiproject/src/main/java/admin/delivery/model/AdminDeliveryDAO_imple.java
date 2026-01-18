@@ -264,7 +264,7 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "          o.total_amount, "
                        + "          o.discount_amount, "
                        + "          o.order_status, "
-                       + "          o.total_amount AS pay_amount, "
+                       + "          (NVL(o.total_amount,0) - NVL(o.discount_amount,0)) AS pay_amount, "
                        + "          o.recipient_name, "
                        + "          o.recipient_phone, "
                        + "          o.delivery_status, "
