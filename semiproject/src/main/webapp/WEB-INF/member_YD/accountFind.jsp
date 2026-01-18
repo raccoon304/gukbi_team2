@@ -52,14 +52,14 @@
 
   <!-- 상태값을 받아서 뷰에서 계속 유지할 수 있도록하기 위해 저장 -->
   <script>
-    const ACTIVE_TAB    = "${requestScope.activeTab}";
-    const PWD_POSTED    = "${requestScope.pwd_posted}";
-    const PWD_FIND_TYPE = "${requestScope.pwdFindType}";
-    const PWD_STATUS    = "${requestScope.pwd_status}";
-    const PWD_MOBILE    = "${requestScope.pwd_mobile}";
+    window.ACTIVE_TAB    = "${requestScope.activeTab}";
+    window.PWD_POSTED    = "${requestScope.pwd_posted}";
+    window.PWD_FIND_TYPE = "${requestScope.pwdFindType}";
+    window.PWD_STATUS    = "${requestScope.pwd_status}";
+    window.PWD_MOBILE    = "${requestScope.pwd_mobile}";
 
-    // 비번찾기 인증 만료시각(ms)
-    window.PWD_EXPIRE_AT_MS = Number("${sessionScope.pwdfind_cert_expire}");
+    // 비번찾기 인증 만료시각(ms) - 숫자로 유지
+    window.PWD_EXPIRE_AT_MS = ${empty sessionScope.pwdfind_cert_expire ? 0 : sessionScope.pwdfind_cert_expire};
   </script>
 </head>
 
@@ -163,7 +163,6 @@
           </div>
         </form>
 
-        <!-- ================== 아이디 찾기 결과 영역(같은 페이지에서 보여주기) ================== -->
         <c:if test="${not empty maskedMemberId or not empty errorMsg}">
           <div id="idFindResultArea" class="mt-4">
             <c:if test="${not empty maskedMemberId}">
@@ -196,7 +195,6 @@
           </div>
         </c:if>
 
-        <!-- ================== 비밀번호 찾기 폼 (원본 유지) ================== -->
         <form id="pwdFindForm" class="space-y-6 hidden" method="post" action="<%=ctxPath%>/member/pwdFind.hp">
           <div class="space-y-4">
 
@@ -283,14 +281,57 @@
           </c:if>
         </form>
 
-        <!-- 비밀번호 찾기 결과/인증코드 입력 영역 (원본 유지) -->
-        <div id="pwdFindResultArea" class="mt-4 hidden">
-          <c:if test="${requestScope.pwd_posted eq true}">
-            <!-- (원본 그대로 생략 없이 붙여넣기 원하면 여기 통째로 유지하면 됨) -->
-          </c:if>
-        </div>
 
-      </div>
+
+
+        <!-- 비밀번호 찾기 결과/인증코드 입력 영역 -->
+        <!-- 기존 전역변수로 커버하던걸 유효성 검사 바꾸면서 수정함. -->
+		<div id="pwdFindResultArea" class="mt-4 hidden">
+  			<c:if test="${requestScope.pwd_posted eq true}">
+    			<c:choose>
+      				<c:when test="${requestScope.pwd_status eq 'MAIL_SENT' or requestScope.pwd_status eq 'SMS_SENT'}">
+        				<div class="result-card warn mb-3">
+          					<div class="flex items-start gap-3">
+            					<div class="mt-1"><i data-feather="clock" class="text-yellow-600"></i></div>
+           						<div class="w-full">
+			                    	<div class="text-sm font-semibold text-yellow-800 mb-1">인증코드를 입력하세요</div>
+              						<div class="text-sm text-gray-800">
+                						<c:out value="${requestScope.pwd_status eq 'MAIL_SENT' ? '이메일로' : '문자로'}" /> 인증코드를 발송했습니다.
+             						</div>
+           							<div class="text-xs text-gray-600 mt-2">남은 시간: <span id="pwdExpireTimer" class="font-bold">--:--</span></div>
+            					</div>
+          					</div>
+        				</div>
+
+        				<div class="space-y-3">
+          					<input type="text" id="pwd_input_confirmCode" class="w-full border rounded-md py-3 px-3" placeholder="인증코드 입력" autocomplete="one-time-code" inputmode="numeric" />
+          					<button type="button" id="btnPwdVerify"
+                  				class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+            					인증하기
+          					</button>
+        				</div>
+        				<form name="verifyCertificationFrm">
+          					<input type="hidden" name="userCertificationCode" value="" />
+				          	<input type="hidden" name="userid" value="" />
+				          	<input type="hidden" name="channel" value="" />
+        				</form>
+      				</c:when>
+      				<c:otherwise>
+				        <div class="result-card fail mb-3">
+				          	<div class="flex items-start gap-3">
+				           	 	<div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
+			            		<div class="w-full">
+			             			<div class="text-sm font-semibold text-red-800 mb-1">비밀번호 찾기 실패</div>
+			              			<div class="text-sm text-gray-800">
+			                			<c:out value="${empty requestScope.pwd_msg ? '처리 중 오류가 발생했습니다.' : requestScope.pwd_msg}" />
+			              			</div>
+		            			</div>
+			          		</div>
+				        </div>
+      				</c:otherwise>
+    			</c:choose>
+	  		</c:if>
+		</div>
     </div>
   </div>
 </div>
