@@ -41,13 +41,15 @@ public class ProductOption extends AbstractController {
 			//제품 코드에 따른 옵션들 모두 가져오기
 			List<ProductOptionDTO> proOptionList = proDao.selectAllOption(productCode);
 			request.setAttribute("proOptionList", proOptionList);
+
+			//제품의 추가 이미지 가져오기
+			List<String> plusProductImages = proDao.selectPlusImage(productCode);
 			
-				
-			request.setAttribute("proDto", proDto);
-			//request.setAttribute("proOptionList", proOptionList);
-			request.setAttribute("proOptionDto", proOptionDto);
-			
-			request.setAttribute("plusPrice", plusPrice);
+
+			request.setAttribute("proDto", proDto); //상품정보
+			request.setAttribute("proOptionDto", proOptionDto); //상품상세정보
+			request.setAttribute("plusPrice", plusPrice); //제품추가금
+			request.setAttribute("plusProductImages", plusProductImages);
 			//System.out.println(plusPrice);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -8,6 +8,9 @@ import cart.domain.CartDTO;
 import cart.model.CartDAO;
 import cart.model.CartDAO_imple;
 import common.controller.AbstractController;
+import delivery.domain.DeliveryDTO;
+import delivery.model.DeliveryDAO;
+import delivery.model.DeliveryDAO_imple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -35,7 +38,8 @@ public class PayController extends AbstractController {
     }
 
     private CartDAO cartDao = new CartDAO_imple();
-
+    private DeliveryDAO deliveryDao = new DeliveryDAO_imple();
+    
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -47,13 +51,15 @@ public class PayController extends AbstractController {
             response.setContentType("text/html; charset=UTF-8");
             response.getWriter().println(
                 "<script>alert('로그인 후 이용 가능합니다.');"
-              + "location.href='" + request.getContextPath() + "/index.jsp';</script>"
+              + "location.href='" + request.getContextPath() + "/WEB-INF/index.jsp';</script>"
             );
             return;
         }
 
+        String memberId = loginUser.getMemberid();
+        
         OrderDAO odao = new OrderDAO_imple();
-
+        
         /* ================= 파라미터 ================= */
         String cartIdsParam = request.getParameter("cartIds");
 
@@ -83,13 +89,15 @@ public class PayController extends AbstractController {
         List<Map<String, Object>> orderList = new ArrayList<>();
         List<CartDTO> cartList = new ArrayList<>();
 
+        /*
         System.out.println("=== PayController 시작 ===");
         System.out.println("cartIdsParam: " + cartIdsParam);
         System.out.println("payCartIds (세션): " + payCartIds);
         System.out.println("productCode: " + productCode);
         System.out.println("optionIdStr: " + optionIdStr);
         System.out.println("quantityStr: " + quantityStr);
-
+         */
+        
         /* ================= 결제 대상 조회 ================= */
 
         // 1. 세션 payCartIds 사용 (바로구매)
@@ -149,7 +157,7 @@ public class PayController extends AbstractController {
                     cartList.add(cart);
 
                 } catch (NumberFormatException e) {
-                    System.out.println("ERROR: cartId 파싱 실패 - " + e.getMessage());
+      //          System.out.println("ERROR: cartId 파싱 실패 - " + e.getMessage());
                 }
             }
         }
@@ -224,6 +232,30 @@ public class PayController extends AbstractController {
         List<Map<String, Object>> couponList =
                 odao.selectAvailableCoupons(loginUser.getMemberid());
 
+        /* ================= 배송지 목록 조회 추가 ================= */
+        List<DeliveryDTO> deliveryList = deliveryDao.selectDeliveryList(memberId);
+        request.setAttribute("deliveryList", deliveryList);
+        
+        // 기본 배송지 찾기
+        DeliveryDTO defaultDelivery = null;
+        for (DeliveryDTO delivery : deliveryList) {
+            if (delivery.getIsDefault() == 1) {
+                defaultDelivery = delivery;
+                break;
+            }
+        }
+        
+        // 기본 배송지 정보를 결제 페이지에 표시
+        if (defaultDelivery != null) {
+            request.setAttribute("defaultAddress", defaultDelivery.getAddress());
+            request.setAttribute("defaultAddressDetail", defaultDelivery.getAddressDetail());
+            request.setAttribute("defaultPostalCode", defaultDelivery.getPostalCode());
+            request.setAttribute("defaultRecipientName", defaultDelivery.getRecipientName());
+            request.setAttribute("defaultRecipientPhone", defaultDelivery.getRecipientPhone());
+        }
+        
+        
+        
         /* ================= 세션 저장 ================= */
         session.setAttribute("payCartList", cartList);
 

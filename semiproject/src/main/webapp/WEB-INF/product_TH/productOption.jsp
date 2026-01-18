@@ -15,23 +15,55 @@
 
 
 
+<!-- <div class="product-header">
+    <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
+</div> -->
 
-<div class="container" style="margin-top: 5%">
+<!-- 페이지 헤더 -->
+<div class="page-header">
+    <div class="container">
+        <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
+        <p class="mb-0">최신 스마트폰을 만나보세요</p>
+        
+	    <%-- <a href="<%=ctxPath%>/product/TESTproductList.hp" style="font-size: 15pt; font-weight: bold; color: black;">
+			<i class="fa-solid fa-list"></i> 테스트상품페이지 가기
+		</a> --%>
+    </div>
+</div>
 
+<div class="container">
     <div class="product-container mt-4">
-        <div class="product-header">
-            <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
-        </div>
 		
 
         <div class="product-content">
             <div class="row">
                 <!-- 상품 이미지 -->
                 <div class="col-md-5">
-                    <div class="product-image-section">
-                        <img src="<%=ctxPath%>/image/product_TH/${proDto.imagePath}" alt="${proDto.productName}" class="product-image" id="productImage">
-                    </div>
-                </div>
+				  <div class="product-image-section">
+				  
+				  	<div class="product-image-frame">
+					    <img src="<%=ctxPath%>/image/product_TH/${proDto.imagePath}" alt="${proDto.productName}" class="product-image" id="productImage"/>
+				    </div>
+					
+				    <!-- 썸네일은 메인이미지 '바로 아래' 같은 박스 안 plusProductImages-->
+				    <div class="thumbs" id="thumbs">
+				      <img class="thumb-img active"
+				           src="<%=ctxPath%>/image/product_TH/${proDto.imagePath}"
+				           data-full="<%=ctxPath%>/image/product_TH/${proDto.imagePath}" />
+				     
+				      <c:forEach var="plusImage" items="${plusProductImages}">
+					      <img class="thumb-img"
+					           src="<%=ctxPath%>/image/product_TH/${plusImage}"
+					           data-full="<%=ctxPath%>/image/product_TH/${plusImage}" />
+				      </c:forEach>
+				      
+				      <%-- <img class="thumb-img"
+				           src="<%=ctxPath%>/image/product_TH/iphone172.png"
+				           data-full="<%=ctxPath%>/image/product_TH/iphone172.png" /> --%>
+				  	</div> 
+				  </div>
+				</div>
+
 
                 <!-- 상품 정보 -->
                 <div class="col-md-7">
@@ -63,15 +95,18 @@
                                 		<!-- <option value="">용량 선택</option> -->
 								    <c:forEach var="opt" items="${proOptionList}">
 								        <c:if test="${not fn:contains(storageSet, opt.storageSize)}">
-								            <option value="${opt.storageSize}">${opt.storageSize}</option>
+								            <option value="${opt.storageSize}">
+								            ${opt.storageSize}
+								            <c:if test="${opt.plusPrice > 0}">
+								            		<span>&nbsp;+&nbsp;
+									            <fmt:formatNumber value="${opt.plusPrice}" pattern="###,###"/>원</span>
+								            </c:if>
+								            
+								            
+								            </option>
 								            <c:set var="storageSet" value="${storageSet}${opt.storageSize}," />
 								        </c:if>
 								    </c:forEach>
-				                    <%-- <option value="256GB">256GB</option>
-				                    <option value="512GB">
-				                    	512GB&nbsp;&nbsp;+&nbsp;&nbsp;
-				                    	<fmt:formatNumber value="${plusPrice}" pattern="###,###"/>
-				                    </option> --%>
 				                    
 				                </select>
                             </div>
@@ -88,10 +123,6 @@
 								            <c:set var="colorSet" value="${colorSet}${opt.color}," />
 								        </c:if>
 								    </c:forEach>
-				                    <!-- <option value="Black">Black</option>
-				                    <option value="White">White</option>
-				                    <option value="Blue">Blue</option>
-				                    <option value="Red">Red</option> -->
 				                </select>
                             </div>
                             
@@ -159,36 +190,22 @@
 	            </div>
 	
 	            <!-- 상품 설명 -->
-	            <div class="row mt-5">
+	            <div class="row desc-row">
 	                <div class="col-12">
 	                    <h4 class="mb-4"><i class="fas fa-info-circle mr-2"></i>상품 설명</h4>
 	                    <div class="product-description">
-	                    	<p>${proDto.productDesc}</p>
+	                    		<p>${proDto.productDesc}</p>
 	                    </div>
 	                </div>
 	            </div>
             
 	        </div>
+	        
 	    </div>
 	</div>
 </div>
 
 <script>
-	//java단에서 받아온 데이터를 JS 파일로 넘겨주기
-/*     const pageData = {
-        isLoggedIn: "${loginUser.name}" !== "", //사용자가 로그인을 했는지 true/false 값
-        loginUserId: "${loginUser.memberid}",  //장바구니에 보낼 회원아이디
-        productCode: "${proOptionDto.fkProductCode}", //상품코드
-        productOptionId: Number("${proOptionDto.optionId}"), //옵션아이디
-        unitPrice: Number("${proDto.price}"), // 기본금액(상품 초기 설정가격)
-        plusPrice: Number("${plusPrice}"),  //512GB에 따른 추가금액
-        maxStock: Number("${proOptionDto.stockQty}") // 재고 수량(수량을 증가할 때 재고수량은 넘길 수 없음)
-    };
- 	//옵션에 따라 바뀌는 값들
-    let productOptionId = pageData.productOptionId;
-    let plusPrice = pageData.plusPrice;
-    let maxStock = pageData.maxStock; */
-	
     const pageData = { 
     	isLoggedIn: "${loginUser.name}" !== "", 		//사용자가 로그인을 했는지 true/false 값
         loginUserId: "${loginUser.memberid}",  			//장바구니에 보낼 회원아이디
@@ -213,10 +230,7 @@
         </c:forEach>
     ];
    	
-   	
-
     const basePrice = ${proDto.price};
-	
 </script>
 
 <!-- 사용자 정의 JS -->

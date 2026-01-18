@@ -19,12 +19,16 @@ $(function () {
     const IMP = window.IMP;
     IMP.init("imp11367665");
 
-    const userid = "${userid}";
-    const userName = "${sessionScope.loginUser.name}";  // ✅ 로그인한 사용자 이름
+    const userName = "${sessionScope.loginUser.name}";
+    const productName = "${param.productName}" || "상품";
     const finalPrice = Number("${finalPrice}") || 0;
+    const buyerEmail = "${sessionScope.loginUser.email}";
+    
+    let isPaymentCompleted = false; // 결제 완료 플래그
 
     console.log("=== 결제 시작 ===");
-    console.log("userid:", userid);
+    console.log("userName:", userName);
+//  console.log("userid:", userid);
     console.log("userName:", userName);
     console.log("finalPrice:", finalPrice);
     console.log("readyOrderId:", "${sessionScope.readyOrderId}");
@@ -44,6 +48,7 @@ $(function () {
             success: function(data) {
                 if (!data.isLoggedIn) {
                     clearInterval(sessionCheckInterval);
+                    isPaymentCompleted = true;
                     alert('세션이 만료되었습니다.\n결제를 계속하려면 다시 로그인해주세요.');
 
                     if (window.opener && !window.opener.closed) {
@@ -59,8 +64,24 @@ $(function () {
         });
     }, 5000);
 
-    $(window).on('beforeunload', function() {
+    // 브라우저 창 닫기 전 처리
+    window.addEventListener('beforeunload', function(e) {
         clearInterval(sessionCheckInterval);
+        
+        // 결제가 완료되지 않은 상태로 브라우저 창을 닫을 때
+        if (!isPaymentCompleted) {
+            // FAIL 처리 (동기 방식)
+            $.ajax({
+                url: "<%= request.getContextPath() %>/payment/paymentFail.hp",
+                type: "POST",
+                async: false,
+                data: {
+                    orderId: "${sessionScope.readyOrderId}",
+                    pgTid: "",
+                    errorMessage: "사용자가 결제창을 닫음"
+                }
+            });
+        }
     });
 
     const merchantUid = "order_" + new Date().getTime();
@@ -69,45 +90,45 @@ $(function () {
         pg: "html5_inicis",
         pay_method: "card",
         merchant_uid: merchantUid,
-        name: "ShopMall 상품 결제",  // ✅ 상품명
-        amount: 100,  // 테스트용 100원
-        buyer_name: userName  // ✅ 로그인한 사용자 이름
+        name: productName,
+        amount: 100,
+        buyer_name: userName,
+        buyer_email: buyerEmail
     }, function (rsp) {
 
-        console.log("=== 결제 콜백 시작 ===");
-        console.log("rsp.success:", rsp.success);
-        console.log("rsp.imp_uid:", rsp.imp_uid);
-        console.log("rsp.merchant_uid:", rsp.merchant_uid);
+    //    console.log("=== 결제 콜백 시작 ===");
+    //   console.log("rsp.success:", rsp.success);
+    //   console.log("rsp.imp_uid:", rsp.imp_uid);
+    //    console.log("rsp.merchant_uid:", rsp.merchant_uid);
 
         clearInterval(sessionCheckInterval);
 
         if (rsp.success) {
-            console.log(" 결제 성공");
+    //        console.log(" 결제 성공");
+            
+            isPaymentCompleted = true; // 플래그 설정
 
             const payForm = opener.document.getElementById("payForm");
 
             if (!payForm) {
-                console.error("❌ payForm을 찾을 수 없음!");
+    //            console.error(" payForm을 찾을 수 없음!");
                 alert("결제 처리 중 오류가 발생했습니다.");
                 window.close();
                 return;
             }
 
-            //  필수 파라미터: paymentStatus
             const paymentStatus = opener.document.createElement("input");
             paymentStatus.type = "hidden";
             paymentStatus.name = "paymentStatus";
             paymentStatus.value = "success";
             payForm.appendChild(paymentStatus);
 
-            //  필수 파라미터: pgTid (PG 거래번호)
             const pgTid = opener.document.createElement("input");
             pgTid.type = "hidden";
             pgTid.name = "pgTid";
             pgTid.value = rsp.imp_uid;
             payForm.appendChild(pgTid);
 
-            // 결제 검증용 값
             const impUid = opener.document.createElement("input");
             impUid.type = "hidden";
             impUid.name = "imp_uid";
@@ -121,17 +142,15 @@ $(function () {
             payForm.appendChild(merchantUidInput);
 
             console.log(" payForm submit 실행");
-            console.log("  - paymentStatus: success");
-            console.log("  - pgTid:", rsp.imp_uid);
             
             payForm.submit();
-
             window.close();
 
         } else {
-            console.log(" 결제 실패: " + rsp.error_msg);
+  //          console.log(" 결제 실패: " + rsp.error_msg);
+            
+            isPaymentCompleted = true; // 플래그 설정
 
-            // PG 즉시 실패 → 서버에 FAIL 통보
             $.post(
                 "<%= request.getContextPath() %>/payment/paymentFail.hp",
                 {

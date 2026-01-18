@@ -162,6 +162,5 @@
 
 	
     <script src="<%= ctxPath %>/js/cart_MS/zangCart.js"></script>
- 
 </body>
 </html>
