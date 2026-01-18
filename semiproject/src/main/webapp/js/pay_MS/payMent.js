@@ -1,6 +1,27 @@
+
+// (DOMContentLoaded 기다릴 필요 없음)
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('a, button');
+
+  if (!link) return;
+
+  if (window.paymentInProgress) {
+    // 결제 버튼만 예외
+    if (link.id === 'coinPayBtn') return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    alert("결제 진행 중에는 페이지 이동이 불가합니다.");
+  }
+}, true);
+
+// 2. jQuery 준비 완료 후 실행
+
 $(function () {
+  let payClicked = false;
   let couponApplied = false;
-  let paymentInProgress = false;
+  window.paymentInProgress = false;
 
   // 쿠폰 적용 버튼
   $("#applyCouponBtn").on("click", function () {
@@ -76,9 +97,13 @@ $(function () {
   $("#coinPayBtn").on("click", function (e) {
     e.preventDefault();
 
+	if (payClicked) return;
+	 payClicked = true;	 
+	 
     // 쿠폰 적용 확인
     if (!couponApplied && $("#couponSelect").val() && $("#couponSelect").val() !== "cancel") {
       alert("쿠폰 적용 버튼을 눌러주세요.");
+	  payClicked = false;
       return;
     }
 
@@ -86,42 +111,48 @@ $(function () {
     const detailAddress = $("#detailAddress").val();
     const finalPrice = Number($("#finalPrice").val()) || 0;
 
-    if (!address) {
-      alert("주소를 입력하세요.");
-      return;
-    }
-    if (!detailAddress) {
-      alert("상세주소를 입력하세요.");
-      return;
-    }
-
-    if (finalPrice <= 0) {
-      alert("결제 금액 오류");
-      return;
-    }
+	
+	if (!address) {
+	  alert("주소를 입력하세요.");
+	  payClicked = false;
+	  return;
+	}
+	if (!detailAddress) {
+	  alert("상세주소를 입력하세요.");
+	  payClicked = false;
+	  return;
+	}
+	if (finalPrice <= 0) {
+	  alert("결제 금액 오류");
+	  payClicked = false;
+	  return;
+	}
 
     // 서버 필수 값 확정
     $("#deliveryAddress").val(address + " " + detailAddress);
     $("#totalAmount").val(finalPrice);
 
-	// 상품명 가져오기
-	const productName = $("#productName").val() || "상품";
+    // 상품명 가져오기
+    const productName = $("#productName").val() || "상품";
 
-	// 결제 팝업
-	const popup = window.open(
-	  ctxpath + "/payment/coinPaymentPopup.hp?finalPrice=" + encodeURIComponent(finalPrice) + 
-	  "&productName=" + encodeURIComponent(productName),
-	  "paymentPopup",
-	  "width=1000,height=700,scrollbars=yes"
-	);
-
-    // 팝업이 닫힐 때 플래그 해제
-    const checkPopup = setInterval(function() {
-      if (popup.closed) {
-        paymentInProgress = false;
-        clearInterval(checkPopup);
-      }
-    }, 500);
+    // 결제 팝업
+    const popup = window.open(
+      ctxpath + "/payment/coinPaymentPopup.hp?finalPrice=" + encodeURIComponent(finalPrice) + 
+      "&productName=" + encodeURIComponent(productName),
+      "paymentPopup",
+      "width=1000,height=700,scrollbars=yes"
+    );
+    
+	// 팝업 차단 대응
+	  if (!popup) {
+	    alert("팝업 차단을 해제해주세요.");
+	    payClicked = false;
+	    return;
+	  }
+	
+    window.paymentInProgress = true;
+    
+    
   });
 
   // 주소 검색 (다음 API)
@@ -135,14 +166,25 @@ $(function () {
       }
     }).open();
   });
-
-  // 로그아웃 버튼 차단
-  $("#logoutBtn").on("click", function(e) {
-    if (paymentInProgress) {
+  
+  // 페이지 이탈 방지 (브라우저 닫기, 새로고침 등)
+  window.addEventListener('beforeunload', function(e) {
+    if (window.paymentInProgress) {
       e.preventDefault();
-      e.stopPropagation();
-      alert("결제 진행 중에는 로그아웃할 수 없습니다.");
-      return false;
+      e.returnValue = '결제가 진행 중입니다. 페이지를 나가시겠습니까?';
+      return e.returnValue;
     }
   });
+  
+  // 뒤로가기 방지 (history API)
+  if (window.history && window.history.pushState) {
+    window.history.pushState(null, null, window.location.href);
+    
+    window.addEventListener('popstate', function() {
+      if (window.paymentInProgress) {
+        alert('결제 진행 중에는 페이지를 이동할 수 없습니다.');
+        window.history.pushState(null, null, window.location.href);
+      }
+    });
+  }
 });

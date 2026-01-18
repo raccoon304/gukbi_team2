@@ -33,43 +33,28 @@ public class OrderDAO_imple implements OrderDAO {
 
     /* ================= 0. 오래된 READY 주문 FAIL 처리 ================= */
     @Override
-    public int expireReadyOrders(String memberid) {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        int result = 0;
+    public int expireReadyOrders() {
+    	String sql =
+    	        " UPDATE tbl_orders " +
+    	        " SET order_status = 'FAIL', " +
+    	        "     delivery_status = 4 " +
+    	        " WHERE order_status = 'READY' " +
+    	        "   AND order_date < SYSDATE - (10 / 1440) ";
 
-        String sql =
-            " UPDATE tbl_orders " +
-            " SET order_status = 'FAIL', " +
-            "     delivery_status = 4 " +
-            " WHERE order_status = 'READY' " +
-            "   AND fk_member_id = ? " +
-            "   AND order_date < (SYSDATE - INTERVAL '10' MINUTE) ";
+    	    try (
+    	        Connection conn = ds.getConnection();
+    	        PreparedStatement pstmt = conn.prepareStatement(sql)
+    	    ) {
+    	        return pstmt.executeUpdate();
+    	    } catch (SQLException e) {
+    	        e.printStackTrace();
+    	        return 0;
+    	    }
+    	}
 
-        try {
-            conn = ds.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, memberid);
-            result = pstmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-        } finally {
-            try {
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }
-
-    /* ================= 1-1. 트랜잭션: 주문 + 주문상세 + 재고차감 ================= */
+    /* ================= 1-1. 트랜잭션: 주문 + 주문상세 ================= */
     @Override
-    public int insertOrderWithDetailsAndStock(OrderDTO order, List<Map<String, Object>> orderDetails) {
+    public int insertOrderWithDetailsAnd(OrderDTO order, List<Map<String, Object>> orderDetails) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -109,7 +94,7 @@ public class OrderDAO_imple implements OrderDAO {
                 "  delivery_status, order_status, order_date) " +
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE) ";
 
-         // ⭐ 1-1. orderDetails에서 실제 총금액 계산 (이 부분 추가!)
+         //  1-2.1 orderDetails에서 실제 총금액 계산 (이 부분 추가!)
             int calculatedTotalAmount = 0;
             for (Map<String, Object> detail : orderDetails) {
                 int unitPrice = getInt(detail, "unit_price");
@@ -169,31 +154,7 @@ public class OrderDAO_imple implements OrderDAO {
                 pstmt = null;
             }
 
-            // 1-4. 재고 차감
-            String stockSql =
-                " UPDATE tbl_product_option " +
-                " SET stock_qty = stock_qty - ? " +
-                " WHERE option_id = ? AND stock_qty >= ? ";
-
-            pstmt = conn.prepareStatement(stockSql);
-
-            for (Map<String, Object> detail : orderDetails) {
-                int optionId = (Integer) detail.get("option_id");
-                int quantity = (Integer) detail.get("quantity");
-
-                pstmt.setInt(1, quantity);
-                pstmt.setInt(2, optionId);
-                pstmt.setInt(3, quantity);
-                pstmt.addBatch();
-            }
-
-            int[] stockResults = pstmt.executeBatch();
-            for (int r : stockResults) {
-                if (r != 1) {
-                    throw new SQLException("재고 차감 실패 - 재고 부족");
-                }
-            }
-
+           
             conn.commit();  //  커밋
             System.out.println(" 트랜잭션 완료 - orderId: " + orderId);
 
@@ -735,8 +696,43 @@ public class OrderDAO_imple implements OrderDAO {
 
         return 0;
     }
+    
+    // ================= 16. 결제 성공 시 재고 차감 =================
+    @Override
+    public int decreaseStock(int optionId, int quantity) throws SQLException {
 
-    /* ================= 16. 재고 복구 ================= */
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        int result = 0;
+
+        String sql =
+            " UPDATE tbl_product_option " +
+            " SET stock_qty = stock_qty - ? " +
+            " WHERE option_id = ? " +
+            "   AND stock_qty >= ? ";
+
+        try {
+            conn = ds.getConnection();
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setInt(1, quantity);
+            pstmt.setInt(2, optionId);
+            pstmt.setInt(3, quantity);
+
+            result = pstmt.executeUpdate(); // 성공: 1, 실패(재고부족): 0
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // 상위 트랜잭션에서 롤백 처리
+        } finally {
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignore) {}
+            if (conn != null)  try { conn.close(); }  catch (SQLException ignore) {}
+        }
+
+        return result;
+    }
+
+    /* ================= 17. 결제 실패 시 재고 복구 ================= */
     @Override
     public int increaseStock(int optionId, int quantity) throws SQLException {
 
@@ -766,6 +762,8 @@ public class OrderDAO_imple implements OrderDAO {
             return 0;
         }
     }
+
+	
 
 	
 }
