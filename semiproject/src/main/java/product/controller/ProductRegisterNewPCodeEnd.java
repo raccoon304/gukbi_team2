@@ -143,12 +143,11 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
 		// 2024년 12월 기준 전후로 <script 가 들어오면 크롬(엣지)웹브라우저 차원에서
 		// Uncaught SyntaxError: Unexpected token '<' 라는 오류를 발생시켜서 차단을 시켜버리고 있음. 
         String description = product.getString("description");	//상품설명
-        description = description.replaceAll("<", "&lt;");
-        description = description.replaceAll(">", "&gt;");
+        description = description.replace("<", "&lt;").replace(">", "&gt;");
+        description = description.replace("\n", "<br/>");  // 대부분 이거면 됨
+        description = description.replace("\r", "");  // 혹시 남는 \r 제거
         
-		// 입력한 내용에서 엔터는 <br>로 변환하기
-        description = description.replaceAll("\r\n", "<br>");
-        
+        System.out.println("description: " + description);
         
         int basePrice = product.getInt("basePrice");			//기본금(256GB)
         //String imagePath = product.getString("imagePath");		//이미지경로

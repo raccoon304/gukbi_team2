@@ -124,13 +124,19 @@
 }
 
 .product-description {
-	border: solid 2px red;
+	/* border: solid 2px red; */
     padding: 30px;
     background: #f8f9fa;
     border-radius: 12px;
     margin-bottom: 30px;
     line-height: 1.8;
 }
+.desc-row {
+  flex-basis: 100%;
+  max-width: 100%;
+}
+
+
 
 .product-specs {
     margin-bottom: 30px;
