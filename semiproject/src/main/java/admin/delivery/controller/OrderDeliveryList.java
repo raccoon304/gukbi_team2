@@ -54,6 +54,9 @@ public class OrderDeliveryList extends AbstractController {
         String searchType        = request.getParameter("searchType");       // member_id / name / recipient_name
         String searchWord        = request.getParameter("searchWord");
 
+        String excludeFail = request.getParameter("excludeFail");
+        if(excludeFail == null || !"1".equals(excludeFail)) excludeFail = "0";
+        request.setAttribute("excludeFail", excludeFail);
        
         if (deliveryStatus == null || deliveryStatus.trim().isEmpty()) {
             deliveryStatus = "ALL";
@@ -67,6 +70,7 @@ public class OrderDeliveryList extends AbstractController {
                 deliveryStatus = "ALL";
             }
         }
+        
 
         if (sort == null || (!"latest".equals(sort) && !"oldest".equals(sort))) {
             sort = "latest";
@@ -107,6 +111,7 @@ public class OrderDeliveryList extends AbstractController {
         paraMap.put("currentShowPageNo", currentShowPageNo);
         paraMap.put("searchType", searchType);
         paraMap.put("searchWord", searchWord);
+        paraMap.put("excludeFail", excludeFail);
 
 
         // 총페이지수 + 장난방지
@@ -143,7 +148,8 @@ public class OrderDeliveryList extends AbstractController {
                 + "&sort=" + sort
                 + "&sizePerPage=" + sizePerPage
                 + "&searchType=" + searchType
-                + "&searchWord=" + encodedWord;
+                + "&searchWord=" + encodedWord
+                + "&excludeFail=" + excludeFail;
 
         pageBar += "<li class='page-item'><a class='page-link' href='" + baseUrl
                 + "&currentShowPageNo=1'>[처음]</a></li>";

@@ -19,6 +19,8 @@
     
     <!-- 직접 만든 CSS -->
     <link href="<%=ctxPath%>/css/admin/admin.css" rel="stylesheet" />
+    <link href="<%=ctxPath%>/css/admin/accounting.css" rel="stylesheet" />
+    
  
     <script>
      const ctxPath = "<%= request.getContextPath() %>";
@@ -36,217 +38,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	
 	<%-- 직접 만든 JS --%>
+	<script src="<%=ctxPath%>/js/admin/admin_common.js"></script>
     <script src="<%=ctxPath%>/js/admin/accounting.js"></script>
     
     
- 
 
-    
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 20px;
-            padding-top: 25px;  /* 헤더 높이만큼 밀기 , 헤더 있으면 70px */
-        }
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .stat-card .icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 12px;
-        }
-        .stat-card .icon.blue { background: #e3f2fd; color: #2196f3; }
-        .stat-card .icon.purple { background: #f3e5f5; color: #9c27b0; }
-        .stat-card .icon.green { background: #e8f5e9; color: #4caf50; }
-        .stat-card .icon.orange { background: #fff3e0; color: #ff9800; }
-        .stat-card .icon.indigo { background: #e8eaf6; color: #3f51b5; }
-        .stat-card .label {
-            font-size: 13px;
-            color: #757575;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .stat-card .value {
-            font-size: 24px;
-            font-weight: 600;
-            color: #212529;
-        }
-        .section-card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #212529;
-            margin-bottom: 20px;
-        }
-        .table-wrapper {
-            overflow-x: auto;
-            overflow-y: auto;     /* 세로 스크롤 */
-    			max-height: 420px;    /* 원하는 높이로 조절 */
-        }
-        .table {
-            margin-bottom: 0;
-        }
-        .table thead th {
-            border-top: none;
-            border-bottom: 2px solid #e0e0e0;
-            color: #757575;
-            font-weight: 600;
-            font-size: 13px;
-            padding: 12px 16px;
-            
-            position: sticky;
-		    top: 0;
-		    background: white;   /* 헤더가 겹칠 때 배경 필요 */
-		    z-index: 2;
-            
-        }
-        .table tbody td {
-            padding: 16px;
-            vertical-align: middle;
-            border-bottom: 1px solid #f5f5f5;
-            color: #424242;
-        }
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-        .period-select {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 14px;
-            color: #424242;
-            background: white;
-            cursor: pointer;
-        }
-        .sort-select {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 13px;
-            color: #424242;
-            background: white;
-        }
-        .page-header {
-            margin-bottom: 0px;
-        }
-        .page-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #212529;
-            margin-bottom: 8px;
-        }
-        .page-subtitle {
-            font-size: 14px;
-            color: #757575;
-        }
-        /* Custom 5-column grid for Bootstrap 4 */
-        @media (min-width: 768px) {
-            .col-md-2-4 {
-                flex: 0 0 20%;
-                max-width: 20%;
-                position: relative;
-                width: 100%;
-                padding-right: 15px;
-                padding-left: 15px;
-            }
-        }
-        @media (max-width: 767px) {
-            .col-md-2-4 {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-        }
-        
-        
-        .top-header{
-		  position: fixed;
-		  top: 0;
-		  left: 250px;                 /* 사이드바 폭 */
-		  width: calc(100% - 250px);   /* 나머지 폭 */
-		  background: #fff;
-		  padding: 16px 32px;
-		  z-index: 1000;
-		  border-bottom: 1px solid #eee;
-		}
-		
-		/* 차트 높이 */
-		.chart-box{
-  		  height: 420px;     /* 테이블 max-height 맞춤 */
-  		  position: relative;
-		}
-		
-	   .section-card .section-title { margin-bottom: 12px; }
-       
-       /* custom range 에러 메시지*/
-	   .custom-range-error{
-		  margin-top: 8px;
-		  padding: 10px 12px;
-		  border-radius: 10px;
-		  background: #fff5f5;
-		  border: 1px solid #f5c2c7; 
-		  color: #b02a37;
-		  font-size: 12px;
-		  line-height: 1.4;
-		  display: flex;
-		  align-items: flex-start;
-		  gap: 8px;
-		}
-		
-		/* 왼쪽 아이콘(가짜) */
-		.custom-range-error::before{
-		  content: "⚠";
-		  font-size: 13px;
-		  line-height: 1.2;
-		  margin-top: 1px;
-		}
-		
-		/* input 빨간 테두리 */
-		#customRange .is-invalid{
-		  border-color: #dc3545 !important;
-		  box-shadow: 0 0 0 .15rem rgba(220,53,69,.15);
-		}
-       
-        
-    </style>
 </head>
 <body>
     <div class="wrapper">
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
         
         <div class="main-content">
         		<%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
+        		<div class="mobile-topbar d-lg-none">
+				  <button type="button" class="btn btn-light btn-sm" id="btnSidebarToggle">
+				    <i class="fas fa-bars"></i>
+				  </button>
+				  <span class="ml-2 font-weight-bold">관리자</span>
+				</div>
         		
         		<div class="content-wrapper">
 	            <!-- Page Header -->

@@ -9,6 +9,7 @@ $(function () {
     changeMonth: true,
     changeYear: true,
     showButtonPanel: true,
+	maxDate: 0,
     onClose: function () {
       validateDateInput($(this)); // 달력 닫힐 때 검사
     }
@@ -74,7 +75,8 @@ $(function () {
       showRangeError("시작일은 종료일보다 클 수 없습니다.");
       return;
     }
-
+	
+	
     // 통과하면 에러 초기화 후 조회
     $("#customRangeError").hide().text("");
     $sd.removeClass("is-invalid");
@@ -368,6 +370,16 @@ function validateDateInput($input) {
 
   if (!ok) {
     markInvalid($input, "존재하지 않는 날짜입니다.");
+    return false;
+  }
+  
+  // 미래 날짜 입력 금지
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);  // 날짜 비교용(시간 제거)
+
+  dt.setHours(0, 0, 0, 0);     // 입력 날짜도 시간 제거
+  if (dt.getTime() > today.getTime()) {
+    markInvalid($input, "오늘 이후 날짜는 선택할 수 없습니다.");
     return false;
   }
 

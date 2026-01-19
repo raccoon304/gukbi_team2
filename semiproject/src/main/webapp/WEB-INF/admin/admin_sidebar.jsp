@@ -12,7 +12,6 @@
         height: 100vh;
         background: white;
         border-right: 1px solid #e0e0e0;
-        z-index: 1000;
         overflow-y: auto;
     }
     .sidebar-header {
