@@ -1,19 +1,19 @@
 @charset "UTF-8";
 
-body {
-    background: #f8f9fa;
-    padding: 30px 0;
+/* 페이지 헤더 */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px 0 20px 0;
+    margin-bottom: 20px;
 }
-.navbar-custom {
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-}
+
 .login-status {
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
 .product-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -22,72 +22,150 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     overflow: hidden;
 }
+
 .product-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 20px 30px;
 }
+
 .product-content {
     padding: 40px;
 }
+
+/* =========================
+   ✅ 이미지 영역 (정리 + 침범 방지)
+========================= */
 .product-image-section {
     text-align: center;
     padding: 30px;
     background: #f8f9fa;
     border-radius: 12px;
+
+    width: 100%;
+    position: relative;
+    overflow: hidden; /* ✅ 이미지가 col 밖으로 튀는거 방지 */
 }
+
 .product-image {
+    width: 100%;
     max-width: 100%;
     height: auto;
-    border-radius: 8px;
+    display: block;
+
+    border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    object-fit: contain;
+
+    /* ✅ 혹시 기존에 absolute 같은게 걸려있으면 강제 해제 */
+    position: static !important;
+    z-index: 1 !important;
 }
+
+/* =========================
+   ✅ 썸네일 줄
+========================= */
+.thumbs {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+    
+    justify-content: center;  /* 가운데 정렬 */
+    flex-wrap: nowrap;
+
+    position: relative;
+    z-index: 2;
+}
+
+.thumb-img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.85;
+    transition: 0.15s ease;
+}
+
+.thumb-img:hover { 
+    opacity: 1; 
+}
+
+.thumb-img.active {
+    border-color: #667eea;
+    opacity: 1;
+}
+
+/* =========================
+   상품 정보
+========================= */
 .product-info {
     padding: 20px;
 }
+
 .product-title {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 15px;
     color: #212529;
 }
+
 .product-price {
     font-size: 2.5rem;
     font-weight: 700;
     color: #667eea;
     margin-bottom: 20px;
 }
+
 .product-price small {
     font-size: 1.2rem;
     color: #6c757d;
 }
+
 .product-description {
+	/* border: solid 2px red; */
     padding: 30px;
     background: #f8f9fa;
     border-radius: 12px;
     margin-bottom: 30px;
     line-height: 1.8;
 }
+.desc-row {
+  flex-basis: 100%;
+  max-width: 100%;
+}
+
+
+
 .product-specs {
     margin-bottom: 30px;
 }
+
 .spec-item {
     display: flex;
     padding: 15px 0;
     border-bottom: 1px solid #e9ecef;
 }
+
 .spec-item:last-child {
     border-bottom: none;
 }
+
 .spec-label {
     font-weight: 600;
     width: 150px;
     color: #495057;
 }
+
 .spec-value {
     flex: 1;
     color: #212529;
 }
+
+/* =========================
+   수량/총금액
+========================= */
 .quantity-section {
     background: white;
     border: 2px solid #e9ecef;
@@ -95,17 +173,20 @@ body {
     padding: 25px;
     margin-bottom: 20px;
 }
+
 .quantity-control {
     display: flex;
     align-items: center;
     gap: 15px;
     margin-bottom: 20px;
 }
+
 .quantity-control label {
     font-weight: 600;
     margin: 0;
     min-width: 60px;
 }
+
 .quantity-input-group {
     display: flex;
     align-items: center;
@@ -113,6 +194,7 @@ body {
     border-radius: 8px;
     overflow: hidden;
 }
+
 .quantity-btn {
     background: #f8f9fa;
     border: none;
@@ -122,9 +204,11 @@ body {
     transition: all 0.3s;
     color: #495057;
 }
+
 .quantity-btn:hover {
     background: #e9ecef;
 }
+
 .quantity-input {
     border: none;
     width: 80px;
@@ -133,9 +217,11 @@ body {
     font-weight: 600;
     padding: 10px;
 }
+
 .quantity-input:focus {
     outline: none;
 }
+
 .total-price-section {
     display: flex;
     justify-content: space-between;
@@ -143,21 +229,31 @@ body {
     padding-top: 20px;
     border-top: 2px solid #e9ecef;
 }
+
 .total-label {
     font-size: 1.2rem;
     font-weight: 600;
     color: #495057;
 }
+
 .total-price {
     font-size: 2rem;
     font-weight: 700;
     color: #667eea;
 }
+
+/* =========================
+   버튼 영역
+========================= */
 .action-buttons {
     display: flex;
     gap: 15px;
     margin-bottom: 20px;
+
+    position: relative;
+    z-index: 1; /* ✅ 오버레이 아래에 있도록 */
 }
+
 .btn-cart {
     flex: 1;
     padding: 15px;
@@ -168,12 +264,14 @@ body {
     color: #667eea;
     transition: all 0.3s;
 }
+
 .btn-cart:hover {
     background: #667eea;
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
+
 .btn-purchase {
     flex: 1;
     padding: 15px;
@@ -184,10 +282,12 @@ body {
     color: white;
     transition: all 0.3s;
 }
+
 .btn-purchase:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
+
 .btn-review {
     width: 100%;
     padding: 15px;
@@ -198,39 +298,57 @@ body {
     color: white;
     transition: all 0.3s;
 }
+
 .btn-review:hover {
     background: #5a6268;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
+
+/* =========================
+   ✅ 로그인 필요 오버레이 (범위 제한 핵심)
+========================= */
 .login-required-overlay {
     position: relative;
 }
+
+/* ✅ 이 영역 안에서만 오버레이가 덮도록 고정 */
+#purchaseArea {
+    position: relative;
+    overflow: hidden;     /* ✅ 오버레이가 다른 col로 새는거 방지 */
+    border-radius: 12px;  /* ✅ 모서리 일치 */
+}
+
 .login-required-message {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+
     background: rgba(255, 255, 255, 0.95);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     border-radius: 12px;
-    z-index: 10;
+    z-index: 2; /* ✅ action-buttons(1)보다 위 */
 }
+
 .login-required-message i {
     font-size: 3rem;
     color: #667eea;
     margin-bottom: 15px;
 }
+
 .login-required-message p {
     font-size: 1.1rem;
     font-weight: 600;
     color: #495057;
     margin-bottom: 20px;
 }
+
 .btn-login {
     padding: 10px 30px;
     background: #667eea;
@@ -241,25 +359,53 @@ body {
     cursor: pointer;
     transition: all 0.3s;
 }
+
 .btn-login:hover {
     background: #5568d3;
     transform: translateY(-2px);
 }
+
+/* 기타 */
 .badge-stock {
     font-size: 1rem;
     padding: 8px 15px;
 }
+
 .review-summary {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
 }
+
 .star-rating {
     color: #ffc107;
     font-size: 1.5rem;
 }
+
 .disabled-section {
     pointer-events: none;
     opacity: 0.5;
+}
+
+
+
+/* 메인 이미지 프레임(고정 크기) */
+.product-image-frame{
+  width: 100%;
+  height: 420px;          /* 원하는 고정 높이로 조절 */
+  background: #fff;       /* 여백 생길 때 배경 */
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 프레임 안에서 이미지가 맞춰짐 */
+.product-image-frame #productImage{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;     /* 전체가 보이게 */
+  display: block;
 }

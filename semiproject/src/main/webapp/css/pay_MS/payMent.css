@@ -1,339 +1,471 @@
-body {
-  background: #f5f5f5;
-}
-
-/* =========================
-   전체 컨테이너
-========================= */
 .payment-container {
   max-width: 1200px;
-  margin: 60px auto;
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 40px;
 }
 
-/* =========================
-   상단 : 받는분 정보
-========================= */
+/* ================= 상단: 받는분 정보 ================= */
 .payment-top-flex {
-  display: flex;
-  gap: 30px;
-  margin-bottom: 40px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
 .recipient-info {
-  flex: 1;
   width: 100%;
 }
 
-/* 공통 행 */
 .info-row {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  gap: 12px;
 }
 
-/* 라벨 */
+/* 총 상품금액 헤더 고정 스타일 */
+.info-row.header-fixed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 2px solid #e5e5e5;
+  margin-bottom: 20px;
+}
+
+.info-row.header-fixed .info-label {
+  font-weight: 700;
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+
+.info-row.header-fixed .info-text {
+  font-size: 12px;
+  color: #999;
+  margin-left: auto;
+}
+
 .info-label {
-  width: 90px;
   font-weight: 600;
+  color: #333;
+  min-width: 100px;
   font-size: 14px;
-}
-
-/* 값 */
-.info-value {
-  padding: 8px 12px;
-  background: #f1f3f5;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #222;
-}
-
-/* =========================
-   이름 / 전화번호 반반 */
-.two-col {
-  display: flex;
-  gap: 16px;
-}
-
-.two-col .half {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.two-col .info-label {
-  width: 90px;
-}
-
-/* =========================
-   주소 영역
-========================= */
-.address-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.address-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-#address,
-#detailAddress {
-  height: 40px;
-}
-
-#address {
-  flex: 1 1 auto;
-  min-width: 0;           /* flex에서 input이 넘칠 때 깨지는 현상 방지 */
-}
-
-/* 상세주소 */
-.detail-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.detail-row .info-label {
-  width: 120px;
-}
-
-/* 검색 버튼은 오른쪽 고정 */
-#addressSearchBtn {
   flex-shrink: 0;
-  width: 80px;
-  white-space: nowrap;
-  height: 40px;
 }
 
-/* =========================
-   우편번호 / 배송지 선택
-========================= */
-#zipcode {
-  width: 100%;
-  height: 40px;
-  background: #eef1f4;
+.info-value {
+  color: #666;
+  font-size: 14px;
 }
 
-#selectAddressBtn {
-  width: 100%;
-  height: 40px;
-  border: 1px solid #444;
+/* 입력 필드 공통 스타일 */
+.info-row .form-control {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.info-row .form-control:read-only {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.info-row .form-control:not(:read-only) {
+  background-color: #fff;
+}
+
+.info-row .form-control:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* 주소 영역 */
+.info-row.address-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-row.address-row #address {
+  flex: 1;
+}
+
+/* 상세주소 영역 */
+.info-row.detail-address-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-row.detail-address-row .info-label {
+  min-width: 100px;
+}
+
+.info-row.detail-address-row #detailAddress {
+  flex: 1;
+}
+
+/* 우편번호와 배송지 설정 버튼 영역 */
+.info-row.zipcode-button-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-row.zipcode-button-row #zipcode {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.info-row.zipcode-button-row .btn-address-change {
+  flex: 1;
+  max-width: 200px;
+}
+
+/* 검색 버튼 스타일 */
+#addressSearchBtn {
   background: #fff;
-  font-weight: 500;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* =========================
-   본문 : 좌 / 우 레이아웃
-========================= */
+#addressSearchBtn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f9f5ff;
+}
+
+/* 배송지 설정 버튼 스타일 */
+.btn-address-change {
+  background: #7c3aed;
+  border: 1px solid #7c3aed;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.btn-address-change:hover {
+  background: #6d28d9;
+  border-color: #6d28d9;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.btn-address-change:focus,
+.btn-address-change:active {
+  color: #fff;
+  background: #6d28d9;
+  outline: none;
+  box-shadow: none;
+}
+
+/* ================= 본문: 좌/우 레이아웃 (7:3) ================= */
 .payment-body {
   display: flex;
-  gap: 40px;
-  align-items: flex-start;
+  gap: 20px;
 }
 
-/* =========================
-   왼쪽 : 상품 목록
-========================= */
 .payment-left {
-  flex: 1;
+  flex: 7;
   min-width: 0;
 }
 
+.payment-right {
+  flex: 3;
+  min-width: 280px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+/* ================= 상품 섹션 ================= */
 .product-section {
   background: #fff;
-  padding: 24px;
-  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .product-header-row {
-  display: flex;
-  align-items: center;
-  padding-bottom: 12px;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #ddd;
-  font-weight: bold;
-  color: #555;
+  display: grid;
+  grid-template-columns: 80px 1fr 100px 150px;
+  gap: 15px;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e5e5e5;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
 }
 
 .product-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 80px 1fr 100px 150px;
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
   align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #eee;
 }
 
-.product-row:last-child {
+.product-row:last-of-type {
   border-bottom: none;
 }
 
 .col-image {
-  width: 120px;
-}
-
-.product-image {
-  width: 100px;
-  border-radius: 6px;
-}
-
-.col-name {
-  flex: 1;
-  font-weight: 500;
-}
-
-.col-qty {
-  width: 80px;
   text-align: center;
 }
 
+.product-image {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e5e5e5;
+}
+
+.col-name {
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-qty {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
 .col-price {
-  width: 160px;
   text-align: right;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
 }
 
 .product-total-row {
   display: flex;
   justify-content: space-between;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 2px solid #ddd;
-  font-size: 18px;
-  font-weight: bold;
+  padding: 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e5e5e5;
+  font-weight: 600;
+  font-size: 15px;
 }
 
-/* =========================
-   오른쪽 : 결제 요약
-========================= */
-.payment-right {
-  width: 360px;
-}
-
+/* ================= 오른쪽: 금액 요약 ================= */
 .price-summary {
   background: #fff;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  margin-bottom: 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 15px;
 }
 
 .price-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 14px;
+  align-items: center;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.price-row:last-child {
+  margin-bottom: 0;
 }
 
 .price-row.total {
-  font-size: 18px;
-  font-weight: bold;
-  border-top: 1px solid #ddd;
-  padding-top: 14px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e5e5e5;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
 }
 
-/* =========================
-   버튼
-========================= */
-.confirm-btn {
+.price-row.total .amount {
+  color: #7c3aed;
+  font-size: 20px;
+}
+
+/* 쿠폰 선택 드롭다운 */
+#couponSelect {
   width: 100%;
-  padding: 18px;
-  background: #6f63d9;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: bold;
+  padding: 12px 10px;
+  min-height: 44px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
   cursor: pointer;
 }
 
-.confirm-btn:hover {
-  background: #5b51c7;
+#couponSelect:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
-#applyCouponBtn {
-  border: none;
-  background: #eee;
-}
-
-#addressSearchBtn {
-  min-width: 60px;        
-  white-space: nowrap; 
-}
-
-/* 받는분 정보 전체 */
-.recipient-info {
-  width: 100%;
-}
-
-/* 한 줄 공통 */
-.info-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-/* 라벨 */
-.info-label {
-  width: 90px;
+/* 할인 금액 표시 */
+#discountAmount {
+  color: #dc3545;
   font-weight: 600;
+}
+
+/* 쿠폰 적용 버튼 */
+#applyCouponBtn {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  color: #666;
   font-size: 14px;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
 }
 
-/* 2컬럼 */
-.info-row.two-col {
-  gap: 20px;
+#applyCouponBtn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f9f5ff;
 }
 
-.info-row.two-col .half {
-  flex: 1;
+/* ================= 결제 버튼 ================= */
+.confirm-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* 우편번호 줄 */
-#zipcode { 
-  margin-left: 18px;
+.confirm-btn:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
-/* 주소 영역 */
-.address-row {
-  align-items: flex-start;
+.confirm-btn:active {
+  transform: translateY(0);
 }
 
-.address-fields {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* ================= 반응형 ================= */
+@media (max-width: 992px) {
+  .payment-body {
+    flex-direction: column;
+  }
+
+  .payment-left,
+  .payment-right {
+    flex: none;
+    width: 100%;
+  }
+
+  .payment-right {
+    position: static;
+    min-width: auto;
+  }
 }
 
-/* 주소 + 검색 버튼 한 줄 */
-.address-main {
-  display: flex;
-  gap: 8px;
+@media (max-width: 768px) {
+  .info-row {
+    flex-wrap: wrap;
+  }
+
+  .info-label {
+    min-width: 80px;
+  }
+
+  .info-row.address-row #address,
+  .info-row.detail-address-row #detailAddress {
+    width: 100%;
+  }
+
+  .info-row.zipcode-button-row {
+    flex-wrap: wrap;
+  }
+
+  .info-row.zipcode-button-row #zipcode {
+    width: 100%;
+  }
+
+  .info-row.zipcode-button-row .btn-address-change {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .product-header-row,
+  .product-row {
+    grid-template-columns: 60px 1fr 60px 100px;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .product-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .col-price {
+    font-size: 13px;
+  }
 }
 
-.address-main input {
-  flex: 1;
-}
+@media (max-width: 576px) {
+  .payment-container {
+    padding: 10px;
+    margin-top: 20px;
+  }
 
+  .info-label {
+    min-width: 100%;
+    margin-bottom: 4px;
+  }
 
-/* 배송지 선택 버튼 높이 맞추기 */
-#selectAddressBtn {
-  height: 38px;
-}
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-/* 전체 폼 input 높이 통일 */
-.form-control {
-  height: 38px;
-  font-size: 14px;
-}
+  .product-header-row {
+    display: none;
+  }
 
-.delivery-radio-group{
-  display:flex;
-  gap:24px;
-  margin-top:10px;
+  .product-row {
+    grid-template-columns: 60px 1fr;
+    grid-template-rows: auto auto;
+  }
 
-  padding-left: 114px;   
+  .col-qty,
+  .col-price {
+    grid-column: 2;
+    text-align: left;
+  }
 }

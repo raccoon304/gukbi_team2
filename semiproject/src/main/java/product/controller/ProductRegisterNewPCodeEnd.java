@@ -43,7 +43,6 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
 
 	            // 파일명이 비어있으면 null
 	            if (fileName.isBlank()) return null;
-
 	            return fileName;
 	            
 				// File.separator 란? OS가 Windows 이라면 \ 이고, OS가 Mac, Linux, Unix 이라면 / 을 말하는 것이다.
@@ -69,45 +68,38 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
     	while ((line = br.readLine()) != null) {
     	    sb.append(line);
     	}
-    	
     	JSONObject jsonRequest = new JSONObject(sb.toString());
 
         
         
-        
-        //1. 첨부되어진 파일을 디스크의 어느 경로에 업로드 할 것인지 그 경로를 설정해야 한다.  
+    //1. 첨부되어진 파일을 디스크의 어느 경로에 업로드 할 것인지 그 경로를 설정해야 한다.  
     	HttpSession session = request.getSession();
 		ServletContext svlCtx = session.getServletContext();
 		String uploadFileDir = svlCtx.getRealPath("/image/product_TH");
 		//System.out.println("이미지 파일 실제경로: " + uploadFileDir);
 		//이미지 파일 실제경로: C:\NCS\workspace_jsp\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\semiproject\image\product_TH
         
-		String image = null; //제품 이미지
+		String mainImage = null; //제품 이미지
+		String subImage1 = null; //추가제품1 이미지
+		String subImage2 = null; //추가제품2 이미지
+		
 		Collection<Part> parts = request.getParts();
 		
 		for(Part part : parts) {
-			
 			//form 태그에서 전송되어온 것이 파일일 경우
+
 			if(part.getHeader("Content-Disposition").contains("filename=")) {
-				
-				String cd = part.getHeader("Content-Disposition");
-			    if (cd == null || !cd.contains("filename")) continue;
-				
-			    String fileName = extractFileName(cd);
-			    
-			    //핵심 방어 로직
-			    if (fileName == null || !fileName.contains(".")) {
-			        //System.out.println("⛔ 업로드 제외 파일: " + fileName);
-			        continue;
-			    }
-			    
+				String fileName = extractFileName(part.getHeader("Content-Disposition"));
+
+		        // 방어: 확장자 없는 파일 제외
+		        if (!fileName.contains(".")) continue;
 			    
 				if(part.getSize() > 0) {
-					//System.out.println("업로드한 파일명:  " + fileName);
-					//업로드한 파일명:  berkelekle단가라포인트03.jpg
+				//System.out.println("업로드한 파일명:  " + fileName);
+				//업로드한 파일명:  berkelekle단가라포인트03.jpg
 					
-					String newFilename = fileName.substring(0, fileName.lastIndexOf(".")); // 확장자를 뺀 파일명 알아오기  
-					newFilename += "_"+String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", Calendar.getInstance()); 
+				String newFilename = fileName.substring(0, fileName.lastIndexOf(".")); // 확장자를 뺀 파일명 알아오기  
+				newFilename += "_"+String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", Calendar.getInstance()); 
 		    		newFilename += System.nanoTime();
 		    		newFilename += fileName.substring(fileName.lastIndexOf(".")); // 확장자 붙이기
 		    		//System.out.println("실제 업로드 newFilename: " + newFilename);
@@ -119,14 +111,20 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
 		    		//임시 저장된 파일 데이터를 제거
 		    		part.delete();
 		    		
-		    		if("image".equals(part.getName())) {
-		    			image = newFilename;
-		    		}
+		    		String partName = part.getName(); // mainImage / subImage1 / subImage2
+		    		if ("mainImage".equals(partName)) {
+		                mainImage = newFilename;
+		            } else if ("subImage1".equals(partName)) {
+		                subImage1 = newFilename;
+		            } else if ("subImage2".equals(partName)) {
+		                subImage2 = newFilename;
+		            }
+		    		
 				}//end of if(part.getSize() > 0)-----
 				
 			}//end of if(part.getHeader("Content-Disposition").contains("filename="))-----
-			//form 태그에서 전송되어온 파일이 아닐 경우
 			else {
+				//form 태그에서 전송되어온 파일이 아닐 경우
 				String formValue = request.getParameter(part.getName());
 				System.out.printf("파일이 아닌 경우 파라미터(name)명 : %s, value값 : %s \n", part.getName(), formValue);
 			}
@@ -145,12 +143,11 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
 		// 2024년 12월 기준 전후로 <script 가 들어오면 크롬(엣지)웹브라우저 차원에서
 		// Uncaught SyntaxError: Unexpected token '<' 라는 오류를 발생시켜서 차단을 시켜버리고 있음. 
         String description = product.getString("description");	//상품설명
-        description = description.replaceAll("<", "&lt;");
-        description = description.replaceAll(">", "&gt;");
+        description = description.replace("<", "&lt;").replace(">", "&gt;");
+        description = description.replace("\n", "<br/>");  // 대부분 이거면 됨
+        description = description.replace("\r", "");  // 혹시 남는 \r 제거
         
-		// 입력한 내용에서 엔터는 <br>로 변환하기
-        description = description.replaceAll("\r\n", "<br>");
-        
+        System.out.println("description: " + description);
         
         int basePrice = product.getInt("basePrice");			//기본금(256GB)
         //String imagePath = product.getString("imagePath");		//이미지경로
@@ -163,15 +160,26 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
         proDto.setBrandName(brand);
         proDto.setProductDesc(description);
         proDto.setPrice(basePrice);
-        proDto.setImagePath(image);
+        proDto.setImagePath(mainImage);
         proDto.setSaleStatus(salesStatus);
 		
-		
-        //새로운 상품을 테이블에 삽입해주기
+		String message = "정상적으로 등록되었습니다.";
+        
+        //2 새로운 상품을 테이블에 삽입해주기
         int n = proDao.insertProduct(proDto);
-        if(n == 0) {
-    		System.out.println("DB 오류입니다!!");
+        if(n != 1) {
+    			System.out.println("상품등록 DB 오류입니다!!");
+    			message = "등록 실패!";
         }
+        
+        //2-1 추가 이미지를 테이블에 삽입해주기
+        int n1 = proDao.insertProductImages(productCode, subImage1);
+        int n2 = proDao.insertProductImages(productCode,subImage2);
+        if(n1*n2 != 1) {
+        		System.out.println("추가 이미지 등록 DB 오류입니다!!");
+        		message = "등록 실패!";
+        }
+        
         
         // 3️ options 배열 파싱
         JSONArray options = jsonRequest.getJSONArray("options");
@@ -191,7 +199,8 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
             //새로운 상품에 대해 옵션들 추가해주기
             result = proDao.selectInsertOption(paraMap);
             if(result == 0) {
-        		System.out.println("DB 오류!");
+        			System.out.println("DB 오류!");
+        			message = "등록 실패!";
         		break;
             }
         }//end of for()-----
@@ -199,7 +208,7 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
         
         //4️ JSON 응답
         JSONObject jsonObj = new JSONObject();
-        jsonObj.put("message", "상품등록에 성공했습니다.");
+        jsonObj.put("message", message);
         request.setAttribute("json", jsonObj.toString());
 
         super.setRedirect(false);

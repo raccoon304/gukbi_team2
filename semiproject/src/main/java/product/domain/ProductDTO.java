@@ -58,20 +58,21 @@ public class ProductDTO {
 		  this.price = price;
 	  }
 	  
+	  
 	  public List<String> getColorList() {
 		  return colorList;
 	  }
 	  public void setColorList(List<String> colorList) {
 		  this.colorList = colorList;
 	  }
+	  
+	  
 	  public List<String> getStorageList() {
 		  return storageList;
 	  }
 	  public void setStorageList(List<String> storageList) {
 		  this.storageList = storageList;
 	  }
-	  
-	  
 	  
 	  
 	  

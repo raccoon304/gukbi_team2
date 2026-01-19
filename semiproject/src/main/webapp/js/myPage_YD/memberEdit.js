@@ -4,6 +4,11 @@ $(function () {
   const originalMobile = ($('#mobile').val() || '').trim();
   const originalEmail  = ($('#email').val()  || '').trim();
 
+  // 휴대폰 입력시 숫자만 남기기(공란 방지와 별개로 UX)
+  $('#mobile').on('input', function(){
+    this.value = this.value.replace(/\D/g, '');
+  });
+
   $('#memberEditEndForm').on('submit', function(e){
     e.preventDefault();
 
@@ -16,35 +21,48 @@ $(function () {
     const password    = $('#password').val();
     const passwordChk = $('#passwordChk').val();
 
-    // 입력된 값만 유효성 검사(그대로)
-    if(name !== ""){
-      const regName = /^[가-힣a-zA-Z]+$/;
-      if(!regName.test(name)){
-        alert("성명은 한글 또는 영문자만 입력 가능합니다. (공백/특수문자/숫자 불가)");
-        $('#name').focus();
-        return;
-      }
+    // 필수값 공란(공백 포함) 방지
+    if(name === ""){
+      alert("성명을 입력하세요.");
+      $('#name').val('').focus();
+      return;
     }
 
-    if(mobile !== ""){
-      const regMobile = /^010\d{8}$/;
-      if(!regMobile.test(mobile)){
-        alert("전화번호는 010으로 시작하는 11자리 숫자만 가능합니다.\n예) 01012341234");
-        $('#mobile').focus();
-        return;
-      }
+    if(mobile === ""){
+      alert("전화번호를 입력하세요.");
+      $('#mobile').val('').focus();
+      return;
     }
 
-    if(email !== ""){
-      const regEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,}$/;
-      if(!regEmail.test(email)){
-        alert("이메일 형식이 올바르지 않습니다.\n예) you@example.com");
-        $('#email').focus();
-        return;
-      }
+    if(email === ""){
+      alert("이메일을 입력하세요.");
+      $('#email').val('').focus();
+      return;
     }
 
-    // 비밀번호 검사(회원가입쪽 빼옴)
+    // 유효성 검사
+    const regName = /^[가-힣a-zA-Z]+$/;
+    if(!regName.test(name)){
+      alert("성명은 한글 또는 영문자만 입력 가능합니다. (공백/특수문자/숫자 불가)");
+      $('#name').focus();
+      return;
+    }
+
+    const regMobile = /^010\d{8}$/;
+    if(!regMobile.test(mobile)){
+      alert("전화번호는 010으로 시작하는 11자리 숫자만 가능합니다.\n예) 01012341234");
+      $('#mobile').focus();
+      return;
+    }
+
+    const regEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,}$/;
+    if(!regEmail.test(email)){
+      alert("이메일 형식이 올바르지 않습니다.\n예) you@example.com");
+      $('#email').focus();
+      return;
+    }
+
+    // 비밀번호 검사
     const changePw = (password != null && password.trim() !== "");
 
     if(changePw){
@@ -75,11 +93,11 @@ $(function () {
       }
     }
 
-    // 제출 시점 중복검사: 변경된 경우에만 검사
+    // 제출 시점 중복검사 변경된 경우에만 검사
     const tasks = [];
 
-    // 이메일이 비어있지 않고, 기존 이메일과 다를 때만 중복검사
-    if(email !== "" && email !== originalEmail){
+    // 이메일이 기존 이메일과 다를 때만 중복검사
+    if(email !== originalEmail){
       tasks.push(
         $.ajax({
           url: ctxPath + "/member/emailDuplicateCheck.hp",
@@ -97,8 +115,8 @@ $(function () {
       );
     }
 
-    // 휴대폰이 비어있지 않고, 기존 휴대폰과 다를 때만 중복검사
-    if(mobile !== "" && mobile !== originalMobile){
+    // 휴대폰이 기존 휴대폰과 다를 때만 중복검사
+    if(mobile !== originalMobile){
       tasks.push(
         $.ajax({
           url: ctxPath + "/member/mobileDuplicateCheck.hp",

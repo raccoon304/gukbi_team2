@@ -1,23 +1,18 @@
 @charset "UTF-8";
 
 
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: #f8f9fa;
-}
-
 
 /* 페이지 헤더 */
 .page-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 60px 0 40px 0;
-    margin-bottom: 40px;
+    padding: 40px 0 30px 0;
+    margin-bottom: 20px;
 }
 .page-header h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
 }
 
 
@@ -27,7 +22,7 @@ body {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 }
 .search-box {
     position: relative;
@@ -254,4 +249,136 @@ body {
     .products-grid {
         grid-template-columns: 1fr;
     }
+}
+
+
+
+/* =========================
+   Pagination 디자인 업그레이드
+   ========================= */
+.pagination-wrap {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+  display: flex;                 /* ✅ 핵심 */
+  justify-content: center;       /* 가로 중앙 */
+  align-items: center;           /* ✅ 세로 중앙 */
+
+  min-height: 70px;              /* 버튼보다 큰 높이 */
+  /* border: solid 2px red; */
+}
+
+#pagination {
+  display: flex;                 /* ✅ 핵심 */
+  align-items: center;           /* 버튼 세로 중앙 */
+  gap: 10px;
+  /* border: solid 2px blue; */
+}
+
+#pagination .page-item {
+  margin: 0;               /* bootstrap 기본 마진 제거 */
+}
+
+#pagination .page-link {
+  border: 2px solid #e9ecef;
+  background: #fff;
+  color: #495057;
+  font-weight: 700;
+  border-radius: 999px;      /* 알약 */
+  min-width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  user-select: none;
+}
+
+#pagination .page-link:hover {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(102, 126, 234, 0.18);
+}
+
+/* 활성 페이지 */
+#pagination .page-item.active .page-link {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(102, 126, 234, 0.28);
+  transform: translateY(-2px);
+}
+
+/* 비활성(disabled) */
+#pagination .page-item.disabled .page-link,
+#pagination .page-item.disabled span.page-link {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ... 점(ellipsis) */
+#pagination .page-item.disabled span.page-link {
+  border: none;
+  background: transparent;
+  min-width: 26px;
+  padding: 0 6px;
+}
+
+/* 포커스(접근성) */
+#pagination .page-link:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.22);
+}
+
+
+#pagination .page-link {
+  letter-spacing: 0.2px;
+}
+
+/* 모바일에서는 조금 작게 */
+@media (max-width: 575px) {
+  #pagination {
+    gap: 8px;
+  }
+  #pagination .page-link {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* 중앙 정렬만 확실히 맞추기 (디자인 유지) */
+/* nav가 inline처럼 동작하면서 baseline 영향 받는 경우 방지 */
+.pagination-wrap{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ul 기본 여백 제거 (위아래 치우침 원인) */
+#pagination{
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+
+/* li baseline/line-height 영향 제거 */
+#pagination .page-item{
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+/* 버튼 자체도 flex로 통일(이미 inline-flex지만 안전장치) */
+#pagination .page-link{
+  display: flex;     /* inline-flex → flex로 바꿔도 모양 동일 */
+  align-items: center;
+  justify-content: center;
 }

@@ -129,7 +129,7 @@
 			
 			
 			            <!-- 이미지 업로드 -->
-			            <div class="form-section">
+			            <!-- <div class="form-section">
 			                <div class="section-title">
 			                    <i class="fas fa-image mr-2"></i>이미지 업로드 <span class="required-mark">*</span>
 			                </div>
@@ -152,7 +152,101 @@
 			                        </button>
 			                    </div>
 			                </div>
+			            </div> -->
+			            
+			            
+			            <div class="form-section image-upload-section" id="imageUploadSection">
+				            <!-- 이미지 업로드 -->
+							<div class="form-section">
+							  <div class="section-title">
+							    <i class="fas fa-image mr-2"></i>이미지 업로드 <span class="required-mark">*</span>
+							  </div>
+							
+							  <!-- 대표 이미지 -->
+							  <div class="mb-4">
+							    <h6 class="mb-2 font-weight-bold">대표 이미지 (필수)</h6>
+							
+							    <div class="drop-zone" id="dropZoneMain">
+							      <i class="fas fa-cloud-upload-alt"></i>
+							      <p>대표 이미지를 드래그하여 놓거나 클릭하여 선택하세요</p>
+							      <small>JPG, PNG, GIF 파일 지원 (최대 5MB)</small>
+							    </div>
+							
+							    <input type="file" id="imageFileMain" name="mainImageFile" accept="image/*" style="display:none;">
+							
+							    <div class="form-group mt-2">
+							      <label>또는 이미지 URL 입력</label>
+							      <input type="text" class="form-control form-control-lg" id="imagePathMain" name="mainImagePath" placeholder="https://example.com/main.jpg">
+							    </div>
+							
+							    <div class="image-preview" id="imagePreviewMain" style="display:none;">
+							      <p class="mb-2"><strong>미리보기:</strong></p>
+							      <img id="previewImgMain" src="" alt="대표 이미지 미리보기">
+							      <div class="image-preview-actions">
+							        <button type="button" class="btn-remove-image" id="removeImageBtnMain">
+							          <i class="fas fa-trash mr-2"></i>이미지 제거
+							        </button>
+							      </div>
+							    </div>
+							  </div>
+							
+							  <!-- 추가 이미지 가로 배치 영역 -->
+							  <div class="image-slot-sub-wrapper">
+								  <!-- 추가 이미지 1 -->
+								  <div class="image-slot image-slot-sub">
+								    <h6 class="mb-2 font-weight-bold">추가 이미지 1 (필수)</h6>
+								
+								    <div class="drop-zone" id="dropZoneSub1">
+								      <i class="fas fa-cloud-upload-alt"></i>
+								      <p>추가 이미지를 드래그하여 놓거나 클릭하여 선택하세요</p>
+								      <small>JPG, PNG, GIF 파일 지원 (최대 5MB)</small>
+								    </div>
+								
+								    <input type="file" id="imageFileSub1" name="subImageFile1" accept="image/*" style="display:none;">
+								
+								    <div class="form-group mt-2">
+								      <label>또는 이미지 URL 입력</label>
+								      <input type="text" class="form-control form-control-lg" id="imagePathSub1" name="subImagePath1" placeholder="https://example.com/sub1.jpg">
+								    </div>
+								  </div>
+								
+								  <!-- 추가 이미지 2 -->
+								  <div class="image-slot image-slot-sub">
+								    <h6 class="mb-2 font-weight-bold">추가 이미지 2 (필수)</h6>
+								
+								    <div class="drop-zone" id="dropZoneSub2">
+								      <i class="fas fa-cloud-upload-alt"></i>
+								      <p>추가 이미지를 드래그하여 놓거나 클릭하여 선택하세요</p>
+								      <small>JPG, PNG, GIF 파일 지원 (최대 5MB)</small>
+								    </div>
+								
+								    <input type="file" id="imageFileSub2" name="subImageFile2" accept="image/*" style="display:none;">
+								
+								    <div class="form-group mt-2">
+								      <label>또는 이미지 URL 입력</label>
+								      <input type="text" class="form-control form-control-lg" id="imagePathSub2" name="subImagePath2" placeholder="https://example.com/sub2.jpg">
+								    </div>
+								  </div>
+								
+							  </div>
+							
+							  <!-- 공통 미리보기 (추가 이미지용) -->
+							  <div class="image-preview mt-3"
+								     id="imagePreviewSub"
+								     style="display:none;">
+								  <p class="mb-2"><strong>미리보기:</strong></p>
+								  <img id="previewImgSub" src="" alt="추가 이미지 미리보기">
+								
+								  <div class="image-preview-actions">
+								    <button type="button" class="btn-remove-image" id="removeImageBtnSub">
+								      <i class="fas fa-trash mr-2"></i>이미지 제거
+								    </button>
+								  </div>
+							  </div>
+							  
+							</div>
 			            </div>
+			            
 			
 			
 			            <!-- 옵션 선택 -->
@@ -193,25 +287,25 @@
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="colorBlack" name="color" value="Black">
 			                        <label class="toggle-label" for="colorBlack">
-			                            <span class="color-indicator black"></span>블랙
+			                            <span class="color-indicator Black"></span>블랙
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="colorWhite" name="color" value="White">
 			                        <label class="toggle-label" for="colorWhite">
-			                            <span class="color-indicator white"></span>화이트
+			                            <span class="color-indicator White"></span>화이트
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="colorBlue" name="color" value="Blue">
 			                        <label class="toggle-label" for="colorBlue">
-			                            <span class="color-indicator blue"></span>블루
+			                            <span class="color-indicator Blue"></span>블루
 			                        </label>
 			                    </div>
 			                    <div class="toggle-item">
 			                        <input type="checkbox" id="colorRed" name="color" value="Red">
 			                        <label class="toggle-label" for="colorRed">
-			                            <span class="color-indicator red"></span>레드
+			                            <span class="color-indicator Red"></span>레드
 			                        </label>
 			                    </div>
 			                </div>

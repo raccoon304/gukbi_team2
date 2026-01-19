@@ -35,26 +35,14 @@
 	<%-- jQueryUI CSS 및 JS --%>
 	<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.css" />
 	<script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
-	
-<style>
-	.navbar {
-  	height: 70px;
- 	padding: 0 24px;
-	}
-	
-	.navbar .container {
-  	height: 100%;
-  	display: flex;
-  	align-items: center;
-	}
-</style>
 </head>
-
-
-
 <body>
+
+
+
+
 <!-- 네비게이션 -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top mx-4 py-3">
+<nav class="navbar navbar-expand-lg navbar-light navbar-custom fixed-top">
     <div class="container">
     	<!-- 로고부분 -->
         <a class="navbar-brand" href="<%=ctxPath%>/index.hp">

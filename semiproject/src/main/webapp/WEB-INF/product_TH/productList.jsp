@@ -16,7 +16,7 @@
 
 
 <!-- 페이지 헤더 -->
-<div class="page-header" style="margin-top: 5%">
+<div class="page-header">
     <div class="container">
         <h1><i class="fas fa-mobile-alt mr-3"></i>전체 상품</h1>
         <p class="mb-0">최신 스마트폰을 만나보세요</p>
@@ -66,7 +66,7 @@
                     <i class="fas fa-sort mr-2"></i>정렬
                 </label>
                 <select class="sort-select form-control" id="sortSelect">
-                    <!-- <option value="latest">최신순</option> -->
+                    <option value="default">기본</option>
                     <option value="price_high">고가순</option>
                     <option value="price_low">저가순</option>
                 </select>
@@ -81,8 +81,8 @@
             총 <span id="totalCount">60</span>개의 상품
         </div>
         <div class="text-muted">
-            <span id="currentPage">1</span> / 5 페이지
-        </div>
+		  <span id="currentPage">1</span> / <span id="totalPages">1</span> 페이지
+		</div>
     </div>
 	
 	
@@ -129,7 +129,12 @@
 			</div>
 		</c:forEach>
 	</div>
-
+	
+	<!-- 페이징 -->
+	<nav class="pagination-wrap d-flex justify-content-center mt-4">
+	  <ul class="pagination" id="pagination"></ul>
+	</nav>
+	
 </div>
 
 
