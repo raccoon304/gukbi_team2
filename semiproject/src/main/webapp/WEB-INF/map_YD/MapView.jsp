@@ -194,9 +194,9 @@
               <i class="fa-solid fa-plus mr-1"></i> 매장 추가
             </a>
             <a href="${pageContext.request.contextPath}/map/storeDelete.hp"
-       class="btn btn-sm btn-outline-danger btn-block mt-2">
-      <i class="fa-solid fa-gear mr-1"></i> 매장 관리
-    </a>
+               class="btn btn-sm btn-outline-danger btn-block mt-2">
+              <i class="fa-solid fa-gear mr-1"></i> 매장 관리
+            </a>
           </div>
         </c:if>
 
@@ -321,7 +321,7 @@
 
     const pos = new kakao.maps.LatLng(lat, lng);
 
-    // ✅ “대한민국 전체”처럼 멀어지는 것 방지: 선택할 때 줌 고정
+    // “대한민국 전체”처럼 멀어지는 것 방지: 선택할 때 줌 고정
     map.setLevel(4);
     map.panTo(pos);
 
@@ -348,7 +348,7 @@
   }
 
   function buildMarkers() {
-    // 기존 마커랑 인포윈도우 정리
+    // 기존 마커 정리
     Object.keys(markers).forEach(k => markers[k].setMap(null));
 
     storeKeys.forEach(key => {
@@ -422,13 +422,11 @@
 
     const url = (s.kakaoUrl) ? String(s.kakaoUrl).trim() : "";
 
-    // kakao_url이 정상 링크면 그대로 오픈
     if (url) {
       window.open(url, "_blank");
       return;
     }
 
-    // 없으면 좌표 기반 링크 생성
     const lat = Number(s.lat);
     const lng = Number(s.lng);
     if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
@@ -471,7 +469,7 @@
     buildTabs();
     buildMarkers();
 
-    // 최초 선택 sort_no 정렬이 DB에서 이미 됐으니 첫 번째가 디폴트로 나올 수 있게. 
+    // 최초 선택
     const firstKey = storeKeys[0];
     if (firstKey) {
       setActiveTab(firstKey);

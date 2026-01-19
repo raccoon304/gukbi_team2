@@ -179,21 +179,19 @@
 						
 	                    <td>
 	                      <c:choose>
-	                        <c:when test="${row['coupon'].usable == 1}">
-	                          <c:choose>
-	                            <c:when test="${row['issue'].usedYn == 1}">
-	                              <span class="badge badge-secondary">사용 완료</span>
-	                            </c:when>
-	                            <c:otherwise>
-	                              <span class="badge badge-success">사용 가능</span>
-	                            </c:otherwise>
-	                          </c:choose>
-	                        </c:when>
-	
-	                        <c:otherwise>
-	                          <span class="badge badge-secondary">사용 불가</span>
-	                        </c:otherwise>
-	                      </c:choose>
+	                        <c:when test="${row['status'] == 'AVAILABLE'}">
+				    			<span class="badge badge-success">사용 가능</span>
+				 			</c:when>
+				  			<c:when test="${row['status'] == 'USED'}">
+				    			<span class="badge badge-secondary">사용 완료</span>
+				  			</c:when>
+				  			<c:when test="${row['status'] == 'EXPIRED'}">
+				    			<span class="badge badge-danger">기간 만료</span> 
+				  			</c:when>
+				  			<c:otherwise>
+				    			<span class="badge badge-secondary">알 수 없음</span>
+				  			</c:otherwise>
+						  </c:choose>	                      
 	                    </td>
 	                  </tr>
 	                </c:forEach>
@@ -203,30 +201,8 @@
 	        </c:otherwise>
 	      </c:choose>
 	    </div>
-	  </div>
-
-
-      
-      
-      
-      
-      
-      
-      
+	  </div> 
     </div>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
   </div>
 </div>
 

@@ -29,45 +29,9 @@ body {
     min-height: 100vh;
 }
 
-/* Sidebar */
-.sidebar {
-    width: var(--sidebar-width);
-    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    position: fixed;
-    height: 100vh;
-    overflow-y: auto;
-    z-index: 1000;
-    
-}
-
-.sidebar-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    
-}
-
-.sidebar .nav {
-    padding: 1rem 0;
-}
-
-.sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.8);
-    padding: 0.75rem 1.5rem;
-    transition: all 0.3s;
-    border-left: 3px solid transparent;
-}
-
-.sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.sidebar .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.15);
-    color: white;
-    border-left-color: var(--primary-color);
-}
+/* Sidebar (예전꺼 주석 유지)
+.sidebar { ... }
+*/
 
 /* Main Content */
 .main-content {
@@ -162,7 +126,6 @@ body {
     border-radius: 6px;
     font-weight: 500;
     transition: all 0.3s;
-    
 }
 
 .btn:hover {
@@ -191,7 +154,6 @@ body {
     border-radius: 6px;
     border: 1px solid #ced4da;
     padding: 0.625rem 0.75rem;
-  
 }
 
 .form-control:focus, .form-select:focus {
@@ -200,18 +162,11 @@ body {
 }
 
 /* Utilities */
-.text-purple {
-    color: var(--purple-color) !important;
-}
-
-.bg-purple {
-    background-color: var(--purple-color) !important;
-}
+.text-purple { color: var(--purple-color) !important; }
+.bg-purple   { background-color: var(--purple-color) !important; }
 
 /* Pagination */
-.pagination {
-    margin-top: 1rem;
-}
+.pagination { margin-top: 1rem; }
 
 .pagination .page-link {
     border-radius: 6px;
@@ -237,78 +192,35 @@ body {
     border-width: 0.15em;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 0;
-        display: none;
-    }
-    
-    .main-content {
-        margin-left: 0;
-    }
-    
-    .content-wrapper {
-        padding: 1rem;
-    }
-}
-
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
 
 /* Bootstrap4에서 padding 늘렸으면 height도 같이 늘려야 글자 안 잘림 */
 .modal .form-control {
   padding: 0.625rem 0.75rem;
-  height: calc(1.5em + 1.25rem + 2px); /* 1.25rem = 0.625rem * 2 */
+  height: calc(1.5em + 1.25rem + 2px);
   line-height: 1.5;
 }
+.modal select.form-control { height: calc(1.5em + 1.25rem + 2px); }
 
-/* select도 같은 높이로 */
-.modal select.form-control {
-  height: calc(1.5em + 1.25rem + 2px);
-}
-
-
-.custom-select {
-  border-radius: 6px;
-}
-
-/* select 태그 조정 */
+.custom-select { border-radius: 6px; }
 select.form-control {
   padding: .375rem .75rem;
   height: calc(1.5em + .75rem + 2px);
 }
 
-
-
-/* 회원선택 모달 테이블: 컬럼 폭이 내용에 의해 흔들리지 않게 고정 */
-#memberSelectTbl {
-  width: 100%;
-  table-layout: fixed;
-}
+/* 회원선택 모달 테이블: 컬럼 폭 고정 */
+#memberSelectTbl { width: 100%; table-layout: fixed; }
 
 /* 숫자 컬럼은 줄바꿈 방지 + 오른쪽 정렬 */
 #memberSelectTbl td:nth-child(4),
 #memberSelectTbl td:nth-child(5) {
   white-space: nowrap;
   text-align: right;
-  font-variant-numeric: tabular-nums; /* 숫자 폭 일정(선택) */
+  font-variant-numeric: tabular-nums;
 }
 
 /* 아이디/이름이 길면 말줄임 */
@@ -329,36 +241,378 @@ select.form-control {
   color: inherit;
   text-decoration: underline;
 }
-
-/* ▼ 자리 고정 */
 #memberSelectModal .member-sort-indicator {
   display: inline-block;
   width: 1em;
   margin-left: 6px;
 }
 
-
-
- /* 회계페이지 select 태그 위치 조정 */ 
+/* 회계페이지 select 위치 */
 .accounting-controls{
   display: flex;
   flex-direction: column;
-  align-items: flex-end;    /* 오른쪽 정렬 */ 
-  width: 420px;             /* 폭 고정 */
-  
-  flex: 0 0 420px; /* 공간 고정 */
+  align-items: flex-end;
+  width: 420px;
+  flex: 0 0 420px;
 }
-
-/* 회계페이지 select */
-#periodSelect {
-  width: 220px;      /* 셀렉트 폭 고정 */
-}
+#periodSelect { width: 220px; }
 
 /* 대시보드 스크롤 조정 */
 .scroll-card-body {
   max-height: 600px;
   overflow: auto;
+}
+
+/*모바일 상단바 + 사이드바 offcanvas */
+.mobile-topbar{
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  background: #f8f9fa;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.sidebar-overlay{ display:none; }
+
+
+body.sidebar-open{ overflow: hidden; }
+
+@media (max-width: 991.98px){
+
+  .main-content{ margin-left: 0 !important; }
+
+  .sidebar{
+    position: fixed;
+    top: 0; left: 0;
+    width: 250px;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    z-index: 3000 !important;
+  }
+
+  .sidebar.open{ transform: translateX(0); }
+
+  .sidebar-overlay{
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 2500;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease;
+  }
+
+  .sidebar-overlay.show{
+    display: block;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* 모바일에서 content padding 줄이기*/
+  .content-wrapper{ padding: 1rem !important; }
+
+  /* 모바일 타이포/카드 밀도 */
+  h2{ font-size: 1.35rem; margin-bottom: .25rem; }
+  .card{ border-radius: 14px; }
+  .card-header{ padding: .75rem 1rem; }
+  .card-body{ padding: 1rem; }
+  .container-fluid{ padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* 쿠폰 필터폼: 가로 -> 세로 */
+  #couponFilterFrm.form-inline{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #couponFilterFrm label{
+    margin: 0 0 6px 0 !important;
+    font-size: .9rem;
+    color: #6c757d;
+  }
+
+  #couponFilterFrm select,
+  #couponFilterFrm .form-check{
+    width: 100%;
+    margin: 0 0 10px 0 !important;
+  }
+
+  #couponFilterFrm .form-check{
+    padding: 10px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  /* 쿠폰 테이블: 모바일 최적화 */
+  #couponTable{
+    font-size: .9rem;
+  }
+  #couponTable td, #couponTable th{
+    padding: .55rem .6rem;
+    white-space: nowrap;
+  }
+
+  /* 덜 중요한 컬럼 숨김: No(1), 쿠폰번호(2) */
+  #couponTable th:nth-child(1),
+  #couponTable td:nth-child(1),
+  #couponTable th:nth-child(2),
+  #couponTable td:nth-child(2){
+    display: none;
+  }
+
+  /* 쿠폰명은 줄바꿈 허용 */
+  #couponTable td:nth-child(3){
+    white-space: normal;
+    line-height: 1.2;
+  }
+   
+}
+
+/* ===== 쿠폰페이지 모바일 모달 슬림 모드 ===== */
+@media (max-width: 575.98px) {
+
+  /* 모바일에서는 모달이 화면에 거의 꽉 차게(여백 최소화) */
+  .modal-dialog.modal-responsive {
+    max-width: calc(100% - 12px);
+    margin: 6px auto;
+  }
+
+  /* 헤더/바디/푸터 패딩 줄이기 */
+  .modal-responsive .modal-header,
+  .modal-responsive .modal-body,
+  .modal-responsive .modal-footer {
+    padding: 0.6rem 0.75rem;
+  }
+
+  /* 타이틀 글씨/닫기 버튼 살짝 줄이기 */
+  .modal-responsive .modal-title {
+    font-size: 1rem;
+  }
+  .modal-responsive .close {
+    padding: 0.5rem 0.75rem;
+    margin: -0.5rem -0.75rem -0.5rem auto;
+  }
+
+  /* 모달 안 글씨/테이블 간격 줄이기 */
+  .modal-responsive .table th,
+  .modal-responsive .table td {
+    padding: 0.45rem;
+    font-size: 0.88rem;
+    white-space: nowrap; /* 줄바꿈으로 높이 커지는거 방지 */
+  }
+
+  /* alert도 너무 두껍게 보이면 줄이기 */
+  .modal-responsive .alert {
+    padding: 0.5rem 0.65rem;
+    margin-bottom: 0.6rem;
+  }
+
+  /* 폼 컨트롤 높이/패딩 줄이기 */
+  .modal-responsive .form-control {
+    height: calc(1.5em + 0.6rem + 2px);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* 버튼도 살짝 작게 */
+  .modal-responsive .btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+	.mobile-topbar{
+	  position: relative;   
+	  z-index: 100;         /* 모달보다 낮게 */
+	}
+
+   /* 모바일 하단 고정 CTA 버튼용 */
+
+@media (max-width: 991.98px){
+  .mobile-fab{
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 14px;
+    z-index: 3000;
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+     
+  }
+  /* 하단 버튼 때문에 페이지 가려지는 것 방지 */
+  .content-wrapper{
+    padding-bottom: 90px !important;
+  }
+  
+  #couponFilterFrm .coupon-only-usable{
+    width: 100%;
+    margin: 0 0 10px 0 !important;
+  }
+
+  #couponFilterFrm .coupon-only-usable .form-check-input{
+    margin-top: .3rem; /* 줄맞춤 */
+  }
  
+
+}
+
+@media (min-width: 992px){
+  #couponFilterFrm{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap: 10px;
+  }
+
+   /* label/select 간격을 gap으로 통일(기존 mr-4 영향 최소화) */
+  #couponFilterFrm label{ margin: 0; }
+  #couponFilterFrm select{ margin: 0 !important; }
+
+  /* 사용중만 보기: 오른쪽 끝으로 */
+  #couponFilterFrm .coupon-only-usable{
+    margin-left:auto !important;
+    margin-top: 0 !important;
+
+    display:flex;
+    align-items:center;
+    gap: 6px;
+
+    padding: 0;            /* 데스크탑은 카드 느낌 제거 */
+    border: 0;
+    background: transparent;
+  }
+
+  #couponFilterFrm .coupon-only-usable .form-check-input{
+    position: static;      /* bootstrap 기본 offset 방지 */
+    margin-left: 0;
+    margin-top: 0;
+  }
+  
+}
+
+
+
+
+
+/* 회계 페이지: 모바일에서 상단바 높이만큼 자연스럽게 */
+@media (max-width: 991.98px){
+  .content-wrapper{
+    padding: 1rem !important;
+  }
+
+  /* 회계 상단(기간 선택 영역) 모바일에서 세로 스택 */
+  .accounting-controls{
+    width: 100% !important;
+    flex: 1 1 auto !important;
+    align-items: stretch !important;
+  }
+
+  #periodSelect{
+    width: 100% !important;
+  }
+
+  #customRange input.period-select{
+    width: 48% !important;
+  }
+
+  /* 표/차트 카드 간격 조금 촘촘하게 */
+  .section-card{ padding: 16px !important; }
+}
+
+
+
+
+/* ====== 회원 목록 페이지 ====== */
+.member-card{
+  background:#fff;
+  border:1px solid #e9ecef;
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  cursor:pointer;
+}
+.member-card:active{
+  transform: scale(0.99);
+}
+
+/* 모바일 모달: 화면 꽉 차게 + 스크롤 자연스럽게 */
+@media (max-width: 576px){
+  #memberDetailModal .modal-dialog{
+    margin: 0;
+    max-width: 100%;
+    height: 100%;
+  }
+  #memberDetailModal .modal-content{
+    border-radius: 0;
+    height: 100%;
+  }
+  #memberDetailModal .modal-body{
+    overflow-y: auto;
+  }
+}
+
+/* ===== Bootstrap 회원상세 모달: 모바일 최적화 ===== */
+@media (max-width: 767.98px){
+
+  /* lg 폭 무시하고 화면에 맞게 */
+  #memberDetailModal .modal-dialog{
+    max-width: 100%;
+    width: 100%;
+    margin: .5rem;
+  }
+
+  /* 바텀시트 느낌(선택) */
+  #memberDetailModal .modal-dialog{
+    margin: 0;
+    height: 100%;
+    display: flex;
+    align-items: flex-end; /* 아래에 붙여서 덜 커 보이게 */
+  }
+
+  #memberDetailModal .modal-content{
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    max-height: 92vh;      /* 너무 꽉 차지 않게 */
+    overflow: hidden;
+  }
+
+  /* header/body/footer 패딩 줄이기 */
+  #memberDetailModal .modal-header{
+    padding: .75rem 1rem;
+  }
+  #memberDetailModal .modal-title{
+    font-size: 16px;
+  }
+
+  #memberDetailModal .modal-body{
+    padding: .75rem 1rem;
+    overflow-y: auto;      /* 내용 많아도 안 커지고 안에서 스크롤 */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #memberDetailModal .modal-footer{
+    padding: .75rem 1rem;
+  }
+
+  /* 닫기 버튼 편하게 */
+  #memberDetailModal .close{
+    font-size: 1.5rem;
+    padding: .25rem .5rem;
+  }
+  #memberDetailModal .modal-footer .btn{
+    width: 100%;
+  }
+
+  /* row 간격 살짝 줄이기 */
+  #memberDetailModal .row > [class^="col-"]{
+    margin-bottom: .25rem !important;
+  }
 }
 
 

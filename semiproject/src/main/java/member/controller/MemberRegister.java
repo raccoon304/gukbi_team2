@@ -36,9 +36,148 @@ public class MemberRegister extends AbstractController {
 			String addressDetail = request.getParameter("addressDetail");
 			String postalCode = request.getParameter("postalCode");
 			
-			if(gender_str.equals("female")) {
+			// ===== 서버단 유효성 검사 시작 =====
+			memberid = (memberid == null) ? "" : memberid.trim();
+			name     = (name == null) ? "" : name.trim();
+			email    = (email == null) ? "" : email.trim();
+			birthday = (birthday == null) ? "" : birthday.trim();
+			password = (password == null) ? "" : password; 
+			mobile   = (mobile == null) ? "" : mobile.replaceAll("[^0-9]", ""); 
+			gender_str = (gender_str == null) ? "" : gender_str.trim();
+
+			address = (address == null) ? "" : address.trim();
+			addressDetail = (addressDetail == null) ? "" : addressDetail.trim();
+			postalCode = (postalCode == null) ? "" : postalCode.trim();
+
+			// 필수값 체크
+			if (memberid.isEmpty() || name.isEmpty() || password.isEmpty() || mobile.isEmpty()
+					|| email.isEmpty() || birthday.isEmpty() || gender_str.isEmpty()
+					|| address.isEmpty() || addressDetail.isEmpty() || postalCode.isEmpty()) {
+
+				request.setAttribute("message", "필수 입력값이 누락되었습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			// DB 길이 확인용
+			if (memberid.length() > 40 || name.length() > 30 || email.length() > 200 || birthday.length() != 10) {
+				request.setAttribute("message", "입력값 길이가 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			// 형식 체크
+			if (!memberid.matches("^[a-zA-Z][a-zA-Z0-9_]{3,39}$")) {
+				request.setAttribute("message", "아이디 형식이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			if (!name.matches("^[가-힣a-zA-Z]+$")) {
+				request.setAttribute("message", "성명 형식이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			if (!mobile.matches("^010\\d{8}$")) {
+				request.setAttribute("message", "전화번호 형식이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			if (!email.matches("^[0-9a-zA-Z]([-_\\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\\.]?[0-9a-zA-Z])*\\.[a-zA-Z]{2,}$")) {
+				request.setAttribute("message", "이메일 형식이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			if (!birthday.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+				request.setAttribute("message", "생년월일 형식이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			// 오늘/미래 날짜 선택 불가 (오늘 포함)
+			try {
+				java.time.LocalDate birthDate = java.time.LocalDate.parse(birthday);
+				java.time.LocalDate today = java.time.LocalDate.now();
+
+				if (!birthDate.isBefore(today)) { // birthDate가 오늘보다 크거나 같을경우
+					request.setAttribute("message", "생년월일은 오늘 및 미래 날짜로 선택할 수 없습니다.");
+					request.setAttribute("loc", "javascript:history.back()");
+					super.setRedirect(false);
+					super.setViewPage("/WEB-INF/msg.jsp");
+					return;
+				}
+			} catch (Exception ex) {
+				request.setAttribute("message", "생년월일 값이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,15}$")) {
+				request.setAttribute("message", "비밀번호 형식이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+
+			// 성별 값 검증 + 변환
+			if ("female".equals(gender_str)) {
 				gender = 1;
 			}
+			else if ("male".equals(gender_str)) {
+				gender = 0;
+			}
+			else {
+				request.setAttribute("message", "성별 값이 올바르지 않습니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			// ===== 서버단 유효성 검사끝 =====
+			
+			// [릴리즈] 프론트 중복확인은 우회 가능 + 동시가입(레이스 컨디션) 때문에 서버에서 최종 중복검증 필요
+			// 기존 검증 메서드를 활용해서 최종 검사 한번더.
+			if (mdao.idDuplicateCheck(memberid)) {
+				request.setAttribute("message", "이미 사용중인 아이디입니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			if (mdao.emailDuplicateCheck(email)) {
+				request.setAttribute("message", "이미 사용중인 이메일입니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			if (mdao.mobileDuplicateCheck(mobile)) {
+				request.setAttribute("message", "이미 사용중인 휴대폰번호입니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			
 			/*
 			 * System.out.println(memberid); System.out.println(name);
 			 * System.out.println(password); System.out.println(mobile);
@@ -71,12 +210,17 @@ public class MemberRegister extends AbstractController {
 						
 			try {
 				int n = mdao.registerMember(mbrDto, devDto);	
-				if(n==2) {
+				
+				if (n == 2) {
 					message = "회원가입 성공";
-					loc = request.getContextPath()+"/index.hp";
+					loc = request.getContextPath() + "/index.hp";
+				} else {
+					message = "회원가입에 실패했습니다. 다시 시도해주세요.";
+					loc = "javascript:history.back()";
 				}
+				
 			} catch (SQLException e) {
-				e.printStackTrace();
+				// e.printStackTrace(); [릴리즈] 콘솔에 DB/쿼리 정보가 그대로 노출될 수 있어 주석 처리
 				message = "회원가입 실패";
 				loc= "javascript:history.back()";
 			}
