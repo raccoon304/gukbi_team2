@@ -242,10 +242,17 @@ public class OrderDAO_imple implements OrderDAO {
         List<Map<String, Object>> list = new ArrayList<>();
 
         String sql =
-            " SELECT fk_option_id, product_name, brand_name, quantity, unit_price, " +
-            "        (quantity * unit_price) AS total_price " +
-            " FROM tbl_order_detail " +
-            " WHERE fk_order_id = ? ";
+        		" SELECT od.fk_option_id, od.product_name, od.brand_name, od.quantity, od.unit_price, " +
+        		        "        (od.quantity * od.unit_price) AS total_price, " +
+        		        "        NVL(po.color, '') AS color, " +
+        		        "        NVL(po.storage_size, '') AS capacity, " +
+        		        "        NVL(p.image_path, '') AS image_path " +
+        		        " FROM tbl_order_detail od " +
+        		        " LEFT JOIN tbl_product_option po " +
+        		        "   ON od.fk_option_id = po.option_id " +
+        		        " LEFT JOIN tbl_product p " +
+        		        "   ON po.fk_product_code = p.product_code " +
+        		        " WHERE od.fk_order_id = ? ";
 
         try (
             Connection conn = ds.getConnection();
@@ -258,10 +265,15 @@ public class OrderDAO_imple implements OrderDAO {
                     Map<String, Object> map = new HashMap<>();
                     map.put("option_id", rs.getInt("fk_option_id"));
                     map.put("product_name", rs.getString("product_name"));
-                    map.put("brand_name", rs.getString("brand_name"));
+                    map.put("brand", rs.getString("brand_name"));
                     map.put("quantity", rs.getInt("quantity"));
                     map.put("unit_price", rs.getInt("unit_price"));
                     map.put("total_price", rs.getInt("total_price"));
+                    
+                    map.put("color", rs.getString("color"));
+                    map.put("capacity", rs.getString("capacity"));
+                    map.put("image_path", rs.getString("image_path"));
+                    
                     list.add(map);
                 }
             }

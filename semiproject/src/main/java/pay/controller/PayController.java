@@ -102,13 +102,13 @@ public class PayController extends AbstractController {
 
         // 1. 세션 payCartIds 사용 (바로구매)
         if (payCartIds != null && !payCartIds.isEmpty()) {
-            System.out.println(">>> 세션 payCartIds 사용 (바로구매)");
+      //      System.out.println(">>> 세션 payCartIds 사용 (바로구매)");
 
             for (Integer cartId : payCartIds) {
                 Map<String, Object> item = cartDao.selectCartById(cartId, loginUser.getMemberid());
 
                 if (item == null) {
-                    System.out.println("WARNING: cartId " + cartId + " 조회 실패");
+     //              System.out.println("WARNING: cartId " + cartId + " 조회 실패");
                     continue;
                 }
 

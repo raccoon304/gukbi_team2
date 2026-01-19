@@ -11,19 +11,19 @@
 /* 장바구니 flex 컨테이너 (테이블 + 요약 영역) */
 div#minsoo {
     display: flex;
-    gap: 30px;
+    gap: 25px;
     align-items: flex-start;
 }
 
-/* 테이블 영역 */
+/* 테이블 영역 - 더 넓게 */
 .cart-table {
     flex: 1;
-    min-width: 0; /* flex 자식의 overflow 방지 */
+    min-width: 0;
 }
 
-/* 요약 영역 */
+/* 요약 영역 - 더 작게 */
 .summary-section {
-    width: 350px;
+    width: 240px;  /* 350px → 240px */
     flex-shrink: 0;
     position: sticky;
     top: 100px;
@@ -46,9 +46,9 @@ h4 {
     font-weight: 700;
 }
 
-/* =========================
+/* 
    빈 장바구니
-========================= */
+*/
 .cart-empty-wrapper {
     max-width: 1200px;
     margin: 0 auto;
@@ -79,9 +79,9 @@ h4 {
     background-color: #333;
 }
 
-/* =========================
+/*
    장바구니 테이블
-========================= */
+ */
 .cart-table {
     width: 100%;
     border-collapse: collapse;
@@ -206,7 +206,7 @@ td.color .badge-light {
     border-radius: 4px;
 }
 
-/* ✨ 스피너(△▽) 제거 */
+/* 스피너(△▽) 제거 */
 .quantity-input::-webkit-inner-spin-button,
 .quantity-input::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -218,23 +218,22 @@ td.color .badge-light {
 }
 
 /* =========================
-   요약 영역
+   요약 영역 - 컴팩트하게
 ========================= */
 .summary-box {
-    padding: 24px 20px;
+    padding: 18px 16px;  /* 20px 18px → 18px 16px */
     border-radius: 12px;
-    border: 2px solid #333;
-    background: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    background: #fafbfc;
 }
 
 .summary-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
-    font-size: 15px;
-    color: #555;
+    padding: 8px 0;  /* 10px → 8px */
+    font-size: 14px;
+    color: #6c757d;
 }
 
 .summary-item span:first-child,
@@ -242,63 +241,69 @@ td.color .badge-light {
     white-space: nowrap;
 }
 
-/* 총 주문금액 */
+/* 총 주문금액 - 더 컴팩트하게 */
 .summary-item.total {
-    margin-top: 16px;
-    margin-bottom: 20px;
-    padding-top: 16px;
-    border-top: 2px solid #333;
+    margin-top: 14px;      /* 20px → 14px */
+    margin-bottom: 18px;   /* 24px → 18px */
+    padding: 14px 0;       /* 20px → 14px */
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
 }
 
 /* 총 주문금액 텍스트 */
 .summary-item.total span:first-child {
-    font-size: 16px;  
+    font-size: 14px;  /* 15px → 14px */
     font-weight: 700;
-    color: #333;
+    color: #212529;
 }
 
 /* 총 금액 */
 .summary-item.total span:last-child {
-    color: #e74c3c; 
-    font-size: 20px;   
-    font-weight: 700;
+    color: #6366f1; 
+    font-size: 20px;   /* 24px → 20px */
+    font-weight: 800;
 }
 
 /* =========================
-   버튼 스타일
+   버튼 스타일 - 컴팩트하게
 ========================= */
 .checkout-btn,
 .delete-selected,
 #btnDeleteSelected {
     width: 100%;
-    padding: 14px;
+    padding: 14px;      /* 16px → 14px */
     border: none;
-    border-radius: 6px;
-    font-size: 15px;
+    border-radius: 10px;
+    font-size: 14px;    /* 15px → 14px */
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
 /* 구매하기 버튼 */
 .checkout-btn {
-    background-color: #17a2b8;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #ffffff;
-    margin-bottom: 10px;
+    margin-bottom: 10px;  /* 12px → 10px */
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .checkout-btn:hover {
-    background-color: #138496;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    transform: translateY(-1px);
 }
 
 /* 삭제 버튼 */
 #btnDeleteSelected {
-    background-color: #dc3545;
-    color: #ffffff;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
 }
 
 #btnDeleteSelected:hover {
-    background-color: #c82333;
+    background-color: #e9ecef;
+    color: #495057;
 }
 
 /* =========================
@@ -319,7 +324,11 @@ input[type="checkbox"] {
     }
     
     .summary-section {
-        width: 300px;
+        width: 220px;  /* 280px → 220px */
+        flex-shrink: 0;
+        position: sticky;
+        top: 100px;
+        align-self: flex-start;
     }
 }
 
