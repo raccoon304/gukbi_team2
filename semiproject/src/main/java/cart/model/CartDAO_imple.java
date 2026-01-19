@@ -53,6 +53,7 @@ public class CartDAO_imple implements CartDAO {
             + "    p.price AS base_price, "
             + "    o.plus_price, "
             + "    o.color, "	
+            + "    o.storage_size, "
             + "    (p.price + o.plus_price) AS unit_price, "
             + "    p.image_path, "
             + "    CASE "
@@ -92,6 +93,7 @@ public class CartDAO_imple implements CartDAO {
                 map.put("total_price", rs.getInt("total_price"));
                 map.put("brand_name", rs.getString("brand_name"));
                 map.put("color", rs.getString("color"));
+                map.put("storage_size", rs.getString("storage_size"));
                 map.put("option_id", rs.getInt("fk_option_id"));
                 map.put("is_adjusted", rs.getInt("is_adjusted"));  // 조정 여부 추가
                 
@@ -197,6 +199,7 @@ public class CartDAO_imple implements CartDAO {
 	    	    "   p.product_name, " +
 	    	    "	o.option_id,	" +
 	    	    "   o.plus_price,   " +
+	    	    "   o.storage_size, " +	
 	    	    "   p.image_path, " +
 	    	    "   p.brand_name,  " +
 	    	    "   (p.price + o.plus_price) AS unit_price, " +
@@ -222,6 +225,7 @@ public class CartDAO_imple implements CartDAO {
 	        	    map.put("unit_price", rs.getInt("unit_price"));
 	        	    map.put("total_price", rs.getInt("total_price"));
 	        	    map.put("brand_name", rs.getString("brand_name"));
+	        	    map.put("storage_size", rs.getString("storage_size"));
 	        	    map.put("option_id", rs.getInt("fk_option_id"));
 	        	   
 	        	}
@@ -386,7 +390,7 @@ public class CartDAO_imple implements CartDAO {
 
 	            String updateSql =
 	                " UPDATE tbl_cart " +
-	                " SET quantity = ? " +  // ✅ 교체 (누적 아님)
+	                " SET quantity = ? " +  // 교체 (누적 아님)
 	                " WHERE cart_id = ? ";
 
 	            pstmt = conn.prepareStatement(updateSql);
@@ -495,6 +499,7 @@ public class CartDAO_imple implements CartDAO {
 	      + "   p.product_name, "
 	      + "   p.brand_name, "
 	      + "   p.image_path, "
+	      + "   o.storage_size, "
 	      + "   (p.price + o.plus_price) AS unit_price, "
 	      + "   ? AS quantity, "
 	      + "   (p.price + o.plus_price) * ? AS total_price "
@@ -517,6 +522,7 @@ public class CartDAO_imple implements CartDAO {
 	                map.put("product_name", rs.getString("product_name"));
 	                map.put("brand_name", rs.getString("brand_name"));
 	                map.put("image_path", rs.getString("image_path"));
+	                map.put("storage_size", rs.getString("storage_size"));
 	                map.put("unit_price", rs.getInt("unit_price"));
 	                map.put("quantity", rs.getInt("quantity"));
 	                map.put("total_price", rs.getInt("total_price"));

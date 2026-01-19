@@ -13,18 +13,73 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        /* ===== Modal 스타일 (마이페이지와 동일) ===== */
+        .yd-modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+            padding: 1rem;
+        }
+        .yd-modal {
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            border-radius: .75rem;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,.2);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .yd-modal-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .yd-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .yd-modal-close {
+            background: transparent;
+            border: 0;
+            font-size: 22px;
+            line-height: 1;
+            color: #6c757d;
+            cursor: pointer;
+        }
+        .yd-modal-body {
+            padding: 1.25rem;
+            overflow: auto;
+        }
+        .yd-modal-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: .5rem;
+            background: #fff;
+        }
+        .yd-loading { 
+            color: #6c757d; 
+            font-size: 14px; 
+            text-align: center;
+            padding: 40px 0;
+        }
+    </style>
 </head>
 <body>
 
-
-
 <!-- 결제 완료 -->
-    <div class="container my-5">   <!-- ⭐ 핵심 -->
-
-<%--
-결제 완료 페이지이므로
-장바구니 데이터는 컨트롤러에서 삭제 처리함
---%>
+<div class="container my-5">
 
     <!-- 결제 완료 -->
     <div class="complete-header mb-2 d-flex align-items-center">
@@ -41,7 +96,7 @@
     <!-- 주문 상품 -->
     <div class="section-title mb-3">주문 상품</div>
 
-    <table class="order-table table bg-white"> <!-- table 추가 -->
+    <table class="order-table table bg-white">
         <tr>
             <th>상품정보</th>
             <th class="text-center">수량</th>
@@ -49,7 +104,7 @@
         </tr>
 
         <c:forEach var="item" items="${orderDetailList}">
-            <tr> 
+            <tr>
                 <td>
                     <div class="product-cell d-flex align-items-center">
                         <div class="product-img mr-3"></div>
@@ -80,10 +135,11 @@
 
     <!-- 버튼 -->
     <div class="btn-area text-center mt-5">
-        <a href="<%=ctxPath%>/order/orderDetail.hp"
-           class="btn btn-outline-secondary px-4 py-2 mr-2">
+        <button type="button" 
+                class="btn btn-outline-secondary px-4 py-2 mr-2 js-open-order-modal"
+                data-orderid="${order.order_id}">
            주문상세 보기
-        </a>
+        </button>
         <a href="<%=ctxPath%>/index.hp"
            class="btn btn-warning px-4 py-2 text-white">
            계속 쇼핑하기
@@ -91,5 +147,104 @@
     </div>
 
 </div>
+
+<!-- =================== 주문 상세 모달 (마이페이지와 동일) =================== -->
+<div id="ydOrderModalBackdrop" class="yd-modal-backdrop" aria-hidden="true">
+    <div class="yd-modal" role="dialog" aria-modal="true" aria-labelledby="ydModalTitle">
+        <div class="yd-modal-header">
+            <h3 class="yd-modal-title" id="ydModalTitle">주문 내역 상세</h3>
+            <button type="button" class="yd-modal-close js-close-order-modal" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="yd-modal-body">
+            <div id="ydModalLoading" class="yd-loading">불러오는 중...</div>
+            <div id="ydModalContent" style="display:none;"></div>
+        </div>
+
+        <div class="yd-modal-footer">
+            <button type="button" class="btn btn-secondary js-close-order-modal">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const ctxPath = "<%=ctxPath%>";
+    const backdrop = document.getElementById("ydOrderModalBackdrop");
+    const loadingEl = document.getElementById("ydModalLoading");
+    const contentEl = document.getElementById("ydModalContent");
+
+    function openModal() {
+        backdrop.style.display = "flex";
+        backdrop.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+        backdrop.style.display = "none";
+        backdrop.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+    }
+
+    async function loadOrderDetail(orderId) {
+        loadingEl.style.display = "block";
+        loadingEl.textContent = "불러오는 중...";
+        contentEl.style.display = "none";
+        contentEl.innerHTML = "";
+
+        try {
+            const url = ctxPath + "/myPage/orderDetailFragment.hp?orderNo=" + encodeURIComponent(orderId);
+            console.log("FETCH URL =>", url);
+            console.log("orderId =>", orderId);
+
+            const res = await fetch(url, {
+                method: "GET",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            });
+
+            if (!res.ok) throw new Error("HTTP " + res.status);
+
+            const html = await res.text();
+            contentEl.innerHTML = html;
+
+            loadingEl.style.display = "none";
+            contentEl.style.display = "block";
+        } catch (err) {
+            loadingEl.style.display = "block";
+            loadingEl.textContent = "상세 정보를 불러오지 못했습니다. (" + err.message + ")";
+        }
+    }
+
+    // 클릭 이벤트 위임
+    document.addEventListener("click", function(e) {
+        const btn = e.target.closest(".js-open-order-modal");
+        if (btn) {
+            e.preventDefault();
+            const orderId = btn.getAttribute("data-orderid");
+            openModal();
+            loadOrderDetail(orderId);
+            return;
+        }
+
+        if (e.target.closest(".js-close-order-modal")) {
+            closeModal();
+            return;
+        }
+
+        // 바깥 클릭 닫기
+        if (e.target === backdrop) {
+            closeModal();
+        }
+    });
+
+    // ESC 닫기
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape" && backdrop.style.display === "flex") {
+            closeModal();
+        }
+    });
+})();
+</script>
+
 </body>
 </html>
