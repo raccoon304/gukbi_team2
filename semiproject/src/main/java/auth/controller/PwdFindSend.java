@@ -66,7 +66,8 @@ public class PwdFindSend extends AbstractController {
                 SmsService smsService = new SmsService(request.getServletContext());
                 sent = smsService.sendVerificationCode(mobile, smsCode);
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+            	// [릴리즈 버전용] 콘솔 스택트레이스 출력은 정보노출/로그오염 위험이 있어 주석 처리함.
                 sent = false;
             }
 
@@ -113,7 +114,8 @@ public class PwdFindSend extends AbstractController {
             mail.send_certification_code(email, certCode);
             sent = true;
         } catch (Exception e) {
-            e.printStackTrace();
+        	// e.printStackTrace();
+            // [릴리즈 버전용] 콘솔 스택트레이스 출력은 정보노출/로그오염 위험이 있어 주석 처리함.
             sent = false;
         }
 

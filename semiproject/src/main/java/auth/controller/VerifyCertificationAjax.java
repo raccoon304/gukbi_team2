@@ -95,7 +95,7 @@ public class VerifyCertificationAjax extends AbstractController {
                 SmsService smsService = new SmsService(request.getServletContext());
                 sent = smsService.sendTempPassword(sessionMobile, tempPwd);
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 sent = false;
             }
 
@@ -134,7 +134,7 @@ public class VerifyCertificationAjax extends AbstractController {
             mail.send_temp_password(email, tempPwd);
             sent = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             sent = false;
         }
 
