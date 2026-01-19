@@ -284,6 +284,7 @@ $(document).ready(function() {
 	    const defaultColor = $('input[name="color"]:first').val() || '기본';
 	
 	    const row = $(`
+			<small class="form-text text-muted">해당 상품의 기본 옵션입니다.</small>
 	        <div class="matrix-row" data-storage="256GB" data-color="${defaultColor}" data-default="true">
 	            <div class="matrix-cell storage">
 	                <i class="fas fa-hdd mr-2"></i>256GB
@@ -291,21 +292,34 @@ $(document).ready(function() {
 	            <div class="matrix-cell color">
 	                <i class="fas fa-palette mr-2"></i>${defaultColor}
 	            </div>
-	            <div class="matrix-input">
+	            <div class="matrix-input matrix-input-stock">
 	                <input type="number" class="form-control option-stock"
 	                    data-storage="256GB" data-color="${defaultColor}"
 	                    placeholder="재고" min="0" required>
+					<div class="input-group-append">
+                        <span class="input-group-text">개</span>
+                    </div>
 	            </div>
-	            <div class="matrix-input">
+				
+	            <div class="matrix-input matrix-input-price">
+					<div class="input-group-prepend">
+                        <span class="input-group-text" 
+                            style="background:'#667eea'; color:white; border:none;">
+                            기본금
+                        </span>
+                    </div>
 	                <input type="number" class="form-control option-additional-price"
 	                    data-is-base="true" value="${basePrice}"
 	                    readonly style="background:#e9ecef;">
+					<div class="input-group-append">
+                        <span class="input-group-text">원</span>
+                    </div>
 	            </div>
-	            <div class="matrix-delete">
-	                <button type="button" class="btn btn-secondary btn-sm" disabled>
-	                    기본옵션
-	                </button>
-	            </div>
+				<div class="matrix-delete">
+				    <span class="default-option-badge">
+				        <i class="fas fa-lock mr-1"></i>
+				    </span>
+				</div>
 	        </div>
 	    `);
 	
@@ -390,7 +404,7 @@ $(document).ready(function() {
                         <div class="matrix-cell color">
                             <i class="fas fa-palette mr-2"></i>${color}
                         </div>
-                        <div class="matrix-input">
+                        <div class="matrix-input matrix-input-stock">
                             <div class="input-group">
                                 <input type="number" class="form-control option-stock" 
                                     data-storage="${storage}" data-color="${color}" 
@@ -400,7 +414,7 @@ $(document).ready(function() {
                                 </div>
                             </div>
                         </div>
-                        <div class="matrix-input">
+                        <div class="matrix-input matrix-input-price">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" 

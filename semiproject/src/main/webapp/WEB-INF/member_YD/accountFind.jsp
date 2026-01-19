@@ -21,7 +21,7 @@
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-  <!-- Bootstrap -->
+  <!-- Bootstrap CSS (기존 유지) -->
   <link rel="stylesheet" href="<%= ctxPath %>/bootstrap-4.6.2-dist/css/bootstrap.min.css" type="text/css">
 
   <script>
@@ -50,7 +50,7 @@
     .result-card.warn { border-color:#fde68a; background:#fffbeb; }
   </style>
 
-  <!-- 상태값을 받아서 뷰에서 계속 유지할 수 있도록하기 위해 저장 -->
+  <!-- 상태값(서버 렌더링 복귀 시 하위호환 유지용) -->
   <script>
     window.ACTIVE_TAB    = "${requestScope.activeTab}";
     window.PWD_POSTED    = "${requestScope.pwd_posted}";
@@ -94,7 +94,7 @@
           <button type="button" class="find-tab" id="tabPwdFind">비밀번호 찾기</button>
         </div>
 
-        <!-- ================== 아이디 찾기 폼 (✅ 여기 채워짐) ================== -->
+        <!-- ================== 아이디 찾기 폼 ================== -->
         <form id="idFindForm" class="space-y-6" method="post" action="<%=ctxPath%>/member/idFind.hp">
           <div class="space-y-4">
 
@@ -163,6 +163,7 @@
           </div>
         </form>
 
+        <!-- 아이디 찾기 결과 -->
         <c:if test="${not empty maskedMemberId or not empty errorMsg}">
           <div id="idFindResultArea" class="mt-4">
             <c:if test="${not empty maskedMemberId}">
@@ -195,6 +196,7 @@
           </div>
         </c:if>
 
+        <!-- ================== 비밀번호 찾기 폼 ================== -->
         <form id="pwdFindForm" class="space-y-6 hidden" method="post" action="<%=ctxPath%>/member/pwdFind.hp">
           <div class="space-y-4">
 
@@ -271,130 +273,85 @@
             </div>
           </div>
 
-          <c:if test="${requestScope.pwd_status ne 'MAIL_SENT' and requestScope.pwd_status ne 'SMS_SENT'}">
-            <div>
-              <button type="submit" id="pwdFindBtn"
-                      class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150">
-                비밀번호 찾기
-              </button>
-            </div>
-          </c:if>
+          <div>
+            <button type="button" id="pwdFindBtn"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150">
+              비밀번호 찾기
+            </button>
+          </div>
         </form>
 
+        <!-- ================== 비밀번호 찾기 결과/인증코드 입력 영역  ================== -->
+        <div id="pwdFindResultArea" class="mt-4 hidden">
 
+          <!-- 성공 카드 -->
+          <div id="pwdResultSuccess" class="result-card warn mb-3 hidden">
+            <div class="flex items-start gap-3">
+              <div class="mt-1"><i data-feather="clock" class="text-yellow-600"></i></div>
+              <div class="w-full">
+                <div class="text-sm font-semibold text-yellow-800 mb-1">인증코드를 입력하세요</div>
+                <div class="text-sm text-gray-800" id="pwdSendMsg">
+                  인증코드를 발송했습니다.
+                </div>
+                <div class="text-xs text-gray-600 mt-2">
+                  남은 시간: <span id="pwdExpireTimer" class="font-bold">--:--</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <!-- 실패 tl -->
+          <div id="pwdResultFail" class="result-card fail mb-3 hidden">
+            <div class="flex items-start gap-3">
+              <div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
+              <div class="w-full">
+                <div class="text-sm font-semibold text-red-800 mb-1">비밀번호 찾기 실패</div>
+                <div class="text-sm text-gray-800" id="pwdFailMsg">
+                  처리 중 오류가 발생했습니다.
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <!-- 비밀번호 찾기 결과/인증코드 입력 영역 -->
-        <!-- 기존 전역변수로 커버하던걸 유효성 검사 바꾸면서 수정함. -->
-		<div id="pwdFindResultArea" class="mt-4 hidden">
-  			<c:if test="${requestScope.pwd_posted eq true}">
-    			<c:choose>
-      				<c:when test="${requestScope.pwd_status eq 'MAIL_SENT' or requestScope.pwd_status eq 'SMS_SENT'}">
-        				<div class="result-card warn mb-3">
-          					<div class="flex items-start gap-3">
-            					<div class="mt-1"><i data-feather="clock" class="text-yellow-600"></i></div>
-           						<div class="w-full">
-			                    	<div class="text-sm font-semibold text-yellow-800 mb-1">인증코드를 입력하세요</div>
-              						<div class="text-sm text-gray-800">
-                						<c:out value="${requestScope.pwd_status eq 'MAIL_SENT' ? '이메일로' : '문자로'}" /> 인증코드를 발송했습니다.
-             						</div>
-           							<div class="text-xs text-gray-600 mt-2">남은 시간: <span id="pwdExpireTimer" class="font-bold">--:--</span></div>
-            					</div>
-          					</div>
-        				</div>
+          <!-- 인증 입력 -->
+          <div id="pwdVerifyBox" class="space-y-3 hidden">
+            <input type="text" id="pwd_input_confirmCode"
+                   class="w-full border rounded-md py-3 px-3"
+                   placeholder="인증코드 입력"
+                   autocomplete="one-time-code"
+                   inputmode="numeric" />
 
-        				<div class="space-y-3">
-          					<input type="text" id="pwd_input_confirmCode" class="w-full border rounded-md py-3 px-3" placeholder="인증코드 입력" autocomplete="one-time-code" inputmode="numeric" />
-          					<button type="button" id="btnPwdVerify"
-                  				class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
-            					인증하기
-          					</button>
-        				</div>
-        				<form name="verifyCertificationFrm">
-          					<input type="hidden" name="userCertificationCode" value="" />
-				          	<input type="hidden" name="userid" value="" />
-				          	<input type="hidden" name="channel" value="" />
-        				</form>
-      				</c:when>
-      				<c:otherwise>
-				        <div class="result-card fail mb-3">
-				          	<div class="flex items-start gap-3">
-				           	 	<div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
-			            		<div class="w-full">
-			             			<div class="text-sm font-semibold text-red-800 mb-1">비밀번호 찾기 실패</div>
-			              			<div class="text-sm text-gray-800">
-			                			<c:out value="${empty requestScope.pwd_msg ? '처리 중 오류가 발생했습니다.' : requestScope.pwd_msg}" />
-			              			</div>
-		            			</div>
-			          		</div>
-				        </div>
-      				</c:otherwise>
-    			</c:choose>
-	  		</c:if>
-		</div>
+            <button type="button" id="btnPwdVerify"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+              인증하기
+            </button>
+          </div>
+
+          <!-- VerifyCertification으로 제출 -->
+          <form name="verifyCertificationFrm" method="post" action="<%=ctxPath%>/member/verifyCertification.hp">
+            <input type="hidden" name="userCertificationCode" value="" />
+            <input type="hidden" name="userid" value="" />
+            <input type="hidden" name="channel" value="" />
+          </form>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
 
-<script>
-  // 아이디 찾기 라디오(이메일/휴대폰) 전환
-  function toggleIdFindInputs() {
-    const v = document.querySelector("input[name='idFindType']:checked")?.value || "email";
-    const byEmail = document.getElementById("idFindByEmail");
-    const byPhone = document.getElementById("idFindByPhone");
-    if (v === "phone") {
-      byEmail.classList.add("hidden");
-      byPhone.classList.remove("hidden");
-    } else {
-      byPhone.classList.add("hidden");
-      byEmail.classList.remove("hidden");
-    }
-  }
-
-  // 탭 전환
-  function showTab(which) {
-    const tabIdBtn = document.getElementById("tabIdFind");
-    const tabPwdBtn = document.getElementById("tabPwdFind");
-    const idForm = document.getElementById("idFindForm");
-    const pwdForm = document.getElementById("pwdFindForm");
-    const pwdResult = document.getElementById("pwdFindResultArea");
-
-    if (which === "pwd") {
-      tabIdBtn.classList.remove("active");
-      tabPwdBtn.classList.add("active");
-      idForm.classList.add("hidden");
-      pwdForm.classList.remove("hidden");
-      // 비번 결과는 기존 로직에 따라 보이게
-      // (accountFind.js에서 제어 중이면 이 줄은 빼도 됨)
-    } else {
-      tabPwdBtn.classList.remove("active");
-      tabIdBtn.classList.add("active");
-      pwdForm.classList.add("hidden");
-      idForm.classList.remove("hidden");
-      if (pwdResult) pwdResult.classList.add("hidden");
-    }
-
-    if (window.feather) feather.replace();
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    // 탭 클릭 이벤트
-    document.getElementById("tabIdFind").addEventListener("click", () => showTab("id"));
-    document.getElementById("tabPwdFind").addEventListener("click", () => showTab("pwd"));
-
-    // 아이디 찾기 라디오 이벤트
-    document.querySelectorAll("input[name='idFindType']").forEach(el => {
-      el.addEventListener("change", toggleIdFindInputs);
-    });
-    toggleIdFindInputs();
-
-    // 서버가 activeTab 내려주면 유지 (pwd_posted 등도 포함 가능)
-    if (ACTIVE_TAB === "pwd" || PWD_POSTED === "true") showTab("pwd");
-    else showTab("id");
-
-    if (window.feather) feather.replace();
-  });
-</script>
+<!-- Tailwind 로딩 오버레이 (Bootstrap 미사용)[기존 코드가 Tailwind 기반이라 Bootstrap과 섞으면 디자인이 깨짐. -->
+<div id="loadingOverlay" class="fixed inset-0 hidden z-[9999]">
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm rounded-2xl bg-white shadow-xl p-6 text-center">
+      <div class="mx-auto h-10 w-10 rounded-full border-4 border-gray-200 border-t-primary-600 animate-spin"></div>
+      <div class="mt-4 text-base font-bold text-gray-800" id="loadingTitle">진행중입니다...</div>
+      <div class="mt-1 text-sm text-gray-500" id="loadingDesc">인증코드를 발송하고 있습니다.</div>
+      <div class="mt-4 text-xs text-gray-400">잠시만 기다려주세요.</div>
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript" src="<%=ctxPath%>/js/member_YD/accountFind.js?v=<%=System.currentTimeMillis()%>"></script>
 </body>
