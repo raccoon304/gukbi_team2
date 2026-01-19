@@ -166,6 +166,8 @@ public class ReviewDAO_imple implements ReviewDAO {
     	    String productCode = paraMap.get("productCode");
     	    String sort = paraMap.get("sort"); // latest / high / low
 
+    	    
+    	    
     	    boolean isAll = (productCode == null || productCode.trim().isEmpty() || "ALL".equalsIgnoreCase(productCode.trim()));
 
     	    int sizePerPage = Integer.parseInt(paraMap.get("sizePerPage"));
@@ -174,11 +176,16 @@ public class ReviewDAO_imple implements ReviewDAO {
     	    int startRno = (currentShowPageNo - 1) * sizePerPage + 1;
     	    int endRno = currentShowPageNo * sizePerPage;
 
-    	    String orderBy = " r.writeday desc, r.review_number desc ";
-    	    if ("high".equals(sort)) {
-    	        orderBy = " r.rating desc, r.writeday desc, r.review_number desc ";
-    	    } else if ("low".equals(sort)) {
-    	        orderBy = " r.rating asc, r.writeday desc, r.review_number desc ";
+    	    String orderBy = " r.writeday desc, r.review_number desc "; // 최신순
+    	    
+			if ("old".equals(sort)) {
+			    orderBy = " r.writeday asc, r.review_number asc ";       // 오래된순
+			} 
+			else if ("high".equals(sort)) {
+    	        orderBy = " r.rating desc, r.writeday desc, r.review_number desc "; // 별점높은순
+    	    }
+			else if ("low".equals(sort)) {
+    	        orderBy = " r.rating asc, r.writeday desc, r.review_number desc "; // 별점낮은순
     	    }
 
     	    try {

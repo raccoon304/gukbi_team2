@@ -1,0 +1,85 @@
+
+@charset "UTF-8";
+
+
+/* Sidebar Layout (Desktop) */
+
+:root{
+  --sidebar-width: 250px;
+}
+
+/* 기본 레이아웃 */
+.wrapper{
+  display: flex;
+  min-height: 100vh;
+}
+
+/* 데스크탑: 사이드바 폭만큼 메인 밀기 */
+.main-content{
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile Topbar*/
+.mobile-topbar{
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  background: #f8f9fa;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Sidebar Overlay (Mobile) */
+.sidebar-overlay{
+  display: none;
+}
+
+/* body 스크롤 방지 */
+body.sidebar-open{
+  overflow: hidden;
+}
+
+/* Offcanvas Sidebar (Mobile) */
+@media (max-width: 991.98px){
+
+  /* 모바일: 메인 풀폭 */
+  .main-content{
+    margin-left: 0 !important;
+  }
+
+  /* 모바일: 사이드바 오프캔버스 */
+  .sidebar{
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    z-index: 3000 !important;
+  }
+
+  .sidebar.open{
+    transform: translateX(0);
+  }
+
+  /* 오버레이 */
+  .sidebar-overlay{
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 2500;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease;
+  }
+
+  .sidebar-overlay.show{
+    display: block;
+    opacity: 1;
+    visibility: visible;
+  }
+}

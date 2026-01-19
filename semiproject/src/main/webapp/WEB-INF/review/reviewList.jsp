@@ -42,20 +42,27 @@
 
   <!-- 상품 선택 필터 -->
   <form method="get" action="<%=ctxPath%>/review/reviewList.hp" class="review-filter form-inline mb-3">
-    <input type="hidden" name="sort" value="${sort}"/>
+    
     <input type="hidden" name="sizePerPage" value="${sizePerPage}"/>
     <input type="hidden" name="currentShowPageNo" value="1"/>
 
     <label class="mr-2 font-weight-bold">상품선택</label>
-    <select name="productCode" id="productCodeSel" class="form-control form-control-sm" style="min-width:260px;">
-      <option value="ALL" <c:if test="${productCode == 'ALL'}">selected</c:if>>전체 상품</option>
-
-      <c:forEach var="p" items="${productList}">
-        <option value="${p.productCode}" <c:if test="${productCode == p.productCode}">selected</c:if>>
-          <c:out value="${p.brandName}" /> <c:out value="${p.productName}" />
-        </option>
-      </c:forEach>
-    </select>
+	  <select name="productCode" id="productCodeSel" class="form-control form-control-sm mr-3" style="min-width:260px;">
+	    <option value="ALL" <c:if test="${productCode == 'ALL'}">selected</c:if>>전체 상품</option>
+	    <c:forEach var="p" items="${productList}">
+	      <option value="${p.productCode}" <c:if test="${productCode == p.productCode}">selected</c:if>>
+	        <c:out value="${p.brandName}" /> <c:out value="${p.productName}" />
+	      </option>
+	    </c:forEach>
+	  </select>
+	
+	  <label class="mr-2 font-weight-bold">정렬</label>
+	  <select name="sort" id="sortSel" class="form-control form-control-sm" style="min-width:180px;">
+	    <option value="latest" <c:if test="${sort == 'latest'}">selected</c:if>>최신순</option>
+	    <option value="old"    <c:if test="${sort == 'old'}">selected</c:if>>오래된순</option>
+	    <option value="high"   <c:if test="${sort == 'high'}">selected</c:if>>별점 높은순</option>
+	    <option value="low"    <c:if test="${sort == 'low'}">selected</c:if>>별점 낮은순</option>
+	  </select>
   </form>
 
   <div class="review-summary">
@@ -179,10 +186,15 @@
 <script>
 $(function(){
 
-  // 상품 필터 변경시 바로 submit
+  // 상품 필터 변경시 submit
   $("#productCodeSel").on("change", function(){
     $(this).closest("form").submit();
   });
+  
+  // 정렬 변경시 submit
+  $("#productCodeSel, #sortSel").on("change", function(){
+	  $(this).closest("form").submit();
+	});
 
   // 행 클릭 -> 상세로
   $(document).on("click", "tr.rv-row", function(){

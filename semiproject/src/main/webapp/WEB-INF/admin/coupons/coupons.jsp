@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0 shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>쿠폰 관리 - PhoneStore 관리자</title>
     
 <script>
@@ -35,25 +35,32 @@
 	<script type="text/javascript" src="<%=ctxPath%>/jquery-ui-1.13.1.custom/jquery-ui.min.js"></script>
 	
 	<%-- 직접 만든 JS --%>
+	<script src="<%=ctxPath%>/js/admin/admin_common.js"></script>
     <script src="<%=ctxPath%>/js/admin/coupons.js"></script>
     
-
 </head>
 <body>
     <div class="wrapper">
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
         
         <div class="main-content">
             <%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
+            <div class="mobile-topbar d-lg-none">
+			  <button type="button" class="btn btn-light btn-sm" id="btnSidebarToggle">
+			    <i class="fas fa-bars"></i>
+			  </button>
+			  <span class="ml-2 font-weight-bold">관리자</span>
+			</div>
             
              <div class="content-wrapper">
-                <div class="container-fluid p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="container-fluid p-3 p-md-4">
+                    <div class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center mb-4">
                         <div>
                             <h2 class="mb-2">쿠폰 관리</h2>
                             <p class="text-muted">쿠폰을 생성하고 관리할 수 있습니다</p>
                         </div>
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#createCouponModal" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <button class="btn btn-primary mt-2 mt-md-0 ml-md-auto" data-toggle="modal" data-target="#createCouponModal" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                             <i class="fas fa-plus mr-2"></i>쿠폰 생성
                         </button>
                     </div>
@@ -94,7 +101,7 @@
 							  <input type="hidden" name="onlyUsable" id="onlyUsableVal"
 								     value="${empty param.onlyUsable ? '1' : param.onlyUsable}" />
 								
-								<div class="form-check ml-4">
+								<div class="form-check coupon-only-usable">
 								  <input class="form-check-input" type="checkbox" id="onlyUsableChk"
 								         ${empty param.onlyUsable || param.onlyUsable == '1' ? 'checked' : ''} />
 								  <label class="form-check-label" for="onlyUsableChk">사용중만 보기</label>
@@ -159,14 +166,14 @@
 											        <form method="post" action="<%=ctxPath%>/admin/couponDisable.hp" class="d-inline"
 												          onsubmit="return confirm('이 쿠폰을 사용안함 처리할까요?');">
 												      <input type="hidden" name="couponCategoryNo" value="${coupon.couponCategoryNo}">
-												      <button type="submit" class="btn btn-sm btn-outline-danger">사용안함</button>
+												      <button type="submit" class="btn btn-sm btn-outline-danger">사용안함처리</button>
 												    </form>
 											      </c:when>
 											      <c:otherwise>
 												    <form method="post" action="<%=ctxPath%>/admin/couponEnable.hp" class="d-inline"
 												          onsubmit="return confirm('이 쿠폰을 다시 사용함으로 변경할까요?');">
 												      <input type="hidden" name="couponCategoryNo" value="${coupon.couponCategoryNo}">
-												      <button type="submit" class="btn btn-sm btn-outline-primary">사용함</button>
+												      <button type="submit" class="btn btn-sm btn-outline-primary">사용함처리</button>
 												    </form>
 												  </c:otherwise>
 											    </c:choose>
@@ -234,7 +241,7 @@
     
     <!-- Member Selection Modal -->
     <div class="modal fade" id="memberSelectModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable modal-responsive" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">쿠폰 발급 대상 선택</h5>
@@ -341,7 +348,7 @@
     
     <!-- Issued Members Modal -->
     <div class="modal fade" id="issuedMembersModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-lg modal-responsive" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">쿠폰 발급 회원 목록</h5>

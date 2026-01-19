@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0 shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>대시보드 - PhoneStore 관리자</title>
     
     
@@ -32,15 +32,25 @@
 	
 	<%-- 직접 만든 JS --%>
     <script src="<%=ctxPath%>/js/admin/dashboard.js"></script>
+    <script src="<%=ctxPath%>/js/admin/admin_common.js"></script>
 	
 </head>
 <body>
     <div class="wrapper">
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
 
+		<!-- 오버레이는 wrapper 직속 유지 -->
+  		<div class="sidebar-overlay" id="sidebarOverlay"></div>
         
         <div class="main-content">
             <%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
+            
+            <div class="mobile-topbar d-lg-none">
+		      <button type="button" class="btn btn-light btn-sm" id="btnSidebarToggle">
+		        <i class="fas fa-bars"></i>
+		      </button>
+		      <span class="ml-2 font-weight-bold">관리자</span>
+		    </div>
             
             <div class="content-wrapper">
                 <div class="container-fluid p-4">
