@@ -408,7 +408,7 @@ public class ProductDAO_imple implements ProductDAO {
 	}//end of public boolean selectDuplicateOption(Map<String, String> paraMap) throws SQLException-----
 
 
-	//새로운 상품을 테이블에 삽입해주기
+	//새로운 상품을 테이블에 삽입해주기(추가 이미지는 트랙잭션 처리하여 같이 넣기)
 	@Override
 	public int insertProduct(ProductDTO proDto) throws SQLException {
 		int n = 0;
@@ -483,6 +483,50 @@ public class ProductDAO_imple implements ProductDAO {
 		finally {close();}
 		return proOptionList;
 	}//end of public List<ProductOptionDTO> selectAllOption(String productCode) throws SQLException-----
+
+
+	//제품의 추가 이미지 가져오기
+	@Override
+	public List<String> selectPlusImage(String productCode) throws SQLException {
+		List<String> plusProductImages = new ArrayList<String>();
+		try {
+			conn = ds.getConnection();
+			String sql = " SELECT product_code, plus_image_path "
+					+ " FROM tbl_product P "
+					+ " JOIN tbl_product_image I "
+					+ " ON P.product_code = I.fk_product_code_image "
+					+ " WHERE product_code = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productCode);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				plusProductImages.add(rs.getString("plus_image_path"));
+			}
+		}
+		
+		finally {close();}
+		return plusProductImages;
+	}//end of public List<ProductDTO> selectPlusImage(String productCode) throws SQLException-----
+
+
+	//추가 이미지를 테이블에 삽입해주기
+	@Override
+	public int insertProductImages(String productCode, String subImage) throws SQLException {
+		int n1 = 0;
+		try {
+			conn = ds.getConnection();
+			String sql = " INSERT INTO tbl_product_image(image_id, fk_product_code_image, plus_image_path) "
+						+" VALUES(SEQ_PRODUCT_IMAGE.nextval, ?, ?) ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, productCode);
+			pstmt.setString(2, subImage);
+			n1 = pstmt.executeUpdate();
+			
+		}
+		finally {close();}
+		return n1;
+	}//end of public int insertProductImages(Map<String, String> paraMap) throws SQLException-----
 
 
 	

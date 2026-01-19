@@ -1,6 +1,7 @@
 package admin.controller;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -22,7 +23,7 @@ public class AccountingDataController extends AbstractController {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+    	
         String period = request.getParameter("period");
         String startDate = request.getParameter("startDate");
         String endDate = request.getParameter("endDate");
@@ -34,8 +35,18 @@ public class AccountingDataController extends AbstractController {
 
         DateRange range = DateRange.from(period, startDate, endDate);
        
+        // 상단 카드 합계금액 구하기
         TotalsDTO totals = adao.selectTotals(range.start, range.end);
-        List<DailyAggDTO> dailyList = adao.selectDaily(range.start, range.end);
+        
+        // 월별 여부 결정 결정
+        boolean useMonthly = !range.start.plusMonths(3).isAfter(range.end);
+        
+        // 기간별 집계
+        List<DailyAggDTO> dailyList = useMonthly
+                                    ? adao.selectMonthly(range.start, range.end)
+                                    : adao.selectDaily(range.start, range.end);
+        
+        // 상품별 집계
         List<ProductAggDTO> productList = adao.selectProducts(range.start, range.end, sort);
 
         // JSON
@@ -49,6 +60,10 @@ public class AccountingDataController extends AbstractController {
         jsonObjTotals.put("discount", totals.getDiscount());
         jsonObjTotals.put("net", totals.getNet());
         jsonObjRoot.put("totals", jsonObjTotals);
+        
+        // 헤더 문구 바꾸게 내려주기
+        jsonObjRoot.put("unit", useMonthly ? "MONTH" : "DAY");
+        jsonObjRoot.put("unitLabel", useMonthly ? "월별" : "일별");
 
         JSONArray jsonArrDaily = new JSONArray();
         
@@ -138,9 +153,14 @@ public class AccountingDataController extends AbstractController {
                 case "LAST_YEAR":  s = LocalDate.of(today.getYear()-1, 1, 1); e = LocalDate.of(today.getYear(), 1, 1); break;
 
                 case "CUSTOM":
-                    s = LocalDate.parse(startDate);
-                    e = LocalDate.parse(endDate).plusDays(1);
-                    break;
+                	 	if (startDate == null || endDate == null || startDate.isBlank() || endDate.isBlank()) {
+                	        s = today.minusDays(6);
+                	        e = today.plusDays(1);
+                	    } else {
+                	        s = LocalDate.parse(startDate);
+                	        e = LocalDate.parse(endDate).plusDays(1);
+                	    }
+                	    break;
 
                 default:
                     s = today.minusDays(6); e = today.plusDays(1);

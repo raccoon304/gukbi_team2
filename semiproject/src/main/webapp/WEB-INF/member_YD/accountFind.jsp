@@ -52,14 +52,14 @@
 
   <!-- 상태값을 받아서 뷰에서 계속 유지할 수 있도록하기 위해 저장 -->
   <script>
-    const ACTIVE_TAB    = "${requestScope.activeTab}";
-    const PWD_POSTED    = "${requestScope.pwd_posted}";
-    const PWD_FIND_TYPE = "${requestScope.pwdFindType}";
-    const PWD_STATUS    = "${requestScope.pwd_status}";
-    const PWD_MOBILE    = "${requestScope.pwd_mobile}";
+    window.ACTIVE_TAB    = "${requestScope.activeTab}";
+    window.PWD_POSTED    = "${requestScope.pwd_posted}";
+    window.PWD_FIND_TYPE = "${requestScope.pwdFindType}";
+    window.PWD_STATUS    = "${requestScope.pwd_status}";
+    window.PWD_MOBILE    = "${requestScope.pwd_mobile}";
 
-    // 비번찾기 인증 만료시각(ms)
-    window.PWD_EXPIRE_AT_MS = Number("${sessionScope.pwdfind_cert_expire}");
+    // 비번찾기 인증 만료시각(ms) - 숫자로 유지
+    window.PWD_EXPIRE_AT_MS = ${empty sessionScope.pwdfind_cert_expire ? 0 : sessionScope.pwdfind_cert_expire};
   </script>
 </head>
 
@@ -94,11 +94,107 @@
           <button type="button" class="find-tab" id="tabPwdFind">비밀번호 찾기</button>
         </div>
 
-        <!-- ===== 아이디 찾기 폼 ===== -->
+        <!-- ================== 아이디 찾기 폼 (✅ 여기 채워짐) ================== -->
         <form id="idFindForm" class="space-y-6" method="post" action="<%=ctxPath%>/member/idFind.hp">
+          <div class="space-y-4">
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">찾기 방법</label>
+              <div class="mt-2 radio-pill space-y-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="idFindType" value="email"
+                         <c:if test="${empty requestScope.idFindType or requestScope.idFindType eq 'email'}">checked</c:if>>
+                  <span class="text-sm text-gray-700">등록된 이메일로 찾기</span>
+                </label>
+
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="idFindType" value="phone"
+                         <c:if test="${requestScope.idFindType eq 'phone'}">checked</c:if>>
+                  <span class="text-sm text-gray-700">등록된 휴대폰으로 찾기</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label for="idfind_name" class="block text-sm font-medium text-gray-700">성 명</label>
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i data-feather="user" class="text-gray-400"></i>
+                </div>
+                <input type="text" name="name" id="idfind_name" value="${requestScope.id_name}"
+                       class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3"
+                       placeholder="성명 입력" required>
+              </div>
+            </div>
+
+            <div id="idFindByEmail">
+              <label for="idfind_email" class="block text-sm font-medium text-gray-700">이메일</label>
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i data-feather="mail" class="text-gray-400"></i>
+                </div>
+                <input type="email" name="email" id="idfind_email" value="${requestScope.id_email}"
+                       class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3"
+                       placeholder="sistsix@example.com">
+              </div>
+            </div>
+
+            <div id="idFindByPhone" class="hidden">
+              <label for="idfind_phone" class="block text-sm font-medium text-gray-700">휴대폰 번호</label>
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i data-feather="phone" class="text-gray-400"></i>
+                </div>
+                <input type="tel" name="mobile" id="idfind_phone" inputmode="numeric" pattern="[0-9]*" maxlength="11"
+                       value="${requestScope.id_mobile}"
+                       class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3"
+                       placeholder="01000000000">
+              </div>
+              <p class="text-xs text-gray-500 mt-1">‘-’ 없이 숫자만 입력</p>
+            </div>
+
+          </div>
+
+          <div>
+            <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150">
+              아이디 찾기
+            </button>
+          </div>
         </form>
 
-        <!-- ===== 비밀번호 찾기 폼 ===== -->
+        <c:if test="${not empty maskedMemberId or not empty errorMsg}">
+          <div id="idFindResultArea" class="mt-4">
+            <c:if test="${not empty maskedMemberId}">
+              <div class="result-card success mb-3">
+                <div class="flex items-start gap-3">
+                  <div class="mt-1"><i data-feather="check-circle" class="text-green-600"></i></div>
+                  <div class="w-full">
+                    <div class="text-sm font-semibold text-green-800 mb-1">아이디 찾기 완료</div>
+                    <div class="text-sm text-gray-800">회원님의 아이디는</div>
+                    <div class="mt-2 text-2xl font-extrabold text-green-700 tracking-wider">${maskedMemberId}</div>
+                    <div class="text-xs text-green-700 mt-2">보안상 아이디 일부만 표시됩니다.</div>
+                  </div>
+                </div>
+              </div>
+            </c:if>
+
+            <c:if test="${empty maskedMemberId}">
+              <div class="result-card fail mb-3">
+                <div class="flex items-start gap-3">
+                  <div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
+                  <div class="w-full">
+                    <div class="text-sm font-semibold text-red-800 mb-1">아이디 찾기 실패</div>
+                    <div class="text-sm text-gray-800">
+                      <c:out value="${empty errorMsg ? '일치하는 회원정보가 없습니다.' : errorMsg}" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </c:if>
+          </div>
+        </c:if>
+
         <form id="pwdFindForm" class="space-y-6 hidden" method="post" action="<%=ctxPath%>/member/pwdFind.hp">
           <div class="space-y-4">
 
@@ -175,7 +271,6 @@
             </div>
           </div>
 
-          <!-- MAIL_SENT / SMS_SENT일 때는 버튼 숨김 -->
           <c:if test="${requestScope.pwd_status ne 'MAIL_SENT' and requestScope.pwd_status ne 'SMS_SENT'}">
             <div>
               <button type="submit" id="pwdFindBtn"
@@ -186,117 +281,120 @@
           </c:if>
         </form>
 
+
+
+
         <!-- 비밀번호 찾기 결과/인증코드 입력 영역 -->
-        <div id="pwdFindResultArea" class="mt-4 hidden">
+        <!-- 기존 전역변수로 커버하던걸 유효성 검사 바꾸면서 수정함. -->
+		<div id="pwdFindResultArea" class="mt-4 hidden">
+  			<c:if test="${requestScope.pwd_posted eq true}">
+    			<c:choose>
+      				<c:when test="${requestScope.pwd_status eq 'MAIL_SENT' or requestScope.pwd_status eq 'SMS_SENT'}">
+        				<div class="result-card warn mb-3">
+          					<div class="flex items-start gap-3">
+            					<div class="mt-1"><i data-feather="clock" class="text-yellow-600"></i></div>
+           						<div class="w-full">
+			                    	<div class="text-sm font-semibold text-yellow-800 mb-1">인증코드를 입력하세요</div>
+              						<div class="text-sm text-gray-800">
+                						<c:out value="${requestScope.pwd_status eq 'MAIL_SENT' ? '이메일로' : '문자로'}" /> 인증코드를 발송했습니다.
+             						</div>
+           							<div class="text-xs text-gray-600 mt-2">남은 시간: <span id="pwdExpireTimer" class="font-bold">--:--</span></div>
+            					</div>
+          					</div>
+        				</div>
 
-          <c:if test="${requestScope.pwd_posted eq true}">
-            <c:choose>
-
-              <c:when test="${requestScope.pwd_status eq 'INVALID'}">
-                <div class="result-card fail">
-                  <div class="flex items-start gap-3">
-                    <div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
-                    <div class="text-sm text-gray-800">
-                      <c:choose>
-                        <c:when test="${requestScope.pwdFindType eq 'phone'}">아이디/성명/휴대폰번호를 모두 입력해주세요.</c:when>
-                        <c:otherwise>아이디/성명/이메일을 모두 입력해주세요.</c:otherwise>
-                      </c:choose>
-                    </div>
-                  </div>
-                </div>
-              </c:when>
-
-              <c:when test="${requestScope.pwd_status eq 'NO_USER'}">
-                <div class="result-card fail">
-                  <div class="flex items-start gap-3">
-                    <div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
-                    <div class="text-sm text-gray-800">일치하는 회원정보가 없습니다.</div>
-                  </div>
-                </div>
-              </c:when>
-
-              <c:when test="${requestScope.pwd_status eq 'MAIL_SENT' or requestScope.pwd_status eq 'SMS_SENT'}">
-
-                <div class="result-card success">
-                  <div class="flex items-start gap-3">
-                    <div class="mt-1"><i data-feather="check-circle" class="text-green-600"></i></div>
-                    <div class="w-full">
-                      <div class="text-sm font-semibold text-green-800 mb-1">인증코드 발송 완료</div>
-
-                      <div class="text-sm text-gray-800">
-                        <c:choose>
-                          <c:when test="${requestScope.pwd_status eq 'MAIL_SENT'}">
-                            인증코드가 <b>${requestScope.pwd_email}</b> 로 발송되었습니다.<br>
-                          </c:when>
-                          <c:otherwise>
-                            인증코드가 <b>${requestScope.pwd_mobile}</b> 로 발송되었습니다.<br>
-                          </c:otherwise>
-                        </c:choose>
-                        아래에 인증코드를 입력해주세요.
-                      </div>
-
-                      <div class="mt-2 text-sm text-gray-700">
-                        인증번호 유효시간: <span id="pwdExpireTimer" class="font-weight-bold">--:--</span>
-                      </div>
-
-                      <div class="mt-3">
-                        <input type="text" id="pwd_input_confirmCode"
-                               class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3"
-                               placeholder="인증코드 입력" autocomplete="off">
-                      </div>
-
-                      <div class="mt-3">
-                        <button type="button" id="btnPwdVerify"
-                                class="w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition">
-                          인증하기
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <form name="verifyCertificationFrm">
-                  <input type="hidden" name="userCertificationCode" />
-                  <input type="hidden" name="userid" />
-                  <input type="hidden" name="channel" />
-                </form>
-              </c:when>
-
-              <c:when test="${requestScope.pwd_status eq 'SMS_FAIL'}">
-                <div class="result-card fail">
-                  <div class="flex items-start gap-3">
-                    <div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
-                    <div class="text-sm text-gray-800">문자 발송에 실패했습니다. 잠시 후 다시 시도해주세요.</div>
-                  </div>
-                </div>
-              </c:when>
-
-              <c:when test="${requestScope.pwd_status eq 'MAIL_FAIL'}">
-                <div class="result-card fail">
-                  <div class="flex items-start gap-3">
-                    <div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
-                    <div class="text-sm text-gray-800">메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.</div>
-                  </div>
-                </div>
-              </c:when>
-
-              <c:otherwise>
-                <div class="result-card fail">
-                  <div class="flex items-start gap-3">
-                    <div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
-                    <div class="text-sm text-gray-800">처리 중 오류가 발생했습니다. 다시 시도해주세요.</div>
-                  </div>
-                </div>
-              </c:otherwise>
-
-            </c:choose>
-          </c:if>
-        </div>
-
-      </div>
+        				<div class="space-y-3">
+          					<input type="text" id="pwd_input_confirmCode" class="w-full border rounded-md py-3 px-3" placeholder="인증코드 입력" autocomplete="one-time-code" inputmode="numeric" />
+          					<button type="button" id="btnPwdVerify"
+                  				class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+            					인증하기
+          					</button>
+        				</div>
+        				<form name="verifyCertificationFrm">
+          					<input type="hidden" name="userCertificationCode" value="" />
+				          	<input type="hidden" name="userid" value="" />
+				          	<input type="hidden" name="channel" value="" />
+        				</form>
+      				</c:when>
+      				<c:otherwise>
+				        <div class="result-card fail mb-3">
+				          	<div class="flex items-start gap-3">
+				           	 	<div class="mt-1"><i data-feather="alert-triangle" class="text-red-600"></i></div>
+			            		<div class="w-full">
+			             			<div class="text-sm font-semibold text-red-800 mb-1">비밀번호 찾기 실패</div>
+			              			<div class="text-sm text-gray-800">
+			                			<c:out value="${empty requestScope.pwd_msg ? '처리 중 오류가 발생했습니다.' : requestScope.pwd_msg}" />
+			              			</div>
+		            			</div>
+			          		</div>
+				        </div>
+      				</c:otherwise>
+    			</c:choose>
+	  		</c:if>
+		</div>
     </div>
   </div>
 </div>
+
+<script>
+  // 아이디 찾기 라디오(이메일/휴대폰) 전환
+  function toggleIdFindInputs() {
+    const v = document.querySelector("input[name='idFindType']:checked")?.value || "email";
+    const byEmail = document.getElementById("idFindByEmail");
+    const byPhone = document.getElementById("idFindByPhone");
+    if (v === "phone") {
+      byEmail.classList.add("hidden");
+      byPhone.classList.remove("hidden");
+    } else {
+      byPhone.classList.add("hidden");
+      byEmail.classList.remove("hidden");
+    }
+  }
+
+  // 탭 전환
+  function showTab(which) {
+    const tabIdBtn = document.getElementById("tabIdFind");
+    const tabPwdBtn = document.getElementById("tabPwdFind");
+    const idForm = document.getElementById("idFindForm");
+    const pwdForm = document.getElementById("pwdFindForm");
+    const pwdResult = document.getElementById("pwdFindResultArea");
+
+    if (which === "pwd") {
+      tabIdBtn.classList.remove("active");
+      tabPwdBtn.classList.add("active");
+      idForm.classList.add("hidden");
+      pwdForm.classList.remove("hidden");
+      // 비번 결과는 기존 로직에 따라 보이게
+      // (accountFind.js에서 제어 중이면 이 줄은 빼도 됨)
+    } else {
+      tabPwdBtn.classList.remove("active");
+      tabIdBtn.classList.add("active");
+      pwdForm.classList.add("hidden");
+      idForm.classList.remove("hidden");
+      if (pwdResult) pwdResult.classList.add("hidden");
+    }
+
+    if (window.feather) feather.replace();
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // 탭 클릭 이벤트
+    document.getElementById("tabIdFind").addEventListener("click", () => showTab("id"));
+    document.getElementById("tabPwdFind").addEventListener("click", () => showTab("pwd"));
+
+    // 아이디 찾기 라디오 이벤트
+    document.querySelectorAll("input[name='idFindType']").forEach(el => {
+      el.addEventListener("change", toggleIdFindInputs);
+    });
+    toggleIdFindInputs();
+
+    // 서버가 activeTab 내려주면 유지 (pwd_posted 등도 포함 가능)
+    if (ACTIVE_TAB === "pwd" || PWD_POSTED === "true") showTab("pwd");
+    else showTab("id");
+
+    if (window.feather) feather.replace();
+  });
+</script>
 
 <script type="text/javascript" src="<%=ctxPath%>/js/member_YD/accountFind.js?v=<%=System.currentTimeMillis()%>"></script>
 </body>

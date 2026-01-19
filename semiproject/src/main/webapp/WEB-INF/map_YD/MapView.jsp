@@ -6,6 +6,8 @@
     String ctxPath = request.getContextPath();
 %>
 
+<c:set var="loginUser" value="${sessionScope.loginUser}" />
+
 <style>
   #map_container {
     max-width: 1600px;
@@ -22,7 +24,7 @@
     background: #fff;
   }
 
-  /* ✅ 지점 탭(사이드바용) */
+  /* 지점 탭(사이드바용으로 마이페이지 참고해서 만듬 ) */
   .store-tabs { padding: .75rem; border-top: 1px solid #eee; }
   .store-tabs .store-btn{
     width: 100%;
@@ -47,13 +49,13 @@
     background: rgba(13,110,253,.08);
   }
 
-  /* ✅ 우측 매장 상세 패널 (디자인 맞춤) */
+  /* 우측 매장 상세 패널 */
   .store-detail{
     border: 1px solid #e9ecef;
     border-radius: 12px;
     background: #fff;
-    height: 520px;          /* 지도 높이랑 맞춤 */
-    overflow: hidden;       /* 헤더/바디 분리 */
+    height: 520px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     box-shadow: 0 6px 18px rgba(0,0,0,.04);
@@ -168,6 +170,10 @@
   .btn-outline-soft:hover{
     background: #f8f9fa;
   }
+
+  .admin-add-wrap{
+    padding: .75rem .75rem 0;
+  }
 </style>
 
 <div id="map_container" class="container">
@@ -181,15 +187,27 @@
           <small class="text-muted"></small>
         </div>
 
-        <div class="store-tabs">
-          <button type="button" class="store-btn active" data-store="gangnam">강남점</button>
-          <button type="button" class="store-btn" data-store="hongdae">홍대점</button>
-          <button type="button" class="store-btn" data-store="anseong">안성점</button>
+        <!-- admin이면 매장 추가 및 관리 버튼 올림. -->
+        <c:if test="${not empty loginUser and loginUser.memberid eq 'admin'}">
+          <div class="admin-add-wrap">
+            <a href="${pageContext.request.contextPath}/map/storeAdd.hp" class="btn btn-sm btn-primary btn-block">
+              <i class="fa-solid fa-plus mr-1"></i> 매장 추가
+            </a>
+            <a href="${pageContext.request.contextPath}/map/storeDelete.hp"
+               class="btn btn-sm btn-outline-danger btn-block mt-2">
+              <i class="fa-solid fa-gear mr-1"></i> 매장 관리
+            </a>
+          </div>
+        </c:if>
+
+        <!-- 탭 버튼 들어갈 영역 -->
+        <div class="store-tabs" id="storeTabs">
+          <div class="text-muted" style="font-size:13px;">매장 정보를 불러오는 중...</div>
         </div>
       </div>
     </div>
 
-    <!-- ✅ 오른쪽(지도 + 상세) 영역 -->
+    <!-- 오른쪽(지도 + 상세) 영역 -->
     <div class="col-md-10 mb-4">
       <div class="row">
 
@@ -215,7 +233,7 @@
                 <div id="sdAddr">-</div>
 
                 <i class="fa-solid fa-circle-info"></i>
-                <div>매장 방문 전, 재고/상담 가능 여부를 확인하면 더 편합니다.</div>
+                <div id="sdHint">매장 방문 전, 재고/상담 가능 여부를 확인하면 더 편합니다.</div>
               </div>
 
               <div class="store-desc-box">
@@ -242,85 +260,45 @@
   </div>
 </div>
 
-<!-- ✅ 카카오 지도 SDK: appkey 1개만! -->
+<!-- 카카오 지도 SDK -->
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fdd26aed348276cbc1ee6c0ef42c2d5e"></script>
 
 <script>
 (function () {
-  const mapEl = document.getElementById("map");
+  const ctxPath = "<%=ctxPath%>";
 
-  // ✅ 우측 상세 패널 요소
+  const mapEl = document.getElementById("map");
+  const storeTabsEl = document.getElementById("storeTabs");
+
   const sdName = document.getElementById("sdName");
   const sdAddr = document.getElementById("sdAddr");
   const sdDesc = document.getElementById("sdDesc");
 
-  // ✅ 하단 버튼
   const btnCopyAddr = document.getElementById("btnCopyAddr");
   const btnOpenKakao = document.getElementById("btnOpenKakao");
 
-  // ✅ 지점 데이터 (나중에 DB로 바꾸면 이 부분만 JSON으로 채우면 됨)
-  const stores = {
-    gangnam: {
-      name: "강남점",
-      lat: 37.4979, lng: 127.0276,
-      address: "서울 강남구 (예시 주소)",
-      desc: "강남역 인근 매장입니다.\n대중교통 접근성이 좋고, 방문 상담이 가능합니다.",
-      kakaoUrl: "https://map.kakao.com/"  // 실제 링크 있으면 교체
-    },
-    hongdae: {
-      name: "홍대점",
-      lat: 37.5563, lng: 126.9220,
-      address: "서울 마포구 (예시 주소)",
-      desc: "홍대입구역 근처 매장입니다.\n주말 방문 고객이 많아 예약 후 방문을 권장합니다.",
-      kakaoUrl: "https://map.kakao.com/"
-    },
-    anseong: {
-      name: "안성점",
-      lat: 37.0081, lng: 127.2798,
-      address: "경기 안성시 (예시 주소)",
-      desc: "안성 지역 매장입니다.\n주차가 비교적 편리하며 가족 단위 방문이 많습니다.",
-      kakaoUrl: "https://map.kakao.com/"
-    }
-  };
+  // DB에서 받은 store 목록을 {code: storeObj} 형태로 보관
+  let stores = {};
+  let storeKeys = [];
+  let currentKey = "";
 
-  // 현재 선택된 매장 key
-  let currentKey = "gangnam";
-
-  // 1) 지도 생성
+  // 지도 생성(임시 기본값)
   const map = new kakao.maps.Map(mapEl, {
-    center: new kakao.maps.LatLng(stores.gangnam.lat, stores.gangnam.lng),
-    level: 4
+    center: new kakao.maps.LatLng(37.5665, 126.9780),
+    level: 5
   });
 
-  // 2) 마커/인포윈도우 생성
   const markers = {};
   const infows = {};
 
-  Object.keys(stores).forEach(key => {
-    const s = stores[key];
-    const pos = new kakao.maps.LatLng(s.lat, s.lng);
-
-    const marker = new kakao.maps.Marker({ map, position: pos });
-    markers[key] = marker;
-
-    const content =
-      "<div style='padding:10px; font-size:13px; line-height:1.4;'>" +
-      "  <div style='font-weight:800; margin-bottom:6px;'>" + s.name + "</div>" +
-      "  <div style='color:#6c757d;'>" + (s.address || "") + "</div>" +
-      "</div>";
-
-    const infowindow = new kakao.maps.InfoWindow({ content });
-    infows[key] = infowindow;
-
-    // 마커 클릭 시도 해당 매장으로 이동/표시
-    kakao.maps.event.addListener(marker, 'click', function() {
-      setActiveTab(key);
-      moveToStore(key);
-    });
-  });
-
   function closeAllInfo() {
     Object.keys(infows).forEach(k => infows[k].close());
+  }
+
+  function setActiveTab(key) {
+    document.querySelectorAll(".store-btn").forEach(b => b.classList.remove("active"));
+    const t = document.querySelector('.store-btn[data-store="' + key + '"]');
+    if (t) t.classList.add("active");
   }
 
   function renderDetail(key) {
@@ -328,33 +306,80 @@
     if (!s) return;
 
     currentKey = key;
-    sdName.textContent = s.name || "-";
+    sdName.textContent = s.storeName || "-";
     sdAddr.textContent = s.address || "-";
-    sdDesc.textContent = s.desc || "-";
+    sdDesc.textContent = s.description || "-";
   }
 
   function moveToStore(key) {
     const s = stores[key];
     if (!s) return;
 
-    const pos = new kakao.maps.LatLng(s.lat, s.lng);
+    const lat = Number(s.lat);
+    const lng = Number(s.lng);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
 
+    const pos = new kakao.maps.LatLng(lat, lng);
+
+    // “대한민국 전체”처럼 멀어지는 것 방지: 선택할 때 줌 고정
+    map.setLevel(4);
     map.panTo(pos);
 
     closeAllInfo();
-    infows[key].open(map, markers[key]);
+    if (infows[key] && markers[key]) infows[key].open(map, markers[key]);
 
     renderDetail(key);
   }
 
-  function setActiveTab(key){
-    document.querySelectorAll(".store-btn").forEach(b => b.classList.remove("active"));
-    const t = document.querySelector('.store-btn[data-store="'+key+'"]');
-    if (t) t.classList.add("active");
+  function buildTabs() {
+    if (!storeKeys.length) {
+      storeTabsEl.innerHTML = "<div class='text-muted' style='font-size:13px;'>등록된 매장이 없습니다.</div>";
+      return;
+    }
+
+    let html = "";
+    storeKeys.forEach((key, idx) => {
+      const s = stores[key];
+      const active = (idx === 0) ? "active" : "";
+      html += '<button type="button" class="store-btn ' + active + '" data-store="' + key + '">' + (s.storeName || key) + '</button>';
+    });
+
+    storeTabsEl.innerHTML = html;
   }
 
-  // 3) 탭 클릭 이벤트
-  document.addEventListener("click", function(e){
+  function buildMarkers() {
+    // 기존 마커 정리
+    Object.keys(markers).forEach(k => markers[k].setMap(null));
+
+    storeKeys.forEach(key => {
+      const s = stores[key];
+      const lat = Number(s.lat);
+      const lng = Number(s.lng);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+      const pos = new kakao.maps.LatLng(lat, lng);
+
+      const marker = new kakao.maps.Marker({ map: map, position: pos });
+      markers[key] = marker;
+
+      const content =
+        "<div style='padding:10px; font-size:13px; line-height:1.4;'>" +
+        "  <div style='font-weight:800; margin-bottom:6px;'>" + (s.storeName || "") + "</div>" +
+        "  <div style='color:#6c757d;'>" + (s.address || "") + "</div>" +
+        "</div>";
+
+      const infowindow = new kakao.maps.InfoWindow({ content: content });
+      infows[key] = infowindow;
+
+      kakao.maps.event.addListener(marker, "click", function() {
+        setActiveTab(key);
+        moveToStore(key);
+      });
+    });
+  }
+
+  // 탭 클릭시
+  document.addEventListener("click", function(e) {
     const btn = e.target.closest(".store-btn");
     if (!btn) return;
 
@@ -363,10 +388,10 @@
     moveToStore(key);
   });
 
-  // 4) 주소 복사
+  // 주소 복사
   btnCopyAddr.addEventListener("click", async function(){
     const s = stores[currentKey];
-    const addr = (s && s.address) ? s.address : "";
+    const addr = (s && s.address) ? String(s.address) : "";
     if (!addr) return;
 
     try {
@@ -376,13 +401,13 @@
         btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
       }, 1200);
     } catch (e) {
-      // clipboard 권한 막히면 fallback
       const ta = document.createElement("textarea");
       ta.value = addr;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
+
       btnCopyAddr.innerHTML = "<i class='fa-solid fa-check mr-1'></i> 복사됨";
       setTimeout(() => {
         btnCopyAddr.innerHTML = "<i class='fa-regular fa-copy mr-1'></i> 주소 복사";
@@ -390,16 +415,71 @@
     }
   });
 
-  // 5) 카카오 지도 링크 열기
+  // 지도 보기 kakao_url 있으면 그걸 열고, 없으면 좌표 링크 생성
   btnOpenKakao.addEventListener("click", function(){
     const s = stores[currentKey];
-    const url = (s && s.kakaoUrl) ? s.kakaoUrl : "https://map.kakao.com/";
-    window.open(url, "_blank");
+    if (!s) return;
+
+    const url = (s.kakaoUrl) ? String(s.kakaoUrl).trim() : "";
+
+    if (url) {
+      window.open(url, "_blank");
+      return;
+    }
+
+    const lat = Number(s.lat);
+    const lng = Number(s.lng);
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+      const name = encodeURIComponent(s.storeName || "매장");
+      const mapUrl = "https://map.kakao.com/link/map/" + name + "," + lat + "," + lng;
+      window.open(mapUrl, "_blank");
+      return;
+    }
+
+    window.open("https://map.kakao.com/", "_blank");
   });
 
-  // ✅ 최초: 리스트 최상단(강남점) active + 상세 자동 표시
-  setActiveTab("gangnam");
-  moveToStore("gangnam");
+  // DB에서 매장 목록 가져오기
+  fetch(ctxPath + "/map/storeListJSON.hp", {
+    method: "GET",
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  })
+  .then(list => {
+    if (!Array.isArray(list) || list.length === 0) {
+      stores = {};
+      storeKeys = [];
+      buildTabs();
+      return;
+    }
+
+    stores = {};
+    list.forEach(s => {
+      // data-store용 key는 storeCode 사용
+      const key = s.storeCode;
+      if (!key) return;
+      stores[key] = s;
+    });
+
+    storeKeys = list.map(s => s.storeCode);
+
+    buildTabs();
+    buildMarkers();
+
+    // 최초 선택
+    const firstKey = storeKeys[0];
+    if (firstKey) {
+      setActiveTab(firstKey);
+      moveToStore(firstKey);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    storeTabsEl.innerHTML = "<div class='text-muted' style='font-size:13px;'>매장 정보를 불러오지 못했습니다.</div>";
+  });
 
 })();
 </script>

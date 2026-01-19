@@ -9,7 +9,7 @@ public class AdminDeliveryDTO {
 
     private int rownum;
     private int detailCnt;
-    private long payAmount;          // total_amount - discount_amount
+    private long payAmount;
 
     private OrderDTO odto = new OrderDTO();
 

@@ -334,8 +334,9 @@ public class AdminDAO_imple implements AdminDAO {
 	            + " LEFT JOIN ( "
 	            + "     SELECT fk_member_id, "
 	            + "            COUNT(*) AS order_cnt, "
-	            + "            NVL(SUM(NVL(total_amount,0) - NVL(discount_amount,0)), 0) AS real_pay_sum "
+	            + "            NVL(SUM(GREATEST(NVL(total_amount,0) - NVL(discount_amount,0), 0)), 0) AS real_pay_sum "
 	            + "     FROM tbl_orders "
+	            + "     WHERE order_status = 'PAID' "
 	            + "     GROUP BY fk_member_id "
 	            + " ) o "
 	            + "   ON o.fk_member_id = m.member_id "
@@ -480,6 +481,7 @@ public class AdminDAO_imple implements AdminDAO {
 	    try {
 	        conn = ds.getConnection();
 
+	        
 	        StringBuilder sb = new StringBuilder();
 	        for (int i = 0; i < memberIds.size(); i++) {
 	            if (i > 0) sb.append(",");
@@ -487,18 +489,21 @@ public class AdminDAO_imple implements AdminDAO {
 	        }
 	        String placeholders = sb.toString();
 
-	        String sql = " SELECT fk_member_id "
-	        			   + "      , COUNT(*) AS order_cnt " 
-	        			   + "      , NVL(SUM(NVL(total_amount,0) - NVL(discount_amount,0)), 0) AS real_pay_sum " 
-	        			   + " FROM tbl_orders "
-	        			   + " WHERE fk_member_id IN (" + placeholders + ") " 
-	        			   + " GROUP BY fk_member_id ";
+	        String sql =
+	              " SELECT fk_member_id "
+	            + "      , COUNT(*) AS order_cnt "
+	            + "      , NVL(SUM(GREATEST(NVL(total_amount,0) - NVL(discount_amount,0), 0)), 0) AS real_pay_sum "
+	            + " FROM tbl_orders "
+	            + " WHERE fk_member_id IN (" + placeholders + ") "
+	            + "   AND order_status = 'PAID' "
+	            + " GROUP BY fk_member_id ";
 
 	        pstmt = conn.prepareStatement(sql);
 
 	        int idx = 1;
 	        for (String id : memberIds) {
-	            pstmt.setString(idx++, id);
+	            pstmt.setString(idx, id);
+	            idx++;
 	        }
 
 	        rs = pstmt.executeQuery();
@@ -612,11 +617,11 @@ public class AdminDAO_imple implements AdminDAO {
 	    try {
 	        conn = ds.getConnection();
 
-	        String sql =
-	            " SELECT COUNT(*) AS order_cnt " +
-	            "      , NVL(SUM(NVL(total_amount,0) - NVL(discount_amount,0)), 0) AS real_pay_sum " +
-	            " FROM tbl_orders " +
-	            " WHERE fk_member_id = ? ";
+	        String sql = " SELECT COUNT(*) AS order_cnt "
+	                   + "      , NVL(SUM(GREATEST(NVL(total_amount,0) - NVL(discount_amount,0), 0)), 0) AS real_pay_sum "
+	                   + " FROM tbl_orders "
+	                   + " WHERE fk_member_id = ? "
+	                   + " AND order_status = 'PAID' ";
 
 	        pstmt = conn.prepareStatement(sql);
 	        pstmt.setString(1, memberId);
@@ -717,6 +722,7 @@ public class AdminDAO_imple implements AdminDAO {
 	    			   + "         TOTAL_AMOUNT, "
 	    			   + "         DISCOUNT_AMOUNT "
 	    			   + "     FROM TBL_ORDERS "
+	    			   + "     WHERE order_status = 'PAID' "
 	    			   + "     ORDER BY ORDER_DATE DESC, ORDER_ID DESC "
 	    			   + "     FETCH FIRST 5 ROWS ONLY "
 	    			   + " ), "
@@ -742,7 +748,7 @@ public class AdminDAO_imple implements AdminDAO {
 	    			   + "     dr.BRAND_NAME, "
 	    			   + "     dr.QUANTITY, "
 	    			   + "     TO_CHAR(ro.ORDER_DATE, 'YYYY-MM-DD HH24:MI') AS ORDER_DATE, "
-	    			   + "     (ro.TOTAL_AMOUNT - ro.DISCOUNT_AMOUNT) AS PAY_AMOUNT, "
+	    			   + "     GREATEST(NVL(ro.TOTAL_AMOUNT,0) - NVL(ro.DISCOUNT_AMOUNT,0), 0) AS PAY_AMOUNT, "
 	    			   + "     dr.detail_cnt AS DETAIL_CNT "
 	    			   + " FROM recent_orders ro "
 	    			   + " JOIN TBL_MEMBER m "
@@ -766,7 +772,7 @@ public class AdminDAO_imple implements AdminDAO {
 	            dto.setBrandName(rs.getString("BRAND_NAME"));
 	            dto.setQuantity(rs.getInt("QUANTITY"));
 	            dto.setOrderDate(rs.getString("ORDER_DATE"));
-	            dto.setPayAmount(rs.getInt("PAY_AMOUNT"));
+	            dto.setPayAmount(rs.getLong("PAY_AMOUNT"));
 	            dto.setDetailCnt(rs.getInt("DETAIL_CNT"));
 	            list.add(dto);
 	        }
@@ -786,7 +792,8 @@ public class AdminDAO_imple implements AdminDAO {
 
 	    String sql =	 " select count(*) as CNT "
 	               + " from TBL_ORDERS "
-	               + " where trunc(ORDER_DATE) = trunc(sysdate) ";
+	               + " where trunc(ORDER_DATE) = trunc(sysdate) "
+	               + " and order_status = 'PAID' ";
 
 	    try {
 	        conn = ds.getConnection();
@@ -811,9 +818,10 @@ public class AdminDAO_imple implements AdminDAO {
 		
 		long sales = 0;
 
-	    String sql =	 " select nvl(sum(total_amount - discount_amount),0) as real_amount "
+	    String sql =	 " select nvl(sum(greatest(nvl(total_amount,0) - nvl(discount_amount,0), 0)), 0) as real_amount "
 	    		       + " from tbl_orders "
-	    		       + " where trunc(ORDER_DATE) = trunc(sysdate) ";
+	    		       + " where trunc(ORDER_DATE) = trunc(sysdate) "
+	    		       + "   and order_status = 'PAID' ";
 
 	    try {
 	        conn = ds.getConnection();
@@ -821,7 +829,7 @@ public class AdminDAO_imple implements AdminDAO {
 	        rs = pstmt.executeQuery();
 
 	        if (rs.next()) {
-	            sales = rs.getInt("real_amount");
+	            sales = rs.getLong("real_amount");
 	        }
 	    } finally {
 	        close();

@@ -18,6 +18,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import admin.domain.DailyAggDTO;
+import admin.domain.OptionAggDTO;
 import admin.domain.ProductAggDTO;
 import admin.domain.TotalsDTO;
 import util.security.AES256;
@@ -71,25 +72,23 @@ public class AccountingDAO_imple implements AccountingDAO {
 		
 		String sql = " WITH orders_in_range AS ( "
 				   + "   SELECT order_id, total_amount, discount_amount "
-				   + "    FROM tbl_orders "
+				   + "     FROM tbl_orders "
 				   + "    WHERE order_date >= ? AND order_date < ? "
-				   + "    AND order_status = 'PAID' "
-				   + " ), detail_sum AS ( "
-				   + "   SELECT d.fk_order_id AS order_id, "
-				   + "          SUM(d.quantity) AS qty, "
-				   + "          SUM(d.quantity * d.unit_price) AS gross "
+				   + "      AND order_status = 'PAID' "
+				   + " ), detail_qty AS ( "
+				   + "   SELECT d.fk_order_id AS order_id, SUM(d.quantity) AS qty "
 				   + "     FROM tbl_order_detail d "
 				   + "     JOIN orders_in_range o ON o.order_id = d.fk_order_id "
 				   + "    GROUP BY d.fk_order_id "
 				   + " ) "
 				   + " SELECT "
 				   + "   COUNT(*) AS orders, "
-				   + "   NVL(SUM(ds.qty),0) AS qty, "
-				   + "   NVL(SUM(ds.gross),0) AS gross, "            // 할인 전
+				   + "   NVL(SUM(dq.qty),0) AS qty, "
+				   + "   NVL(SUM(o.total_amount),0) AS gross, "                //  할인 전
 				   + "   NVL(SUM(o.discount_amount),0) AS discount, "
-				   + "   NVL(SUM(o.total_amount),0) AS net "         // 할인 후
+				   + "   NVL(SUM(o.total_amount - o.discount_amount),0) AS net " // 할인 후
 				   + " FROM orders_in_range o "
-				   + " LEFT JOIN detail_sum ds ON ds.order_id = o.order_id ";
+				   + " LEFT JOIN detail_qty dq ON dq.order_id = o.order_id ";
 
 
         try {
@@ -123,21 +122,26 @@ public class AccountingDAO_imple implements AccountingDAO {
 	@Override
 	public List<DailyAggDTO> selectDaily(LocalDate start, LocalDate end) throws Exception {
 		
-		String sql = " WITH orders_in_range AS ( "
-				   + "   SELECT order_id, TRUNC(order_date) AS base_date "
-				   + "    FROM tbl_orders "
-				   + "    WHERE order_date >= ? AND order_date < ? "
-				   + "    AND order_status = 'PAID' "
-				   + " ) "
-				   + " SELECT "
-				   + "   TO_CHAR(o.base_date, 'YYYY-MM-DD') AS baseDate, "
-				   + "   COUNT(DISTINCT o.order_id) AS orders, "
-				   + "   NVL(SUM(d.quantity),0) AS qty, "
-				   + "   NVL(SUM(d.quantity * d.unit_price),0) AS amount "  // 할인 전
-				   + " FROM orders_in_range o "
-				   + " JOIN tbl_order_detail d ON d.fk_order_id = o.order_id "
-				   + " GROUP BY o.base_date "
-				   + " ORDER BY o.base_date DESC ";
+		 String sql = " WITH orders_in_range AS ( " +
+			          "   SELECT order_id, TRUNC(order_date) AS base_date, total_amount " +
+			          "     FROM tbl_orders " +
+			          "    WHERE order_date >= ? AND order_date < ? " +
+			          "      AND order_status = 'PAID' " +
+			          " ), order_qty AS ( " +
+			          "   SELECT d.fk_order_id AS order_id, SUM(d.quantity) AS qty " +
+			          "     FROM tbl_order_detail d " +
+			          "     JOIN orders_in_range o ON o.order_id = d.fk_order_id " +
+			          "    GROUP BY d.fk_order_id " +
+			          " ) " +
+			          " SELECT " +
+			          "   TO_CHAR(o.base_date, 'YYYY-MM-DD') AS baseDate, " +
+			          "   COUNT(o.order_id) AS orders, " +
+			          "   NVL(SUM(q.qty),0) AS qty, " +
+			          "   NVL(SUM(o.total_amount),0) AS amount " +   // 주문 기준
+			          " FROM orders_in_range o " +
+			          " LEFT JOIN order_qty q ON q.order_id = o.order_id " +
+			          " GROUP BY o.base_date " +
+			          " ORDER BY o.base_date DESC ";
 
 	    List<DailyAggDTO> list = new ArrayList<>();
 
@@ -169,6 +173,58 @@ public class AccountingDAO_imple implements AccountingDAO {
 	    return list;
 	}// end of public List<Map<String, Object>> selectDaily(LocalDate start, LocalDate end) throws Exception -------
 
+	
+	// 기간별 집계(월별)
+	@Override
+	public List<DailyAggDTO> selectMonthly(LocalDate start, LocalDate end) throws Exception {
+
+	    String sql = " WITH orders_in_range AS ( "
+	        		   + "   SELECT order_id, TRUNC(order_date,'MM') AS base_month, total_amount "
+	        		   + "     FROM tbl_orders "
+	        		   + "    WHERE order_date >= ? AND order_date < ? "
+	        		   + "      AND order_status = 'PAID' "
+	        		   + " ), order_qty AS ( "
+	        		   + "   SELECT d.fk_order_id AS order_id, SUM(d.quantity) AS qty "
+	        		   + "     FROM tbl_order_detail d "
+	        		   + "     JOIN orders_in_range o ON o.order_id = d.fk_order_id "
+	        		   + "    GROUP BY d.fk_order_id "
+	        		   + " ) "
+	        		   + " SELECT "
+	        		   + "   TO_CHAR(o.base_month, 'YYYY-MM') AS baseDate, "
+	        		   + "   COUNT(*) AS orders, "
+	        		   + "   NVL(SUM(q.qty),0) AS qty, "
+	        		   + "   NVL(SUM(o.total_amount),0) AS amount "
+	        		   + " FROM orders_in_range o "
+	        		   + " LEFT JOIN order_qty q ON q.order_id = o.order_id "
+	        		   + " GROUP BY o.base_month "
+	        		   + " ORDER BY o.base_month DESC ";
+
+	    List<DailyAggDTO> list = new ArrayList<>();
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+
+	        pstmt.setDate(1, Date.valueOf(start));
+	        pstmt.setDate(2, Date.valueOf(end));
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            DailyAggDTO ddto = new DailyAggDTO();
+	            ddto.setBaseDate(rs.getString("baseDate")); // YYYY-MM
+	            ddto.setOrders(rs.getLong("orders"));
+	            ddto.setQty(rs.getLong("qty"));
+	            ddto.setAmount(rs.getLong("amount"));
+	            list.add(ddto);
+	        }
+	    } finally {
+	        close();
+	    }
+
+	    return list;
+	}// end of public List<DailyAggDTO> selectMonthly(LocalDate start, LocalDate end) throws Exception -------
+	
 
 	// 상품별 집계
 	@Override
@@ -229,5 +285,54 @@ public class AccountingDAO_imple implements AccountingDAO {
 	}// end of public List<Map<String, Object>> selectProducts(LocalDate start, LocalDate end, String sort) throws Exception -------
 	
 	
+	// 상품별 옵션 상세 집계
+	@Override
+	public List<OptionAggDTO> selectOptionSales(LocalDate start, LocalDate end, String productNo) throws Exception {
+
+	    String sql = " WITH orders_in_range AS ( "
+		        	   + "   SELECT order_id "
+		           + "     FROM tbl_orders "
+		           + "    WHERE order_date >= ? AND order_date < ? "
+		           + "      AND order_status = 'PAID' "
+		           + " ) "
+		           + " SELECT "
+		           + "   po.option_id AS optionId, "
+		           + "   po.color AS color, "
+		           + "   po.storage_size AS storageSize, "
+		           + "   NVL(SUM(d.quantity),0) AS qty,"
+		           + "   NVL(SUM(d.quantity * d.unit_price),0) AS amount "
+		           + " FROM orders_in_range o "
+		           + " JOIN tbl_order_detail d ON d.fk_order_id = o.order_id "
+		           + " JOIN tbl_product_option po ON po.option_id = d.fk_option_id "
+		           + " WHERE po.fk_product_code = ? "
+		           + " GROUP BY po.option_id, po.color, po.storage_size "
+		           + " ORDER BY qty DESC ";
+
+	    List<OptionAggDTO> list = new ArrayList<>();
+
+	    try {
+	        conn = ds.getConnection();
+	        pstmt = conn.prepareStatement(sql);
+
+	        pstmt.setDate(1, java.sql.Date.valueOf(start));
+	        pstmt.setDate(2, java.sql.Date.valueOf(end));
+	        pstmt.setString(3, productNo);
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            OptionAggDTO odto = new OptionAggDTO();
+	            odto.setOptionId(rs.getInt("optionId"));
+	            odto.setColor(rs.getString("color"));
+	            odto.setStorageSize(rs.getString("storageSize"));
+	            odto.setQty(rs.getInt("qty"));
+	            odto.setAmount(rs.getLong("amount"));
+	            list.add(odto);
+	        }
+	    } finally {
+	        close();
+	    }
+	    return list;
+	}// end of public List<OptionAggDTO> selectOptionSales(LocalDate start, LocalDate end, String productNo) throws Exception -------
 	
 }

@@ -91,43 +91,30 @@
             <hr class="my-4" />
 
             <div class="row">
-              <!-- 이름 -->
+               <!-- 이름 -->
               <div class="col-md-6">
                 <div class="form-group">
                   <label class="font-weight-bold" for="name">성 명</label>
-                  <input type="text"
-                         class="form-control"
-                         id="name"
-                         name="name"
-                         value="<c:out value='${memberInfo.name}'/>"
-                         required />
+                  <input type="text" class="form-control" id="name" name="name" value="<c:out value='${memberInfo.name}'/>" required maxlength="20" autocomplete="name" />
                 </div>
               </div>
 
-              <!-- 전화번호 -->
+               <!-- 전화번호 -->
               <div class="col-md-6">
                 <div class="form-group">
                   <label class="font-weight-bold" for="mobile">전화번호</label>
-                  <input type="text"
-                         class="form-control"
-                         id="mobile"
-                         name="mobile"
-                         value="<c:out value='${memberInfo.mobile}'/>"
-                         placeholder="예) 01012345678"
-                         required />
+                  <input type="text" class="form-control" id="mobile" name="mobile" value="<c:out value='${memberInfo.mobile}'/>"
+                         placeholder="예) 01012345678" required inputmode="numeric" pattern="[0-9]{10,11}"  maxlength="11" autocomplete="tel" />
+                  <small class="text-muted">‘-’ 없이 숫자만 입력(10~11자리)</small>
                 </div>
               </div>
             </div>
 
-            <!-- 이메일 -->
+             <!-- 이메일 -->
             <div class="form-group">
               <label class="font-weight-bold" for="email">이메일</label>
-              <input type="email"
-                     class="form-control"
-                     id="email"
-                     name="email"
-                     value="<c:out value='${memberInfo.email}'/>"
-                     required />
+              <input type="email" class="form-control" id="email" name="email" value="<c:out value='${memberInfo.email}'/>" required
+                     maxlength="50" autocomplete="email" />
             </div>
             
             <hr class="my-4" />

@@ -96,11 +96,11 @@ const ctxPath = "<%=ctxPath%>";
     </div>
   </nav>
 --%>
-<nav class="navbar navbar-expand-lg navbar-custom">
-  <div class="container">	  
+<!-- <nav class="navbar navbar-expand-lg navbar-custom"> -->
+  <!-- <div class="container"> -->	  
   	<jsp:include page="../header.jsp"/>
-  </div>
-</nav>  
+  <!-- </div> -->
+<!-- </nav> -->  
   <!-- 페이지 전체 래퍼: 위아래 간격 + 좌우 꽉 차 보이게 -->
   <div class="container inquiry-page-wrap">
   

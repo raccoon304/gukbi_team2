@@ -21,7 +21,7 @@ public class ProductRegisterEnd extends AbstractController {
 	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		System.out.println("상품등록페이지의 최종입니다..");
+		//System.out.println("상품등록페이지의 최종입니다..");
 		String message = "상품등록에 성공했습니다.";
 		
 	    // JSON 데이터 읽기

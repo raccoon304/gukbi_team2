@@ -203,30 +203,8 @@
 	        </c:otherwise>
 	      </c:choose>
 	    </div>
-	  </div>
-
-
-      
-      
-      
-      
-      
-      
-      
+	  </div> 
     </div>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
   </div>
 </div>
 
