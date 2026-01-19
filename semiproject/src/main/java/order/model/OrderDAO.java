@@ -9,11 +9,11 @@ import order.domain.OrderDTO;
 public interface OrderDAO {
     
     /* ================= 오래된 READY 주문 FAIL 처리 (본인 것만) ================= */
-    int expireReadyOrders(String memberid) throws SQLException;
+	int expireReadyOrders() throws SQLException;
   
  
     // 주문 + 주문상세 + 재고차감 (트랜잭션 통합, PG 결제용)
-    int insertOrderWithDetailsAndStock(OrderDTO order, List<Map<String, Object>> orderDetails);
+    int insertOrderWithDetailsAnd(OrderDTO order, List<Map<String, Object>> orderDetails);
     
     /* ================= 주문 조회 ================= */
     // 주문 1건의 요약 정보(주문번호, 금액, 배송지, 상태 등)
@@ -61,7 +61,13 @@ public interface OrderDAO {
     // 재고 조회
     int selectStock(int optionId) throws SQLException;
     
+    // 결제 성공 시 재고 차감
+    int decreaseStock(int optionId, int quantity) throws SQLException;
+    
     // 결제 실패 시 재고 반환
     int increaseStock(int optionId, int quantity) throws SQLException;
+
+
+	
 
 }

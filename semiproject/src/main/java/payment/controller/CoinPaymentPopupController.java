@@ -75,7 +75,7 @@ public class CoinPaymentPopupController extends AbstractController {
 
         try {
             // 1. 이전 READY 주문 정리 (이건 그냥 테스트용인것이다.)
-            odao.expireReadyOrders(loginUser.getMemberid());
+            odao.expireReadyOrders();
 
             // 2. 주문 DTO 생성
             OrderDTO order = new OrderDTO();
@@ -98,9 +98,14 @@ public class CoinPaymentPopupController extends AbstractController {
                 orderDetails.add(detail);
             }
 
-            // 4. 주문 생성 + 주문상세 생성 + 재고 차감 (단일 트랜잭션)
-            int orderId = odao.insertOrderWithDetailsAndStock(order, orderDetails);
+            // 4. 주문 생성 + 주문상세 생성 (단일 트랜잭션)
+            int orderId = odao.insertOrderWithDetailsAnd(order, orderDetails);
 
+            if (orderId == 0) {
+                alertAndClose(response, "주문 생성에 실패했습니다.");
+                return;
+            }
+            
             // 5. 세션에 저장
             session.setAttribute("readyOrderId", orderId);
 
