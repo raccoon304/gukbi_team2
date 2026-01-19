@@ -15,68 +15,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <style>
-        /* ===== Modal 스타일 (마이페이지와 동일) ===== */
-        .yd-modal-backdrop {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1050;
-            padding: 1rem;
-        }
-        .yd-modal {
-            width: 100%;
-            max-width: 900px;
-            background: #fff;
-            border-radius: .75rem;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,.2);
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .yd-modal-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .yd-modal-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0;
-        }
-        .yd-modal-close {
-            background: transparent;
-            border: 0;
-            font-size: 22px;
-            line-height: 1;
-            color: #6c757d;
-            cursor: pointer;
-        }
-        .yd-modal-body {
-            padding: 1.25rem;
-            overflow: auto;
-        }
-        .yd-modal-footer {
-            padding: 1rem 1.25rem;
-            border-top: 1px solid #e9ecef;
-            display: flex;
-            justify-content: flex-end;
-            gap: .5rem;
-            background: #fff;
-        }
-        .yd-loading { 
-            color: #6c757d; 
-            font-size: 14px; 
-            text-align: center;
-            padding: 40px 0;
-        }
-    </style>
-</head>
-<body>
+        /* 페이지 배경 */
+	        	 
+		    </style>
+		</head>
+		<body>
 
 <!-- 결제 완료 -->
 <div class="container my-5">
@@ -194,8 +137,8 @@
 
         try {
             const url = ctxPath + "/myPage/orderDetailFragment.hp?orderNo=" + encodeURIComponent(orderId);
-            console.log("FETCH URL =>", url);
-            console.log("orderId =>", orderId);
+  //        console.log("FETCH URL =>", url);
+  //        console.log("orderId =>", orderId);
 
             const res = await fetch(url, {
                 method: "GET",

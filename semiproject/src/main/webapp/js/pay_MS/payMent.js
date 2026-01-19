@@ -90,7 +90,7 @@ $(function () {
     // "쿠폰 X (0원)" 옵션 숨기기
     $("#couponSelect option[value='cancel']").hide();
 
-    console.log("쿠폰 취소됨, 원래 금액으로 복구:", totalPrice);
+   // console.log("쿠폰 취소됨, 원래 금액으로 복구:", totalPrice);
   }
 
   // 결제 버튼
@@ -135,6 +135,7 @@ $(function () {
     // 상품명 가져오기
     const productName = $("#productName").val() || "상품";
 
+	
     // 결제 팝업
     const popup = window.open(
       ctxpath + "/payment/coinPaymentPopup.hp?finalPrice=" + encodeURIComponent(finalPrice) + 

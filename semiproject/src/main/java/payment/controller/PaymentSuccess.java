@@ -28,6 +28,7 @@ public class PaymentSuccess extends AbstractController {
         if ("GET".equalsIgnoreCase(request.getMethod())) {
 
             Integer orderId = (Integer) session.getAttribute("lastOrderId");
+          
             
             if (loginuser == null || orderId == null) {
                 request.setAttribute("message", "이미 처리된 주문입니다.");
@@ -36,12 +37,13 @@ public class PaymentSuccess extends AbstractController {
                 setViewPage("/WEB-INF/msg.jsp");
                 return;
             }
+            
 
             OrderDAO odao = new OrderDAO_imple();
             request.setAttribute("order", odao.selectOrderHeader(orderId));
             request.setAttribute("orderDetailList", odao.selectOrderDetailForPayment(orderId));
 
-            session.removeAttribute("lastOrderId");
+     //      session.removeAttribute("lastOrderId");
 
             setRedirect(false);
             setViewPage("/WEB-INF/pay_MS/paymentSuccess.jsp");

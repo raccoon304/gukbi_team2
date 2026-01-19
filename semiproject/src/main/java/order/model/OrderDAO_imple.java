@@ -156,7 +156,7 @@ public class OrderDAO_imple implements OrderDAO {
 
            
             conn.commit();  //  커밋
-            System.out.println(" 트랜잭션 완료 - orderId: " + orderId);
+   //        System.out.println(" 트랜잭션 완료 - orderId: " + orderId);
 
             return orderId;
 
@@ -164,7 +164,7 @@ public class OrderDAO_imple implements OrderDAO {
             if (conn != null) {
                 try {
                     conn.rollback();  //  롤백
-                    System.out.println(" 트랜잭션 롤백: " + e.getMessage());
+   //               System.out.println(" 트랜잭션 롤백: " + e.getMessage());
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
@@ -750,6 +750,47 @@ public class OrderDAO_imple implements OrderDAO {
             return pstmt.executeUpdate();
         }
     }
+    
+    // 해킹을 방지하기 위한 결제완료 DAO (alert의 강화 버전)
+    @Override
+    public boolean isOrderOwner(int orderId, String memberid) throws SQLException {
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        boolean result = false;
+
+        String sql = " select count(*) "
+                   + "   from tbl_orders "
+                   + "  where order_id = ? "
+                   + "    and fk_member_id = ? ";
+
+        try {
+            conn = ds.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderId);
+            pstmt.setString(2, memberid);
+
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                result = (rs.getInt(1) == 1);
+            }
+
+        } catch (SQLException e) {
+            // 로그 찍고 다시 던져서(throws SQLException) 
+            e.printStackTrace();
+            throw e;
+
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pstmt != null) pstmt.close(); } catch (SQLException e) {}
+            try { if (conn != null) conn.close(); } catch (SQLException e) {}
+        }
+
+        return result;
+    }
 
     /* ================= 유틸리티: 안전한 int 파싱 ================= */
     private int getInt(Map<String, Object> map, String key) {
@@ -763,7 +804,6 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
 
-	
-
+ 
 	
 }
