@@ -2749,15 +2749,5 @@ where delivery_status = 2;
 
 select * from tbl_member;
 
-desc tbl_member;
-
-commit;
-
-select * from tbl_member;
-
-select * from tbl_coupon;
-
-delete from tbl_coupon
-where coupon_category_no = 10;
 
 commit;

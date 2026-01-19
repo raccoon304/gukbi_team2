@@ -32,7 +32,7 @@ public class ReviewList extends AbstractController {
 			productCode = "ALL";
 		}
 
-		if (sort == null || (!"latest".equals(sort) && !"high".equals(sort) && !"low".equals(sort))) {
+		if (sort == null || (!"latest".equals(sort) && !"old".equals(sort) && !"high".equals(sort) && !"low".equals(sort))) {
 			sort = "latest";
 		}
 
