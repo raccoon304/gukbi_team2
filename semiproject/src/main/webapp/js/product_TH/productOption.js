@@ -6,7 +6,7 @@ $(document).ready(function () {
    const { 
        isLoggedIn, 
        loginUserId, 
-       productCode, 
+       productCode,
        unitPrice 
    } = pageData;
 
