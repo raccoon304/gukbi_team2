@@ -25,7 +25,7 @@ public class PwdUpdateEnd extends AbstractController {
 
         String email = (String) session.getAttribute("pwdfind_email");
 
-        // VerifyCertification 성공했는지 체크 VerifyCertification.java 에서 작성 해놨음. 검증 플래그를 넣은거임.
+        // VerifyCertification 성공했는지 체크 VerifyCertification.java 에서 작성 해놨음 검증 플래그를 넣은거임.
         Boolean verified = (Boolean) session.getAttribute("pwdfind_verified");
         String verifiedUserid = (String) session.getAttribute("pwdfind_verified_userid");
 
@@ -40,7 +40,7 @@ public class PwdUpdateEnd extends AbstractController {
             return;
         }
 
-        // 인증 성공 검증 + userid 매칭 검증
+        // 인증 성공 검증 및 userid 매칭 검증
         if (verified == null || !verified.booleanValue() || verifiedUserid == null || !userid.equals(verifiedUserid)) {
             message = "인증이 완료되지 않았습니다. 인증코드를 먼저 확인해주세요.";
             loc = request.getContextPath() + "/member/accountFind.hp";
