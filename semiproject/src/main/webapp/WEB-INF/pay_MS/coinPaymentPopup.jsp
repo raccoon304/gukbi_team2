@@ -103,11 +103,38 @@ $(function () {
 
         clearInterval(sessionCheckInterval);
 
+        
         if (rsp.success) {
     //        console.log(" 결제 성공");
             
             isPaymentCompleted = true; // 플래그 설정
-
+           
+         // opener 체크 추가!
+            if (!opener || opener.closed) {
+                alert("부모 창이 닫혔습니다.\n결제는 완료되었으니 마이페이지에서 확인해주세요.");
+                
+                // 서버에 결제 완료 알림 (AJAX)
+                $.ajax({
+                    url: "<%= request.getContextPath() %>/payment/paymentSuccess.hp",
+                    type: "POST",
+                    async: false,
+                    data: {
+                        orderId: "${sessionScope.readyOrderId}",
+                        imp_uid: rsp.imp_uid,
+                        merchant_uid: rsp.merchant_uid,
+                        pgTid: rsp.imp_uid
+                    },
+                    success: function() {
+                        window.location.href = "<%= request.getContextPath() %>/myPage/orderList.hp";
+                    },
+                    error: function() {
+                        alert("결제 처리 중 오류가 발생했습니다.\n고객센터로 문의해주세요.");
+                        window.close();
+                    }
+                });
+                return;
+            }
+         
             const payForm = opener.document.getElementById("payForm");
 
             if (!payForm) {

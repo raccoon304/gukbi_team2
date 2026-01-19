@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpSession;
 import member.domain.MemberDTO;
 import order.model.OrderDAO;
 import order.model.OrderDAO_imple;
+import payment.service.PGService;
+import payment.service.PGPayment;
 
 public class PaymentSuccess extends AbstractController {
 
@@ -191,8 +193,27 @@ public class PaymentSuccess extends AbstractController {
 
    //     System.out.println("배송지: " + deliveryAddress);
 
+       
         /* ================= 주문 최종 처리 ================= */
         try {
+        	// ===== 0. PG 서버 검증 + 금액 검증 =====
+
+            int serverAmount = cartList.stream()
+            	    .mapToInt(c -> c.getPrice() * c.getQuantity())
+            	    .sum() - discountAmount;
+
+        	if (serverAmount < 0) serverAmount = 0;
+
+        	PGService pgService = new PGService(); 	
+        	PGPayment pgPayment = pgService.verify(pgTid, serverAmount);
+            
+            if (!pgPayment.isPaid()) {
+                throw new Exception("PG 결제 미완료 상태");
+            }
+            
+        	if (pgPayment.getAmount() != serverAmount) {
+        	    throw new Exception("결제 금액 불일치");
+        	}
     //        System.out.println(">>> 주문 정보 업데이트 시작");
 
             // 1. 주문 정보 업데이트
@@ -213,6 +234,14 @@ public class PaymentSuccess extends AbstractController {
             }
 
             odao.updateDeliveryStatus(orderId, 0);
+            
+         // 2-1. 재고 차감 (PAID 시점)
+            for (CartDTO cart : cartList) {
+                int result = odao.decreaseStock(cart.getOptionId(), cart.getQuantity());
+                if (result == 0) {
+                    throw new Exception("재고 차감 실패");
+                }
+            }
             
      //       System.out.println(" 주문 상태 업데이트 완료");
 
