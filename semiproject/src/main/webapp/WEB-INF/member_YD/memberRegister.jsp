@@ -69,7 +69,9 @@
                         <p class="text-gray-600 mt-2">아이디가 있으신가요?<a href="#" class="text-primary-600 hover:text-primary-700 font-medium">&nbsp; 로그인</a></p>
                     </div>
 
-                    <form class="space-y-6" name="registerFrm" action="<%= ctxPath %>/member/memberRegister.hp" method="post" novalidate>
+                    <form class="space-y-6" name="registerFrm" action="<%= ctxPath %>/member/memberRegister.hp" method="post">
+                        <input type="hidden" name="idDupChecked" id="idDupChecked" value="0" />
+                        <input type="hidden" name="emailDupChecked" id="emailDupChecked" value="0" />
 					<!-- Form Fields -->
                         <div class="space-y-4">
                             <div>
@@ -101,8 +103,10 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="phone" class="text-gray-400"></i>
                                     </div>
-                                    <input type="tel" name="mobile" id="mobile" maxlength="11" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="010-0000-0000">
-                                </div>
+									<input type="tel" name="mobile" id="mobile" maxlength="11" inputmode="numeric" pattern="[0-9]*"
+                                    	class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3"
+                                       	placeholder="01000000000">                                
+                              	</div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
@@ -171,7 +175,9 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="lock" class="text-gray-400"></i>
                                     </div>
-                                    <input type="password" name="password" id="password" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="••••••••">
+									<input type="password" name="password" id="password" required minlength="8"
+                                    	class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3"
+                                       	placeholder="********">                                
                                 </div>
                             </div>
 
@@ -181,12 +187,14 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="lock" class="text-gray-400"></i>
                                     </div>
-                                    <input type="password" name="confirmpassword" id="confirmpassword" class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3" placeholder="••••••••">
+									<input type="password" name="confirmpassword" id="confirmpassword" required minlength="8"
+                                    	class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3"
+                                        placeholder="********">                                
                                 </div>
                             </div>
                         </div>
 						<div class="flex items-center">
-                            <input id="terms" name="terms" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" />
+                            <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" />
                             <label for="terms" class="ml-2 block text-sm text-gray-700">
 								해당약관에 동의합니다.
 							  	<a href="javascript:void(0)" id="openTerms" class="text-primary-600 hover:text-primary-700 font-medium">

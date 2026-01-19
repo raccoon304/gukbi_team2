@@ -338,10 +338,17 @@ ajax 비동기  레이스 컨디션 문제 발생.
 		    frm.submit();
 		  },
 		  error: function (request, status, error) {
-		    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
-		  }
-		});
-		return;
+		  	    // [릴리즈] 서버 응답/에러 상세를 사용자에게 노출하면 보안/UX에 좋지 않음.
+		  	    alert("서버 통신 오류입니다. 잠시 후 다시 시도해주세요.");
+
+		  	    // [릴리즈] 통신 실패 시에도 제출락 해제(버튼 영구 비활성화 방지)
+		  	    isRegisterSubmitting = false;
+		  	    $('button[type="submit"]').prop('disabled', false);
+
+		  	    // console.error(request, status, error); // [테스팅] 개발 중 디버깅용 로그 (릴리즈에서는 주석 처리)
+		  	  }
+		  	});
+  		  return;
 		// --- 휴대폰 번호 중복일 경우 처리하기 끝 ---
 		
 	});
@@ -392,12 +399,16 @@ ajax 비동기  레이스 컨디션 문제 발생.
 					}
 					else{
 						//입력한 memberid가 아직 사용되지 않은 경우.
-						alert($('#memberid').val() + "은 사용가능합니다.");	
+						alert($('#memberid').val() + "은 사용가능합니다.");
 						b_idcheck_click = false;
+	
+						// [릴리즈] JSP hidden 플래그가 존재하면 함께 세팅(백 및 JS 양쪽에서 사용 가능)
+						if ($('#idDupChecked').length) $('#idDupChecked').val('1');
 					}
 				},
 				error:function(request, status, error){
-					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+					alert("서버 통신 오류입니다. 잠시 후 다시 시도해주세요.");
+					// console.error(request, status, error); // [테스팅] 개발 중 디버깅용 로그 (릴리즈에서는 주석 처리)
 		        }
 			});
 		}// EoP if( $('input#userid').val().trim() != ""){}
@@ -427,8 +438,11 @@ ajax 비동기  레이스 컨디션 문제 발생.
 					}
 					else{
 						//입력한 email이 아직 사용되지 않은 경우.
-						alert($('#email').val() + "은 사용가능합니다.");	
+						alert($('#email').val() + "은 사용가능합니다.");
 						b_email_click = false;
+
+						// [릴리즈] JSP hidden 플래그가 존재하면 함께 세팅(백 및 JS 양쪽에서 사용 가능)
+						if ($('#emailDupChecked').length) $('#emailDupChecked').val('1');
 					}
 				},
 				error:function(request, status, error){
@@ -443,14 +457,20 @@ ajax 비동기  레이스 컨디션 문제 발생.
 	
 	
 	// --- 아이디값이 변경되면 가입하기 버튼 클릭시 아이디 중복확인을 클릭했는지 알아보기 위한 용도 초기화 시키기---
-	$('#memberid').bind("change", function(){
+	$('#memberid').on("input", function () {
 		b_idcheck_click = true;
-	})
+
+		// [릴리즈] 중복확인 완료 상태값도 함께 무효화(입력 변경 시 재확인 강제)
+		if ($('#idDupChecked').length) $('#idDupChecked').val('0');
+	});
 	
 	// --- 이메일값이 변경되면 가입하기 버튼 클릭시 아이디 중복확인을 클릭했는지 알아보기 위한 용도 초기화 시키기---
-	$('#email').bind("change", function(){
+	$('#email').on("input", function () {
 		b_email_click = true;
-	})		
+
+		// [릴리즈] 중복확인 완료 상태값도 함께 무효화(입력 변경 시 재확인 강제)
+		if ($('#emailDupChecked').length) $('#emailDupChecked').val('0');
+	});	
 	
 
 });

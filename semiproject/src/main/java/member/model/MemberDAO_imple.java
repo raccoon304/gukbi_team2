@@ -40,10 +40,9 @@ public class MemberDAO_imple implements MemberDAO {
 		    aes = new AES256(SecretMyKey.KEY);	    
 		    
 		} catch (NamingException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
 		}
 	}
 	
@@ -54,7 +53,7 @@ public class MemberDAO_imple implements MemberDAO {
 			if(pstmt != null) {pstmt.close(); pstmt=null;}
 			if(conn  != null) {conn.close();  conn=null;}
 		} catch(SQLException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
 		}
 	}// end of private void close()---------------
 
@@ -160,7 +159,8 @@ public class MemberDAO_imple implements MemberDAO {
 			
 			// 행이 있으면 true  없으면 false 로, 있을경우 중복된 email이 있다는거임.
 		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+			throw new SQLException(e);
 		}  finally {
 			close();
 		}
@@ -186,7 +186,8 @@ public class MemberDAO_imple implements MemberDAO {
 			
 			// 행이 있으면 true  없으면 false 로, 있을경우 중복된 휴대전화 번호가 있다는거임.
 		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+			throw new SQLException(e);
 		}  finally {
 			close();
 		}
@@ -239,7 +240,7 @@ public class MemberDAO_imple implements MemberDAO {
 	        }
 
 	    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
-	        e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
 	        throw new SQLException(e);
 	    } finally {
 	        close();
@@ -396,7 +397,9 @@ public class MemberDAO_imple implements MemberDAO {
 	        n = pstmt.executeUpdate();
 
 	    } catch (UnsupportedEncodingException | GeneralSecurityException e) {
-	        e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+	    	throw new SQLException(e);
+	    	
 	    } finally {
 	        close();
 	    }
@@ -406,7 +409,7 @@ public class MemberDAO_imple implements MemberDAO {
 
 	// 이름 + 이메일 -> 아이디찾기
 	@Override
-	public String findMemberIdByNameAndEmail(String name, String email) {
+	public String findMemberIdByNameAndEmail(String name, String email) throws SQLException {
 
 		String memberId = null;
 		
@@ -430,9 +433,11 @@ public class MemberDAO_imple implements MemberDAO {
 			}
 			
 		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+			throw new SQLException(e);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+			throw new SQLException(e);
 		} finally {
 			close();
 		}
@@ -468,7 +473,8 @@ public class MemberDAO_imple implements MemberDAO {
             }
 
         } catch (UnsupportedEncodingException | GeneralSecurityException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+        	throw new SQLException(e);
 		}
         
         finally {
@@ -506,7 +512,8 @@ public class MemberDAO_imple implements MemberDAO {
 			exists = rs.next();
 
 		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
-			e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+			throw new SQLException(e);
 		} finally {
 			close();
 		}
@@ -586,7 +593,8 @@ public class MemberDAO_imple implements MemberDAO {
 	        exists = rs.next();
 
 	    } catch (Exception e) {
-	        e.printStackTrace();
+			// e.printStackTrace(); // [릴리즈] 암복호화/DB 관련 내부정보 노출 가능성 있어 주석 처리
+	    	throw new SQLException(e);
 	    } finally {
 	        close();
 	    }

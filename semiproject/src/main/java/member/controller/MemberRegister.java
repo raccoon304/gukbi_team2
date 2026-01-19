@@ -154,6 +154,30 @@ public class MemberRegister extends AbstractController {
 			}
 			// ===== 서버단 유효성 검사끝 =====
 			
+			// [릴리즈] 프론트 중복확인은 우회 가능 + 동시가입(레이스 컨디션) 때문에 서버에서 최종 중복검증 필요
+			// 기존 검증 메서드를 활용해서 최종 검사 한번더.
+			if (mdao.idDuplicateCheck(memberid)) {
+				request.setAttribute("message", "이미 사용중인 아이디입니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			if (mdao.emailDuplicateCheck(email)) {
+				request.setAttribute("message", "이미 사용중인 이메일입니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			if (mdao.mobileDuplicateCheck(mobile)) {
+				request.setAttribute("message", "이미 사용중인 휴대폰번호입니다.");
+				request.setAttribute("loc", "javascript:history.back()");
+				super.setRedirect(false);
+				super.setViewPage("/WEB-INF/msg.jsp");
+				return;
+			}
+			
 			/*
 			 * System.out.println(memberid); System.out.println(name);
 			 * System.out.println(password); System.out.println(mobile);
@@ -186,12 +210,17 @@ public class MemberRegister extends AbstractController {
 						
 			try {
 				int n = mdao.registerMember(mbrDto, devDto);	
-				if(n==2) {
+				
+				if (n == 2) {
 					message = "회원가입 성공";
-					loc = request.getContextPath()+"/index.hp";
+					loc = request.getContextPath() + "/index.hp";
+				} else {
+					message = "회원가입에 실패했습니다. 다시 시도해주세요.";
+					loc = "javascript:history.back()";
 				}
+				
 			} catch (SQLException e) {
-				e.printStackTrace();
+				// e.printStackTrace(); [릴리즈] 콘솔에 DB/쿼리 정보가 그대로 노출될 수 있어 주석 처리
 				message = "회원가입 실패";
 				loc= "javascript:history.back()";
 			}
