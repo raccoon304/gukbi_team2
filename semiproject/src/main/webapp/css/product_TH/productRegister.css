@@ -333,12 +333,12 @@
 
 /* 1) 용량/색상 칼럼 폭 고정 */
 .matrix-cell.storage{ 
-  	flex: 0 0 110px;     /* 고정폭(원하는 값으로 조절) */
+  	flex: 0 0 80px;     /* 고정폭(원하는 값으로 조절) */
   	text-align:left;
 	color: #667eea;
 }
 .matrix-cell.color{
-  	flex: 0 0 110px;     /* 고정폭(원하는 값으로 조절) */
+  	flex: 0 0 90px;     /* 고정폭(원하는 값으로 조절) */
   	text-align:left;
   	color: #764ba2;
 }
@@ -353,7 +353,6 @@
 /* 2) 재고/금액은 항상 같은 위치로 오게 */
 .matrix-input-stock{
   flex: 0 0 140px;     /* 너가 이미 준 폭 */
-  margin-left: 15px;
 }
 .matrix-input-price{
   flex: 0 0 270px;     /* 너가 이미 준 폭 */

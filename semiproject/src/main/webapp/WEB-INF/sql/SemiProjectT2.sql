@@ -5790,3 +5790,517 @@ where fk_member_id = 'dog';
 
 
 commit;
+
+select color, storage_size, fk_product_code, stock_qty
+from tbl_product_option
+where UPPER(fk_product_code) = UPPER('1000ap') AND storage_size = '256GB' AND color = 'Black';
+
+
+
+
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+--------------------- 상품테이블 데이터 삽입 --------------------------
+select * from tbl_product;
+/* =========================
+   tbl_product 데이터 INSERT
+   ========================= */
+
+INSERT INTO tbl_product
+(product_code, product_name, brand_name, product_desc, sale_status, image_path, price)
+VALUES
+('1000AP', 'iPhone17', 'Apple',
+ q'[iPhone 17은 일상부터 업무까지 안정적으로 사용할 수 있는 스마트폰입니다.<br>
+선명한 디스플레이와 빠른 반응성으로 앱 실행이 부드럽습니다.<br>
+사진과 영상 촬영에서도 자연스러운 색감을 제공합니다.<br>
+데일리 스마트폰으로 활용하기에 충분한 완성도를 갖췄습니다.]',
+ 'Y', '', 1000000);
+
+INSERT INTO tbl_product
+VALUES
+('1100AP', 'iPhone17 Pro', 'Apple',
+ q'[iPhone 17 Pro는 고성능 작업과 촬영에 특화된 프리미엄 모델입니다.<br>
+강력한 성능으로 멀티태스킹과 고사양 앱 실행이 원활합니다.<br>
+카메라 성능이 강화되어 영상 촬영에도 적합합니다.<br>
+완성도 높은 디자인과 성능을 원하는 사용자에게 추천합니다.]',
+ 'Y', '', 1100000);
+
+INSERT INTO tbl_product
+VALUES
+('1200AP', 'iPhone17 Pro Max', 'Apple',
+ q'[iPhone 17 Pro Max는 대화면과 긴 배터리 사용 시간을 제공하는 모델입니다.<br>
+영상 감상과 게임에서 몰입감 있는 화면을 경험할 수 있습니다.<br>
+고성능 칩셋으로 장시간 사용에도 안정적인 성능을 유지합니다.<br>
+큰 화면을 선호하는 사용자에게 적합한 스마트폰입니다.]',
+ 'Y', '', 1200000);
+
+INSERT INTO tbl_product
+VALUES
+('2000AP', 'iPhone16', 'Apple',
+ q'[iPhone 16은 균형 잡힌 성능과 사용성을 제공하는 모델입니다.<br>
+일상적인 앱 사용과 멀티미디어 감상에 적합합니다.<br>
+부드러운 인터페이스로 장시간 사용에도 피로도가 낮습니다.<br>
+가성비를 고려한 선택지로 추천됩니다.]',
+ 'Y', '', 2000000);
+
+INSERT INTO tbl_product
+VALUES
+('2100AP', 'iPhone16 Pro', 'Apple',
+ q'[iPhone 16 Pro는 성능과 카메라 활용도를 중시한 모델입니다.<br>
+사진과 영상 촬영에서 디테일한 표현이 가능합니다.<br>
+고사양 앱과 작업에서도 안정적인 퍼포먼스를 제공합니다.<br>
+프리미엄 스마트폰을 원하는 사용자에게 적합합니다.]',
+ 'Y', '', 2100000);
+
+INSERT INTO tbl_product
+VALUES
+('2200AP', 'iPhone16 Pro Max', 'Apple',
+ q'[iPhone 16 Pro Max는 넓은 화면과 고성능을 동시에 제공합니다.<br>
+콘텐츠 감상과 작업에서 높은 몰입감을 제공합니다.<br>
+배터리 효율이 좋아 하루 종일 사용이 가능합니다.<br>
+최상위 모델을 찾는 사용자에게 추천합니다.]',
+ 'Y', '', 2200000);
+
+INSERT INTO tbl_product
+VALUES
+('3000AP', 'iPhone15', 'Apple',
+ q'[iPhone 15는 안정적인 성능으로 꾸준히 사랑받는 모델입니다.<br>
+일상 사용에 충분한 퍼포먼스를 제공합니다.<br>
+사진, 영상, SNS 활용에 무난한 선택지입니다.<br>
+실속 있는 스마트폰을 찾는 분께 추천합니다.]',
+ 'Y', '', 3000000);
+
+INSERT INTO tbl_product
+VALUES
+('3100AP', 'iPhone15 Pro', 'Apple',
+ q'[iPhone 15 Pro는 가볍고 강력한 성능을 갖춘 모델입니다.<br>
+고급 카메라 기능으로 촬영 활용도가 높습니다.<br>
+빠른 처리 속도로 다양한 작업을 수행할 수 있습니다.<br>
+프리미엄 사용 경험을 원하는 사용자에게 적합합니다.]',
+ 'Y', '', 3100000);
+
+INSERT INTO tbl_product
+VALUES
+('3200AP', 'iPhone15 Pro Max', 'Apple',
+ q'[iPhone 15 Pro Max는 대형 디스플레이와 고성능이 특징입니다.<br>
+영상 감상과 게임 플레이에서 뛰어난 몰입감을 제공합니다.<br>
+장시간 사용에도 안정적인 퍼포먼스를 유지합니다.<br>
+대화면 스마트폰을 선호하는 사용자에게 추천합니다.]',
+ 'Y', '', 3200000);
+
+INSERT INTO tbl_product
+VALUES
+('1000GX', 'Galaxy Z Fold7', 'Samsung',
+ q'[Galaxy Z Fold7은 접이식 대화면을 제공하는 프리미엄 폴더블 스마트폰입니다.<br>
+멀티태스킹과 문서 작업에 최적화된 화면 구성을 지원합니다.<br>
+영상 감상과 업무 활용도가 매우 높습니다.<br>
+생산성을 중시하는 사용자에게 적합합니다.]',
+ 'Y', '', 1000000);
+
+INSERT INTO tbl_product
+VALUES
+('1100GX', 'Galaxy Z Flip7', 'Samsung',
+ q'[Galaxy Z Flip7은 컴팩트한 폴더블 디자인이 특징입니다.<br>
+휴대성이 뛰어나고 스타일리시한 사용이 가능합니다.<br>
+셀피 촬영과 각도 조절 촬영에 유리합니다.<br>
+개성 있는 스마트폰을 원하는 사용자에게 추천합니다.]',
+ 'Y', '', 1100000);
+
+INSERT INTO tbl_product
+VALUES
+('1200GX', 'Galaxy S25 Ultra', 'Samsung',
+ q'[Galaxy S25 Ultra는 최상위 성능을 제공하는 울트라 모델입니다.<br>
+대형 디스플레이와 강력한 카메라 성능을 갖추고 있습니다.<br>
+고사양 작업과 게임에서도 안정적인 성능을 유지합니다.<br>
+프리미엄 안드로이드 스마트폰을 원하는 분께 추천합니다.]',
+ 'Y', '', 1200000);
+
+INSERT INTO tbl_product
+VALUES
+('2000GX', 'Galaxy Z Fold6', 'Samsung',
+ q'[Galaxy Z Fold6는 대화면 기반의 멀티태스킹에 강점이 있습니다.<br>
+여러 앱을 동시에 실행해 작업 효율을 높일 수 있습니다.<br>
+콘텐츠 소비와 업무 활용 모두에 적합합니다.<br>
+폴더블 경험을 원하는 사용자에게 추천됩니다.]',
+ 'Y', '', 2000000);
+
+INSERT INTO tbl_product
+VALUES
+('2100GX', 'Galaxy Z Flip6', 'Samsung',
+ q'[Galaxy Z Flip6는 휴대성과 활용성을 겸비한 폴더블 모델입니다.<br>
+작은 크기로 접어 휴대하기 편리합니다.<br>
+다양한 촬영 각도를 지원해 사진 활용도가 높습니다.<br>
+실용성과 디자인을 중시하는 사용자에게 적합합니다.]',
+ 'Y', '', 2100000);
+
+INSERT INTO tbl_product
+VALUES
+('2200GX', 'Galaxy S24 Ultra', 'Samsung',
+ q'[Galaxy S24 Ultra는 고급스러운 디자인과 성능을 제공합니다.<br>
+카메라와 디스플레이 품질이 뛰어납니다.<br>
+고사양 앱과 멀티태스킹에서도 안정적인 사용이 가능합니다.<br>
+프리미엄 갤럭시 모델을 찾는 사용자에게 추천합니다.]',
+ 'Y', '', 2200000);
+
+INSERT INTO tbl_product
+VALUES
+('3000GX', 'Galaxy Z Fold5', 'Samsung',
+ q'[Galaxy Z Fold5는 폴더블 대화면의 활용성이 돋보이는 모델입니다.<br>
+업무와 엔터테인먼트를 동시에 즐길 수 있습니다.<br>
+멀티태스킹에 최적화된 사용자 경험을 제공합니다.<br>
+대화면 스마트폰을 선호하는 사용자에게 적합합니다.]',
+ 'Y', '', 3000000);
+
+INSERT INTO tbl_product
+VALUES
+('3100GX', 'Galaxy Z Flip5', 'Samsung',
+ q'[Galaxy Z Flip5는 세련된 디자인과 휴대성이 특징입니다.<br>
+접이식 구조로 사용성과 개성을 모두 만족시킵니다.<br>
+촬영과 일상 사용에서 편의성이 뛰어납니다.<br>
+트렌디한 스마트폰을 원하는 사용자에게 추천합니다.]',
+ 'Y', '', 3100000);
+
+INSERT INTO tbl_product
+VALUES
+('3200GX', 'Galaxy S23 Ultra', 'Samsung',
+ q'[Galaxy S23 Ultra는 강력한 성능과 카메라를 갖춘 모델입니다.<br>
+대형 디스플레이로 콘텐츠 감상에 최적화되어 있습니다.<br>
+업무와 엔터테인먼트 모두에 적합한 스마트폰입니다.<br>
+울트라 라인업을 선호하는 사용자에게 추천합니다.]',
+ 'Y', '', 3200000);
+
+COMMIT;
+
+/* =========================
+   iPhone 13 / 14 Series
+   ========================= */
+
+INSERT INTO tbl_product
+(product_code, product_name, brand_name, product_desc, sale_status, image_path, price)
+VALUES
+('1300AP', 'iPhone13', 'Apple',
+ q'[iPhone 13은 안정적인 성능과 완성도를 갖춘 스탠다드 모델입니다.<br>
+일상적인 앱 사용과 멀티미디어 감상에 충분한 성능을 제공합니다.<br>
+카메라 성능이 개선되어 사진과 영상 촬영이 더욱 자연스럽습니다.<br>
+실사용 중심의 스마트폰을 원하는 사용자에게 적합합니다.]',
+ 'Y', '', 1300000);
+
+INSERT INTO tbl_product
+VALUES
+('1310AP', 'iPhone13 Pro', 'Apple',
+ q'[iPhone 13 Pro는 성능과 촬영 품질을 강화한 프로 라인업 모델입니다.<br>
+고성능 칩셋으로 고사양 앱과 멀티태스킹에서도 안정적인 사용이 가능합니다.<br>
+카메라 활용도가 높아 영상 및 사진 촬영에 유리합니다.<br>
+프리미엄 사용 경험을 원하는 사용자에게 추천됩니다.]',
+ 'Y', '', 1400000);
+
+INSERT INTO tbl_product
+VALUES
+('1320AP', 'iPhone13 Pro Max', 'Apple',
+ q'[iPhone 13 Pro Max는 대화면과 긴 배터리 사용 시간을 제공하는 모델입니다.<br>
+영상 감상과 게임에서 뛰어난 몰입감을 제공합니다.<br>
+프로급 카메라 성능으로 콘텐츠 제작에도 적합합니다.<br>
+대형 스마트폰을 선호하는 사용자에게 추천합니다.]',
+ 'Y', '', 1500000);
+
+INSERT INTO tbl_product
+VALUES
+('1400AP', 'iPhone14', 'Apple',
+ q'[iPhone 14는 균형 잡힌 성능과 향상된 안정성을 제공하는 모델입니다.<br>
+일상 사용에 최적화된 인터페이스로 누구나 쉽게 사용할 수 있습니다.<br>
+카메라와 디스플레이 품질이 개선되어 만족도가 높습니다.<br>
+실속 있는 최신 아이폰을 찾는 사용자에게 적합합니다.]',
+ 'Y', '', 1600000);
+
+INSERT INTO tbl_product
+VALUES
+('1410AP', 'iPhone14 Pro', 'Apple',
+ q'[iPhone 14 Pro는 고급 기능과 성능을 강화한 프리미엄 모델입니다.<br>
+부드러운 화면 전환과 빠른 반응 속도를 제공합니다.<br>
+촬영 기능이 강화되어 사진과 영상의 완성도가 높습니다.<br>
+성능과 디자인을 모두 중시하는 사용자에게 추천합니다.]',
+ 'Y', '', 1700000);
+
+INSERT INTO tbl_product
+VALUES
+('1420AP', 'iPhone14 Pro Max', 'Apple',
+ q'[iPhone 14 Pro Max는 대화면과 강력한 성능을 동시에 제공하는 최상위 모델입니다.<br>
+콘텐츠 감상과 게임 플레이에서 뛰어난 몰입감을 제공합니다.<br>
+고성능 카메라로 다양한 촬영 환경에서도 안정적인 결과를 얻을 수 있습니다.<br>
+최고 사양의 아이폰을 원하는 사용자에게 적합합니다.]',
+ 'Y', '', 1800000);
+
+COMMIT;
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+--------------------- 상품상세 테이블 데이터 삽입 ---------------------
+select * from tbl_product_option;
+/* =========================================================
+   tbl_product_option : 8 options per product
+   base option: Black + 256GB (plus_price=0) 반드시 포함
+   plus_price: 256GB=0, 512GB=200000, 1T=400000
+   ========================================================= */
+
+/* -------------------------
+   Apple
+-------------------------- */
+
+/* 1000AP iPhone17 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','Black','256GB',24,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','White','256GB',11,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','Blue','256GB',8,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','Red','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','Black','512GB',9,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','White','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','Black','1T',3,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000AP','Blue','1T',1,400000);
+
+/* 1100AP iPhone17 Pro (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','Black','256GB',18,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','White','256GB',9,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','Blue','256GB',7,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','Red','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','Black','512GB',6,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','White','512GB',3,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100AP','Blue','512GB',0,200000);
+
+/* 1200AP iPhone17 Pro Max (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','Black','256GB',14,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','Black','1T',3,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200AP','Blue','1T',1,400000);
+
+/* 1300AP iPhone13 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','Black','256GB',22,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','White','256GB',10,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','Blue','256GB',8,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','Red','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','Black','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','White','512GB',3,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1300AP','Blue','512GB',1,200000);
+
+/* 1310AP iPhone13 Pro (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','Black','256GB',16,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','White','256GB',7,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','Blue','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','Black','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','Black','1T',1,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1310AP','Blue','512GB',3,200000);
+
+/* 1320AP iPhone13 Pro Max (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','Black','256GB',12,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1320AP','Blue','1T',1,400000);
+
+/* 1400AP iPhone14 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','Black','256GB',20,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','White','256GB',9,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','Blue','256GB',7,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','Red','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','Black','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','White','512GB',3,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1400AP','Blue','512GB',1,200000);
+
+/* 1410AP iPhone14 Pro (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','Black','256GB',15,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1410AP','Blue','512GB',0,200000);
+
+/* 1420AP iPhone14 Pro Max (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','Black','256GB',11,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','White','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','Blue','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','Black','512GB',3,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1420AP','Blue','1T',1,400000);
+
+/* 2000AP iPhone16 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','Black','256GB',17,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','White','256GB',8,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','Blue','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','Red','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','Black','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000AP','Blue','512GB',1,200000);
+
+/* 2100AP iPhone16 Pro (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','Black','256GB',13,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','Black','1T',1,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100AP','Blue','1T',2,400000);
+
+/* 2200AP iPhone16 Pro Max (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','Black','256GB',10,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','White','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','Blue','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','Black','512GB',3,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200AP','Blue','512GB',1,200000);
+
+/* 3000AP iPhone15 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','Black','256GB',19,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','White','256GB',7,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','Blue','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','Red','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','Black','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000AP','Blue','512GB',1,200000);
+
+/* 3100AP iPhone15 Pro (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','Black','256GB',12,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','Black','1T',1,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100AP','Blue','512GB',3,200000);
+
+/* 3200AP iPhone15 Pro Max (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','Black','256GB',9,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','White','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','Blue','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','Black','512GB',3,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200AP','Blue','1T',1,400000);
+
+
+/* -------------------------
+   Samsung
+-------------------------- */
+
+/* 1000GX Galaxy Z Fold7 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','Black','256GB',14,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','Black','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1000GX','Blue','1T',1,400000);
+
+/* 1100GX Galaxy Z Flip7 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','Black','256GB',16,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','White','256GB',7,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','Black','1T',1,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1100GX','Blue','512GB',3,200000);
+
+/* 1200GX Galaxy S25 Ultra (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','Black','256GB',13,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','White','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','Blue','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'1200GX','Blue','1T',1,400000);
+
+/* 2000GX Galaxy Z Fold6 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','Black','256GB',12,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','Black','512GB',5,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2000GX','Blue','512GB',1,200000);
+
+/* 2100GX Galaxy Z Flip6 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','Black','256GB',15,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','White','256GB',7,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','Black','1T',1,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2100GX','Blue','1T',2,400000);
+
+/* 2200GX Galaxy S24 Ultra (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','Black','256GB',11,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','White','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','Blue','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'2200GX','Blue','512GB',1,200000);
+
+/* 3000GX Galaxy Z Fold5 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','Black','256GB',10,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','White','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','Blue','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','Black','512GB',3,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','Black','1T',1,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3000GX','Blue','512GB',1,200000);
+
+/* 3100GX Galaxy Z Flip5 (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','Black','256GB',14,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','White','256GB',6,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','Blue','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','Red','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','Black','1T',1,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3100GX','Blue','512GB',3,200000);
+
+/* 3200GX Galaxy S23 Ultra (8) */
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','Black','256GB',12,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','White','256GB',5,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','Blue','256GB',4,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','Red','256GB',3,0);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','Black','512GB',4,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','White','512GB',2,200000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','Black','1T',2,400000);
+INSERT INTO tbl_product_option VALUES(SEQ_PRODUCT_OPTION_ID.nextval,'3200GX','Blue','1T',1,400000);
+
+COMMIT;
+
+
+
+
+
+select * from tbl_product_image;
+

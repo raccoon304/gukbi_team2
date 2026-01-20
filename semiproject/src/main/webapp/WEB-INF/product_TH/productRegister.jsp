@@ -33,7 +33,7 @@
 	
 	<!-- 사용자 JS -->
 	<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/productRegister.js"></script>
-	<%-- <script src="<%=ctxPath%>/js/admin/admin_common.js"></script> --%>
+	<script src="<%=ctxPath%>/js/admin/admin_common.js"></script>
 
 </head>
 <body>
