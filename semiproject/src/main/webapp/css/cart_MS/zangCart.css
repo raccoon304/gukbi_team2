@@ -1,32 +1,8 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
-body {
-    font-family: 'Malgun Gothic', sans-serif;
-    padding: 20px;
-    padding-top: 80px;
-    background-color: #f5f5f5;
-}
-
-/* 
-   레이아웃 구조
- */
-
-/* 메인 컨테이너 */
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    margin-top: 20px;
-}
 
 /* 장바구니 flex 컨테이너 (테이블 + 요약 영역) */
 div#minsoo {
+	/* border: solid 2px red; */
     display: flex;
     gap: 30px;
     align-items: flex-start;
@@ -34,13 +10,15 @@ div#minsoo {
 
 /* 테이블 영역 */
 .cart-table {
+	/* border: solid 2px red; */
     flex: 1;
     min-width: 0; /* flex 자식의 overflow 방지 */
 }
 
 /* 요약 영역 */
 .summary-section {
-    width: 350px;
+	/* border: solid 2px red; */
+    width: 300px;
     flex-shrink: 0;
     position: sticky;
     top: 100px;

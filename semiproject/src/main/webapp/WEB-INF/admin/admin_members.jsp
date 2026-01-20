@@ -32,6 +32,7 @@
 	
 	<%-- 직접 만든 JS --%>
     <script src="<%=ctxPath%>/js/admin/members.js"></script>
+    <script src="<%=ctxPath%>/js/admin/admin_common.js"></script>
 
 <script type="text/javascript">
   $(function(){
@@ -80,6 +81,28 @@
 
 	      location.href = url;
 	    });
+	  
+	  
+	  // 모바일 화면에서 카드 클릭시 상세
+	  $(document).on("click", ".member-card", function () {
+		  const memberId = $(this).data("memberid");
+
+		  const ctxPath = "<%=ctxPath%>";
+		  const searchType = "${requestScope.searchType}";
+		  const searchWord = "${requestScope.searchWord}";
+		  const sizePerPage = "${requestScope.sizePerPage}";
+		  const currentShowPageNo = "${requestScope.currentShowPageNo}";
+
+		  const url = ctxPath + "/admin/members.hp"
+		    + "?searchType=" + encodeURIComponent(searchType)
+		    + "&searchWord=" + encodeURIComponent(searchWord)
+		    + "&sizePerPage=" + encodeURIComponent(sizePerPage)
+		    + "&currentShowPageNo=" + encodeURIComponent(currentShowPageNo)
+		    + "&detailMemberId=" + encodeURIComponent(memberId);
+
+		  location.href = url;
+		});
+
 
 	    // 서버가 detailMember를 내려줬으면 모달 자동 오픈
 	    const hasDetail = "${not empty requestScope.detailMember}";
@@ -141,8 +164,17 @@
     <div class="wrapper">
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
         
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
         <div class="main-content">
             <%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
+            
+            <div class="mobile-topbar d-lg-none">
+		        <button type="button" class="btn btn-light btn-sm" id="btnSidebarToggle">
+		          <i class="fas fa-bars"></i>
+		        </button>
+		        <span class="ml-2 font-weight-bold">관리자</span>
+		    </div>
             
             <div class="content-wrapper">
                 <div class="container-fluid p-4">
@@ -160,7 +192,7 @@
                         		<form name="member_search_frm">
 							    <div class="row mb-3">
 							
-							      <div class="col-md-3">
+							      <div class="col-md-3 mb-2 mb-md-0">
 							        <select class="custom-select" id="searchType" name="searchType">
 							          <option value="">검색대상</option>
 							          <option value="member_id">아이디</option>
@@ -169,7 +201,7 @@
 							        </select>
 							      </div>
 							
-							      <div class="col-md-6">
+							      <div class="col-md-6 mb-2 mb-md-0">
 							        <div class="input-group">
 							          <input type="text" class="form-control" id="searchWord" name="searchWord" placeholder="검색">
 							          <input type="text" style="display:none;" />
@@ -192,7 +224,7 @@
 							    </div> 
 							  </form>
                                 
-                            <div class="table-responsive">
+                            <div class="table-responsive d-none d-md-block">
                                 <table class="table table-hover" id="memberTbl">
                                     <thead>
                                         <tr>
@@ -264,12 +296,56 @@
 								      
 								      <c:if test="${empty requestScope.memberList}">
 								         <tr>
-								             <td colspan="8">데이터가 존재하지 않습니다</td>
+								             <td colspan="6">데이터가 존재하지 않습니다</td>
 								         </tr>
 								      </c:if>
                                     </tbody>
-                                </table>
+                                </table>                             
                             </div>
+                            
+                            <!-- 모바일용 카드 리스트 -->
+							<div class="d-md-none" id="memberCardList">
+							
+							  <c:if test="${not empty requestScope.memberList}">
+							    <c:forEach var="mbrDto" items="${requestScope.memberList}" varStatus="status">
+							
+							      <fmt:parseNumber var="currentShowPageNo" value="${requestScope.currentShowPageNo}" />
+							      <fmt:parseNumber var="sizePerPage" value="${requestScope.sizePerPage}" />
+							
+							      <div class="member-card" data-memberid="${mbrDto.memberid}">
+							        <div class="d-flex justify-content-between align-items-center">
+							          <div class="font-weight-bold">${mbrDto.memberid}</div>
+							          <span class="badge badge-light">
+							            ${ (requestScope.totalMemberCount) - (currentShowPageNo - 1) * sizePerPage - (status.index) }
+							          </span>
+							        </div>
+							
+							        <div class="text-muted small mt-1">${mbrDto.email}</div>
+							
+							        <div class="d-flex justify-content-between mt-2">
+							          <div><b>이름</b> ${mbrDto.name}</div>
+							          <div>
+							            <b>성별</b>
+							            <c:choose>
+							              <c:when test="${mbrDto.gender == 0}">남</c:when>
+							              <c:otherwise>여</c:otherwise>
+							            </c:choose>
+							          </div>
+							        </div>
+							
+							        <div class="mt-2">
+							          <b>가입일</b> ${mbrDto.registerday}
+							        </div>
+							      </div>
+							
+							    </c:forEach>
+							  </c:if>
+							
+							  <c:if test="${empty requestScope.memberList}">
+							    <div class="text-center text-muted py-4">데이터가 존재하지 않습니다</div>
+							  </c:if>
+							
+							</div>
                             
                             <div id="pageBar">
 							   <nav>

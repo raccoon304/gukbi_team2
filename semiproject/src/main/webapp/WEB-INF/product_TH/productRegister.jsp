@@ -30,14 +30,26 @@
 	<link rel="stylesheet" type="text/css" href="<%=ctxPath%>/css/product_TH/productRegister.css">
 	<link href="<%=ctxPath%>/css/admin/admin.css" rel="stylesheet" />
 	
+	
 	<!-- 사용자 JS -->
 	<script type="text/javascript" src="<%=ctxPath%>/js/product_TH/productRegister.js"></script>
+	<script src="<%=ctxPath%>/js/admin/admin_common.js"></script>
 
 </head>
 <body>
     <div class="wrapper">
         <jsp:include page="/WEB-INF/admin/admin_sidebar.jsp" />
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
         <div class="main-content">
+        
+	        <div class="mobile-topbar d-lg-none">
+	            <button type="button" class="btn btn-light btn-sm" id="btnSidebarToggle">
+	              <i class="fas fa-bars"></i>
+	            </button>
+	            <span class="ml-2 font-weight-bold">관리자</span>
+			</div>
+          
             <%-- <jsp:include page="/WEB-INF/admin/admin_header.jsp" /> --%>
 
 			<div class="registration-container">
@@ -128,31 +140,7 @@
 			            </div>
 			
 			
-			            <!-- 이미지 업로드 -->
-			            <!-- <div class="form-section">
-			                <div class="section-title">
-			                    <i class="fas fa-image mr-2"></i>이미지 업로드 <span class="required-mark">*</span>
-			                </div>
-			                <div class="drop-zone" id="dropZone">
-			                    <i class="fas fa-cloud-upload-alt"></i>
-			                    <p>이미지를 드래그하여 놓거나 클릭하여 선택하세요</p>
-			                    <small>JPG, PNG, GIF 파일 지원 (최대 5MB)</small>
-			                </div>
-			                <input type="file" id="imageFile" accept="image/*" style="display: none;">
-			                <div class="form-group">
-			                    <label>또는 이미지 URL 입력</label>
-			                    <input type="text" class="form-control form-control-lg" id="imagePath" name="imagePath" placeholder="https://example.com/image.jpg">
-			                </div>
-			                <div class="image-preview" id="imagePreview">
-			                    <p class="mb-2"><strong>미리보기:</strong></p>
-			                    <img id="previewImg" src="" alt="이미지 미리보기">
-			                    <div class="image-preview-actions">
-			                        <button type="button" class="btn-remove-image" id="removeImageBtn">
-			                            <i class="fas fa-trash mr-2"></i>이미지 제거
-			                        </button>
-			                    </div>
-			                </div>
-			            </div> -->
+			            
 			            
 			            
 			            <div class="form-section image-upload-section" id="imageUploadSection">
@@ -326,7 +314,7 @@
 							        옵션 추가
 							    </button>
 							</div>
-						    <small class="form-text text-muted text-center">새로운 상품일 경우 기본금을 입력해야 옵션 추가가 가능합니다.</small>
+						    <small class="form-text text-muted text-center" style="margin-top: 10px;">새로운 상품일 경우 기본금을 입력해야 옵션 추가가 가능합니다.</small>
 					        
 							
 			                <div class="option-matrix">

@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +53,11 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
         String deliveryStatus = paraMap.get("deliveryStatus");
         String searchType     = paraMap.get("searchType");
         String searchWord     = paraMap.get("searchWord");
+        String excludeFail = paraMap.get("excludeFail");
+        
+        if(excludeFail == null) excludeFail = "0";
+        excludeFail = excludeFail.trim();
+        boolean isExcludeFail = "1".equals(excludeFail);
 
         if (deliveryStatus == null) deliveryStatus = "";
         if (searchType == null) searchType = "";
@@ -82,6 +86,11 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "     ON m.member_id = o.fk_member_id "
                        + "  WHERE 1=1 ";
 
+            
+            if (isExcludeFail) {
+                sql += " AND o.delivery_status != 4 ";
+            }
+            
             if (hasDeliveryFilter) {
                 sql += " AND o.delivery_status = ? ";
             }
@@ -133,6 +142,11 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
         String deliveryStatus = paraMap.get("deliveryStatus");
         String searchType     = paraMap.get("searchType");
         String searchWord     = paraMap.get("searchWord");
+        String excludeFail = paraMap.get("excludeFail");
+        
+        if(excludeFail == null) excludeFail = "0";
+        excludeFail = excludeFail.trim();
+        boolean isExcludeFail = "1".equals(excludeFail);
 
         if (deliveryStatus == null) deliveryStatus = "";
         if (searchType == null) searchType = "";
@@ -161,6 +175,10 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "     ON m.member_id = o.fk_member_id "
                        + "  WHERE 1=1 ";
 
+            if (isExcludeFail) {
+                sql += " AND o.delivery_status != 4 ";
+            }
+            
             if (hasDeliveryFilter) {
                 sql += " AND o.delivery_status = ? ";
             }
@@ -221,6 +239,11 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
         String sort           = paraMap.get("sort");
         String searchType     = paraMap.get("searchType");
         String searchWord     = paraMap.get("searchWord");
+        String excludeFail = paraMap.get("excludeFail");
+        
+        if(excludeFail == null) excludeFail = "0";
+        excludeFail = excludeFail.trim();
+        boolean isExcludeFail = "1".equals(excludeFail);
 
         if (deliveryStatus == null) deliveryStatus = "";
         if (sort == null) sort = "";
@@ -296,6 +319,10 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "     LEFT JOIN tbl_product_option po "
                        + "       ON po.option_id = dr.fk_option_id "
                        + "    WHERE 1=1 ";
+            
+            if (isExcludeFail) {
+                sql += " AND o.delivery_status != 4 ";
+            }
 
             if (hasDeliveryFilter) {
                 sql += " AND o.delivery_status = ? ";

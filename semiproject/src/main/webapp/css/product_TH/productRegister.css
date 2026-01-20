@@ -204,8 +204,15 @@
 
 
 /* 옵션 조합 매트릭스 전체 영역 */
-.option-matrix { background: #f8f9fa; padding: 25px; border-radius: 12px; margin-top: 20px; }
+.option-matrix { 
+	/* border:solid 2px red; */
+	background: #f8f9fa; 
+	padding: 25px; 
+	border-radius: 12px; 
+	margin-top: 20px; 
+}
 .matrix-header {
+	/* border:solid 2px red; */
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 15px;
@@ -251,38 +258,67 @@
 
 /* 매트릭스 한 줄 */
 .matrix-row {
-    display: grid;
+	/* border:solid 2px red; */
+    display:flex;
+    flex-wrap: wrap;   /* 줄바꿈 허용 */
+	align-items:center;
+	gap:16px;
+	padding:20px;
+  
     grid-template-columns:
-        minmax(100px, 1fr)
-        minmax(100px, 1fr)
-        minmax(140px, 1.5fr)
+        minmax(80px, 1fr)
+        minmax(80px, 1fr)
+        minmax(100px, 1.5fr)
         minmax(140px, 1.5fr)
         60px;
-    gap: 16px;
-    padding: 20px;
+        
     background: white;
     border-radius: 8px;
     margin-bottom: 10px;
-    align-items: center;
     border: 2px solid #e9ecef;
+    
+     
 }
 .matrix-row:hover { border-color: #667eea; }
 @media (max-width: 992px) {
     .matrix-row {
-        grid-template-columns: 1fr 1fr;
-        row-gap: 12px;
+        gap: 12px;
     }
 
+    /* 용량 + 색상은 한 줄 */
+    .matrix-cell.storage,
+    .matrix-cell.color {
+        flex: 0 0 auto;
+    }
+
+    /* 재고 / 금액은 다음 줄로 */
+    .matrix-input-stock,
+    .matrix-input-price {
+        flex: 1 1 100%;     /* ✅ 한 줄 전체 차지 */
+    }
+
+    /* 삭제/잠금은 맨 아래 오른쪽 */
     .matrix-delete {
-        grid-column: span 2;
+        flex: 1 1 100%;
         justify-content: flex-end;
+        margin-left: 0;
     }
 }
+
 .matrix-input,
 .input-group,
 .form-control {
+	/* border:solid 2px red; */
     min-width: 0;
 }
+
+/* input-group이 폭을 꽉 쓰게 */
+.matrix-input .input-group{ width:100%; }
+.matrix-input input{ width:100%; }
+
+.matrix-input-stock { width: 140px; }  /* 재고 좁게 */
+.matrix-input-price { width: 250px; }  /* 금액 넓게 */
+
 .matrix-cell {
     white-space: nowrap;
     overflow: hidden;
@@ -290,12 +326,39 @@
 }
 
 /* 매트릭스 셀 */
-.matrix-cell { font-weight: 600; }
-.matrix-cell.storage { color: #667eea; }
-.matrix-cell.color { color: #764ba2; }
+.matrix-cell { 
+	font-weight: 600;
+	/* border: solid 2px blue; */
+}
+
+/* 1) 용량/색상 칼럼 폭 고정 */
+.matrix-cell.storage{ 
+  	flex: 0 0 80px;     /* 고정폭(원하는 값으로 조절) */
+  	text-align:left;
+	color: #667eea;
+}
+.matrix-cell.color{
+  	flex: 0 0 90px;     /* 고정폭(원하는 값으로 조절) */
+  	text-align:left;
+  	color: #764ba2;
+}
 
 /* 입력 필드 영역 */
-.matrix-input { display: flex; align-items: center; }
+.matrix-input {
+	display: flex;
+	align-items: center;
+	/* border:solid 2px red; */
+}
+
+/* 2) 재고/금액은 항상 같은 위치로 오게 */
+.matrix-input-stock{
+  flex: 0 0 140px;     /* 너가 이미 준 폭 */
+}
+.matrix-input-price{
+  flex: 0 0 270px;     /* 너가 이미 준 폭 */
+  margin-left: 8px;
+}
+
 .matrix-input input {
     border: 2px solid #dee2e6;
     border-radius: 6px;
@@ -303,13 +366,39 @@
     width: 100%;
 }
 .matrix-input input:focus { border-color: #667eea; outline: none; }
-.matrix-input .input-group-text { background: #667eea; color: white; border: none; }
+.matrix-input .input-group-text {
+	background: #667eea; 
+	color: white; 
+	border: none;
+}
+
+/* 기본용량 CSS */
+.default-option-badge {
+    margin-left:auto;     /* ✅ 핵심: 오른쪽 끝 */
+  	display:flex;
+  	align-items:center;
+  	justify-content:flex-end;
+  
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6c757d;
+    background: #e9ecef;
+    border-radius: 6px;
+    cursor: default;
+    user-select: none;
+    
+    margin-right: 8px;   /* 오른쪽 여백(살짝 안쪽으로) */
+}
 
 /* 삭제 버튼 영역 */
 .matrix-delete {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	margin-left:auto;     /* ✅ 핵심: 오른쪽 끝 */
+  	display:flex;
+  	align-items:center;
+  	justify-content:flex-end;
+  	
+  	margin-right: 8px;   /* 오른쪽 여백(살짝 안쪽으로) */
 }
 .delete-option-btn {
     padding: 8px 12px;
@@ -320,6 +409,7 @@
     transform: scale(1.1);
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
+
 
 
 

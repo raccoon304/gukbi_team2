@@ -30,6 +30,7 @@ body {
 
 /* 브랜드(로고) - 기존 그라데이션 텍스트 유지 */
 .navbar-custom .navbar-brand {
+	/* border: solid 2px blue; */
     font-size: 1.6rem;
     font-weight: 800;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -40,12 +41,14 @@ body {
 
 /* 메뉴 링크 */
 .navbar-custom .navbar-nav .nav-link {
+	/* border: solid 2px red; */
     font-weight: 600;
     color: rgba(0,0,0,0.78);
     padding: 10px 12px;
     margin: 0 4px;
     border-radius: 10px;
     transition: background 0.2s ease, transform 0.2s ease;
+    /* border-bottom-color: #4F46E5; */
 }
 
 /* hover만 살짝 */
@@ -53,20 +56,13 @@ body {
     background: rgba(0,0,0,0.05);
     transform: translateY(-1px);
     color: rgba(0,0,0,0.85);
-}
-
-/* ✅ "점선/색 바뀜" 원인 제거: focus/active outline 제거 */
-.navbar-custom .navbar-nav .nav-link:focus,
-.navbar-custom .navbar-nav .nav-link:active,
-.navbar-custom .navbar-toggler:focus,
-.navbar-custom .btn-login:focus,
-.navbar-custom .btn-signup:focus {
-    outline: none !important;
-    box-shadow: none !important;
+    border-bottom-color: #4F46E5;
+    
 }
 
 /* 로그인/회원가입 버튼 */
 .btn-login, .btn-signup {
+	/* border: solid 2px red; */
     padding: 8px 18px;
     font-weight: 700;
     border-radius: 12px;
@@ -75,14 +71,19 @@ body {
 }
 
 .btn-login {
-    border: 1px solid rgba(0,0,0,0.18);
-    background: #ffffff;
-    color: rgba(0,0,0,0.78);
+    padding: 7px 22px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
 .btn-login:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 12px 26px rgba(102, 126, 234, 0.25);
 }
 
 .btn-signup {
@@ -95,6 +96,7 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 12px 26px rgba(102, 126, 234, 0.25);
 }
+
 
 /* 토글 버튼(모바일) */
 .navbar-custom .navbar-toggler {
