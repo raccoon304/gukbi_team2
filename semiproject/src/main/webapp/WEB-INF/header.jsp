@@ -111,10 +111,10 @@
 			<% if (loginUser == null) { %> <!-- 비로그인 -->
 			
 			<button class="btn btn-login" id="loginBtn">
-			    <i class="fa-solid fa-right-to-bracket"></i> 로그인
+			    <i class="fa-solid fa-right-to-bracket"></i>&nbsp;&nbsp;로그인
 			</button>
 			<button class="btn btn-signup" id="signupBtn">
-			    <i class="fa-solid fa-user-plus"></i> 회원가입
+			    <i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;회원가입
 			</button>
 			<% } else { %><!-- 로그인 -->
 			

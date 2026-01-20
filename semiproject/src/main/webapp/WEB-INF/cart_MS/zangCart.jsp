@@ -5,26 +5,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" href="<%= ctxPath %>/bootstrap-4.6.2-dist/css/bootstrap.min.css">
+<!-- 헤더부분 가져오기 -->
+<jsp:include page="../header.jsp" />
+
+
+
+<!-- 사용자 CSS -->
 <link rel="stylesheet" href="<%= ctxPath %>/css/cart_MS/zangCart.css">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>장바구니</title>
     
-    <!-- 헤더부분 가져오기 -->
-</head>
-<body>
-    
-    <jsp:include page="/WEB-INF/header.jsp" />
-    
-    <div class="container">
-	
-        <h4>" "    </h4>
-        
+<div class="container">
         <c:if test="${empty cartList}">
             <div class="cart-empty-wrapper">
                 <h4 class="cart-title"></h4>
@@ -150,8 +140,8 @@
             </div>
         </c:if>
     
-    </div>
+</div>
 
-    <script src="<%= ctxPath %>/js/cart_MS/zangCart.js"></script>
-</body>
-</html>
+    <!-- 사용자 JS -->
+<script src="<%= ctxPath %>/js/cart_MS/zangCart.js"></script>
+
