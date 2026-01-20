@@ -13,7 +13,7 @@
     if (confirm("정말로 회원 탈퇴하시겠습니까?\n탈퇴 후에는 계정 이용이 제한됩니다.")) {
       document.getElementById("memberWithdrawForm").submit();
       
-      console.log("goWithdraw called"); // ✅ 찍히는지
+      console.log("goWithdraw called"); //  찍히는지
     }
   }
 </script>
@@ -153,9 +153,10 @@
 	            <table class="table table-bordered mb-0">
 	              <thead class="thead-light">
 	                <tr>
-	                  <th style="width: 50%;">쿠폰명</th>
-	                  <th style="width: 25%;">할인가격</th>
-	                  <th style="width: 25%;">사용가능여부</th>
+	                  <th style="width: 40%;">쿠폰명</th>
+	                  <th style="width: 20%;">할인가격</th>
+	                  <th style="width: 20%;">만료일</th>
+	                  <th style="width: 20%;">사용가능여부</th>
 	                </tr>
 	              </thead>
 	
@@ -176,7 +177,10 @@
 						    </c:otherwise>
 						  </c:choose>
 						</td>
-						
+						<td>
+						  <fmt:parseDate value="${row['issue'].expireDate}" pattern="yyyy-MM-dd HH:mm:ss" var="expDt"/>
+						  <fmt:formatDate value="${expDt}" pattern="yyyyMMdd"/>
+						</td>
 	                    <td>
 	                      <c:choose>
 	                        <c:when test="${row['status'] == 'AVAILABLE'}">
