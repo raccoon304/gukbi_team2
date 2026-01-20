@@ -67,7 +67,9 @@ public interface OrderDAO {
     // 결제 실패 시 재고 반환
     int increaseStock(int optionId, int quantity) throws SQLException;
 
+    // 해킹 방지 
+	boolean isOrderOwner(int orderId, String memberid) throws SQLException;
 
-	
+
 
 }

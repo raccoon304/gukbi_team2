@@ -66,7 +66,7 @@
 				<div class="w-full max-w-md">
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-bold text-gray-800">회원가입</h2>
-                        <p class="text-gray-600 mt-2">아이디가 있으신가요?<a href="#" class="text-primary-600 hover:text-primary-700 font-medium">&nbsp; 로그인</a></p>
+                        <p class="text-gray-600 mt-2">아이디가 있으신가요?<a href="<%= ctxPath %>/index.hp" class="text-primary-600 hover:text-primary-700 font-medium">&nbsp; 로그인</a></p>
                     </div>
 
                     <form class="space-y-6" name="registerFrm" action="<%= ctxPath %>/member/memberRegister.hp" method="post">

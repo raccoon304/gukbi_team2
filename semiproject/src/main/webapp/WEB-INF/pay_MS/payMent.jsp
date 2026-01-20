@@ -243,7 +243,7 @@
         </div>
 
         <div class="price-row">
-          <button type="button" id="applyCouponBtn">쿠폰 적용금액</button>
+          <button type="button" id="applyCouponBtn">쿠폰 사용하기</button>
           <span id="discountAmount">- 0 원</span>
         </div>
 
@@ -637,64 +637,77 @@
     });
     
     // 선택 삭제 (결제 페이지 내)
-    $('#btnDeleteSelectedInPayment').click(function() {
+    $('#btnDeleteSelectedInPayment').on('click', function (e) {
+  	e.preventDefault();
+    	
+    	
       const checked = $('.addr-check-payment:checked');
       if (checked.length === 0) {
         alert('삭제할 배송지를 선택해주세요.');
         return;
       }
       
-      if (!confirm('선택한 배송지를 삭제하시겠습니까?')) {
-        return;
-      }
-      
-      const form = $('<form>', {
-        method: 'post',
-        action: ctxpath + '/myPage/deliveryDelete.hp'
+      if (!confirm('선택한 배송지를 삭제하시겠습니까?')) return;
+
+      const ids = checked.map(function () {
+        return this.value;
+      }).get();
+
+      $.ajax({
+        url: ctxpath + '/myPage/deliveryDelete.hp',
+        type: 'POST',
+        traditional: true,
+        data: { deliveryAddressId: ids },
+        success: function () {
+          checked.closest('.list-group-item').remove();
+          $('#checkAllInPayment').prop('checked', false);
+        },
+        error: function () {
+          alert('배송지 삭제 실패');
+        }
       });
-      
-      checked.each(function() {
-        form.append($('<input>', {
-          type: 'hidden',
-          name: 'deliveryAddressId',
-          value: $(this).val()
-        }));
-      });
-      
-      $('body').append(form);
-      form.submit();
     });
     
-    // 기본 배송지 설정 (결제 페이지 내)
-    $('#btnSetDefaultInPayment').click(function() {
-      const checked = $('.addr-check-payment:checked');
-      if (checked.length === 0) {
-        alert('기본 배송지로 설정할 배송지를 선택해주세요.');
-        return;
-      }
-      if (checked.length > 1) {
-        alert('기본 배송지는 1개만 선택할 수 있습니다.');
-        return;
-      }
+ 	// 기본 배송지 설정 (결제 페이지 내)
+    // 기본 배송지 설정 (결제 페이지 내) - AJAX 버전
+$('#btnSetDefaultInPayment').click(function() {
+  const checked = $('.addr-check-payment:checked');
+  if (checked.length === 0) {
+    alert('기본 배송지로 설정할 배송지를 선택해주세요.');
+    return;
+  }
+  if (checked.length > 1) {
+    alert('기본 배송지는 1개만 선택할 수 있습니다.');
+    return;
+  }
+  
+  // confirm 제거 + AJAX로 변경 (페이지 이동 없음)
+  $.ajax({
+    url: ctxpath + '/myPage/deliverySetDefault.hp',
+    method: 'POST',
+    data: {
+      deliveryAddressId: checked.val()
+    },
+    success: function(response) {
+      // 성공 시 UI만 업데이트
+      $('.addr-check-payment').prop('disabled', false).prop('checked', false);
+      checked.prop('disabled', true);
       
-      if (!confirm('선택한 배송지를 기본 배송지로 설정하시겠습니까?')) {
-        return;
-      }
+      $('.list-group-item').removeClass('border-primary');
+      $('.badge-primary').remove();
       
-      const form = $('<form>', {
-        method: 'post',
-        action: ctxpath + '/myPage/deliverySetDefault.hp'
-      });
+      checked.closest('.list-group-item').addClass('border-primary');
+      checked.closest('.list-group-item').find('h6').append(' <span class="badge badge-primary ml-2">기본</span>');
       
-      form.append($('<input>', {
-        type: 'hidden',
-        name: 'deliveryAddressId',
-        value: checked.val()
-      }));
+      $('#checkAllInPayment').prop('checked', false);
       
-      $('body').append(form);
-      form.submit();
-    });
+      // alert('기본 배송지로 설정되었습니다.'); // 선택사항
+    },
+    error: function() {
+      alert('기본 배송지 설정에 실패했습니다.');
+    }
+  });
+});
     
     // 배송지 저장 폼 제출
     $('#addressFormPayment').submit(function(e) {

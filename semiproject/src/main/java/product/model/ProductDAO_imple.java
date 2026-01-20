@@ -159,7 +159,14 @@ public class ProductDAO_imple implements ProductDAO {
 					+ " FROM tbl_product P "
 					+ " JOIN tbl_product_option O "
 					+ " ON P.product_code = O.fk_product_code "
-					+ " WHERE sale_status = '판매중' ";
+					+ " WHERE sale_status = '판매중' "
+					+" ORDER BY "
+					+" CASE storage_size "
+					+"    WHEN '256GB' THEN 1 "
+					+"    WHEN '512GB' THEN 2 "
+					+"    WHEN '1T' THEN 3 "
+					+" END, "
+					+" color ";
 			pstmt = conn.prepareStatement(sql);
 			rs = pstmt.executeQuery();
 			
@@ -461,9 +468,16 @@ public class ProductDAO_imple implements ProductDAO {
 		List<ProductOptionDTO> proOptionList = new ArrayList<ProductOptionDTO>();
 		try {
 			conn = ds.getConnection();
-			String sql = " SELECT option_id, color, storage_size, plus_price, stock_qty "
+			String sql = " SELECT fk_product_code, option_id, color, storage_size, plus_price, stock_qty "
 						+" FROM tbl_product_option "
-						+" WHERE fk_product_code = ? ";
+						+" WHERE fk_product_code = ? "
+						+" ORDER BY "
+						+" CASE storage_size "
+						+"    WHEN '256GB' THEN 1 "
+						+"    WHEN '512GB' THEN 2 "
+						+"    WHEN '1T' THEN 3 "
+						+" END, "
+						+" color ";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, productCode);
 			rs = pstmt.executeQuery();

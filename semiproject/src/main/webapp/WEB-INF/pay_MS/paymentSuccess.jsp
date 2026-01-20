@@ -1,7 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%String ctxPath = request.getContextPath();%>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
@@ -10,71 +8,10 @@
 <head>
 <link rel="stylesheet" href="<%= ctxPath %>/bootstrap-4.6.2-dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="<%= ctxPath %>/css/pay_MS/payMentSuccess.css">
+<link rel="stylesheet" href="<%= ctxPath %>/css/pay_MS/payMentSuccessModal.css">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <style>
-        /* ===== Modal 스타일 (마이페이지와 동일) ===== */
-        .yd-modal-backdrop {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1050;
-            padding: 1rem;
-        }
-        .yd-modal {
-            width: 100%;
-            max-width: 900px;
-            background: #fff;
-            border-radius: .75rem;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,.2);
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .yd-modal-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .yd-modal-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0;
-        }
-        .yd-modal-close {
-            background: transparent;
-            border: 0;
-            font-size: 22px;
-            line-height: 1;
-            color: #6c757d;
-            cursor: pointer;
-        }
-        .yd-modal-body {
-            padding: 1.25rem;
-            overflow: auto;
-        }
-        .yd-modal-footer {
-            padding: 1rem 1.25rem;
-            border-top: 1px solid #e9ecef;
-            display: flex;
-            justify-content: flex-end;
-            gap: .5rem;
-            background: #fff;
-        }
-        .yd-loading { 
-            color: #6c757d; 
-            font-size: 14px; 
-            text-align: center;
-            padding: 40px 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -99,6 +36,7 @@
     <table class="order-table table bg-white">
         <tr>
             <th>상품정보</th>
+            <th class="text-center">옵션</th>
             <th class="text-center">수량</th>
             <th class="text-center">결제금액</th>
         </tr>
@@ -107,13 +45,25 @@
             <tr>
                 <td>
                     <div class="product-cell d-flex align-items-center">
-                        <div class="product-img mr-3"></div>
+                    
+                         <img src="<%=ctxPath%>/image/product_TH/${item.image_path}" 
+	                         alt="${item.product_name}"
+	                         class="product-img"
+	                         onerror="this.src='<%=ctxPath%>/image/no-image.png'">
+                        
                         <div class="product-info">
                             <div class="name font-weight-bold">${item.product_name}</div>
                         </div>
                     </div>
                 </td>
-                <td class="text-center">${item.quantity}개</td>
+                <td class="text-center">
+	                <div style="font-size: 13px; line-height: 1.5;">
+	                    <div>브랜드: ${item.brand}</div>
+	                    <div>색상: ${item.color}</div>
+	                    <div>용량: ${item.capacity}</div>
+	                </div>
+                </td>
+                <td class="text-center">${item.quantity}개</td>          
                 <td class="text-center">
                     <fmt:formatNumber value="${item.total_price}" />원
                 </td>
@@ -136,8 +86,7 @@
     <!-- 버튼 -->
     <div class="btn-area text-center mt-5">
         <button type="button" 
-                class="btn btn-outline-secondary px-4 py-2 mr-2 js-open-order-modal"
-                data-orderid="${order.order_id}">
+                class="btn btn-outline-secondary px-4 py-2 mr-2 js-open-order-modal">
            주문상세 보기
         </button>
         <a href="<%=ctxPath%>/index.hp"
@@ -148,7 +97,7 @@
 
 </div>
 
-<!-- =================== 주문 상세 모달 (마이페이지와 동일) =================== -->
+<!-- =================== 주문 상세 모달 =================== -->
 <div id="ydOrderModalBackdrop" class="yd-modal-backdrop" aria-hidden="true">
     <div class="yd-modal" role="dialog" aria-modal="true" aria-labelledby="ydModalTitle">
         <div class="yd-modal-header">
@@ -157,8 +106,7 @@
         </div>
 
         <div class="yd-modal-body">
-            <div id="ydModalLoading" class="yd-loading">불러오는 중...</div>
-            <div id="ydModalContent" style="display:none;"></div>
+            <div id="ydModalContent"></div>
         </div>
 
         <div class="yd-modal-footer">
@@ -169,10 +117,33 @@
 
 <script>
 (function() {
-    const ctxPath = "<%=ctxPath%>";
     const backdrop = document.getElementById("ydOrderModalBackdrop");
-    const loadingEl = document.getElementById("ydModalLoading");
     const contentEl = document.getElementById("ydModalContent");
+
+    // 페이지에 이미 있는 데이터를 JavaScript 객체로 변환
+    const orderData = {
+        order_id: "${order.order_id}",
+        order_date: "${order.order_date}",
+        total_amount: ${order.total_amount},
+        discount_amount: ${order.discount_amount},
+        final_amount: ${order.final_amount},
+        order_status: "${order.order_status}",
+        delivery_address: "${order.delivery_address}"
+    };
+
+    const orderItems = [
+        <c:forEach var="item" items="${orderDetailList}" varStatus="status">
+        {
+            product_name: "${item.product_name}",
+            brand: "${item.brand}",
+            color: "${item.color}",
+            capacity: "${item.capacity}",
+            quantity: ${item.quantity},
+            total_price: ${item.total_price},
+            image_path: "${item.image_path}"
+        }<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
+    ];
 
     function openModal() {
         backdrop.style.display = "flex";
@@ -186,43 +157,54 @@
         document.body.style.overflow = "";
     }
 
-    async function loadOrderDetail(orderId) {
-        loadingEl.style.display = "block";
-        loadingEl.textContent = "불러오는 중...";
-        contentEl.style.display = "none";
-        contentEl.innerHTML = "";
-
-        try {
-            const url = ctxPath + "/myPage/orderDetailFragment.hp?orderNo=" + encodeURIComponent(orderId);
-            console.log("FETCH URL =>", url);
-            console.log("orderId =>", orderId);
-
-            const res = await fetch(url, {
-                method: "GET",
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            });
-
-            if (!res.ok) throw new Error("HTTP " + res.status);
-
-            const html = await res.text();
-            contentEl.innerHTML = html;
-
-            loadingEl.style.display = "none";
-            contentEl.style.display = "block";
-        } catch (err) {
-            loadingEl.style.display = "block";
-            loadingEl.textContent = "상세 정보를 불러오지 못했습니다. (" + err.message + ")";
-        }
+    function renderOrderDetail() {
+        let html = '<div class="od-wrap">';
+        
+        // 주문 정보 섹션
+        html += '<div class="od-section">';
+        html += '<h4 class="od-title">주문 정산</h4>';
+        html += '<div class="od-row"><span>주문 번호</span><span>' + orderData.order_id + '</span></div>';
+        html += '<div class="od-row"><span>주문 일시</span><span>' + orderData.order_date + '</span></div>';
+        html += '<div class="od-row"><span>총 금액</span><span>' + orderData.total_amount.toLocaleString() + '원</span></div>';
+        html += '<div class="od-row"><span>할인 금액</span><span>' + orderData.discount_amount.toLocaleString() + '원</span></div>';
+        html += '<div class="od-row"><span>결제 금액</span><span class="strong">' + orderData.final_amount.toLocaleString() + '원</span></div>';
+        html += '<div class="od-row"><span>주문 상태</span><span class="status">' + orderData.order_status + '</span></div>';
+        html += '</div>';
+        
+        // 상품 정보 섹션
+        html += '<div class="od-section">';
+        html += '<h4 class="od-title">상품 정보</h4>';
+        orderItems.forEach(function(item) {
+            html += '<div class="od-product">';
+            
+            html += '<img src="<%=ctxPath%>/image/product_TH/' + item.image_path + '" ';
+            html += 'alt="' + item.product_name + '" ';
+            html += 'style="width:60px; height:60px; border-radius:8px; margin-bottom:10px;">';
+            
+            html += '<div class="name">' + item.product_name + '</div>';
+            html += '<div class="option">브랜드: ' + item.brand + '<br>색상: ' + item.color + ' / 용량: ' + item.capacity + '</div>';
+            html += '<div class="price">수량 ' + item.quantity + ' · ' + item.total_price.toLocaleString() + '원</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+        
+        // 배송 정보 섹션
+        html += '<div class="od-section">';
+        html += '<h4 class="od-title">배송 정보</h4>';
+        html += '<div class="od-row"><span>배송지</span><span>' + orderData.delivery_address + '</span></div>';
+        html += '</div>';
+        
+        html += '</div>';
+        
+        contentEl.innerHTML = html;
     }
 
-    // 클릭 이벤트 위임
+    // 클릭 이벤트
     document.addEventListener("click", function(e) {
-        const btn = e.target.closest(".js-open-order-modal");
-        if (btn) {
+        if (e.target.closest(".js-open-order-modal")) {
             e.preventDefault();
-            const orderId = btn.getAttribute("data-orderid");
             openModal();
-            loadOrderDetail(orderId);
+            renderOrderDetail();
             return;
         }
 
@@ -231,13 +213,12 @@
             return;
         }
 
-        // 바깥 클릭 닫기
         if (e.target === backdrop) {
             closeModal();
         }
     });
 
-    // ESC 닫기
+    // ESC 키로 닫기
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape" && backdrop.style.display === "flex") {
             closeModal();

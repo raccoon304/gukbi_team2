@@ -137,7 +137,7 @@
     .yd-loading { color: #6c757d; font-size: 14px; }
 </style>
 
-<div class="container my-5">
+<div class="container1 my-5">
 	<div class="row">
 
 	    <!-- 사이드바 -->
