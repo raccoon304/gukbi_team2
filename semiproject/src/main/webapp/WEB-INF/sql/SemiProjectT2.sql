@@ -2745,10 +2745,6 @@ order by fk_order_id;
 
 select * from tbl_product_option;
 
-
-
-
-
 select * from tbl_product;
 
 update tbl_orders set delivery_status = 0
@@ -2762,19 +2758,3 @@ where fk_member_id = 'dog';
 
 
 commit;
-
-
-
-
-
-
-SELECT o.order_id,
-       o.total_amount AS header_total,
-       SUM(d.quantity * NVL(d.unit_price,0)) AS detail_total
-FROM tbl_orders o
-JOIN tbl_order_detail d ON d.fk_order_id = o.order_id
-WHERE o.order_date >= TO_DATE('2026-01-19','YYYY-MM-DD') and o.order_date < TO_DATE('2026-01-19','YYYY-MM-DD')
-  AND o.order_status = 'PAID'
-GROUP BY o.order_id, o.total_amount
-HAVING o.total_amount <> SUM(d.quantity * NVL(d.unit_price,0));
-
