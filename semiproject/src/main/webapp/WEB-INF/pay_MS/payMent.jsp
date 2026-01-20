@@ -243,7 +243,7 @@
         </div>
 
         <div class="price-row">
-          <button type="button" id="applyCouponBtn">쿠폰 사용하기</button>
+          <button type="button" id="applyCouponBtn">쿠폰 적용금액</button>
           <span id="discountAmount">- 0 원</span>
         </div>
 
@@ -551,215 +551,235 @@
 <script src="<%= ctxPath %>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const ctxpath = '<%= ctxPath %>';
-  const loginUserName = '${loginUser.name}';
-  const loginUserMobile = '${loginUser.mobile}';
-  const loginUserEmail = '${loginUser.email}';
-  
-  // 마이페이지 정보 수정 페이지로 이동
-  function goToMemberEdit() {
-    window.location.href = ctxpath + '/myPage/memberEdit.hp';
-  }
-  
-  // 배송지 선택 기능 추가
-  $(document).ready(function() {
-    $(document).on('click', '.btnSelectAddress', function() {
-      const name = $(this).data('name');
-      const phone = $(this).data('phone');
-      const zipcode = $(this).data('zipcode');
-      const address = $(this).data('address');
-      const detail = $(this).data('detail');
-      
-      $('#recipientName').val(name);
-      $('#recipientPhone').val(phone);
-      $('#zipcode').val(zipcode);
-      $('#address').val(address);
-      $('#detailAddress').val(detail);
-      
-      // 모든 모달 닫기
-      $('.modal').modal('hide');
-      
-      // 모달 배경 강제 제거
-      setTimeout(function() {
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open').css('padding-right', '');
-      }, 300);
-      
-      alert('배송지가 선택되었습니다.');
-    });
-    
-    // 배송지 추가 버튼 클릭 시
-    $(document).on('click', '#btnOpenAddInPayment, #btnOpenAddEmptyInPayment', function() {
-      $('#modePayment').val('add');
-      $('#deliveryAddressIdPayment').val('');
-      $('#addressFormPayment')[0].reset();
-      $('#addressModalPaymentLabel').text('배송지 추가');
-    });
-    
-    // 배송지 수정 버튼 클릭 시
-    $(document).on('click', '.btnOpenEditInPayment', function() {
-      $('#modePayment').val('edit');
-      $('#deliveryAddressIdPayment').val($(this).data('id'));
-      $('#addressNamePayment').val($(this).data('addressname'));
-      $('#recipientNamePayment').val($(this).data('recipientname'));
-      $('#postalCodePayment').val($(this).data('postalcode'));
-      $('#recipientPhonePayment').val($(this).data('phone'));
-      $('#addressPayment').val($(this).data('address'));
-      $('#addressDetailPayment').val($(this).data('addressdetail'));
-      $('#addressModalPaymentLabel').text('배송지 수정');
-    });
-    
-    // 우편번호 검색 (결제 페이지 내)
-    $('#btnPostcodeSearchPayment').click(function() {
-      new daum.Postcode({
-        oncomplete: function(data) {
-          $('#postalCodePayment').val(data.zonecode);
-          $('#addressPayment').val(data.address);
-          $('#addressDetailPayment').focus();
-        }
-      }).open();
-    });
-    
-    // 전체 선택 (결제 페이지 내)
-    $('#checkAllInPayment').change(function() {
-      $('.addr-check-payment:not(:disabled)').prop('checked', $(this).prop('checked'));
-    });
-    
-    // 개별 체크 변경 시 전체선택 상태 동기화
-    $(document).on('change', '.addr-check-payment', function() {
-      const total = $('.addr-check-payment:not(:disabled)').length;
-      const checked = $('.addr-check-payment:not(:disabled):checked').length;
-      if (total === 0) {
-        $('#checkAllInPayment').prop('checked', false);
-        return;
-      }
-      $('#checkAllInPayment').prop('checked', (total === checked));
-    });
-    
-    // 선택 삭제 (결제 페이지 내)
-    $('#btnDeleteSelectedInPayment').on('click', function (e) {
-  	e.preventDefault();
-    	
-    	
-      const checked = $('.addr-check-payment:checked');
-      if (checked.length === 0) {
-        alert('삭제할 배송지를 선택해주세요.');
-        return;
-      }
-      
-      if (!confirm('선택한 배송지를 삭제하시겠습니까?')) return;
+const ctxpath = '<%= ctxPath %>';
+const loginUserName = '${loginUser.name}';
+const loginUserMobile = '${loginUser.mobile}';
+const loginUserEmail = '${loginUser.email}';
 
-      const ids = checked.map(function () {
-        return this.value;
-      }).get();
+// 마이페이지 정보 수정 페이지로 이동
+function goToMemberEdit() {
+  window.location.href = ctxpath + '/myPage/memberEdit.hp';
+}
 
-      $.ajax({
-        url: ctxpath + '/myPage/deliveryDelete.hp',
-        type: 'POST',
-        traditional: true,
-        data: { deliveryAddressId: ids },
-        success: function () {
-          checked.closest('.list-group-item').remove();
-          $('#checkAllInPayment').prop('checked', false);
-        },
-        error: function () {
-          alert('배송지 삭제 실패');
-        }
-      });
-    });
-    
- 	// 기본 배송지 설정 (결제 페이지 내)
-    // 기본 배송지 설정 (결제 페이지 내) - AJAX 버전
-$('#btnSetDefaultInPayment').click(function() {
-  const checked = $('.addr-check-payment:checked');
-  if (checked.length === 0) {
-    alert('기본 배송지로 설정할 배송지를 선택해주세요.');
-    return;
-  }
-  if (checked.length > 1) {
-    alert('기본 배송지는 1개만 선택할 수 있습니다.');
-    return;
-  }
+$(document).ready(function() {
   
-  // confirm 제거 + AJAX로 변경 (페이지 이동 없음)
-  $.ajax({
-    url: ctxpath + '/myPage/deliverySetDefault.hp',
-    method: 'POST',
-    data: {
-      deliveryAddressId: checked.val()
-    },
-    success: function(response) {
-      // 성공 시 UI만 업데이트
-      $('.addr-check-payment').prop('disabled', false).prop('checked', false);
-      checked.prop('disabled', true);
-      
-      $('.list-group-item').removeClass('border-primary');
-      $('.badge-primary').remove();
-      
-      checked.closest('.list-group-item').addClass('border-primary');
-      checked.closest('.list-group-item').find('h6').append(' <span class="badge badge-primary ml-2">기본</span>');
-      
-      $('#checkAllInPayment').prop('checked', false);
-      
-      // alert('기본 배송지로 설정되었습니다.'); // 선택사항
-    },
-    error: function() {
-      alert('기본 배송지 설정에 실패했습니다.');
+  // ===== 주기적 backdrop 정리 (화면 멈춤 방지) =====
+  setInterval(function() {
+    // 다음 주소검색 팝업이 열려있으면 스킵
+    if ($('body').find('iframe[src*="postcode"]').length > 0) {
+      return;
     }
-  });
-});
     
-    // 배송지 저장 폼 제출
-    $('#addressFormPayment').submit(function(e) {
-      e.preventDefault();
-      
-      // 연락처 유효성 검사
-      const phone = $('#recipientPhonePayment').val().trim();
-      if (!/^\d{10,11}$/.test(phone)) {
-        alert('연락처는 10~11자리 숫자만 입력 가능합니다.');
-        $('#recipientPhonePayment').focus();
-        return;
-      }
-      
-      $.ajax({
-        url: $(this).attr('action'),
-        method: 'POST',
-        data: $(this).serialize(),
-        success: function() {
-          alert('배송지가 저장되었습니다.');
-          location.reload();
-        },
-        error: function() {
-          alert('배송지 저장에 실패했습니다.');
-        }
+    const openModals = $('.modal.show').length;
+    const backdrops = $('.modal-backdrop').length;
+    
+    // 모달 없는데 backdrop 있으면 제거
+    if (openModals === 0 && backdrops > 0) {
+      $('.modal-backdrop').remove();
+      $('body').removeClass('modal-open').css({
+        'overflow': '',
+        'padding-right': ''
       });
-    });
+    }
+    // backdrop이 모달보다 많으면 초과분 제거
+    else if (backdrops > openModals && openModals > 0) {
+      const excess = backdrops - openModals;
+      $('.modal-backdrop').slice(0, excess).remove();
+    }
+  }, 500); // setInterval 끝
+  
+  // ===== 배송지 선택 =====
+  $(document).on('click', '.btnSelectAddress', function() {
+    const name = $(this).data('name');
+    const phone = $(this).data('phone');
+    const zipcode = $(this).data('zipcode');
+    const address = $(this).data('address');
+    const detail = $(this).data('detail');
     
-    // 연락처 숫자만 입력 가능하도록
-    $('#recipientPhonePayment').attr({
-      inputmode: 'numeric',
-      pattern: '[0-9]*',
-      autocomplete: 'tel',
-      maxlength: 11
-    }).on('keydown', function(e) {
-      const allowedKeys = [
-        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-        'Home', 'End'
-      ];
-      
-      if (allowedKeys.includes(e.key)) return;
-      if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) return;
-      
-      if (!/^\d$/.test(e.key)) {
-        e.preventDefault();
-      }
-    }).on('input', function() {
-      const onlyDigits = this.value.replace(/\D/g, '');
-      if (this.value !== onlyDigits) this.value = onlyDigits;
-    });
+    // 값 설정
+    $('#recipientName').val(name);
+    $('#recipientPhone').val(phone);
+    $('#zipcode').val(zipcode);
+    $('#address').val(address);
+    $('#detailAddress').val(detail);
     
+    // 모든 모달 닫기
+    $('.modal').modal('hide');
+    
+    // 모달 배경 강제 제거 + 알림
+    setTimeout(function() {
+      $('.modal-backdrop').remove();
+      $('body').removeClass('modal-open').css({
+        'overflow': '',
+        'padding-right': ''
+      });
+      alert('배송지가 선택되었습니다.');
+    }, 300);
   });
+  
+  // ===== 배송지 추가 =====
+  $(document).on('click', '#btnOpenAddInPayment, #btnOpenAddEmptyInPayment', function() {
+    $('#modePayment').val('add');
+    $('#deliveryAddressIdPayment').val('');
+    $('#addressFormPayment')[0].reset();
+    $('#addressModalPaymentLabel').text('배송지 추가');
+  });
+  
+  // ===== 배송지 수정 =====
+  $(document).on('click', '.btnOpenEditInPayment', function() {
+    $('#modePayment').val('edit');
+    $('#deliveryAddressIdPayment').val($(this).data('id'));
+    $('#addressNamePayment').val($(this).data('addressname'));
+    $('#recipientNamePayment').val($(this).data('recipientname'));
+    $('#postalCodePayment').val($(this).data('postalcode'));
+    $('#recipientPhonePayment').val($(this).data('phone'));
+    $('#addressPayment').val($(this).data('address'));
+    $('#addressDetailPayment').val($(this).data('addressdetail'));
+    $('#addressModalPaymentLabel').text('배송지 수정');
+  });
+  
+  // ===== 우편번호 검색 =====
+  $('#btnPostcodeSearchPayment').click(function() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        $('#postalCodePayment').val(data.zonecode);
+        $('#addressPayment').val(data.address);
+        $('#addressDetailPayment').focus();
+      }
+    }).open();
+  });
+  
+  // ===== 전체 선택 =====
+  $('#checkAllInPayment').change(function() {
+    $('.addr-check-payment:not(:disabled)').prop('checked', $(this).prop('checked'));
+  });
+  
+  // ===== 개별 체크 =====
+  $(document).on('change', '.addr-check-payment', function() {
+    const total = $('.addr-check-payment:not(:disabled)').length;
+    const checked = $('.addr-check-payment:not(:disabled):checked').length;
+    if (total === 0) {
+      $('#checkAllInPayment').prop('checked', false);
+      return;
+    }
+    $('#checkAllInPayment').prop('checked', (total === checked));
+  });
+  
+  // ===== 선택 삭제 =====
+  $('#btnDeleteSelectedInPayment').click(function() {
+    const checked = $('.addr-check-payment:checked');
+    if (checked.length === 0) {
+      alert('삭제할 배송지를 선택해주세요.');
+      return;
+    }
+    
+    if (!confirm('선택한 배송지를 삭제하시겠습니까?')) {
+      return;
+    }
+    
+    const form = $('<form>', {
+      method: 'post',
+      action: ctxpath + '/myPage/deliveryDelete.hp'
+    });
+    
+    checked.each(function() {
+      form.append($('<input>', {
+        type: 'hidden',
+        name: 'deliveryAddressId',
+        value: $(this).val()
+      }));
+    });
+    
+    $('body').append(form);
+    form.submit();
+  });
+  
+  // ===== 기본 배송지 설정 =====
+  $('#btnSetDefaultInPayment').click(function() {
+    const checked = $('.addr-check-payment:checked');
+    if (checked.length === 0) {
+      alert('기본 배송지로 설정할 배송지를 선택해주세요.');
+      return;
+    }
+    if (checked.length > 1) {
+      alert('기본 배송지는 1개만 선택할 수 있습니다.');
+      return;
+    }
+    
+    $.ajax({
+      url: ctxpath + '/myPage/deliverySetDefault.hp',
+      method: 'POST',
+      data: {
+        deliveryAddressId: checked.val()
+      },
+      success: function(response) {
+        $('.addr-check-payment').prop('disabled', false).prop('checked', false);
+        checked.prop('disabled', true);
+        
+        $('.list-group-item').removeClass('border-primary');
+        $('.badge-primary').remove();
+        
+        checked.closest('.list-group-item').addClass('border-primary');
+        checked.closest('.list-group-item').find('h6').append(' <span class="badge badge-primary ml-2">기본</span>');
+        
+        $('#checkAllInPayment').prop('checked', false);
+      },
+      error: function() {
+        alert('기본 배송지 설정에 실패했습니다.');
+      }
+    });
+  });
+  
+  // ===== 배송지 저장 =====
+  $('#addressFormPayment').submit(function(e) {
+    e.preventDefault();
+    
+    const phone = $('#recipientPhonePayment').val().trim();
+    if (!/^\d{10,11}$/.test(phone)) {
+      alert('연락처는 10~11자리 숫자만 입력 가능합니다.');
+      $('#recipientPhonePayment').focus();
+      return;
+    }
+    
+    $.ajax({
+      url: $(this).attr('action'),
+      method: 'POST',
+      data: $(this).serialize(),
+      success: function() {
+        alert('배송지가 저장되었습니다.');
+        location.reload();
+      },
+      error: function() {
+        alert('배송지 저장에 실패했습니다.');
+      }
+    });
+  });
+  
+  // ===== 연락처 숫자만 =====
+  $('#recipientPhonePayment').attr({
+    inputmode: 'numeric',
+    pattern: '[0-9]*',
+    autocomplete: 'tel',
+    maxlength: 11
+  }).on('keydown', function(e) {
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End'
+    ];
+    
+    if (allowedKeys.includes(e.key)) return;
+    if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) return;
+    
+    if (!/^\d$/.test(e.key)) {
+      e.preventDefault();
+    }
+  }).on('input', function() {
+    const onlyDigits = this.value.replace(/\D/g, '');
+    if (this.value !== onlyDigits) this.value = onlyDigits;
+  });
+  
+});
 </script>
 
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>

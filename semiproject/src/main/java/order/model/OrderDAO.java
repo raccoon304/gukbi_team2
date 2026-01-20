@@ -12,7 +12,7 @@ public interface OrderDAO {
 	int expireReadyOrders() throws SQLException;
   
  
-    // 주문 + 주문상세 + 재고차감 (트랜잭션 통합, PG 결제용)
+    // 주문 + 주문상세 (트랜잭션 통합, PG 결제용)
     int insertOrderWithDetailsAnd(OrderDTO order, List<Map<String, Object>> orderDetails);
     
     /* ================= 주문 조회 ================= */
@@ -69,7 +69,18 @@ public interface OrderDAO {
 
     // 해킹 방지 
 	boolean isOrderOwner(int orderId, String memberid) throws SQLException;
+	
+	// 주문 상태 조회
+	String getOrderStatus(Integer orderId) throws SQLException;
 
+	// 주문 금액 조회
+	int getOrderAmount(Integer orderId) throws SQLException;
+
+	// 주문 상태를 PAID로 업데이트 (imp_uid 포함)
+	int updateOrderStatusToPaid(Integer orderId, String impUid) throws SQLException;
+
+	// 주문 ID 기준 재고 일괄 차감
+	int decreaseStockByOrderId(Integer orderId) throws SQLException;
 
 
 }
