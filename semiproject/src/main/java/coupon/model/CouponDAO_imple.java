@@ -477,8 +477,9 @@ public class CouponDAO_imple implements CouponDAO {
 
 	        String sql = " select m.member_id "
 	                   + " from tbl_member m "
-	                   + " where m.status = 0 ";
-
+	                   + " where m.status = 0 "
+	                   + " and m.idle = 0 "
+	                   + " and member_id != 'admin' ";
 	       
 	        if (hasSearch) {
 	            if ("member_id".equals(searchType)) {
@@ -490,7 +491,7 @@ public class CouponDAO_imple implements CouponDAO {
 	            }
 	        }
 
-	        sql += " order by m.registerday desc ";
+	        sql += " order by m.created_at desc ";
 
 	        pstmt = conn.prepareStatement(sql);
 
