@@ -15,9 +15,7 @@
 
 
 
-<!-- <div class="product-header">
-    <h4 class="mb-0"><i class="fas fa-box mr-2"></i>상품 상세 정보</h4>
-</div> -->
+
 
 <!-- 페이지 헤더 -->
 <div class="page-header">
@@ -72,7 +70,7 @@
 
                         <div class="product-price">
                             <span id="unitPrice">
-                            	<fmt:formatNumber value="${proOptionDto.totalPrice}" pattern="###,###"/>
+                            	<fmt:formatNumber value="${proDto.price}" pattern="###,###"/>
                             </span><small>원</small>
                         </div>
 

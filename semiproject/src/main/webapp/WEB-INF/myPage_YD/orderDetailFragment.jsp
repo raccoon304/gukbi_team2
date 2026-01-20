@@ -181,31 +181,43 @@
 
           <div class="k">주소</div>
           <div class="v"><c:out value="${orderHeader['delivery_address']}" /></div>
-
+		<div class="k">배송 상태</div>
+		<div class="v">
+		  <c:choose>
+		    <c:when test="${status eq '0'}">물품 준비중</c:when>
+		    <c:when test="${status eq '1'}">배송중</c:when>
+		    <c:when test="${status eq '2'}">배송 완료</c:when>
+		    <c:when test="${status eq '4'}">배송 불가(결제 실패)</c:when>
+		    <c:otherwise>-</c:otherwise>
+		  </c:choose>
+		</div>
           <div class="k">택배 번호</div>
-          <div class="v">
-            <c:choose>
-              <c:when test="${status eq '0' }">준비중</c:when>
-              <c:when test="${status ne '0' }">${orderHeader['delivery_number']}</c:when>
-              <c:otherwise>-</c:otherwise>
-            </c:choose>
-          </div>
-          <div class="k">배송 시작일</div>
-          <div class="v">
-            <c:choose>
-              <c:when test="${status eq '0' }">준비중</c:when>
-              <c:when test="${status ne '0' }">${orderHeader['delivery_startdate']}</c:when>
-              <c:otherwise>-</c:otherwise>
-            </c:choose>
-          </div>
+			<div class="v">
+			  <c:choose>
+			    <c:when test="${status eq '1'}"><c:out value="${orderHeader['delivery_number']}" /></c:when>
+			    <c:when test="${status eq '0'}">배송중 전까지는 택배번호가 생성되지 않습니다.</c:when>
+			    <c:when test="${status eq '2'}">${orderHeader['delivery_number']}</c:when>
+			    <c:otherwise>-</c:otherwise>
+			  </c:choose>
+			</div>
+         <div class="k">배송 시작일</div>
+		<div class="v">
+		  <c:choose>
+		    <c:when test="${status eq '1'}"><c:out value="${orderHeader['delivery_startdate']}" /></c:when>
+		    <c:when test="${status eq '0'}">상품 준비가 완료되면 배송 시작일이 표시됩니다.</c:when>
+		    <c:when test="${status eq '2'}"><c:out value="${orderHeader['delivery_startdate']}" /></c:when>
+		    <c:otherwise>-</c:otherwise>
+		  </c:choose>
+		</div>
           <div class="k">택배 도착일</div>
-          <div class="v">
-            <c:choose>
-              <c:when test="${status ne '2' }">미도착</c:when>
-              <c:when test="${status eq '2' }">${orderHeader['delivery_enddate']}</c:when>
-              <c:otherwise>-</c:otherwise>
-            </c:choose>
-          </div>
+         <div class="v">
+		  <c:choose>
+		    <c:when test="${status eq '2'}"><c:out value="${orderHeader['delivery_enddate']}" /></c:when>
+		    <c:when test="${status eq '1'}">배송 진행 중입니다.</c:when>
+		    <c:when test="${status eq '0'}">상품 준비 중입니다.</c:when>
+		    <c:otherwise>-</c:otherwise>
+		  </c:choose>
+		</div>
         </div>
       </div>
   

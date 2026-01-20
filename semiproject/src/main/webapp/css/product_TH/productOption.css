@@ -172,6 +172,8 @@
     border-radius: 12px;
     padding: 25px;
     margin-bottom: 20px;
+    
+	/* border:solid 2px green; */
 }
 
 .quantity-control {
@@ -223,6 +225,7 @@
 }
 
 .total-price-section {
+	/* border: solid 2px blue; */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -322,10 +325,11 @@
 
 
 .login-required-message {
+	/* border:solid 2px red; */
     position: absolute;
     inset: 0;
 
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(4px);
 
     display: flex;
