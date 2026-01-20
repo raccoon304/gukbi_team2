@@ -1,18 +1,15 @@
 package review.controller;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
 import member.domain.MemberDTO;
 import review.model.ReviewDAO;
 import review.model.ReviewDAO_imple;
@@ -20,6 +17,9 @@ import review.model.ReviewDAO_imple;
 public class ReviewUpdate extends AbstractController {
 
     private ReviewDAO rdao = new ReviewDAO_imple();
+
+    private static final int MAX_FILES = 5;
+    private static final String STATIC_PREFIX = "/image/review_image/";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -37,6 +37,7 @@ public class ReviewUpdate extends AbstractController {
 
         String method = request.getMethod();
 
+        
         String productCode = request.getParameter("productCode");
         if (productCode == null) productCode = "ALL";
         productCode = productCode.replace('\u00A0', ' ').trim();
@@ -78,7 +79,6 @@ public class ReviewUpdate extends AbstractController {
                 return;
             }
 
-            // 기존 이미지 목록 내려주기
             List<Map<String, Object>> imgList = rdao.selectReviewImageInfoList(reviewNumber);
 
             request.setAttribute("review", review);
@@ -95,7 +95,7 @@ public class ReviewUpdate extends AbstractController {
             return;
         }
 
-        // ===== POST: 수정 저장 =====
+        // ===== POST만 허용 =====
         if (!"POST".equalsIgnoreCase(method)) {
             request.setAttribute("message", "잘못된 요청입니다.");
             request.setAttribute("loc", request.getContextPath() + "/review/reviewList.hp");
@@ -104,7 +104,7 @@ public class ReviewUpdate extends AbstractController {
             return;
         }
 
-        // 내 리뷰 맞는지 확인 + 기존 이미지 수 조회
+        // 내 리뷰 맞는지 확인
         Map<String, String> origin = rdao.getReviewForEdit(reviewNumber, loginUser.getMemberid());
         if (origin == null || origin.isEmpty()) {
             request.setAttribute("message", "수정할 리뷰가 없거나 권한이 없습니다.");
@@ -114,6 +114,7 @@ public class ReviewUpdate extends AbstractController {
             return;
         }
 
+        // ===== 입력값 =====
         String title = request.getParameter("reviewTitle");
         if (title == null) title = "";
         title = title.trim();
@@ -129,7 +130,7 @@ public class ReviewUpdate extends AbstractController {
             rating = 0;
         }
 
-        // 서버 검증
+        // ===== 서버 검증 =====
         if (title.isBlank()) {
             failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
                     "리뷰 제목을 입력하세요.", title, content, rating);
@@ -156,7 +157,7 @@ public class ReviewUpdate extends AbstractController {
             return;
         }
 
-        // 삭제할 이미지 ID들
+        // ===== 삭제할 이미지 IDs =====
         String[] delIds = request.getParameterValues("delImageId");
         List<Integer> deleteImageIds = new ArrayList<>();
         if (delIds != null) {
@@ -165,52 +166,57 @@ public class ReviewUpdate extends AbstractController {
             }
         }
 
-        // 기존 이미지 개수
+        // ===== 기존 이미지 수 =====
         List<Map<String, Object>> oldImgs = rdao.selectReviewImageInfoList(reviewNumber);
         int oldCnt = (oldImgs == null ? 0 : oldImgs.size());
-        int delCnt = deleteImageIds.size();
+        int delCnt = deleteImageIds.size(); 
 
-        // 새 이미지 저장
-        String uploadDir = request.getServletContext().getRealPath("/image/review");
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
-
+        // ===== 새로 추가할 이미지: imagePath[] 로 받기 =====
+        String[] addPaths = request.getParameterValues("imagePath"); // JS가 hidden으로 보내는 값
         List<Map<String, Object>> newImages = new ArrayList<>();
+
+        // 서버에 실제 파일 존재 체크용 realPath
+        String staticRealDir = request.getServletContext().getRealPath(STATIC_PREFIX);
+        File staticDir = new File(staticRealDir);
+
         int addCount = 0;
+        if (addPaths != null) {
+            for (String p : addPaths) {
 
-        for (Part part : request.getParts()) {
-            if (!"reviewImages".equals(part.getName())) continue;
-            if (part.getSize() <= 0) continue;
+                if (p == null) continue;
+                p = p.trim();
+                if (p.isEmpty()) continue;
 
-            // 최종 5장 제한(기존-삭제 + 새로추가)
-            if ((oldCnt - delCnt + addCount) >= 5) break;
+                // 정적 폴더만 허용
+                if (!p.startsWith(STATIC_PREFIX)) continue;
 
-            String ct = part.getContentType();
-            if (ct == null || !ct.startsWith("image/")) continue;
+                // 최종 5장 제한: (기존 - 삭제 + 추가)
+                if ((oldCnt - delCnt + addCount) >= MAX_FILES) break;
 
-            String submitted = part.getSubmittedFileName();
-            if (submitted == null || submitted.isBlank()) continue;
-            submitted = Paths.get(submitted).getFileName().toString();
+                // 파일명 추출 + 서버에 진짜 존재하는지 체크
+                String fileName = p.substring(p.lastIndexOf("/") + 1);
+                if (fileName.isBlank()) continue;
 
-            String ext = "";
-            int dot = submitted.lastIndexOf(".");
-            if (dot > -1) ext = submitted.substring(dot).toLowerCase();
+                // 디렉토리 탈출 방지(기본 방어)
+                if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) continue;
 
-            if (!(ext.equals(".jpg") || ext.equals(".jpeg") || ext.equals(".png") || ext.equals(".webp"))) continue;
+                // 확장자 제한
+                String lower = fileName.toLowerCase();
+                if (!(lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".webp"))) continue;
 
-            String saveName = "rv_" + UUID.randomUUID().toString().replace("-", "") + ext;
-            part.write(new File(dir, saveName).getAbsolutePath());
+                // 서버에 파일이 실제 있어야 다른 PC에서도 보임
+                File f = new File(staticDir, fileName);
+                if (!f.exists() || !f.isFile()) continue;
 
-            String webPath = "/image/review/" + saveName;
+                Map<String, Object> imgMap = new HashMap<>();
+                imgMap.put("imagePath", p);
+                newImages.add(imgMap);
 
-            Map<String, Object> imgMap = new HashMap<>();
-            imgMap.put("imagePath", webPath);
-            newImages.add(imgMap);
-
-            addCount++;
+                addCount++;
+            }
         }
 
-        // DAO 업데이트
+        // ===== DAO 업데이트 =====
         try {
             boolean ok = rdao.updateReviewWithImages(
                     reviewNumber,
@@ -223,15 +229,12 @@ public class ReviewUpdate extends AbstractController {
             );
 
             if (!ok) {
-                // 업로드 파일 삭제
-                deleteUploadedFiles(dir, newImages);
                 failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
                         "리뷰 수정에 실패했습니다.", title, content, rating);
                 return;
             }
 
         } catch (Exception e) {
-            deleteUploadedFiles(dir, newImages);
 
             String emsg = String.valueOf(e.getMessage());
             if (emsg != null && emsg.contains("ORA-12899")) {
@@ -254,20 +257,6 @@ public class ReviewUpdate extends AbstractController {
         request.setAttribute("loc", loc);
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
-    }
-
-    private void deleteUploadedFiles(File dir, List<Map<String, Object>> images) {
-        if (images == null) return;
-        
-        for (Map<String, Object> img : images) {
-            try {
-                String webPath = (String) img.get("imagePath");
-                if (webPath == null) continue;
-                String fileName = webPath.substring(webPath.lastIndexOf("/") + 1);
-                File f = new File(dir, fileName);
-                if (f.exists()) f.delete();
-            } catch (Exception ignore) {}
-        }
     }
 
     private void failToEditPage(HttpServletRequest request, MemberDTO loginUser,

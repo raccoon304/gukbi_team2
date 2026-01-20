@@ -1,146 +1,143 @@
 $(function () {
+  var MAX_FILES = 5;
 
-  const MAX_FILES = 5;
-  const $input = $("#reviewImages");
-  const $wrap  = $("#previewWrap");
+  var $file    = $("#reviewImages");
+  var $btn     = $("#btnPickFile");
+  var $fake    = $("#fakeFileName");
+  var $preview = $("#previewWrap");
+  var $inputs  = $("#pickedInputs");
 
-  let selectedFiles = []; 
-  let previewUrls = [];  
+ 
+  var picked = {};
 
-  // 같은 파일 다시 선택해도 change 되게
-  $input.on("click", function () {
-    this.value = "";
+  $btn.on("click", function () {
+    $file.trigger("click");
   });
 
-  function rebuildInputFiles() {
-    const dt = new DataTransfer();
-    selectedFiles.forEach(f => dt.items.add(f));
-    $input[0].files = dt.files;
+  function pickedCount() {
+    var n = 0;
+    for (var k in picked) { if (picked.hasOwnProperty(k)) n++; }
+    return n;
   }
 
-  function isAllowedImage(file) {
-    const name = (file.name || "").toLowerCase();
-    const extOk =
-      name.endsWith(".jpg")  ||
-      name.endsWith(".jpeg") ||
-      name.endsWith(".png")  ||
-      name.endsWith(".webp");
-
-    const typeOk = (file.type && file.type.startsWith("image/")) || (!file.type && extOk);
-    return typeOk && extOk;
+  function syncFakeName() {
+    var n = pickedCount();
+    if (n === 0) $fake.val("");
+    else if (n === 1) $fake.val("1개 선택됨");
+    else $fake.val(n + "개 선택됨");
   }
 
-  function cleanupPreviewUrls() {
-    previewUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch(e) {} });
-    previewUrls = [];
+  function syncHidden() {
+    $inputs.empty();
+    for (var fn in picked) {
+      if (!picked.hasOwnProperty(fn)) continue;
+      $inputs.append($("<input>", { type: "hidden", name: "imagePath", value: picked[fn] }));
+    }
   }
 
-  function renderPreviews() {
-    cleanupPreviewUrls();
-    $wrap.empty();
+  function renderPreview() {
+    $preview.empty();
+    var idx = 1;
 
-    selectedFiles.forEach((file, idx) => {
-      const url = URL.createObjectURL(file);
-      previewUrls.push(url);
+    for (var fn in picked) {
+      if (!picked.hasOwnProperty(fn)) continue;
 
-      const $item = $(`
-        <div class="rv-item">
-          <img class="rv-thumb" alt="preview">
-          <button type="button" class="rv-del" title="삭제">&times;</button>
-          <span class="rv-badge">${idx + 1}</span>
-        </div>
-      `);
+      var webPath = picked[fn];
+      var src = (window.ctxPath || "") + webPath;
 
-      $item.find("img").attr("src", url);
+      var $item = $(
+        '<div class="rv-item" data-fn="' + fn + '">' +
+          '<img class="rv-thumb" src="' + src + '" alt="preview">' +
+          '<button type="button" class="rv-del" title="삭제">&times;</button>' +
+          '<span class="rv-badge">' + idx + '</span>' +
+        '</div>'
+      );
 
-      $item.find(".rv-del").on("click", function () {
-        selectedFiles.splice(idx, 1);
-        rebuildInputFiles();
-        renderPreviews();
-      });
-
-      $wrap.append($item);
-    });
+      $preview.append($item);
+      idx++;
+    }
   }
 
-  // 파일 선택(누적)
-  $input.on("change", function () {
-    const files = Array.from(this.files || []);
+  // 삭제 위임
+  $preview.on("click", ".rv-del", function () {
+    var fn = String($(this).closest(".rv-item").data("fn") || "");
+    if (fn && picked.hasOwnProperty(fn)) delete picked[fn];
 
-    for (const f of files) {
+    syncHidden();
+    renderPreview();
+    syncFakeName();
+  });
 
-      if (!isAllowedImage(f)) {
-        alert("허용되지 않는 파일 형식입니다. (jpg/jpeg/png/webp)");
-        continue;
-      }
+  $file.on("change", function () {
+    var files = this.files;
+    if (!files || files.length === 0) return;
 
-      if (selectedFiles.length >= MAX_FILES) {
-        alert("이미지는 최대 " + MAX_FILES + "장까지 업로드할 수 있어요.");
+    for (var i = 0; i < files.length; i++) {
+      if (pickedCount() >= MAX_FILES) {
+        alert("이미지는 최대 " + MAX_FILES + "장까지 선택할 수 있어요.");
         break;
       }
 
-      // 중복 방지(이름+사이즈)
-      const dup = selectedFiles.some(x => x.name === f.name && x.size === f.size);
-      if (dup) continue;
+      var f = files[i];
+      var filename = (f.name || "").replace(/^\s+|\s+$/g, "");
+      if (!filename) continue;
 
-      selectedFiles.push(f);
+      // 정적 경로로만 저장(업로드 X)
+      var webPath = "/image/review_image/" + filename;
+
+      // 중복 방지
+      if (picked.hasOwnProperty(filename)) continue;
+
+      picked[filename] = webPath;
     }
 
-    rebuildInputFiles();
-    renderPreviews();
+    // input 비우기
+    this.value = "";
+
+    syncHidden();
+    renderPreview();
+    syncFakeName();
   });
 
   // ===== 별점 =====
   function paintStars(val){
     $("#starBox .star-one").each(function(idx){
-      const starNo = idx + 1;
-      let percent = 0;
-
+      var starNo = idx + 1;
+      var percent = 0;
       if (val >= starNo) percent = 100;
       else if (val >= starNo - 0.5) percent = 50;
-      else percent = 0;
-
       $(this).find(".star-fill").css("width", percent + "%");
     });
   }
 
-  const initVal = parseFloat($("#rating").val() || "0");
+  var initVal = parseFloat($("#rating").val() || "0");
   if (initVal > 0) paintStars(initVal);
 
   $("#starBox").on("click", ".hit", function(){
-    const val = parseFloat($(this).data("value"));
+    var val = parseFloat($(this).data("value"));
     if (!(val >= 0.5 && val <= 5.0 && (val * 2 === Math.floor(val * 2)))) return;
-
     $("#rating").val(val.toFixed(1));
     paintStars(val);
   });
 
-  // ===== submit 검증 =====
+  // submit 검증 
   $("#reviewWriteFrm").on("submit", function () {
+    var orderDetailId = $("select[name='orderDetailId']").val();
+    var title = $("input[name='reviewTitle']").val().trim();
+    var rating = $("#rating").val();
+    var content = $("textarea[name='reviewContent']").val().trim();
 
-    const title = $("input[name='reviewTitle']").val().trim();
-    const rating = $("#rating").val();
-    const content = $("textarea[name='reviewContent']").val().trim();
-
+    if (!orderDetailId) { alert("구매 옵션을 선택하세요."); return false; }
     if (!title) { alert("리뷰 제목을 입력하세요."); return false; }
     if (title.length > 100) { alert("리뷰 제목은 최대 100자까지 가능합니다."); return false; }
-
     if (!rating) { alert("별점을 선택하세요."); return false; }
-
     if (!content) { alert("리뷰 내용을 입력하세요."); return false; }
     if (content.length > 1000) { alert("리뷰 내용은 최대 1000자까지 가능합니다."); return false; }
 
-    if (selectedFiles.length > MAX_FILES) {
-      alert("이미지는 최대 " + MAX_FILES + "장까지 업로드할 수 있어요.");
+    if (pickedCount() > MAX_FILES) {
+      alert("이미지는 최대 " + MAX_FILES + "장까지 선택할 수 있어요.");
       return false;
     }
-
     return true;
   });
-
-  // 메모리 정리
-  $(window).on("beforeunload", function(){
-    cleanupPreviewUrls();
-  });
-
 });

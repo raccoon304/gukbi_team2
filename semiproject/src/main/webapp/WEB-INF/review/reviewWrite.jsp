@@ -123,60 +123,39 @@
           </div>
 
         
-          <!-- 이미지 -->
+          
+			
+			<!-- 이미지 -->
 			<div class="form-group">
 			  <label class="font-weight-bold">리뷰 이미지 (최대 5장)</label>
 			
+			  <!-- 진짜 file input  -->
+			  <input type="file"
+			         id="reviewImages"
+			         name="reviewImages"
+			         accept="image/*"
+			         multiple
+			         style="display:none;">
+			
 			  <!-- 파일첨부처럼 보이는 UI -->
 			  <div class="input-group">
-			    <div class="custom-file">
-			      <!-- 진짜 file input 아님! (readonly text) -->
-			      <input type="text" class="form-control" id="fakeFileName" placeholder="파일을 선택하세요" readonly>
-			    </div>
+			    <input type="text" class="form-control" id="fakeFileName" placeholder="파일을 선택하세요" readonly>
 			    <div class="input-group-append">
-			      <button type="button" class="btn btn-outline-secondary" id="btnPickImage">
+			      <button type="button" class="btn btn-outline-secondary" id="btnPickFile">
 			        <i class="fa-solid fa-paperclip mr-1"></i>파일첨부
 			      </button>
 			    </div>
 			  </div>
 			
-			  <!-- 선택된 이미지 미리보기 -->
-			  <div id="pickedWrap" class="d-flex flex-wrap mt-3"></div>
+			  <!-- 미리보기 -->
+			  <div id="previewWrap" class="mt-3 d-flex flex-wrap"></div>
 			
-			  <!-- 컨트롤러로 보낼 hidden input들 -->
+			  <!-- 컨트롤러로 보낼 hidden -->
 			  <div id="pickedInputs"></div>
 			</div>
-			
-			<!-- 이미지 선택 모달 -->
-			<div class="modal fade" id="galleryModal" tabindex="-1" role="dialog" aria-hidden="true">
-			  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title"><i class="fa-regular fa-images mr-2"></i>이미지 선택</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			          <span aria-hidden="true">&times;</span>
-			        </button>
-			      </div>
-			
-			      <div class="modal-body">
-			        <div id="galleryWrap" class="d-flex flex-wrap">
-			          <c:forEach var="fn" items="${galleryList}">
-			            <div class="rv-item gallery-item" data-path="/image/review_image/${fn}">
-			              <img class="rv-thumb" src="<%=ctxPath%>/image/review_image/${fn}" alt="gallery">
-			              <span class="rv-badge">선택</span>
-			            </div>
-			          </c:forEach>
-			        </div>
-			      </div>
-			
-			      <div class="modal-footer">
-			        <button type="button" class="btn btn-light" data-dismiss="modal">닫기</button>
-			      </div>
-			    </div>
-			  </div>
-			</div>
 
-
+		  <small class="text-muted">jpg / jpeg / png / webp</small>
+		
           <!-- 버튼 -->
           <div class="d-flex justify-content-end mt-4" style="gap:8px;">
             <button type="button" class="btn btn-light" onclick="history.back()">취소</button>

@@ -1,18 +1,16 @@
 package review.controller;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
 import member.domain.MemberDTO;
 import review.model.ReviewDAO;
 import review.model.ReviewDAO_imple;
@@ -51,6 +49,9 @@ public class ReviewWrite extends AbstractController {
 
             request.setAttribute("productCode", productCode);
             request.setAttribute("writableList", writableList);
+
+           
+            request.setAttribute("galleryList", getGalleryList(request));
 
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/review/reviewWrite.jsp");
@@ -125,10 +126,9 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        
-        // ===== 이미지 =====
+        // ===== 이미지  =====
         List<Map<String, Object>> images = new ArrayList<>();
-        String[] paths = request.getParameterValues("imagePath"); // 없으면 null
+        String[] paths = request.getParameterValues("imagePath"); // pickedInputs에서 넘어오는 값
 
         int sortNo = 1;
         if (paths != null) {
@@ -164,8 +164,6 @@ public class ReviewWrite extends AbstractController {
             );
         } catch (Exception e) {
 
-            
-
             String emsg = String.valueOf(e.getMessage());
             if (emsg != null && emsg.contains("ORA-12899")) {
                 failToWritePage(request, loginUser, productCode, "글자수를 초과하여 작성 할 수 없습니다.");
@@ -198,7 +196,34 @@ public class ReviewWrite extends AbstractController {
                 rdao.getWritableOrderDetailList(loginUser.getMemberid(), productCode);
         request.setAttribute("writableList", writableList);
 
+        // ★ 실패 시에도 갤러리 다시 내려줘야 모달 안 비지 않음
+        request.setAttribute("galleryList", getGalleryList(request));
+
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/review/reviewWrite.jsp");
+    }
+
+    // /image/review_image 폴더 파일명 목록
+    private List<String> getGalleryList(HttpServletRequest request) {
+
+        List<String> list = new ArrayList<>();
+
+        String realPath = request.getServletContext().getRealPath("/image/review_image");
+        File dir = new File(realPath);
+
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    String name = f.getName().toLowerCase();
+                    if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp")) {
+                        list.add(f.getName());
+                    }
+                }
+            }
+        }
+
+        Collections.sort(list);
+        return list;
     }
 }
