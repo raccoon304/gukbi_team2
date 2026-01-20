@@ -17,7 +17,7 @@
 
                 <!-- 슬라이드 1 -->
                 <div class="carousel-item active">
-                    <div class="slide-content" style="background-image:url('<%=ctxPath%>//image/product_TH/centerAP.jpg');">
+                    <div class="slide-content" style="background-image:url('<%=ctxPath%>/image/Center_iPhone17_Pro_Max.jpg');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
                             <h2>아이폰 17 Pro Max</h2>
@@ -31,7 +31,7 @@
 
                 <!-- 슬라이드 2 -->
                 <div class="carousel-item">
-                    <div class="slide-content" style="background-image:url('<%=ctxPath%>/image/product_TH/centerGX.jpg');">
+                    <div class="slide-content" style="background-image:url('<%=ctxPath%>/image/Center_Galaxy_S25_Ultra.jpg');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
                             <h2>갤럭시 S25 Ultra</h2>
@@ -45,7 +45,7 @@
 
 				<!-- 슬라이드 3 -->
                 <div class="carousel-item">
-                    <div class="slide-content" style="background-image:url('<%=ctxPath%>/image/product_TH/centerAP.jpg');">
+                    <div class="slide-content" style="background-image:url('<%=ctxPath%>/image/Center_iPhone17.jpg');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
                             <h2>아이폰 17</h2>
@@ -59,10 +59,10 @@
                 
                 <!-- 슬라이드 4 -->
                 <div class="carousel-item">
-                    <div class="slide-content" style="background-image:url('<%=ctxPath%>/image/product_TH/centerGX.jpg');">
+                    <div class="slide-content" style="background-image:url('<%=ctxPath%>/image/Center_Galaxy_Z_Flip.jpg');">
                         <div class="slide-overlay"></div>
                         <div class="slide-info">
-                            <h2>갤럭시 Z 플립</h2>
+                            <h2>갤럭시 Z 플립7</h2>
                             <p>접히는 혁신, 펼쳐지는 가능성</p>
                             <button class="btn btn-view-product" onclick="goToProductOption('1100GX')">
                                 <i class="fa-solid fa-arrow-right mr-2"></i>상품 보기
