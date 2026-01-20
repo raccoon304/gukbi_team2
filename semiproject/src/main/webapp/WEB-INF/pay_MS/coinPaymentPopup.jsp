@@ -7,6 +7,14 @@
 <meta charset="UTF-8">
 <title>결제 진행</title>
 
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="<%= request.getContextPath() %>/bootstrap-4.6.2-dist/css/bootstrap.min.css">
+
+<!-- 주문 상세 모달 CSS 파일 -->
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/order/orderDetail.css">
+<!-- 또는 -->
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/myPage/orderModal.css">
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
 </head>
@@ -26,13 +34,6 @@ $(function () {
     
     let isPaymentCompleted = false; // 결제 완료 플래그
 
-    console.log("=== 결제 시작 ===");
-    console.log("userName:", userName);
-//  console.log("userid:", userid);
-    console.log("userName:", userName);
-    console.log("finalPrice:", finalPrice);
-    console.log("readyOrderId:", "${sessionScope.readyOrderId}");
-
     if (!finalPrice || finalPrice <= 0) {
         alert("결제 금액 오류");
         window.close();
@@ -47,6 +48,7 @@ $(function () {
             dataType: 'json',
             success: function(data) {
                 if (!data.isLoggedIn) {
+                	
                     clearInterval(sessionCheckInterval);
                     isPaymentCompleted = true;
                     alert('세션이 만료되었습니다.\n결제를 계속하려면 다시 로그인해주세요.');
@@ -86,6 +88,55 @@ $(function () {
 
     const merchantUid = "order_" + new Date().getTime();
 
+    /* 
+       테스트용: PG 결제창 스킵 (실제 결제 안 함)
+       실서버 배포 시 반드시 아래 주석을 해제하고 이 블록을 삭제할 것!
+    
+    // 바로 결제 성공 처리 (테스트용)
+    clearInterval(sessionCheckInterval);
+    isPaymentCompleted = true;
+    
+    // 테스트용 결제 정보 생성
+    const testImpUid = "test_" + new Date().getTime();
+    const testMerchantUid = merchantUid;
+    
+    const payForm = opener.document.getElementById("payForm");
+
+    if (!payForm) {
+        alert("결제 처리 중 오류가 발생했습니다.");
+        window.close();
+        return;
+    }
+
+    const paymentStatus = opener.document.createElement("input");
+    paymentStatus.type = "hidden";
+    paymentStatus.name = "paymentStatus";
+    paymentStatus.value = "success";
+    payForm.appendChild(paymentStatus);
+
+    const pgTid = opener.document.createElement("input");
+    pgTid.type = "hidden";
+    pgTid.name = "pgTid";
+    pgTid.value = testImpUid;
+    payForm.appendChild(pgTid);
+
+    const impUid = opener.document.createElement("input");
+    impUid.type = "hidden";
+    impUid.name = "imp_uid";
+    impUid.value = testImpUid;
+    payForm.appendChild(impUid);
+
+    const merchantUidInput = opener.document.createElement("input");
+    merchantUidInput.type = "hidden";
+    merchantUidInput.name = "merchant_uid";
+    merchantUidInput.value = testMerchantUid;
+    payForm.appendChild(merchantUidInput);
+
+    payForm.submit();
+    window.close();
+    */
+     
+    // 실제 PG 결제 진행
     IMP.request_pay({
         pg: "html5_inicis",
         pay_method: "card",
@@ -96,20 +147,13 @@ $(function () {
         buyer_email: buyerEmail
     }, function (rsp) {
 
-    //    console.log("=== 결제 콜백 시작 ===");
-    //   console.log("rsp.success:", rsp.success);
-    //   console.log("rsp.imp_uid:", rsp.imp_uid);
-    //    console.log("rsp.merchant_uid:", rsp.merchant_uid);
-
         clearInterval(sessionCheckInterval);
 
-        
         if (rsp.success) {
-    //        console.log(" 결제 성공");
             
             isPaymentCompleted = true; // 플래그 설정
            
-         // opener 체크 추가!
+            // opener 체크 추가!
             if (!opener || opener.closed) {
                 alert("부모 창이 닫혔습니다.\n결제는 완료되었으니 마이페이지에서 확인해주세요.");
                 
@@ -138,7 +182,6 @@ $(function () {
             const payForm = opener.document.getElementById("payForm");
 
             if (!payForm) {
-    //            console.error(" payForm을 찾을 수 없음!");
                 alert("결제 처리 중 오류가 발생했습니다.");
                 window.close();
                 return;
@@ -168,15 +211,22 @@ $(function () {
             merchantUidInput.value = rsp.merchant_uid;
             payForm.appendChild(merchantUidInput);
 
-            console.log(" payForm submit 실행");
+            // 부모 창 결제 진행 플래그 해제
+            if (opener.window.paymentInProgress !== undefined) {
+                opener.window.paymentInProgress = false;
+            }
             
             payForm.submit();
             window.close();
 
         } else {
-  //          console.log(" 결제 실패: " + rsp.error_msg);
             
             isPaymentCompleted = true; // 플래그 설정
+
+            // 부모 창 결제 진행 플래그 해제
+            if (opener && !opener.closed && opener.window.paymentInProgress !== undefined) {
+                opener.window.paymentInProgress = false;
+            }
 
             $.post(
                 "<%= request.getContextPath() %>/payment/paymentFail.hp",
@@ -186,7 +236,6 @@ $(function () {
                     errorMessage: rsp.error_msg
                 },
                 function() {
-                    console.log("paymentFail.hp 호출 완료");
                     alert("결제 실패: " + rsp.error_msg);
 
                     if (opener && !opener.closed) {
@@ -198,8 +247,9 @@ $(function () {
             );
         }
     });
-
+    
 });
+
 </script>
 
 </body>

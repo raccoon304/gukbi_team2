@@ -22,7 +22,7 @@ public class PaymentFail extends AbstractController {
         Integer orderId = (Integer) session.getAttribute("readyOrderId");
 
         if (orderId == null) {
-            System.out.println("readyOrderId가 null - 처리할 주문 없음");
+ //         System.out.println("readyOrderId가 null - 처리할 주문 없음");
             return;
         }
 
@@ -32,8 +32,8 @@ public class PaymentFail extends AbstractController {
         String pgTid = request.getParameter("pgTid");
         String errorMessage = request.getParameter("errorMessage");
         
-        System.out.println("PG TID: " + pgTid);
-        System.out.println("실패 사유: " + errorMessage);
+  //    System.out.println("PG TID: " + pgTid);
+  //    System.out.println("실패 사유: " + errorMessage);
 
         OrderDAO odao = new OrderDAO_imple();
 
@@ -155,8 +155,8 @@ public class PaymentFail extends AbstractController {
         }
     }
 
-    /**
-     * 안전한 int 파싱
+    /*
+      
      */
     private int getInt(Map<String, Object> map, String key) {
         Object v = map.get(key);

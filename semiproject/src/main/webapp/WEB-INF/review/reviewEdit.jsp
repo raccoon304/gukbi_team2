@@ -10,55 +10,11 @@
 <script type="text/javascript" src="<%= ctxPath%>/js/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="<%= ctxPath%>/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-$(function(){
+<!-- ctxPath 전역 -->
+<script>window.ctxPath = "<%=ctxPath%>";</script>
 
-  // 별점 채움 표시 함수
-  function paintStars(val){
-    $("#starBox .star-one").each(function(idx){
-      const starNo = idx + 1;
-      let percent = 0;
-
-      if(val >= starNo) percent = 100;
-      else if(val >= starNo - 0.5) percent = 50;
-      else percent = 0;
-
-      $(this).find(".star-fill").css("width", percent + "%");
-    });
-  }
-
-  // 초기 별점 반영
-  const initVal = parseFloat($("#rating").val() || "0");
-  if(initVal > 0) paintStars(initVal);
-
-  // 별점 클릭 이벤트
-  $("#starBox").on("click", ".hit", function(){
-    const val = parseFloat($(this).data("value"));
-    if (!(val >= 0.5 && val <= 5.0 && (val * 2 === Math.floor(val * 2)))) return;
-
-    $("#rating").val(val.toFixed(1));
-    paintStars(val);
-  });
-
-  // submit 검증(프론트)
-  $("#reviewEditFrm").on("submit", function(){
-    const title = $("input[name='reviewTitle']").val().trim();
-    const content = $("textarea[name='reviewContent']").val().trim();
-    const rating = $("#rating").val();
-
-    if(!title){ alert("리뷰 제목을 입력하세요."); return false; }
-    if(title.length > 100){ alert("리뷰 제목은 최대 100자까지 가능합니다."); return false; }
-
-    if(!rating){ alert("별점을 선택하세요."); return false; }
-
-    if(!content){ alert("리뷰 내용을 입력하세요."); return false; }
-    if(content.length > 1000){ alert("리뷰 내용은 최대 1000자까지 가능합니다."); return false; }
-
-    return true;
-  });
-
-});
-</script>
+<!-- 내가 만든 JS -->
+<script src="<%=ctxPath%>/js/review/reviewEdit.js"></script>
 
 <jsp:include page="../header.jsp"/>
 
@@ -79,7 +35,6 @@ $(function(){
   <div class="card">
     <div class="card-body">
 
-      <!-- 서버 검증 에러 메시지 -->
       <c:if test="${not empty errMsg}">
         <div class="alert alert-danger mb-3">
           <c:out value="${errMsg}" />
@@ -95,7 +50,8 @@ $(function(){
       <c:if test="${not empty review}">
         <form id="reviewEditFrm"
               method="post"
-              action="<%=ctxPath%>/review/reviewUpdate.hp">
+              action="<%=ctxPath%>/review/reviewUpdate.hp"
+              enctype="multipart/form-data">
 
           <input type="hidden" name="reviewNumber" value="${reviewNumber}" />
 
@@ -120,18 +76,13 @@ $(function(){
           <!-- 별점 -->
           <div class="form-group mt-3">
             <label class="font-weight-bold">별점</label>
-
-            <!-- 서버로 보내는 값 -->
             <input type="hidden" name="rating" id="rating" value="<c:out value='${review.rating}'/>" required>
 
-            <!-- 별 UI -->
             <div id="starBox" class="star-fa">
               <c:forEach begin="1" end="5" var="i">
                 <div class="star-one" data-star="${i}">
                   <i class="fa-solid fa-star star-bg"></i>
-                  <span class="star-fill">
-                    <i class="fa-solid fa-star"></i>
-                  </span>
+                  <span class="star-fill"><i class="fa-solid fa-star"></i></span>
                   <span class="hit hit-left"  data-value="${i - 0.5}"></span>
                   <span class="hit hit-right" data-value="${i * 1.0}"></span>
                 </div>
@@ -150,6 +101,55 @@ $(function(){
                       maxlength="1000"
                       required><c:out value='${review.reviewContent}'/></textarea>
             <small class="text-muted">최대 1000자</small>
+          </div>
+
+          <!-- 이미지 -->
+          <div class="form-group mt-3">
+            <label class="font-weight-bold">리뷰 이미지 (최대 5장)</label>
+
+            <!-- 기존 이미지 -->
+            <c:if test="${not empty imgList}">
+              <div class="d-flex flex-wrap mb-2" id="oldImageWrap">
+                <c:forEach var="img" items="${imgList}" varStatus="st">
+                  <div class="rv-item old-img"
+                       data-imgid="${img.reviewImageId}">
+                    <img class="rv-thumb"
+                         src="<%=ctxPath%><c:out value='${img.imagePath}'/>"
+                         alt="old">
+                    <button type="button" class="rv-del old-del" title="삭제">&times;</button>
+                    <span class="rv-badge">${st.index + 1}</span>
+                  </div>
+                </c:forEach>
+              </div>
+            </c:if>
+
+            <!-- 삭제할 이미지 id 누적 -->
+            <div id="delOldIds"></div>
+
+            <!-- 컨트롤러로 보낼 새 이미지 경로(hidden) -->
+            <div id="pickedInputs"></div>
+
+            <!-- 진짜 file input(숨김) -->
+            <input type="file"
+                   id="reviewImages"
+                   accept="image/*"
+                   multiple
+                   style="display:none;">
+
+            <!-- write처럼 보이는 UI -->
+            <div class="input-group">
+              <input type="text" class="form-control" id="fakeFileName" placeholder="파일을 선택하세요" readonly>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-outline-secondary" id="btnPickFile">
+                  <i class="fa-solid fa-paperclip mr-1"></i>파일첨부
+                </button>
+              </div>
+            </div>
+
+            <small class="text-muted">jpg / jpeg / png / webp (기존 포함 최대 5장)</small>
+
+            <!-- 새 이미지 미리보기 -->
+            <div id="previewWrap" class="mt-3 d-flex flex-wrap"></div>
           </div>
 
           <div class="d-flex justify-content-end mt-4" style="gap:8px;">

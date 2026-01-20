@@ -25,6 +25,32 @@
   gap: 12px;
 }
 
+/* 받는분 이름과 전화번호 행 */
+.info-row.two-col {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* 받는분 이름 label */
+.info-row.two-col > .info-label:nth-of-type(1) {
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+
+/* 전화번호 label - 오른쪽으로 살짝 */
+.info-row.two-col > .info-label:nth-of-type(2) {
+  margin-left: 20px;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+/* 전화번호 input */
+#recipientPhone {
+  flex: 1;
+}
+
 /* 총 상품금액 헤더 고정 스타일 */
 .info-row.header-fixed {
   display: flex;
@@ -117,6 +143,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.info-row.zipcode-button-row .info-label {
+  min-width: 100px;
+  flex-shrink: 0;
 }
 
 .info-row.zipcode-button-row #zipcode {

@@ -17,25 +17,38 @@ public class CartController extends AbstractController {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+    
         try {
             HttpSession session = request.getSession();
             MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
+            //  System.out.println("확인용 1 loginUser => " + loginUser);
             if (loginUser == null) {
-                response.setContentType("text/html; charset=UTF-8");
+            	request.setAttribute("message", "장바구니는 로그인 이후에만 이용이 가능합니다.");
+                request.setAttribute("loc", "javascript:history.back()");
+                super.setRedirect(false);
+                super.setViewPage("/WEB-INF/msg.jsp");
+                return;
+            /*	
+            	response.setContentType("text/html; charset=UTF-8");
                 response.getWriter().println("""
                     <script>
                         alert('로그인이 필요합니다.');
                         history.back();
                     </script>
                 """);
-                return;
+             */
+   
             }
-
+         
+            System.out.println("확인용 3  ");
+            
+            
             String memberId = loginUser.getMemberid();
             String method = request.getMethod();
-
+            
+            
+            
             /* ================= GET : 장바구니 조회 ================= */
             if ("GET".equalsIgnoreCase(method)) {
 

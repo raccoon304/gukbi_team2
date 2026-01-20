@@ -1,6 +1,9 @@
 package review.controller;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import common.controller.AbstractController;
@@ -15,16 +18,18 @@ public class ReviewUpdate extends AbstractController {
 
     private ReviewDAO rdao = new ReviewDAO_imple();
 
+    private static final int MAX_FILES = 5;
+    private static final String STATIC_PREFIX = "/image/review_image/";
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         HttpSession session = request.getSession();
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-        // 로그인 체크
         if (loginUser == null) {
-            request.setAttribute("message", "로그인 후 이용 가능합니다.");
-            request.setAttribute("loc", request.getContextPath() + "/login.hp");
+            request.setAttribute("message", "로그인이 필요합니다.");
+            request.setAttribute("loc", "javascript:history.back()");
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
             return;
@@ -32,24 +37,28 @@ public class ReviewUpdate extends AbstractController {
 
         String method = request.getMethod();
 
-        // 파라미터(목록용)
-        String productCode = normalize(nvl(request.getParameter("productCode"), "ALL"));
+        
+        String productCode = request.getParameter("productCode");
+        if (productCode == null) productCode = "ALL";
+        productCode = productCode.replace('\u00A0', ' ').trim();
         if (productCode.isEmpty()) productCode = "ALL";
         if ("ALL".equalsIgnoreCase(productCode)) productCode = "ALL";
 
-        String sort = normalize(nvl(request.getParameter("sort"), "latest"));
-        if (sort.isEmpty()) sort = "latest";
+        String sort = request.getParameter("sort");
+        if (sort == null || sort.trim().isEmpty()) sort = "latest";
+        else sort = sort.trim();
 
-        String sizePerPage = normalize(nvl(request.getParameter("sizePerPage"), "10"));
-        if (sizePerPage.isEmpty()) sizePerPage = "10";
+        String sizePerPage = request.getParameter("sizePerPage");
+        if (sizePerPage == null || sizePerPage.trim().isEmpty()) sizePerPage = "10";
+        else sizePerPage = sizePerPage.trim();
 
-        String currentShowPageNo = normalize(nvl(request.getParameter("currentShowPageNo"), "1"));
-        if (currentShowPageNo.isEmpty()) currentShowPageNo = "1";
+        String currentShowPageNo = request.getParameter("currentShowPageNo");
+        if (currentShowPageNo == null || currentShowPageNo.trim().isEmpty()) currentShowPageNo = "1";
+        else currentShowPageNo = currentShowPageNo.trim();
 
-        // reviewNumber
         int reviewNumber;
         try {
-            reviewNumber = Integer.parseInt(normalize(nvl(request.getParameter("reviewNumber"), "")));
+            reviewNumber = Integer.parseInt(request.getParameter("reviewNumber"));
         } catch (Exception e) {
             request.setAttribute("message", "잘못된 요청입니다.");
             request.setAttribute("loc", "javascript:history.back()");
@@ -58,7 +67,7 @@ public class ReviewUpdate extends AbstractController {
             return;
         }
 
-        // GET: 수정폼
+        // ===== GET: 수정폼 =====
         if ("GET".equalsIgnoreCase(method)) {
 
             Map<String, String> review = rdao.getReviewForEdit(reviewNumber, loginUser.getMemberid());
@@ -70,8 +79,12 @@ public class ReviewUpdate extends AbstractController {
                 return;
             }
 
+            List<Map<String, Object>> imgList = rdao.selectReviewImageInfoList(reviewNumber);
+
             request.setAttribute("review", review);
             request.setAttribute("reviewNumber", reviewNumber);
+            request.setAttribute("imgList", imgList);
+
             request.setAttribute("productCode", productCode);
             request.setAttribute("sort", sort);
             request.setAttribute("sizePerPage", sizePerPage);
@@ -91,8 +104,7 @@ public class ReviewUpdate extends AbstractController {
             return;
         }
 
-        // POST: 수정 저장
-        // 내 리뷰 맞는지 확인 + 기존 데이터
+        // 내 리뷰 맞는지 확인
         Map<String, String> origin = rdao.getReviewForEdit(reviewNumber, loginUser.getMemberid());
         if (origin == null || origin.isEmpty()) {
             request.setAttribute("message", "수정할 리뷰가 없거나 권한이 없습니다.");
@@ -102,68 +114,144 @@ public class ReviewUpdate extends AbstractController {
             return;
         }
 
-        String title = normalize(nvl(request.getParameter("reviewTitle"), ""));
-        String content = normalize(nvl(request.getParameter("reviewContent"), ""));
-        String ratingStr = normalize(nvl(request.getParameter("rating"), ""));
+        // ===== 입력값 =====
+        String title = request.getParameter("reviewTitle");
+        if (title == null) title = "";
+        title = title.trim();
 
-        // 별점
-        Double ratingObj = null;
+        String content = request.getParameter("reviewContent");
+        if (content == null) content = "";
+        content = content.trim();
+
+        double rating;
         try {
-            if (!ratingStr.isEmpty()) ratingObj = Double.parseDouble(ratingStr);
-        } catch (Exception ignore) {}
-        double rating = (ratingObj == null ? 0 : ratingObj.doubleValue());
-
-        // 실패 시 수정페이지로 forward(입력 유지)
-        String errMsg = null;
-
-        if (title.isBlank()) {
-            errMsg = "리뷰 제목을 입력하세요.";
-        } else if (title.length() > 100) {
-            errMsg = "글자수를 초과하여 작성 할 수 없습니다. (제목 최대 100자)";
-        } else if (content.isBlank()) {
-            errMsg = "리뷰 내용을 입력하세요.";
-        } else if (content.length() > 1000) {
-            errMsg = "글자수를 초과하여 작성 할 수 없습니다. (내용 최대 1000자)";
-        } else if (ratingObj == null) {
-            errMsg = "별점을 선택하세요.";
-        } else if (!(rating >= 0.5 && rating <= 5.0 && (rating * 2 == Math.floor(rating * 2)))) {
-            errMsg = "별점은 0.5~5.0 사이로 선택하세요.";
+            rating = Double.parseDouble(request.getParameter("rating"));
+        } catch (Exception e) {
+            rating = 0;
         }
 
-        if (errMsg != null) {
-            forwardEditWithValues(request, reviewNumber, origin, title, content, rating, errMsg,
-                                  productCode, sort, sizePerPage, currentShowPageNo);
+        // ===== 서버 검증 =====
+        if (title.isBlank()) {
+            failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                    "리뷰 제목을 입력하세요.", title, content, rating);
+            return;
+        }
+        if (title.length() > 100) {
+            failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                    "글자수를 초과하여 작성 할 수 없습니다. (제목 최대 100자)", title, content, rating);
+            return;
+        }
+        if (content.isBlank()) {
+            failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                    "리뷰 내용을 입력하세요.", title, content, rating);
+            return;
+        }
+        if (content.length() > 1000) {
+            failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                    "글자수를 초과하여 작성 할 수 없습니다. (내용 최대 1000자)", title, content, rating);
+            return;
+        }
+        if (!(rating >= 0.5 && rating <= 5.0 && (rating * 2 == Math.floor(rating * 2)))) {
+            failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                    "별점은 0.5~5.0 사이로 선택하세요.", title, content, rating);
             return;
         }
 
-        // 수정 실행
-        boolean ok = false;
+        // ===== 삭제할 이미지 IDs =====
+        String[] delIds = request.getParameterValues("delImageId");
+        List<Integer> deleteImageIds = new ArrayList<>();
+        if (delIds != null) {
+            for (String s : delIds) {
+                try { deleteImageIds.add(Integer.parseInt(s)); } catch (Exception ignore) {}
+            }
+        }
+
+        // ===== 기존 이미지 수 =====
+        List<Map<String, Object>> oldImgs = rdao.selectReviewImageInfoList(reviewNumber);
+        int oldCnt = (oldImgs == null ? 0 : oldImgs.size());
+        int delCnt = deleteImageIds.size(); 
+
+        // ===== 새로 추가할 이미지: imagePath[] 로 받기 =====
+        String[] addPaths = request.getParameterValues("imagePath"); // JS가 hidden으로 보내는 값
+        List<Map<String, Object>> newImages = new ArrayList<>();
+
+        // 서버에 실제 파일 존재 체크용 realPath
+        String staticRealDir = request.getServletContext().getRealPath(STATIC_PREFIX);
+        File staticDir = new File(staticRealDir);
+
+        int addCount = 0;
+        if (addPaths != null) {
+            for (String p : addPaths) {
+
+                if (p == null) continue;
+                p = p.trim();
+                if (p.isEmpty()) continue;
+
+                // 정적 폴더만 허용
+                if (!p.startsWith(STATIC_PREFIX)) continue;
+
+                // 최종 5장 제한: (기존 - 삭제 + 추가)
+                if ((oldCnt - delCnt + addCount) >= MAX_FILES) break;
+
+                // 파일명 추출 + 서버에 진짜 존재하는지 체크
+                String fileName = p.substring(p.lastIndexOf("/") + 1);
+                if (fileName.isBlank()) continue;
+
+                // 디렉토리 탈출 방지(기본 방어)
+                if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) continue;
+
+                // 확장자 제한
+                String lower = fileName.toLowerCase();
+                if (!(lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".webp"))) continue;
+
+                // 서버에 파일이 실제 있어야 다른 PC에서도 보임
+                File f = new File(staticDir, fileName);
+                if (!f.exists() || !f.isFile()) continue;
+
+                Map<String, Object> imgMap = new HashMap<>();
+                imgMap.put("imagePath", p);
+                newImages.add(imgMap);
+
+                addCount++;
+            }
+        }
+
+        // ===== DAO 업데이트 =====
         try {
-            ok = rdao.updateReview(reviewNumber, loginUser.getMemberid(), title, content, rating);
+            boolean ok = rdao.updateReviewWithImages(
+                    reviewNumber,
+                    loginUser.getMemberid(),
+                    title,
+                    content,
+                    rating,
+                    deleteImageIds,
+                    newImages
+            );
+
+            if (!ok) {
+                failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                        "리뷰 수정에 실패했습니다.", title, content, rating);
+                return;
+            }
+
         } catch (Exception e) {
 
-            String msg = String.valueOf(e.getMessage());
-            String dbMsg = (msg != null && msg.contains("ORA-12899"))
-                         ? "글자수를 초과하여 작성 할 수 없습니다."
-                         : "리뷰 수정에 실패했습니다.";
-
-            forwardEditWithValues(request, reviewNumber, origin, title, content, rating, dbMsg,
-                                  productCode, sort, sizePerPage, currentShowPageNo);
+            String emsg = String.valueOf(e.getMessage());
+            if (emsg != null && emsg.contains("ORA-12899")) {
+                failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                        "글자수를 초과하여 작성 할 수 없습니다.", title, content, rating);
+            } else {
+                failToEditPage(request, loginUser, reviewNumber, productCode, sort, sizePerPage, currentShowPageNo,
+                        "리뷰 수정에 실패했습니다.", title, content, rating);
+            }
             return;
         }
 
-        if (!ok) {
-            forwardEditWithValues(request, reviewNumber, origin, title, content, rating, "리뷰 수정에 실패했습니다.",
-                                  productCode, sort, sizePerPage, currentShowPageNo);
-            return;
-        }
-
-        // 성공 -> 목록 이동
         String loc = request.getContextPath() + "/review/reviewList.hp"
-                   + "?productCode=" + productCode
-                   + "&sort=" + sort
-                   + "&sizePerPage=" + sizePerPage
-                   + "&currentShowPageNo=" + currentShowPageNo;
+                + "?productCode=" + productCode
+                + "&sort=" + sort
+                + "&sizePerPage=" + sizePerPage
+                + "&currentShowPageNo=" + currentShowPageNo;
 
         request.setAttribute("message", "리뷰가 수정되었습니다.");
         request.setAttribute("loc", loc);
@@ -171,28 +259,23 @@ public class ReviewUpdate extends AbstractController {
         super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
     }
 
-    // 수정페이지로 되돌리기(입력값 유지)
-    private void forwardEditWithValues(HttpServletRequest request,
-                                       int reviewNumber,
-                                       Map<String, String> origin,
-                                       String title,
-                                       String content,
-                                       double rating,
-                                       String errMsg,
-                                       String productCode,
-                                       String sort,
-                                       String sizePerPage,
-                                       String currentShowPageNo) throws Exception {
+    private void failToEditPage(HttpServletRequest request, MemberDTO loginUser,
+                                int reviewNumber, String productCode, String sort,
+                                String sizePerPage, String currentShowPageNo,
+                                String errMsg, String title, String content, double rating) throws Exception {
 
+        Map<String, String> origin = rdao.getReviewForEdit(reviewNumber, loginUser.getMemberid());
         Map<String, String> reviewForView = new HashMap<>(origin);
         reviewForView.put("reviewTitle", title);
         reviewForView.put("reviewContent", content);
-        
         reviewForView.put("rating", String.valueOf(rating));
+
+        List<Map<String, Object>> imgList = rdao.selectReviewImageInfoList(reviewNumber);
 
         request.setAttribute("errMsg", errMsg);
         request.setAttribute("review", reviewForView);
         request.setAttribute("reviewNumber", reviewNumber);
+        request.setAttribute("imgList", imgList);
 
         request.setAttribute("productCode", productCode);
         request.setAttribute("sort", sort);
@@ -201,15 +284,5 @@ public class ReviewUpdate extends AbstractController {
 
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/review/reviewEdit.jsp");
-    }
-
-    private String nvl(String s, String dft) {
-        return (s == null) ? dft : s;
-    }
-
-    // 공백(NBSP) 방어
-    private String normalize(String s) {
-        if (s == null) return "";
-        return s.replace('\u00A0', ' ').trim();
     }
 }
