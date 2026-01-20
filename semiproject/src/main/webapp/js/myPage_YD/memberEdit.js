@@ -1,5 +1,7 @@
 $(function () {
-
+  // [릴리즈] submit 더블클릭/엔터 연타 방지
+  let isSubmitting = false;
+  
   // 최초 로딩 시 기존값 저장( 유효성 검사 값 비교하려고 )
   const originalMobile = ($('#mobile').val() || '').trim();
   const originalEmail  = ($('#email').val()  || '').trim();
@@ -12,6 +14,9 @@ $(function () {
   $('#memberEditEndForm').on('submit', function(e){
     e.preventDefault();
 
+	if (isSubmitting) return;
+    isSubmitting = true;
+	
     const $form = $(this);
 
     const name   = ($('#name').val()   || '').trim();
@@ -96,6 +101,15 @@ $(function () {
     // 제출 시점 중복검사 변경된 경우에만 검사
     const tasks = [];
 
+	// [릴리즈] 컨트롤러가 JSON이 아닌 응답(msg.jsp/에러페이지)을 주는 경우 대비
+	function safeParseJson(text) {
+	  try {
+	    return JSON.parse(text);
+	  } catch (e) {
+	    return null;
+	  }
+	}
+	
     // 이메일이 기존 이메일과 다를 때만 중복검사
     if(email !== originalEmail){
       tasks.push(
@@ -105,10 +119,13 @@ $(function () {
           data: { email: email },
           async: true
         }).then(function(text){
-          const json = JSON.parse(text);
-          if(json.isExists){
-            alert(email + " 은(는) 이미 사용중인 이메일입니다.");
-            $('#email').focus();
+		  	const json = safeParseJson(text);
+		    if(!json){
+		    	return $.Deferred().reject("parse-error");
+		    }
+		    if(json.isExists){
+		    	alert(email + " 은(는) 이미 사용중인 이메일입니다.");
+            	$('#email').focus();
             return $.Deferred().reject("email-dup");
           }
         })
@@ -124,10 +141,13 @@ $(function () {
           data: { mobile: mobile },
           async: true
         }).then(function(text){
-          const json = JSON.parse(text);
-          if(json.isExists){
-            alert(mobile + " 은(는) 이미 사용중인 휴대폰번호입니다.");
-            $('#mobile').focus();
+		  	const json = safeParseJson(text);
+		    if(!json){
+		    	return $.Deferred().reject("parse-error");
+		    }
+		    if(json.isExists){
+		    	alert(mobile + " 은(는) 이미 사용중인 휴대폰번호입니다.");
+            	$('#mobile').focus();
             return $.Deferred().reject("mobile-dup");
           }
         })
@@ -140,11 +160,20 @@ $(function () {
         $form.off('submit');   // 무한루프 방지
         $form.submit();
       })
-      .fail(function(err){
-        if(err !== "email-dup" && err !== "mobile-dup"){
-          alert("중복검사 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.");
-        }
-      });
+	  .fail(function(err){
+		  // [릴리즈] 락/버튼 복구
+		  isSubmitting = false;
+		  $form.find('button[type="submit"]').prop('disabled', false);
+		
+		  if (err === "email-dup" || err === "mobile-dup") {
+		    return;
+		  }
+		  if (err === "parse-error") {
+		    alert("서버 응답 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.");
+		    return;
+		  }
+		  alert("중복검사 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.");
+		});
 
   });
 
