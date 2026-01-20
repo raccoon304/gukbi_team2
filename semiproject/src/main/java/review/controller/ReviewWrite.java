@@ -125,45 +125,30 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // ===== 이미지 저장 (파일첨부 방식) =====
-        String uploadDir = request.getServletContext().getRealPath("/image/review");
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
-
+        
+        // ===== 이미지 =====
         List<Map<String, Object>> images = new ArrayList<>();
+        String[] paths = request.getParameterValues("imagePath"); // 없으면 null
+
         int sortNo = 1;
+        if (paths != null) {
+            for (String p : paths) {
+                if (p == null) continue;
+                p = p.trim();
+                if (p.isEmpty()) continue;
 
-        for (Part part : request.getParts()) {
-            if (!"reviewImages".equals(part.getName())) continue;
-            if (part.getSize() <= 0) continue;
-            if (sortNo > 5) break;
+                // 정적 폴더만 허용
+                if (!p.startsWith("/image/review_image/")) continue;
 
-            String ct = part.getContentType();
-            if (ct == null || !ct.startsWith("image/")) continue;
+                if (sortNo > 5) break;
 
-            String submitted = part.getSubmittedFileName();
-            if (submitted == null || submitted.isBlank()) continue;
+                Map<String, Object> imgMap = new HashMap<>();
+                imgMap.put("imagePath", p);
+                imgMap.put("sortNo", Integer.valueOf(sortNo));
+                images.add(imgMap);
 
-            submitted = Paths.get(submitted).getFileName().toString();
-
-            String ext = "";
-            int dot = submitted.lastIndexOf(".");
-            if (dot > -1) ext = submitted.substring(dot).toLowerCase();
-
-            if (!(ext.equals(".jpg") || ext.equals(".jpeg") || ext.equals(".png") || ext.equals(".webp"))) continue;
-
-            String saveName = "rv_" + UUID.randomUUID().toString().replace("-", "") + ext;
-            part.write(new File(dir, saveName).getAbsolutePath());
-            part.delete();
-
-            String webPath = "/image/review/" + saveName;
-
-            Map<String, Object> imgMap = new HashMap<>();
-            imgMap.put("imagePath", webPath);
-            imgMap.put("sortNo", Integer.valueOf(sortNo));
-            images.add(imgMap);
-
-            sortNo++;
+                sortNo++;
+            }
         }
 
         // ===== DB 저장 =====
@@ -179,16 +164,7 @@ public class ReviewWrite extends AbstractController {
             );
         } catch (Exception e) {
 
-            // 실패하면 업로드 파일 삭제
-            for (Map<String, Object> img : images) {
-                try {
-                    String webPath = (String) img.get("imagePath");
-                    if (webPath == null) continue;
-                    String fileName = webPath.substring(webPath.lastIndexOf("/") + 1);
-                    File f = new File(dir, fileName);
-                    if (f.exists()) f.delete();
-                } catch (Exception ignore) {}
-            }
+            
 
             String emsg = String.valueOf(e.getMessage());
             if (emsg != null && emsg.contains("ORA-12899")) {
