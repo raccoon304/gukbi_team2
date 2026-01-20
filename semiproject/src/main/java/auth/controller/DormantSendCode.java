@@ -52,7 +52,7 @@ public class DormantSendCode extends AbstractController {
             session.setAttribute("dormant_cert_code", certCode);
             session.setAttribute("dormant_cert_expire", expireAt);
 
-            // ✅ expireAt을 JSON에 포함해서 내려줌
+            // expireAt을 JSON에 포함해서 내려줌
             response.getWriter().write("{\"success\":true, \"expireAt\":" + expireAt + "}");
             response.getWriter().flush();
             return;

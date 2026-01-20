@@ -88,11 +88,11 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
 
             
             if (isExcludeFail) {
-                sql += " AND o.delivery_status != 4 ";
+                sql += " AND (CASE WHEN o.order_status='READY' THEN 4 ELSE o.delivery_status END) != 4 ";
             }
             
             if (hasDeliveryFilter) {
-                sql += " AND o.delivery_status = ? ";
+                sql += " AND (CASE WHEN o.order_status='READY' THEN 4 ELSE o.delivery_status END) = ? ";
             }
 
             if (hasSearch) {
@@ -176,11 +176,11 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "  WHERE 1=1 ";
 
             if (isExcludeFail) {
-                sql += " AND o.delivery_status != 4 ";
+                sql += " AND (CASE WHEN o.order_status='READY' THEN 4 ELSE o.delivery_status END) != 4 ";
             }
             
             if (hasDeliveryFilter) {
-                sql += " AND o.delivery_status = ? ";
+                sql += " AND (CASE WHEN o.order_status='READY' THEN 4 ELSE o.delivery_status END) = ? ";
             }
 
             if (hasSearch) {
@@ -290,7 +290,7 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "          (NVL(o.total_amount,0) - NVL(o.discount_amount,0)) AS pay_amount, "
                        + "          o.recipient_name, "
                        + "          o.recipient_phone, "
-                       + "          o.delivery_status, "
+                       + "          CASE WHEN o.order_status = 'READY' THEN 4 ELSE o.delivery_status END AS delivery_status, "
                        + "          o.delivery_number, "
                        + "          TO_CHAR(o.delivery_startdate,'YYYY-MM-DD') AS delivery_startdate, "
                        + "          TO_CHAR(o.delivery_enddate,'YYYY-MM-DD') AS delivery_enddate, "
@@ -321,11 +321,11 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                        + "    WHERE 1=1 ";
             
             if (isExcludeFail) {
-                sql += " AND o.delivery_status != 4 ";
+                sql += " AND (CASE WHEN o.order_status='READY' THEN 4 ELSE o.delivery_status END) != 4 ";
             }
 
             if (hasDeliveryFilter) {
-                sql += " AND o.delivery_status = ? ";
+                sql += " AND (CASE WHEN o.order_status='READY' THEN 4 ELSE o.delivery_status END) = ? ";
             }
 
             if (hasSearch) {
@@ -455,7 +455,8 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
     	                  + "      , delivery_number = ? "
     	                  + "  WHERE order_id = ? "
     	                  + "    AND delivery_status = 0 "
-    	                  + "    AND delivery_status != 4 ";
+    	                  + "    AND delivery_status != 4 "
+    	                  + "    AND order_status != 'READY' ";
 
     	            pstmt = conn.prepareStatement(sqlUpd);
 
@@ -477,7 +478,8 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
     	                  + "      , delivery_enddate = SYSDATE "
     	                  + "  WHERE order_id = ? "
     	                  + "    AND delivery_status = 1 "
-    	                  + "    AND delivery_status != 4 ";
+    	                  + "    AND delivery_status != 4 "
+    	                  + "    AND order_status != 'READY' ";
 
     	            pstmt = conn.prepareStatement(sqlUpd);
 
@@ -524,7 +526,8 @@ public class AdminDeliveryDAO_imple implements AdminDeliveryDAO {
                 placeholders += (i == 0 ? "?" : ",?");
             }
 
-            String sql = " SELECT order_id, delivery_status "
+            String sql = " SELECT order_id"
+            		   + "      , CASE WHEN order_status='READY' THEN 4 ELSE delivery_status END AS delivery_status "
                        + "   FROM tbl_orders "
                        + "  WHERE order_id IN (" + placeholders + ") ";
 

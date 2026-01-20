@@ -2738,14 +2738,28 @@ DESC TBL_REVIEW;
 select * from tbl_orders where order_status = 'PAID';
 
 select * from tbl_orders
+where order_status = 'PAID'
 order by order_id;
 
 select * from tbl_order_detail
 order by fk_order_id;
 
-select * from tbl_product_option;
+select * from tbl_coupon_issue
 
-select * from tbl_product;
+update tbl_orders set order_date = sysdate - 90, delivery_startdate = sysdate-90, delivery_enddate = sysdate-89, delivery_status = 2
+where order_id = 539;
+
+update tbl_orders set delivery_number = 'D20250416-1'
+where order_id = 539;
+
+
+
+update tbl_orders set order_date = sysdate, delivery_number = null, delivery_startdate = null, delivery_enddate = null
+
+
+update tbl_review set writeday = sysdate -364
+where review_number = 59;
+commit;
 
 update tbl_orders set delivery_status = 0
 where delivery_status = 2;
@@ -2758,3 +2772,22 @@ where fk_member_id = 'dog';
 
 
 commit;
+
+select * from tbl_coupon_issue;
+
+delete from tbl_coupon_issue;
+
+
+
+update tbl_member set created_at = sysdate - 365
+where member_id= 'kimsy';
+
+update tbl_coupon_issue set issue_date = sysdate, expire_date = sysdate+14
+where fk_member_id = 'kimsy';
+
+
+select m.member_id
+from tbl_member m
+where m.status = 0
+and m.idle = 0
+and member_id != 'admin';
