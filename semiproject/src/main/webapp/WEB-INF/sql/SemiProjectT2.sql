@@ -2747,6 +2747,11 @@ select * from tbl_product_option;
 
 select * from tbl_product;
 
+update tbl_orders set order_date = sysdate - 365, delivery_number = 'D20250120-1', delivery_startdate = sysdate-365, delivery_enddate = sysdate-364
+where order_id = 495;
+
+commit;
+
 update tbl_orders set delivery_status = 0
 where delivery_status = 2;
 

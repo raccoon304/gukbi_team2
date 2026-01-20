@@ -65,7 +65,8 @@
 
   <c:if test="${not empty orderHeader}">
     <c:set var="ds" value="${orderHeader['delivery_status']}" />
-
+	<c:set var="dsView" value="${orderHeader['order_status'] eq 'READY' ? '4' : ds}" />
+	
     <!-- ===== 주문 요약 ===== -->
     <div class="mb-4">
       <div class="yd-section-title">주문 정보</div>
@@ -89,10 +90,10 @@
           <div class="k">배송 상태</div>
           <div class="v">
             <c:choose>
-              <c:when test="${ds eq '0'}"><span class="yd-pill yd-pill-info">배송준비중</span></c:when>
-              <c:when test="${ds eq '1'}"><span class="yd-pill yd-pill-warn">배송중</span></c:when>
-              <c:when test="${ds eq '2'}"><span class="yd-pill yd-pill-gray">배송완료</span></c:when>
-              <c:otherwise><span class="yd-pill yd-pill-danger">주문실패</span></c:otherwise>
+              <c:when test="${dsView eq '0'}">배송준비중</c:when>
+			  <c:when test="${dsView eq '1'}">배송중</c:when>
+			  <c:when test="${dsView eq '2'}">배송완료</c:when>
+			  <c:otherwise><span>주문실패</span></c:otherwise>
             </c:choose>
           </div>
 
@@ -100,9 +101,10 @@
           <div class="v">
             <c:choose>
               <c:when test="${orderHeader['order_status'] eq 'PAID'}">결제완료</c:when>
-              <c:when test="${orderHeader['order_status'] eq 'FAIL'}">결제실패</c:when>
-              
-              <c:otherwise><c:out value="${status}" /></c:otherwise>
+			  <c:when test="${orderHeader['order_status'] eq 'FAIL'}">결제실패</c:when>
+			  <c:when test="${orderHeader['order_status'] eq 'READY'}">결제실패</c:when>
+			  <c:otherwise><c:out value="${orderHeader['order_status']}" /></c:otherwise>
+ 
             </c:choose>
           </div>
         </div>
