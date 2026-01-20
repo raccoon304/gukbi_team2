@@ -121,7 +121,7 @@
 			                </div>
 			                <div class="input-group input-group-lg">
 			                    <input type="number" class="form-control" id="basePrice" name="basePrice" 
-			                    		   placeholder="기본 가격을 입력하세요 (256GB 기준)" required min="0" step="1000">
+			                    		   placeholder="기본 가격을 입력하세요 (256GB 기준)" required min="0" step="100">
 			                    <div class="input-group-append">
 			                        <span class="input-group-text">원</span>
 			                    </div>
