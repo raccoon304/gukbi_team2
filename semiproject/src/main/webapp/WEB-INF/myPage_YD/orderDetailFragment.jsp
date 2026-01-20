@@ -201,7 +201,7 @@
           <div class="k">택배 도착일</div>
           <div class="v">
             <c:choose>
-              <c:when test="${status ne '2' }">준비중</c:when>
+              <c:when test="${status ne '2' }">미도착</c:when>
               <c:when test="${status eq '2' }">${orderHeader['delivery_enddate']}</c:when>
               <c:otherwise>-</c:otherwise>
             </c:choose>
