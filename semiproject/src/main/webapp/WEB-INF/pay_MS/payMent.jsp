@@ -637,32 +637,35 @@
     });
     
     // 선택 삭제 (결제 페이지 내)
-    $('#btnDeleteSelectedInPayment').click(function() {
+    $('#btnDeleteSelectedInPayment').on('click', function (e) {
+  	e.preventDefault();
+    	
+    	
       const checked = $('.addr-check-payment:checked');
       if (checked.length === 0) {
         alert('삭제할 배송지를 선택해주세요.');
         return;
       }
       
-      if (!confirm('선택한 배송지를 삭제하시겠습니까?')) {
-        return;
-      }
-      
-      const form = $('<form>', {
-        method: 'post',
-        action: ctxpath + '/myPage/deliveryDelete.hp'
+      if (!confirm('선택한 배송지를 삭제하시겠습니까?')) return;
+
+      const ids = checked.map(function () {
+        return this.value;
+      }).get();
+
+      $.ajax({
+        url: ctxpath + '/myPage/deliveryDelete.hp',
+        type: 'POST',
+        traditional: true,
+        data: { deliveryAddressId: ids },
+        success: function () {
+          checked.closest('.list-group-item').remove();
+          $('#checkAllInPayment').prop('checked', false);
+        },
+        error: function () {
+          alert('배송지 삭제 실패');
+        }
       });
-      
-      checked.each(function() {
-        form.append($('<input>', {
-          type: 'hidden',
-          name: 'deliveryAddressId',
-          value: $(this).val()
-        }));
-      });
-      
-      $('body').append(form);
-      form.submit();
     });
     
  	// 기본 배송지 설정 (결제 페이지 내)

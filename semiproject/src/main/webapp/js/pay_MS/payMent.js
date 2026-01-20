@@ -5,6 +5,8 @@ document.addEventListener('click', function(e) {
 
   if (!link) return;
 
+  if (link.closest('.modal')) return;
+  
   if (window.paymentInProgress) {
     // 결제 버튼만 예외
     if (link.id === 'coinPayBtn') return;
