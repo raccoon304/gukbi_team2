@@ -44,7 +44,8 @@ $(document).ready(function() {
         $('#checkDuplicateNameBtn').prop('disabled', true);
         $('#basePrice').val("").prop('readonly', true);
         $("#description").val("").prop('readonly', true);
-        $('#dropZone').css({ 'pointer-events': 'none', 'opacity': '0.4' });
+		$('#dropZoneMain, #dropZoneSub1, #dropZoneSub2')
+		    .css({ 'pointer-events': 'none', 'opacity': '0.4' });
     }
 	
 	//활성화 함수
@@ -54,7 +55,8 @@ $(document).ready(function() {
         $('#checkDuplicateNameBtn').prop('disabled', false);
         $('#basePrice').val("").prop('readonly', false);
         $("#description").val("").prop('readonly', false);
-        $('#dropZone').css({ 'pointer-events': 'auto', 'opacity': '1' });
+		$('#dropZoneMain, #dropZoneSub1, #dropZoneSub2')
+		    .css({ 'pointer-events': 'auto', 'opacity': '1' });
     }
 
 	
@@ -89,7 +91,9 @@ $(document).ready(function() {
         isDuplicateCheckCode = false; //상품코드 중복체크 거짓
         isDuplicateCheckName = false; //상품명 중복체크 거짓
 		isDefaultOptionCreated = false;
+		$('#duplicateCheckResult').html("");
 		$('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택 후 \'옵션 조합 추가\' 버튼을 클릭하세요</p></div>');
+		
     });
 
 	//===상품코드 중복확인 버튼 클릭 이벤트===//
@@ -162,7 +166,7 @@ $(document).ready(function() {
             $('#dropZone').css({ 'pointer-events': 'none', 'opacity': '0.4' });
             
 			isDuplicateCheckName = true; //상품명 중복체크 참값
-            isImageFileANDPath = true;	 //이미지등록,경로 참값
+            /*isImageFileANDPath = true;	 //이미지등록,경로 참값*/
             isSendData = true; //중복됐을 때의 ajax 보내기 구분
 			
 			
@@ -172,13 +176,13 @@ $(document).ready(function() {
             
             setTimeout(function() {
                 $('html, body').animate({ scrollTop: $('#optionSection').offset().top - 100 }, 500);
-            }, 1900);
+            }, 3000);
 			
         } else {
 			//중복되지 않은 상품코드일 경우
             resultDiv.html('<div class="duplicate-result available"><i class="fas fa-check-circle mr-2"></i>사용 가능한 상품 코드입니다.</div>');
             isDuplicateCheckName = false;
-            isImageFileANDPath = false;
+            /*isImageFileANDPath = false;*/
             isSendData = false;
 			
 			//새로운 상품코드이므로 비활성화 항목들 모두 활성화해주기
@@ -425,7 +429,7 @@ $(document).ready(function() {
                                 <input type="number" class="form-control option-additional-price" 
                                     data-storage="${storage}" data-color="${color}" 
                                     data-is-base="${is256GB}" value="${priceValue}" 
-                                    min="0" step="1000" required ${priceReadonly}>
+                                    min="0" step="100" required ${priceReadonly}>
                                 <div class="input-group-append">
                                     <span class="input-group-text">원</span>
                                 </div>
@@ -648,15 +652,19 @@ $(document).ready(function() {
             return;
         }
 		
-		const mainOk = uploadedFiles.main || $('#imagePathMain').val().trim();
-	    const sub1Ok = uploadedFiles.sub1 || $('#imagePathSub1').val().trim();
-	    const sub2Ok = uploadedFiles.sub2 || $('#imagePathSub2').val().trim();
+		//새 상품일 때만 이미지 필수
+		if (!isSendData) {
+			const mainOk = uploadedFiles.main
+		    const sub1Ok = uploadedFiles.sub1
+		    const sub2Ok = uploadedFiles.sub2
 
-	    if (!mainOk || !sub1Ok || !sub2Ok) {
-	      e.preventDefault();
-	      alert('대표 이미지 1개 + 추가 이미지 2개를 모두 등록해야 합니다.');
-	      return false;
-	    }
+		    if (!mainOk || !sub1Ok || !sub2Ok) {
+		      e.preventDefault();
+		      alert('대표 이미지 1개 + 추가 이미지 2개를 모두 등록해야 합니다.');
+		      return false;
+		    }
+		}
+		
 		
 		//상품옵션을 추가했는지 검사
         if ($('.matrix-row').length === 0) {
@@ -763,8 +771,8 @@ $(document).ready(function() {
 			    success: function(json) {
 			        //console.log('서버 응답:', json);
 			        // 성공 모달 표시
-			        $('#successModal').modal('show');
-			        $('#successModal').on('hidden.bs.modal', function() {
+			        $('#successOPTModal').modal('show');
+			        $('#successOPTModal').on('hidden.bs.modal', function() {
 			            // 폼 초기화
 			            $('#productForm')[0].reset();
 			            $('input[type="checkbox"]').prop('checked', false);
