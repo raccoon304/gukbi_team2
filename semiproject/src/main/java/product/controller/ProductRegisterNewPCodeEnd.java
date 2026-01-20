@@ -147,7 +147,7 @@ public class ProductRegisterNewPCodeEnd extends AbstractController {
         description = description.replace("\n", "<br/>");  // 대부분 이거면 됨
         description = description.replace("\r", "");  // 혹시 남는 \r 제거
         
-        System.out.println("description: " + description);
+        //System.out.println("description: " + description);
         
         int basePrice = product.getInt("basePrice");			//기본금(256GB)
         //String imagePath = product.getString("imagePath");		//이미지경로

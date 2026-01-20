@@ -319,6 +319,8 @@
     border-radius: 12px;  /* ✅ 모서리 일치 */
 }
 
+
+
 .login-required-message {
     position: absolute;
     inset: 0;
@@ -334,20 +336,30 @@
     border-radius: 12px;
     z-index: 2;
 
-    /* ⭐ 이벤트 */
-    animation: fadeUp 0.35s ease-out;
+    /* ✅ 등장 + 무한 부유 */
+    animation:
+        fadeUp 0.35s ease-out 1,
+        floaty 2.2s ease-in-out 0.35s infinite;
+    will-change: transform;
 }
 
 @keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ✅ 계속 움직이는 느낌(아주 미세) */
+@keyframes floaty {
+    0%   { transform: translateY(0);    opacity: 1; }
+    50%  { transform: translateY(-4px); opacity: 0.96; }
+    100% { transform: translateY(0);    opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-required-message { animation: none; }
+}
+
+
+
 
 .login-required-message i {
 	margin-top: 15px;

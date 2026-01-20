@@ -163,8 +163,8 @@
 							    <input type="file" id="imageFileMain" name="mainImageFile" accept="image/*" style="display:none;">
 							
 							    <div class="form-group mt-2">
-							      <label>또는 이미지 URL 입력</label>
-							      <input type="text" class="form-control form-control-lg" id="imagePathMain" name="mainImagePath" placeholder="https://example.com/main.jpg">
+							      <label>이미지 명</label>
+							      <input type="text" class="form-control form-control-lg" id="imagePathMain" name="mainImagePath" placeholder="main.jpg">
 							    </div>
 							
 							    <div class="image-preview" id="imagePreviewMain" style="display:none;">
@@ -193,8 +193,8 @@
 								    <input type="file" id="imageFileSub1" name="subImageFile1" accept="image/*" style="display:none;">
 								
 								    <div class="form-group mt-2">
-								      <label>또는 이미지 URL 입력</label>
-								      <input type="text" class="form-control form-control-lg" id="imagePathSub1" name="subImagePath1" placeholder="https://example.com/sub1.jpg">
+								      <label>이미지 명</label>
+								      <input type="text" class="form-control form-control-lg" id="imagePathSub1" name="subImagePath1" placeholder="sub1.jpg">
 								    </div>
 								  </div>
 								
@@ -211,8 +211,8 @@
 								    <input type="file" id="imageFileSub2" name="subImageFile2" accept="image/*" style="display:none;">
 								
 								    <div class="form-group mt-2">
-								      <label>또는 이미지 URL 입력</label>
-								      <input type="text" class="form-control form-control-lg" id="imagePathSub2" name="subImagePath2" placeholder="https://example.com/sub2.jpg">
+								      <label>이미지 명</label>
+								      <input type="text" class="form-control form-control-lg" id="imagePathSub2" name="subImagePath2" placeholder="sub2.jpg">
 								    </div>
 								  </div>
 								
@@ -254,11 +254,11 @@
 			                        <label class="toggle-label" for="storage256">256GB<br><small>(기본가)</small></label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="storage512" name="storage" value="512GB" data-price="300000">
+			                        <input type="checkbox" id="storage512" name="storage" value="512GB" data-price="200000">
 			                        <label class="toggle-label" for="storage512">512GB<br><small>(추가금 기입)</small></label>
 			                    </div>
 			                    <div class="toggle-item">
-			                        <input type="checkbox" id="storage1TB" name="storage" value="1TB" data-price="600000">
+			                        <input type="checkbox" id="storage1TB" name="storage" value="1TB" data-price="400000">
 			                        <label class="toggle-label" for="storage1TB">1TB<br><small>(추가금 기입)</small></label>
 			                    </div>
 			                </div>

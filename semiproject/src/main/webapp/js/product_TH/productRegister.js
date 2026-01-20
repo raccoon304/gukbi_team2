@@ -579,12 +579,13 @@ $(document).ready(function() {
 		});
 	}//end of function initImageSlot(slotKey, selectors)-----
 
+	$('#imagePathMain').val('').prop('disabled', true); // URL 입력값 초기화 + 다시 입력 가능하게
+	$('#imagePathSub1, #imagePathSub2').val('').prop('disabled', true);
 	
 	//메인 이미지 삭제 버튼
 	$('#removeImageBtnMain').on('click', function () {
 		uploadedFiles.main = null; // 대표 이미지 파일 제거
 		$('#imageFileMain').val(''); // file input 초기화
-		$('#imagePathMain').val('').prop('disabled', false); // URL 입력값 초기화 + 다시 입력 가능하게
 		
 		// 미리보기 숨김
 		$('#imagePreviewMain').fadeOut();
@@ -597,7 +598,6 @@ $(document).ready(function() {
 		uploadedFiles.sub2 = null;
 		
 		$('#imageFileSub1, #imageFileSub2').val('');
-		$('#imagePathSub1, #imagePathSub2').val('').prop('disabled', false);
 		
 		$('#imagePreviewSub').fadeOut();
 		$('#previewImgSub').attr('src', '');
