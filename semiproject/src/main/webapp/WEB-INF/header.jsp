@@ -38,8 +38,14 @@
 </head>
 <body>
 
-
-
+<!-- <script type="text/javascript">
+$(function(){
+	$(".zangCart").click(function() {
+		console.log("안녕하세요");
+	});
+	
+});
+</script> -->
 
 <!-- 네비게이션 -->
 <nav class="navbar navbar-expand-lg navbar-light navbar-custom fixed-top">
@@ -62,7 +68,7 @@
                         <i class="fa-solid fa-list"></i> 상품목록
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item zangCart">
                     <a class="nav-link" href="<%=ctxPath%>/cart/zangCart.hp">
                         <i class="fa-solid fa-cart-shopping"></i> 장바구니
                     </a>
