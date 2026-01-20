@@ -306,13 +306,13 @@
 }
 
 /* =========================
-   ✅ 로그인 필요 오버레이 (범위 제한 핵심)
+   로그인 필요 오버레이 (범위 제한 핵심)
 ========================= */
 .login-required-overlay {
     position: relative;
 }
 
-/* ✅ 이 영역 안에서만 오버레이가 덮도록 고정 */
+/* 이 영역 안에서만 오버레이가 덮도록 고정 */
 #purchaseArea {
     position: relative;
     overflow: hidden;     /* ✅ 오버레이가 다른 col로 새는거 방지 */
@@ -320,13 +320,14 @@
 }
 
 .login-required-message {
+	/* border:solid 2px red; */
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
 
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.75);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -337,33 +338,20 @@
 }
 
 .login-required-message i {
-    font-size: 3rem;
+	margin-top: 15px;
+    font-size: 2rem;
     color: #667eea;
-    margin-bottom: 15px;
+    /* margin-bottom: 5px; */
 }
 
 .login-required-message p {
     font-size: 1.1rem;
     font-weight: 600;
     color: #495057;
-    margin-bottom: 20px;
+    /* margin-bottom: 5px; */
 }
 
-.btn-login {
-    padding: 10px 30px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
 
-.btn-login:hover {
-    background: #5568d3;
-    transform: translateY(-2px);
-}
 
 /* 기타 */
 .badge-stock {
