@@ -34,15 +34,6 @@ $(function () {
     
     let isPaymentCompleted = false; // 결제 완료 플래그
 
-    /*
-    console.log("=== 결제 시작 ===");
-    console.log("userName:", userName);
-//  console.log("userid:", userid);
-    console.log("userName:", userName);
-    console.log("finalPrice:", finalPrice);
-    console.log("readyOrderId:", "${sessionScope.readyOrderId}");
-    */
-
     if (!finalPrice || finalPrice <= 0) {
         alert("결제 금액 오류");
         window.close();
@@ -100,7 +91,6 @@ $(function () {
     /* 
        테스트용: PG 결제창 스킵 (실제 결제 안 함)
        실서버 배포 시 반드시 아래 주석을 해제하고 이 블록을 삭제할 것!
-     */
     
     // 바로 결제 성공 처리 (테스트용)
     clearInterval(sessionCheckInterval);
@@ -142,15 +132,11 @@ $(function () {
     merchantUidInput.value = testMerchantUid;
     payForm.appendChild(merchantUidInput);
 
-    console.log("🚨 테스트 모드: 실제 결제 없이 성공 처리");
-    
     payForm.submit();
     window.close();
-    
-    /* ============================================================
-       실서버용: 아래 주석을 해제하고 위 테스트 블록을 삭제
-       ============================================================
-    
+    */
+     
+    // 실제 PG 결제 진행
     IMP.request_pay({
         pg: "html5_inicis",
         pay_method: "card",
@@ -160,22 +146,14 @@ $(function () {
         buyer_name: userName,
         buyer_email: buyerEmail
     }, function (rsp) {
-	
-	
-    //    console.log("=== 결제 콜백 시작 ===");
-    //   console.log("rsp.success:", rsp.success);
-    //   console.log("rsp.imp_uid:", rsp.imp_uid);
-    //    console.log("rsp.merchant_uid:", rsp.merchant_uid);
 
         clearInterval(sessionCheckInterval);
 
-        
         if (rsp.success) {
-    //        console.log(" 결제 성공");
             
             isPaymentCompleted = true; // 플래그 설정
            
-         // opener 체크 추가!
+            // opener 체크 추가!
             if (!opener || opener.closed) {
                 alert("부모 창이 닫혔습니다.\n결제는 완료되었으니 마이페이지에서 확인해주세요.");
                 
@@ -204,7 +182,6 @@ $(function () {
             const payForm = opener.document.getElementById("payForm");
 
             if (!payForm) {
-    //            console.error(" payForm을 찾을 수 없음!");
                 alert("결제 처리 중 오류가 발생했습니다.");
                 window.close();
                 return;
@@ -234,15 +211,22 @@ $(function () {
             merchantUidInput.value = rsp.merchant_uid;
             payForm.appendChild(merchantUidInput);
 
-         // console.log(" payForm submit 실행");
+            // 부모 창 결제 진행 플래그 해제
+            if (opener.window.paymentInProgress !== undefined) {
+                opener.window.paymentInProgress = false;
+            }
             
             payForm.submit();
             window.close();
 
         } else {
-  		 // console.log(" 결제 실패: " + rsp.error_msg);
             
             isPaymentCompleted = true; // 플래그 설정
+
+            // 부모 창 결제 진행 플래그 해제
+            if (opener && !opener.closed && opener.window.paymentInProgress !== undefined) {
+                opener.window.paymentInProgress = false;
+            }
 
             $.post(
                 "<%= request.getContextPath() %>/payment/paymentFail.hp",
@@ -252,7 +236,6 @@ $(function () {
                     errorMessage: rsp.error_msg
                 },
                 function() {
-         // console.log("paymentFail.hp 호출 완료");
                     alert("결제 실패: " + rsp.error_msg);
 
                     if (opener && !opener.closed) {
@@ -265,8 +248,6 @@ $(function () {
         }
     });
     
-    ============================================================ */
-	
 });
 
 </script>

@@ -243,7 +243,7 @@
         </div>
 
         <div class="price-row">
-          <button type="button" id="applyCouponBtn">쿠폰 적용금액</button>
+          <button type="button" id="applyCouponBtn">쿠폰 사용하기</button>
           <span id="discountAmount">- 0 원</span>
         </div>
 

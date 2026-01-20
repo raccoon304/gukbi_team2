@@ -43,7 +43,7 @@ public class PaymentSuccess extends AbstractController {
             request.setAttribute("order", odao.selectOrderHeader(orderId));
             request.setAttribute("orderDetailList", odao.selectOrderDetailForPayment(orderId));
 
-     //      session.removeAttribute("lastOrderId");
+            session.removeAttribute("lastOrderId");
 
             setRedirect(false);
             setViewPage("/WEB-INF/pay_MS/paymentSuccess.jsp");
