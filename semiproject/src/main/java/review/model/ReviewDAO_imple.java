@@ -946,8 +946,170 @@ public class ReviewDAO_imple implements ReviewDAO {
 	}// end of public boolean updateReview(int reviewNumber, String memberId, String title, String content, double rating) throws SQLException -------
 	
 	
-	
+	// 리뷰 이미지 조회(리뷰 수정용)
+	@Override
+	public List<Map<String, Object>> selectReviewImageInfoList(int reviewNumber) throws SQLException {
 
+	    List<Map<String, Object>> list = new ArrayList<>();
+
+	    try {
+	        conn = ds.getConnection();
+
+	        String sql = " SELECT review_image_id, image_path, sort_no "
+	                   + " FROM tbl_review_image "
+	                   + " WHERE fk_review_number = ? "
+	                   + " ORDER BY sort_no ASC, review_image_id ASC ";
+
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setInt(1, reviewNumber);
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            Map<String, Object> map = new HashMap<>();
+	            map.put("reviewImageId", rs.getInt("review_image_id"));
+	            map.put("imagePath", rs.getString("image_path"));
+	            map.put("sortNo", rs.getInt("sort_no"));
+	            list.add(map);
+	        }
+
+	    } finally {
+	        close();
+	    }
+
+	    return list;
+	}// end of public List<Map<String, Object>> selectReviewImageInfoList(int reviewNumber) throws SQLException -------
 	
+	
+	
+	// 리뷰 수정+이미지
+	@Override
+	public boolean updateReviewWithImages(int reviewNumber, String memberId,
+	                                      String title, String content, double rating,
+	                                      List<Integer> deleteImageIds,
+	                                      List<Map<String, Object>> newImages) throws Exception {
+
+	    int n = 0;
+
+	    try {
+	        conn = ds.getConnection();
+	        conn.setAutoCommit(false);
+
+	        // 내 리뷰인지 확인 + 본문 수정
+	        String sql1 = " UPDATE tbl_review r "
+	                    + " SET r.review_title = ? "
+	                    + "   , r.review_content = ? "
+	                    + "   , r.rating = ? "
+	                    + " WHERE r.review_number = ? "
+	                    + "   AND r.deleted_yn = 0 "
+	                    + "   AND EXISTS ( "
+	                    + "       SELECT 1 "
+	                    + "       FROM tbl_order_detail od "
+	                    + "       JOIN tbl_orders o ON o.order_id = od.fk_order_id "
+	                    + "       WHERE od.order_detail_id = r.fk_order_detail_id "
+	                    + "         AND o.fk_member_id = ? "
+	                    + "   ) ";
+
+	        pstmt = conn.prepareStatement(sql1);
+	        pstmt.setString(1, title);
+	        pstmt.setString(2, content);
+	        pstmt.setDouble(3, rating);
+	        pstmt.setInt(4, reviewNumber);
+	        pstmt.setString(5, memberId);
+
+	        n = pstmt.executeUpdate();
+	        pstmt.close(); pstmt = null;
+
+	        if (n != 1) {
+	            conn.rollback();
+	            return false;
+	        }
+
+	        // 이미지 삭제
+	        if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+
+	            StringBuilder sb = new StringBuilder();
+	            for (int i = 0; i < deleteImageIds.size(); i++) {
+	                if (i > 0) sb.append(",");
+	                sb.append("?");
+	            }
+
+	            String sqlDel = " DELETE FROM tbl_review_image "
+	                          + " WHERE fk_review_number = ? "
+	                          + "   AND review_image_id IN (" + sb.toString() + ") ";
+
+	            pstmt = conn.prepareStatement(sqlDel);
+	            int idx = 1;
+	            pstmt.setInt(idx++, reviewNumber);
+	            for (Integer id : deleteImageIds) {
+	                pstmt.setInt(idx++, id.intValue());
+	            }
+	            pstmt.executeUpdate();
+	            pstmt.close(); pstmt = null;
+	        }
+
+	        // 현재 이미지 개수 체크(최대 5장)
+	        int nowCnt = 0;
+	        String sqlCnt = " SELECT count(*) FROM tbl_review_image WHERE fk_review_number = ? ";
+	        pstmt = conn.prepareStatement(sqlCnt);
+	        pstmt.setInt(1, reviewNumber);
+	        rs = pstmt.executeQuery();
+	        if (rs.next()) nowCnt = rs.getInt(1);
+	        rs.close(); rs = null;
+	        pstmt.close(); pstmt = null;
+
+	        int addCnt = (newImages == null ? 0 : newImages.size());
+	        if (nowCnt + addCnt > 5) {
+	            conn.rollback();
+	            throw new SQLException("이미지 최대 5장 초과");
+	        }
+
+	        // 새 이미지 추가
+	        if (newImages != null && !newImages.isEmpty()) {
+
+	            int maxSort = 0;
+	            String sqlMax = " SELECT nvl(max(sort_no),0) FROM tbl_review_image WHERE fk_review_number = ? ";
+	            pstmt = conn.prepareStatement(sqlMax);
+	            pstmt.setInt(1, reviewNumber);
+	            rs = pstmt.executeQuery();
+	            if (rs.next()) maxSort = rs.getInt(1);
+	            rs.close(); rs = null;
+	            pstmt.close(); pstmt = null;
+
+	            String sqlIns = " INSERT INTO tbl_review_image "
+	                          + " (review_image_id, fk_review_number, image_path, sort_no) "
+	                          + " VALUES (seq_tbl_review_image_number_id.nextval, ?, ?, ?) ";
+
+	            pstmt = conn.prepareStatement(sqlIns);
+
+	            int sortNo = maxSort + 1;
+	            for (Map<String, Object> img : newImages) {
+	                String imagePath = (String) img.get("imagePath");
+	                if (imagePath == null || imagePath.isBlank()) continue;
+
+	                pstmt.setInt(1, reviewNumber);
+	                pstmt.setString(2, imagePath);
+	                pstmt.setInt(3, sortNo++);
+	                int nn = pstmt.executeUpdate();
+	                if (nn != 1) {
+	                    conn.rollback();
+	                    throw new SQLException("리뷰이미지 insert 실패");
+	                }
+	            }
+	            pstmt.close(); pstmt = null;
+	        }
+
+	        conn.commit();
+	        return true;
+
+	    } catch (Exception e) {
+	        if (conn != null) conn.rollback();
+	        throw e;
+
+	    } finally {
+	        if (conn != null) conn.setAutoCommit(true);
+	        close();
+	    }
+	}// end of public boolean updateReviewWithImages(int reviewNumber, String memberId, String title, String content, double rating, List<Integer> deleteImageIds, List<Map<String, Object>> newImages) throws Exception -------
+
 	
 }
