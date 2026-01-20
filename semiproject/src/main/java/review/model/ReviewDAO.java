@@ -54,6 +54,13 @@ public interface ReviewDAO {
     // 리뷰 수정
     boolean updateReview(int reviewNumber, String memberId, String title, String content, double rating) throws SQLException;
 
-	
+    // 리뷰 이미지 조회(리뷰 수정용)
+    List<Map<String, Object>> selectReviewImageInfoList(int reviewNumber) throws SQLException;
+
+    // 리뷰 수정+이미지
+    boolean updateReviewWithImages(int reviewNumber, String memberId,
+                                   String title, String content, double rating,
+                                   List<Integer> deleteImageIds,
+                                   List<Map<String, Object>> newImages) throws Exception;
 	
 }

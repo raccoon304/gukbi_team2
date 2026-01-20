@@ -1,18 +1,16 @@
 package review.controller;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import common.controller.AbstractController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
 import member.domain.MemberDTO;
 import review.model.ReviewDAO;
 import review.model.ReviewDAO_imple;
@@ -29,22 +27,21 @@ public class ReviewWrite extends AbstractController {
 
         String method = request.getMethod();
 
-        //  productCode 정리
         String productCode = request.getParameter("productCode");
         if (productCode == null) productCode = "ALL";
         productCode = productCode.replace('\u00A0', ' ').trim();
         if (productCode.isEmpty()) productCode = "ALL";
         if ("ALL".equalsIgnoreCase(productCode)) productCode = "ALL";
 
-        // GET : 작성 페이지
+        // ===== GET : 작성 페이지 =====
         if ("GET".equalsIgnoreCase(method)) {
 
             if (loginUser == null) {
-	            	request.setAttribute("message", "로그인이 필요합니다.");
-	            	request.setAttribute("loc", "javascript:history.back()");
-	            	super.setRedirect(false);
-	            	super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
-	            	return;
+                request.setAttribute("message", "로그인이 필요합니다.");
+                request.setAttribute("loc", "javascript:history.back()");
+                super.setRedirect(false);
+                super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
+                return;
             }
 
             List<Map<String, Object>> writableList =
@@ -53,12 +50,15 @@ public class ReviewWrite extends AbstractController {
             request.setAttribute("productCode", productCode);
             request.setAttribute("writableList", writableList);
 
+           
+            request.setAttribute("galleryList", getGalleryList(request));
+
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/review/reviewWrite.jsp");
             return;
         }
 
-        // POST : 등록
+        // ===== POST : 등록 =====
         if (loginUser == null) {
             request.setAttribute("message", "로그인 후 이용 가능합니다.");
             request.setAttribute("loc", request.getContextPath() + "/login.hp");
@@ -67,7 +67,6 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // 주문상세 선택
         int orderDetailId;
         try {
             orderDetailId = Integer.parseInt(request.getParameter("orderDetailId"));
@@ -76,7 +75,6 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // 작성 가능 체크
         boolean canWrite = rdao.canWriteReview(loginUser.getMemberid(), orderDetailId);
         if (!canWrite) {
             failToWritePage(request, loginUser, productCode,
@@ -84,14 +82,12 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // optionId 조회
         int optionId = rdao.getOptionIdByOrderDetailId(loginUser.getMemberid(), orderDetailId);
         if (optionId <= 0) {
             failToWritePage(request, loginUser, productCode, "리뷰 작성 정보 확인에 실패했습니다.");
             return;
         }
 
-        // 제목
         String title = request.getParameter("reviewTitle");
         if (title == null) title = "";
         title = title.trim();
@@ -105,7 +101,6 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // 내용
         String content = request.getParameter("reviewContent");
         if (content == null) content = "";
         content = content.trim();
@@ -119,7 +114,6 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // 별점
         double rating;
         try {
             rating = Double.parseDouble(request.getParameter("rating"));
@@ -132,47 +126,32 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // 이미지 저장
-        String uploadDir = request.getServletContext().getRealPath("/image/review");
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
-
+        // ===== 이미지  =====
         List<Map<String, Object>> images = new ArrayList<>();
+        String[] paths = request.getParameterValues("imagePath"); // pickedInputs에서 넘어오는 값
+
         int sortNo = 1;
+        if (paths != null) {
+            for (String p : paths) {
+                if (p == null) continue;
+                p = p.trim();
+                if (p.isEmpty()) continue;
 
-        for (Part part : request.getParts()) {
-            if (!"reviewImages".equals(part.getName())) continue;
-            if (part.getSize() <= 0) continue;
-            if (sortNo > 5) break;
+                // 정적 폴더만 허용
+                if (!p.startsWith("/image/review_image/")) continue;
 
-            String ct = part.getContentType();
-            if (ct == null || !ct.startsWith("image/")) continue;
+                if (sortNo > 5) break;
 
-            String submitted = part.getSubmittedFileName();
-            if (submitted == null || submitted.isBlank()) continue;
+                Map<String, Object> imgMap = new HashMap<>();
+                imgMap.put("imagePath", p);
+                imgMap.put("sortNo", Integer.valueOf(sortNo));
+                images.add(imgMap);
 
-            submitted = Paths.get(submitted).getFileName().toString();
-
-            String ext = "";
-            int dot = submitted.lastIndexOf(".");
-            if (dot > -1) ext = submitted.substring(dot).toLowerCase();
-
-            if (!(ext.equals(".jpg") || ext.equals(".jpeg") || ext.equals(".png") || ext.equals(".webp"))) continue;
-
-            String saveName = "rv_" + UUID.randomUUID().toString().replace("-", "") + ext;
-            part.write(new File(dir, saveName).getAbsolutePath());
-
-            String webPath = "/image/review/" + saveName;
-
-            Map<String, Object> imgMap = new HashMap<>();
-            imgMap.put("imagePath", webPath);
-            imgMap.put("sortNo", Integer.valueOf(sortNo));
-            images.add(imgMap);
-
-            sortNo++;
+                sortNo++;
+            }
         }
 
-        //  DB 저장
+        // ===== DB 저장 =====
         try {
             rdao.insertReviewWithImages(
                     loginUser.getMemberid(),
@@ -185,20 +164,7 @@ public class ReviewWrite extends AbstractController {
             );
         } catch (Exception e) {
 
-            // 실패하면 업로드 파일 삭제
-            for (Map<String, Object> img : images) {
-                try {
-                    String webPath = (String) img.get("imagePath");
-                    if (webPath == null) continue;
-                    String fileName = webPath.substring(webPath.lastIndexOf("/") + 1);
-                    File f = new File(dir, fileName);
-                    if (f.exists()) f.delete();
-                } catch (Exception ignore) {}
-            }
-
             String emsg = String.valueOf(e.getMessage());
-
-            // ORA-12899(길이 초과)면 글자수 초과로 안내 + 작성페이지 유지
             if (emsg != null && emsg.contains("ORA-12899")) {
                 failToWritePage(request, loginUser, productCode, "글자수를 초과하여 작성 할 수 없습니다.");
             } else {
@@ -207,7 +173,6 @@ public class ReviewWrite extends AbstractController {
             return;
         }
 
-        // 성공: 리스트로 이동
         String loc = request.getContextPath() + "/review/reviewList.hp?productCode=" + productCode;
 
         request.setAttribute("message", "리뷰가 등록되었습니다.");
@@ -216,7 +181,6 @@ public class ReviewWrite extends AbstractController {
         super.setViewPage("/WEB-INF/admin/admin_msg.jsp");
     }
 
-    // 실패 : write.jsp로 forward + 입력값 유지 + writableList 재조회
     private void failToWritePage(HttpServletRequest request, MemberDTO loginUser, String productCode, String msg) throws Exception {
 
         request.setAttribute("errMsg", msg);
@@ -232,7 +196,34 @@ public class ReviewWrite extends AbstractController {
                 rdao.getWritableOrderDetailList(loginUser.getMemberid(), productCode);
         request.setAttribute("writableList", writableList);
 
+        // ★ 실패 시에도 갤러리 다시 내려줘야 모달 안 비지 않음
+        request.setAttribute("galleryList", getGalleryList(request));
+
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/review/reviewWrite.jsp");
+    }
+
+    // /image/review_image 폴더 파일명 목록
+    private List<String> getGalleryList(HttpServletRequest request) {
+
+        List<String> list = new ArrayList<>();
+
+        String realPath = request.getServletContext().getRealPath("/image/review_image");
+        File dir = new File(realPath);
+
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    String name = f.getName().toLowerCase();
+                    if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp")) {
+                        list.add(f.getName());
+                    }
+                }
+            }
+        }
+
+        Collections.sort(list);
+        return list;
     }
 }
