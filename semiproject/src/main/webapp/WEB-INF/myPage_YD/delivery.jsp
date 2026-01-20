@@ -131,15 +131,24 @@
 			                            				</c:if>
 			                          				</div>
 			                          				<div class="text-muted">
-			                            				<div><c:out value="${addr.recipientName}" /></div>
+			                          				
 			                            				<div>
-			                              					(<c:out value="${addr.postalCode}" />)
-			                              					<c:out value="${addr.address}" />
-			                              					<c:if test="${not empty addr.addressDetail}">
-			                                					, <c:out value="${addr.addressDetail}" />
-			                              					</c:if>
+			                            					<div style="margin-bottom:6px;">
+			                            						배송지 명 : <c:out value="${addr.addressName}" /> 
+		                            						</div>
+			                            					<div>
+				                            					<c:out value="${addr.recipientName}" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				                            					<c:out value="${addr.recipientPhone}" />
+				                              					
+			                              					</div>
 			                            				</div>
-			                            				<div><c:out value="${addr.recipientPhone}" /></div>
+			                            				<div>
+			                            					(<c:out value="${addr.postalCode}" />)
+				                              					<c:out value="${addr.address}" />
+				                              					<c:if test="${not empty addr.addressDetail}">
+				                                					, <c:out value="${addr.addressDetail}" />
+				                              					</c:if>
+			                            				</div>
 			                          				</div>
 			                        			</div>
 			                        			<div class="addr-actions text-right">
