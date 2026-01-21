@@ -1,4 +1,4 @@
-package payment.service;
+package order.cleanup;
 
 import java.util.Timer;
 import jakarta.servlet.ServletContextEvent;
@@ -20,7 +20,7 @@ public class OrderCleanupScheduler implements ServletContextListener {
             0,              
             5 * 60 * 1000   // 5분마다
         );
-        
+  //      System.out.println("[스케줄러 시작] READY 주문 자동 정리 (5분 간격)");
     }
     
     @Override

@@ -168,8 +168,15 @@
         html += '<div class="od-row"><span>총 금액</span><span>' + orderData.total_amount.toLocaleString() + '원</span></div>';
         html += '<div class="od-row"><span>할인 금액</span><span>' + orderData.discount_amount.toLocaleString() + '원</span></div>';
         html += '<div class="od-row"><span>결제 금액</span><span class="strong">' + orderData.final_amount.toLocaleString() + '원</span></div>';
-        html += '<div class="od-row"><span>주문 상태</span><span class="status">' + orderData.order_status + '</span></div>';
-        html += '</div>';
+        
+        const statusText =
+        	  orderData.order_status === 'PAID' ? '결제완료' :
+        	  orderData.order_status === 'READY' ? '결제대기' :
+        	  orderData.order_status === 'FAIL' ? '결제실패' :
+        	  orderData.order_status;
+
+        	html += '<div class="od-row"><span>주문 상태</span><span class="status">' 
+        	     + statusText + '</span></div>';
         
         // 상품 정보 섹션
         html += '<div class="od-section">';

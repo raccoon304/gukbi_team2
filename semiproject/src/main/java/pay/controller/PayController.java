@@ -260,13 +260,16 @@ public class PayController extends AbstractController {
         session.setAttribute("payCartList", cartList);
 
         /* ================= JSP 전달 ================= */
+        request.setAttribute("stockAdjusted", true);
+        
         request.setAttribute("orderList", orderList);
         request.setAttribute("couponList", couponList);
         request.setAttribute("totalPrice", totalPrice);
         request.setAttribute("discountPrice", 0);
         request.setAttribute("finalPrice", totalPrice);
         request.setAttribute("loginUser", loginUser);
-
+        
+        
         super.setRedirect(false);
         super.setViewPage("/WEB-INF/pay_MS/payMent.jsp");
     }
