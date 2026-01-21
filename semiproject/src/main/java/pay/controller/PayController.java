@@ -130,7 +130,7 @@ public class PayController extends AbstractController {
         }
         // 2. 장바구니 선택 결제
         else if (cartIdsParam != null && !cartIdsParam.isBlank()) {
-            System.out.println(">>> 장바구니 결제");
+       //     System.out.println(">>> 장바구니 결제");
 
             String[] cartIdArray = cartIdsParam.split(",");
 
@@ -166,7 +166,7 @@ public class PayController extends AbstractController {
               && optionIdStr != null && !optionIdStr.isBlank()
               && quantityStr != null && !quantityStr.isBlank()) {
 
-            System.out.println(">>> 바로구매 (직접 파라미터)");
+     //      System.out.println(">>> 바로구매 (직접 파라미터)");
 
             int optionId;
             int quantity;

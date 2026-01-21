@@ -9,7 +9,7 @@ $(document).ready(function () {
 
   const $allCheck = $("thead input[type='checkbox']");
 
-  //* ================= 개별 체크 ================= */
+  /* ================= 개별 체크 ================= */
   $(document).on("click", ".item-checkbox", function () {
     const isAllChecked =
       $(".item-checkbox:checked").length === $(".item-checkbox").length;

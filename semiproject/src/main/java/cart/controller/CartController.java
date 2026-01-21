@@ -41,7 +41,7 @@ public class CartController extends AbstractController {
    
             }
          
-            System.out.println("확인용 3  ");
+     //      System.out.println("확인용 3  ");
             
             
             String memberId = loginUser.getMemberid();
