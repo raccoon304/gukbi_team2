@@ -203,7 +203,12 @@ $(function () {
         mobile: mobile
       },
       success: function (json) {
+		
         hideLoading();
+		$('#pwdFindBtnWrap').addClass('hidden');
+		  $('#pwdFindResultArea').removeClass('hidden');
+		  $('#pwdResultSuccess').removeClass('hidden');
+		  $('#pwdVerifyBox').removeClass('hidden');
 
         if (!json) {
           showPwdFail("처리 중 오류가 발생했습니다.");

@@ -1,6 +1,7 @@
 package coupon.model;
 
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +28,7 @@ public class CouponDAO_imple implements CouponDAO {
 	private Connection conn;
 	private PreparedStatement pstmt;
 	private ResultSet rs;
-	
+	private AES256 aes;
 	
 	public CouponDAO_imple() { // 기본생성자
 		Context initContext;
@@ -35,11 +36,14 @@ public class CouponDAO_imple implements CouponDAO {
 			initContext = new InitialContext();
 		    Context envContext  = (Context)initContext.lookup("java:/comp/env");
 		    ds = (DataSource)envContext.lookup("SemiProject");
-		    
+		    aes = new AES256(SecretMyKey.KEY);
+	        // SecretMyKey.KEY 은 우리가 만든 암호화/복호화 키이다.
 		    
 		} catch (NamingException e) {
 			e.printStackTrace();
-		}
+		} catch(UnsupportedEncodingException e) {
+    		e.printStackTrace();
+    	}
 	}
 	
 	
@@ -477,8 +481,9 @@ public class CouponDAO_imple implements CouponDAO {
 
 	        String sql = " select m.member_id "
 	                   + " from tbl_member m "
-	                   + " where m.status = 0 ";
-
+	                   + " where m.status = 0 "
+	                   + " and m.idle = 0 "
+	                   + " and m.member_id != 'admin' ";
 	       
 	        if (hasSearch) {
 	            if ("member_id".equals(searchType)) {
@@ -486,11 +491,12 @@ public class CouponDAO_imple implements CouponDAO {
 	            } else if ("name".equals(searchType)) {
 	                sql += " and m.name like '%'||?||'%' ";
 	            } else if ("email".equals(searchType)) {
-	                sql += " and m.email like '%'||?||'%' ";
+	            		sql += " and m.email = ? ";
+	            		 searchWord = aes.encrypt(searchWord.trim());
 	            }
 	        }
 
-	        sql += " order by m.registerday desc ";
+	        sql += " order by m.created_at desc ";
 
 	        pstmt = conn.prepareStatement(sql);
 
@@ -506,7 +512,9 @@ public class CouponDAO_imple implements CouponDAO {
 	            list.add(rs.getString(1));
 	        }
 
-	    } finally {
+	    } catch(GeneralSecurityException | UnsupportedEncodingException e) {
+    			e.printStackTrace();
+	    }finally {
 	        close();
 	    }
 

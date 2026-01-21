@@ -85,10 +85,10 @@ public class GoogleMail {
     // 인증코드 발송
     public void send_certification_code(String recipient, String certification_code) throws Exception {
 
-        String subject = "[비밀번호 찾기] 이메일 인증코드 안내";
+        String subject = "이메일 인증코드 안내";
 
         String plainText =
-                "비밀번호 찾기 이메일 인증코드 안내\n\n" +
+                "이메일 인증코드 안내\n\n" +
                 "인증코드: " + certification_code + "\n" +
                 "인증코드는 5분 이내에만 유효합니다.\n" +
                 "본 메일을 요청하지 않으셨다면 무시해 주세요.";
