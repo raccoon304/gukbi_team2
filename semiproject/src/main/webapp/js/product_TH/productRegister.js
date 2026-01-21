@@ -92,14 +92,14 @@ $(document).ready(function() {
         isDuplicateCheckName = false; //상품명 중복체크 거짓
 		isDefaultOptionCreated = false;
 		$('#duplicateCheckResult').html("");
+		$('#duplicateCheckResult2').html("");
 		$('#optionMatrixTable').html('<div class="matrix-empty"><i class="fas fa-info-circle"></i><p>저장용량과 색상을 선택 후 \'옵션 조합 추가\' 버튼을 클릭하세요</p></div>');
 		
     });
 
 	//===상품코드 중복확인 버튼 클릭 이벤트===//
     $('#checkDuplicateCodeBtn').click(function() {
-        //중복코드 누르면 활성화 실행
-		enableTag();
+        
 		
         const code = $('#productCode').val().trim();
         if (!code) {
@@ -117,6 +117,9 @@ $(document).ready(function() {
 
 	//상품코드 중복검사 실행하기(ajax 이용)
 	function checkDuplicateProductCode() { 
+		//중복코드 클릭하고 검사 진행하면 활성화
+		enableTag();
+		
 	    $('#checkDuplicateCodeBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>확인 중...');
 	    setTimeout(function() {
 			$.ajax({
@@ -835,5 +838,8 @@ $(document).ready(function() {
         uploadedFile = null;
 		isDefaultOptionCreated = false;
         disableTag();
+		
+		//화면 맨 위로 스크롤
+	    $('html, body').animate({ scrollTop: 0 }, 500);
     });
 });
