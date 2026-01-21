@@ -105,7 +105,7 @@
                     </div>
                     <div class="product-info">
                         <div class="product-brand">Samsung</div>
-                            <h3 class="product-name">갤럭시 Z 플립7</h3>
+                            <h3 class="product-name">Galaxy Z Flip7</h3>
                             <div class="product-specs">256GB / 블랙</div>
                         <div class="product-sales">
                             <i class="fa-solid fa-fire mr-1"></i>판매량 431개
@@ -124,7 +124,7 @@
                     </div>
                     <div class="product-info">
                         <div class="product-brand">Apple</div>
-                        <h3 class="product-name">아이폰16 Pro</h3>
+                        <h3 class="product-name">iPhone17 Pro</h3>
                         <div class="product-specs">256GB / 화이트</div>
                         <div class="product-sales">
                             <i class="fa-solid fa-fire mr-1"></i>판매량 388개
@@ -143,7 +143,7 @@
                     </div>
                     <div class="product-info">
                         <div class="product-brand">Samsung</div>
-                        <h3 class="product-name">갤럭시 S25 Ultra</h3>
+                        <h3 class="product-name">Galaxy S25 Ultra</h3>
                         <div class="product-specs">512GB / 블루</div>
                         <div class="product-sales">
                             <i class="fa-solid fa-fire mr-1"></i>판매량 275개
@@ -162,7 +162,7 @@
                     </div>
                     <div class="product-info">
                         <div class="product-brand">Apple</div>
-                        <h3 class="product-name">아이폰16 Pro Max</h3>
+                        <h3 class="product-name">iPhone16 Pro Max</h3>
                         <div class="product-specs">512GB / 화이트</div>
                         <div class="product-sales">
                             <i class="fa-solid fa-fire mr-1"></i>판매량 219개
