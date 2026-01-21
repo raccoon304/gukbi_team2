@@ -162,7 +162,11 @@
     <div class="payment-left">
 
       <div class="product-section">
-
+			<c:if test="${stockAdjusted}">
+			  <div class="alert alert-warning py-2 mb-3" style="font-size:13px;">
+			    남은 재고 수량 초과시 재고 수량에 맞게 자동 조정됩니다.
+			  </div>
+			</c:if>
         <div class="product-header-row">
           <div class="col-image">상품정보</div>
           <div class="col-name"></div>
