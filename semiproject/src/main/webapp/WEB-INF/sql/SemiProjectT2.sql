@@ -2739,18 +2739,18 @@ select * from tbl_orders where order_status = 'PAID';
 
 select * from tbl_orders
 where order_status = 'PAID'
-order by order_id;
+order by delivery_startdate, order_id;
 
 select * from tbl_order_detail
 order by fk_order_id;
 
 select * from tbl_coupon_issue
 
-update tbl_orders set order_date = sysdate - 90, delivery_startdate = sysdate-90, delivery_enddate = sysdate-89, delivery_status = 2
-where order_id = 539;
+update tbl_orders set order_date = sysdate - 190, delivery_startdate = sysdate-190, delivery_enddate = sysdate-189, delivery_status = 2
+where order_id = 551;
 
-update tbl_orders set delivery_number = 'D20250416-1'
-where order_id = 539;
+update tbl_orders set delivery_number = 'D20250-1'
+where order_id = 551;
 
 
 
