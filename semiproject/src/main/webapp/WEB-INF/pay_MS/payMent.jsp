@@ -76,13 +76,37 @@
     margin-top: 12px;
   }
 
-  .zipcode-and-button-row .zipcode-col {
-    flex: 1;
-  }
+/* 쿠폰 사용 버튼 */
+#applyCouponBtn {
+  background: #f2eaff;          /* 연한 보라 배경 */
+  color: #6f3cff;               /* 포인트 보라 */
+  border: 1px solid #d6c6ff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
-  .zipcode-and-button-row .button-col {
-    flex: 1;
-  }
+/* hover 효과 */
+#applyCouponBtn:hover {
+  background: #6f3cff;
+  color: #fff;
+}
+
+/* 쿠폰 금액 강조 */
+#discountAmount {
+  color: #ff4d4f;           
+  font-weight: 700;
+}
+
+  .addr-card { border: 4px solid #e9ecef; border-radius: .5rem; }
+  .addr-card.default { border-color: #007bff; }
+  .addr-badge { font-size: 12px; }
+  .addr-actions .btn { padding: .25rem .5rem; }
+  
+  
 </style>
 
 </head>
@@ -247,7 +271,7 @@
         </div>
 
         <div class="price-row">
-          <button type="button" id="applyCouponBtn">쿠폰 적용금액</button>
+          <button type="button" id="applyCouponBtn">쿠폰 사용하기</button>
           <span id="discountAmount">- 0 원</span>
         </div>
 
@@ -784,6 +808,27 @@ $(document).ready(function() {
   });
   
 });
+
+$(document).on('shown.bs.modal', '#deliveryModal', function () {
+
+	  // 전체선택 체크박스 줄 제거
+	  $('#checkAllInPayment')
+	    .closest('.d-flex.justify-content-between.align-items-center.mb-3')
+	    .remove();
+
+	  // 선택 삭제 버튼 제거
+	  $('#btnDeleteSelectedInPayment').remove();
+
+	  // 기본 배송지 설정 버튼 제거
+	  $('#btnSetDefaultInPayment').remove();
+
+	  // 개별 배송지 체크박스 제거
+	  $('.addr-check-payment').remove();
+
+	  // 체크박스가 있던 왼쪽 여백 제거
+	  $('.list-group-item .mr-3').remove();
+
+	});
 </script>
 
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>

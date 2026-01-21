@@ -195,5 +195,34 @@ $(function () {
       }
     }
   });
+  // ===== 페이지 진입 시 기본배송지 자동 반영 =====
+  (function applyDefaultAddressOnLoad() {
+
+    // 기본 배송지 카드 (isDefault == 1)
+    const defaultItem = $('.list-group-item.border-primary').first();
+    if (defaultItem.length === 0) return;
+
+    const btn = defaultItem.find('.btnSelectAddress');
+    if (btn.length === 0) return;
+
+    // 결제페이지 input에 바로 세팅
+    $('#recipientName').val(btn.data('name'));
+    $('#recipientPhone').val(btn.data('phone'));
+    $('#zipcode').val(btn.data('zipcode'));
+    $('#address').val(btn.data('address'));
+    $('#detailAddress').val(btn.data('detail'));
+
+    // hidden 값도 같이 동기화
+    syncHiddenDeliveryAddress();
+
+  })();
   
+  function syncHiddenDeliveryAddress() {
+    const fullAddress =
+      $('#zipcode').val() + '|' +
+      $('#address').val() + '|' +
+      $('#detailAddress').val();
+
+    $('#deliveryAddress').val(fullAddress);
+  }
 });
