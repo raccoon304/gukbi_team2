@@ -763,7 +763,7 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
     
-    // 해킹을 방지하기 위한 결제완료 DAO (alert의 강화 버전)
+    // 18. 해킹을 방지하기 위한 결제완료 DAO (alert의 강화 버전)
     @Override
     public boolean isOrderOwner(int orderId, String memberid) throws SQLException {
 
@@ -804,6 +804,130 @@ public class OrderDAO_imple implements OrderDAO {
         return result;
     }
 
+    // 19. READY / PAID / FAIL 중 조회
+    @Override
+    public String getOrderStatus(Integer orderId) throws SQLException {
+        String status = null;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = "SELECT order_status FROM tbl_orders WHERE order_id = ?";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderId);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                status = rs.getString("order_status");
+            }
+
+        } finally {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        }
+
+        return status;
+    }
+
+    // 20. 결제 금액 검증용
+    @Override
+    public int getOrderAmount(Integer orderId) throws SQLException {
+        int amount = 0;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = "SELECT total_amount FROM tbl_orders WHERE order_id = ?";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderId);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                amount = rs.getInt("total_amount");
+            }
+
+        } finally {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        }
+
+        return amount;
+    }
+
+    // 21. 중복 호출 방지 ready,fail -> paid 
+    @Override
+    public int updateOrderStatusToPaid(Integer orderId, String impUid) throws SQLException {
+        int result = 0;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = "UPDATE tbl_orders " +
+                         "SET order_status = 'PAID' " +
+                         "WHERE order_id = ? " +
+                         "AND order_status IN ('READY', 'FAIL')";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderId);
+
+            result = pstmt.executeUpdate();
+
+        } finally {
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        }
+
+        return result;
+    }
+
+    // 22. 주문 기준 재고 일괄 차감
+    @Override
+    public int decreaseStockByOrderId(Integer orderId) throws SQLException {
+        int result = 0;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = ds.getConnection();
+
+            String sql = "UPDATE tbl_product_option po " +
+                         "SET po.stock_qty = po.stock_qty - ( " +
+                         "    SELECT od.quantity " +
+                         "    FROM tbl_order_detail od " +
+                         "    WHERE od.fk_order_id = ? " +
+                         "    AND od.fk_option_id = po.option_id " +
+                         ") " +
+                         "WHERE po.option_id IN ( " +
+                         "    SELECT fk_option_id FROM tbl_order_detail WHERE fk_order_id = ? " +
+                         ")";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderId);
+            pstmt.setInt(2, orderId);
+
+            result = pstmt.executeUpdate();
+
+        } finally {
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        }
+
+        return result;
+    }
+
+    
     /* ================= 유틸리티: 안전한 int 파싱 ================= */
     private int getInt(Map<String, Object> map, String key) {
         Object v = map.get(key);
@@ -816,6 +940,7 @@ public class OrderDAO_imple implements OrderDAO {
         }
     }
 
+	
  
 	
 }
