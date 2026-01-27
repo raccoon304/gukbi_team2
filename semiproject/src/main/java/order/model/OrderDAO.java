@@ -8,10 +8,9 @@ import order.domain.OrderDTO;
 
 public interface OrderDAO {
     
-    /* ================= 오래된 READY 주문 FAIL 처리 (본인 것만) ================= */
+    /* ================= 오래된 READY 주문 FAIL 처리 ================= */
 	int expireReadyOrders() throws SQLException;
   
- 
     // 주문 + 주문상세 (트랜잭션 통합, PG 결제용)
     int insertOrderWithDetailsAnd(OrderDTO order, List<Map<String, Object>> orderDetails);
     
@@ -70,6 +69,7 @@ public interface OrderDAO {
     // 해킹 방지 
 	boolean isOrderOwner(int orderId, String memberid) throws SQLException;
 	
+	/* ================ 주문 불일치 수습 =============== */
 	// 주문 상태 조회
 	String getOrderStatus(Integer orderId) throws SQLException;
 

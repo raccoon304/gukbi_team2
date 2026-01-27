@@ -25,17 +25,16 @@ public interface CartDAO {
     // 바로 구매를 눌렀을때 완전히 똑같은 제품, 용량, 색깔이 아니면 행 자체에 올림
     int upsertCartAndReturnId(String memberId, int optionId, int quantity) throws SQLException;
     
-    // 결제 성공 후 cart 삭제
-    int deleteSuccessCartId(List<Integer> cartIdList) throws SQLException;
-
     // 장바구니 개별 삭제
     int deleteCart(int cartId, String memberId) throws SQLException;
 
     // JOIN 실패 시 fallback
 	Map<String, Object> selectRawCartById(int cartId, String memberid) throws SQLException;
 
-	// ㅇ
+	// 바로 구매용 상품 조회
 	Map<String, Object> selectDirectProduct(String productCode, int optionId, int quantity) throws SQLException;
-
+	
+	// 결제 성공 후 cart 삭제
+    int deleteSuccessCartId(List<Integer> cartIdList) throws SQLException;
 	
 }

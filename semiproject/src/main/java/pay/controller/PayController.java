@@ -87,28 +87,18 @@ public class PayController extends AbstractController {
         }
 
         List<Map<String, Object>> orderList = new ArrayList<>();
-        List<CartDTO> cartList = new ArrayList<>();
-
-        /*
-        System.out.println("=== PayController 시작 ===");
-        System.out.println("cartIdsParam: " + cartIdsParam);
-        System.out.println("payCartIds (세션): " + payCartIds);
-        System.out.println("productCode: " + productCode);
-        System.out.println("optionIdStr: " + optionIdStr);
-        System.out.println("quantityStr: " + quantityStr);
-         */
+        List<CartDTO> cartList = new ArrayList<>();      
         
         /* ================= 결제 대상 조회 ================= */
 
         // 1. 세션 payCartIds 사용 (바로구매)
         if (payCartIds != null && !payCartIds.isEmpty()) {
-      //      System.out.println(">>> 세션 payCartIds 사용 (바로구매)");
+     
 
             for (Integer cartId : payCartIds) {
                 Map<String, Object> item = cartDao.selectCartById(cartId, loginUser.getMemberid());
 
                 if (item == null) {
-     //              System.out.println("WARNING: cartId " + cartId + " 조회 실패");
                     continue;
                 }
 
@@ -129,8 +119,7 @@ public class PayController extends AbstractController {
             session.removeAttribute("payCartIds");
         }
         // 2. 장바구니 선택 결제
-        else if (cartIdsParam != null && !cartIdsParam.isBlank()) {
-       //     System.out.println(">>> 장바구니 결제");
+        else if (cartIdsParam != null && !cartIdsParam.isBlank()) {   
 
             String[] cartIdArray = cartIdsParam.split(",");
 
@@ -157,7 +146,7 @@ public class PayController extends AbstractController {
                     cartList.add(cart);
 
                 } catch (NumberFormatException e) {
-      //          System.out.println("ERROR: cartId 파싱 실패 - " + e.getMessage());
+    
                 }
             }
         }
@@ -166,7 +155,6 @@ public class PayController extends AbstractController {
               && optionIdStr != null && !optionIdStr.isBlank()
               && quantityStr != null && !quantityStr.isBlank()) {
 
-     //      System.out.println(">>> 바로구매 (직접 파라미터)");
 
             int optionId;
             int quantity;

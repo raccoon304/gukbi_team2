@@ -441,7 +441,7 @@ public class CartDAO_imple implements CartDAO {
 	    return cartId;
 	}
 	
-	
+	// JOIN 실패 시 fallback
 	@Override
 	public Map<String, Object> selectRawCartById(int cartId, String memberid) throws SQLException {
 
@@ -526,23 +526,13 @@ public class CartDAO_imple implements CartDAO {
 	                map.put("unit_price", rs.getInt("unit_price"));
 	                map.put("quantity", rs.getInt("quantity"));
 	                map.put("total_price", rs.getInt("total_price"));
-	         /*       
-	                System.out.println(" selectDirectProduct 성공:");
-	                System.out.println("  - product_name: " + rs.getString("product_name"));
-	                System.out.println("  - unit_price: " + rs.getInt("unit_price"));
-	                System.out.println("  - quantity: " + quantity);
-	                System.out.println("  - total_price: " + rs.getInt("total_price"));
-	         */
+	         
 	            } else {
-	         /*   	
-	                System.out.println(" selectDirectProduct 조회 결과 없음");
-	                System.out.println("  - productCode: " + productCode);
-	                System.out.println("  - optionId: " + optionId);
-	         */       
+	               
 	            }
 	        }
 	    } catch (SQLException e) {
-	//      System.err.println("selectDirectProduct SQL 오류: " + e.getMessage());
+	
 	        e.printStackTrace();
 	        throw e;
 	    }

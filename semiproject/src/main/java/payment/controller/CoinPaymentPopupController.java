@@ -66,7 +66,7 @@ public class CoinPaymentPopupController extends AbstractController {
 
         // PG 진입 전 재고 검증
         for (CartDTO cart : cartList) {
-            int stock = odao.selectStock(cart.getOptionId()); // 잘됨
+            int stock = odao.selectStock(cart.getOptionId()); 
             if (stock < cart.getQuantity()) {
                 alertAndClose(response, "재고가 부족한 상품이 있어 결제를 진행할 수 없습니다.");
                 return;
@@ -74,7 +74,7 @@ public class CoinPaymentPopupController extends AbstractController {
         }
 
         try {
-            // 1. 이전 READY 주문 정리 (이건 그냥 테스트용인것이다.)
+            // 1. 이전 READY 주문 정리
             odao.expireReadyOrders();
 
             // 2. 주문 DTO 생성

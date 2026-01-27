@@ -51,28 +51,8 @@ public class CartController extends AbstractController {
             
             /* ================= GET : 장바구니 조회 ================= */
             if ("GET".equalsIgnoreCase(method)) {
-
-                List<Map<String, Object>> cartList = cdao.selectCartList(memberId);
-                
-                boolean hasAdjusted = false;
-                boolean hasOutOfStock = false;
-                
-                for (Map<String, Object> cart : cartList) {
-                    Integer isAdjusted = (Integer) cart.get("is_adjusted");
-                    if (isAdjusted != null && isAdjusted == 1) {
-                        hasAdjusted = true;
-                        break;
-                    }
-                }
-                
-                //  추가: 메시지 설정
-                if (hasAdjusted) {
-                    request.setAttribute("adjustMessage", 
-                        "일부 상품의 수량이 재고 부족으로 조정되었습니다.");
-                }
-                          
+                List<Map<String, Object>> cartList = cdao.selectCartList(memberId);                        
                 request.setAttribute("cartList", cartList);
-
                 setRedirect(false);
                 setViewPage("/WEB-INF/cart_MS/zangCart.jsp");
                 return;
@@ -98,19 +78,14 @@ public class CartController extends AbstractController {
                 }
 
                 Map<String, Object> cart = cdao.selectCartById(cartId, memberId);
-
-                int realQty = ((Number) cart.get("quantity")).intValue();  // 실제 저장된 수량
-                boolean changed = (realQty != quantity);  // 수량이 바뀌었는지
-                
+            
                 response.setContentType("application/json; charset=UTF-8");
                 response.getWriter().printf(
-                    "{\"quantity\":%d,\"unitPrice\":%d,\"total\":%d,\"adjusted\":%b,\"message\":\"%s\"}",
-                    cart.get("quantity"),
-                    cart.get("unit_price"),
-                    cart.get("total_price"),
-                    changed,
-                    changed ? "재고가 부족하여 " + realQty + "개로 조정되었습니다." : ""
-                );
+                	    "{\"quantity\":%d,\"unitPrice\":%d,\"total\":%d}",
+                	    cart.get("quantity"),
+                	    cart.get("unit_price"),
+                	    cart.get("total_price")
+                	);
                 return;
             }
 

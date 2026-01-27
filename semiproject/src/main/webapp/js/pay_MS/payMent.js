@@ -2,15 +2,15 @@ document.addEventListener('click', function(e) {
   const link = e.target.closest('a, button');
 
   if (!link) return;
-  if (link.closest('.modal')) return;
+  
+    if (link.closest('.modal, #deliveryModal, #addressModalPayment')) return;
   
   if (window.paymentInProgress) {
     if (link.id === 'coinPayBtn') return;
 
     e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation();
-    alert("결제 진행 중에는 페이지 이동이 불가합니다.");
+	alert("결제 진행 중에는 페이지 이동이 불가합니다.");
   }
 }, true);
 

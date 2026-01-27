@@ -420,7 +420,6 @@
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="checkAllInPayment" />
-              <label class="custom-control-label" for="checkAllInPayment">전체 선택</label>
             </div>
             <div>
               <button type="button" class="btn btn-outline-danger btn-sm" id="btnDeleteSelectedInPayment">
@@ -616,13 +615,18 @@ $(document).ready(function() {
     }
   }, 500); // setInterval 끝
   
+//===== 배송지 선택 =====
   // ===== 배송지 선택 =====
-  $(document).on('click', '.btnSelectAddress', function() {
-    const name = $(this).data('name');
-    const phone = $(this).data('phone');
-    const zipcode = $(this).data('zipcode');
-    const address = $(this).data('address');
-    const detail = $(this).data('detail');
+$(document).off('click', '.btnSelectAddress').on('click', '.btnSelectAddress', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const $btn = $(this);
+    const name = $btn.data('name');
+    const phone = $btn.data('phone');
+    const zipcode = $btn.data('zipcode');
+    const address = $btn.data('address');
+    const detail = $btn.data('detail');
     
     // 값 설정
     $('#recipientName').val(name);
@@ -631,20 +635,21 @@ $(document).ready(function() {
     $('#address').val(address);
     $('#detailAddress').val(detail);
     
-    // 모든 모달 닫기
-    $('.modal').modal('hide');
-    
-    // 모달 배경 강제 제거 + 알림
+    // 모달 닫기 - 약간의 딜레이 추가
     setTimeout(function() {
+        $('#deliveryModal').modal('hide');
+    }, 100);
+});
+
+  // ===== 배송지 모달 닫힌 후 정리 =====
+  $('#deliveryModal').off('hidden.bs.modal').on('hidden.bs.modal', function() {
       $('.modal-backdrop').remove();
       $('body').removeClass('modal-open').css({
-        'overflow': '',
-        'padding-right': ''
-      });
-      alert('배송지가 선택되었습니다.');
-    }, 300);
+          'overflow': '',
+          'padding-right': ''
+ 	 });
   });
-  
+
   // ===== 배송지 추가 =====
   $(document).on('click', '#btnOpenAddInPayment, #btnOpenAddEmptyInPayment', function() {
     $('#modePayment').val('add');
@@ -675,11 +680,6 @@ $(document).ready(function() {
         $('#addressDetailPayment').focus();
       }
     }).open();
-  });
-  
-  // ===== 전체 선택 =====
-  $('#checkAllInPayment').change(function() {
-    $('.addr-check-payment:not(:disabled)').prop('checked', $(this).prop('checked'));
   });
   
   // ===== 개별 체크 =====
@@ -809,26 +809,26 @@ $(document).ready(function() {
   
 });
 
-$(document).on('shown.bs.modal', '#deliveryModal', function () {
+//===== 모달 열릴 때 불필요한 요소 숨기기 (삭제 대신 숨김) =====
+	
+$('#deliveryModal').on('show.bs.modal', function () {
+    // 전체선택 체크박스 줄 숨기기
+    $('#checkAllInPayment')
+        .closest('.d-flex.justify-content-between.align-items-center.mb-3')
+        .hide();
 
-	  // 전체선택 체크박스 줄 제거
-	  $('#checkAllInPayment')
-	    .closest('.d-flex.justify-content-between.align-items-center.mb-3')
-	    .remove();
+    // 선택 삭제 버튼 숨기기
+    $('#btnDeleteSelectedInPayment').hide();
 
-	  // 선택 삭제 버튼 제거
-	  $('#btnDeleteSelectedInPayment').remove();
+    // 기본 배송지 설정 버튼 숨기기
+    $('#btnSetDefaultInPayment').hide();
 
-	  // 기본 배송지 설정 버튼 제거
-	  $('#btnSetDefaultInPayment').remove();
+    // 개별 배송지 체크박스 숨기기
+    $('.addr-check-payment').hide();
 
-	  // 개별 배송지 체크박스 제거
-	  $('.addr-check-payment').remove();
-
-	  // 체크박스가 있던 왼쪽 여백 제거
-	  $('.list-group-item .mr-3').remove();
-
-	});
+    // 체크박스 왼쪽 여백 숨기기
+    $('#deliveryModal .mr-3.pt-1').hide();
+});
 </script>
 
 <script src="<%= ctxPath %>/js/pay_MS/payMent.js"></script>
